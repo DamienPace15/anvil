@@ -1,0 +1,48 @@
+{
+  "resources": {
+    "anvil:azure:FunctionApp": {
+      "inputProperties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the Function App."
+        },
+        "location": {
+          "type": "string",
+          "description": "The Azure region to deploy to."
+        },
+        "resourceGroupName": {
+          "type": "string",
+          "description": "The name of the resource group."
+        },
+        "runtime": {
+          "type": "string",
+          "description": "The runtime stack (e.g. node, python, dotnet)."
+        },
+        "transform": {
+          "$ref": "#/types/anvil:azure:TransformArgs"
+        }
+      },
+      "requiredInputs": ["name", "location", "resourceGroupName"],
+      "isComponent": true
+    }
+  },
+  "types": {
+    "anvil:azure:TransformArgs": {
+      "type": "object",
+      "properties": {
+        "functionApp": {
+          "type": "object",
+          "description": "Override properties for the underlying Azure Function App resource."
+        },
+        "servicePlan": {
+          "type": "object",
+          "description": "Override properties for the underlying Azure Service Plan resource."
+        },
+        "storageAccount": {
+          "type": "object",
+          "description": "Override properties for the underlying Azure Storage Account resource."
+        }
+      }
+    }
+  }
+}

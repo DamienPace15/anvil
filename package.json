@@ -1,0 +1,15 @@
+{
+  "name": "anvil-build-system",
+  "private": true,
+  "scripts": {
+    "build-provider": "cd provider && go build -o ../bin/pulumi-resource-anvil ./cmd/anvil/",
+    "build": "npm run generate && npm run merge && npm run registry && npm run build-provider && npm run gensdk",
+    "generate": "cd provider && go run ../scripts/generate/generate_schemas.go",
+    "merge": "cd provider && go run ../scripts/merge/merge_schemas.go",
+    "registry": "cd provider && go run ../scripts/registry/generate_registry.go",
+    "gensdk": "npm run gen && npm run fix-version && npm run build-sdk",
+    "gen": "cd provider && pulumi package gen-sdk schema.json --language nodejs --out ../sdk",
+    "fix-version": "node -e \"const fs = require('fs'); const file = './sdk/nodejs/package.json'; const data = fs.readFileSync(file, 'utf8').replace('\\\"${VERSION}\\\"', '\\\"0.0.1\\\"'); fs.writeFileSync(file, data);\"",
+    "build-sdk": "cd sdk/nodejs && npm install && npm run build"
+  }
+}

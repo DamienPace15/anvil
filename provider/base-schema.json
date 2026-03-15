@@ -1,0 +1,37 @@
+{
+  "name": "anvil",
+  "version": "0.0.1",
+  "language": {
+    "nodejs": {
+      "packageName": "@anvil/cloud",
+      "dependencies": {
+        "@pulumi/pulumi": "^3.0.0",
+        "@pulumi/aws": "^7.21.0"
+      }
+    },
+    "python": {
+      "packageName": "pulumi_anvil",
+      "requires": {
+        "pulumi": ">=3.0.0,<4.0.0",
+        "pulumi-aws": "^7.21.0"
+      }
+    },
+    "go": {
+      "generateResourceContainerTypes": true,
+      "importBasePath": "github.com/anvil/pulumi-anvil/sdk/go/anvil"
+    },
+    "csharp": {
+      "packageReferences": {
+        "Pulumi": "3.*",
+        "Pulumi.Aws": "7.*"
+      },
+      "rootNamespace": "Anvil"
+    },
+    "java": {
+      "basePackage": "com.anvil.pulumi",
+      "buildFiles": "gradle"
+    }
+  },
+  "resources": {},
+  "types": {}
+}

@@ -1,0 +1,7 @@
+name: test-anvil-go-again
+runtime: go
+description: Test app for Anvil provider
+plugins:
+  providers:
+    - name: anvil
+      path: ../bin
