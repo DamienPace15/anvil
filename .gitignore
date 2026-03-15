@@ -1,0 +1,39 @@
+# ── Build outputs ──
+bin/
+sdk/
+
+# ── Go ──
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work.sum
+
+# ── Node.js ──
+node_modules/
+package-lock.json
+*.tgz
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+venv/
+
+# ── .NET ──
+*.nupkg
+bin/
+obj/
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+
+# ── IDE ──
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
