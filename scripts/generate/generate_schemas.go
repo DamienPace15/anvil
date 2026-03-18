@@ -376,6 +376,9 @@ func main() {
 		fmt.Printf("\nℹ️  %d component(s) behind by minor/patch versions. Run with --upgrade to bump all to latest.\n", staleCount)
 	}
 
+	// ── Auto-Prune Cache ──
+	pruneCache(results)
+
 	fmt.Printf("\n✨ Total processing finished in: %v\n", time.Since(startTime))
 }
 
@@ -403,6 +406,38 @@ func migrateLegacyFields(schema map[string]interface{}, comp componentInfo) {
 		}
 		delete(schema, "x-aws-token")
 		fmt.Printf("🔄 %s/%s: Migrated x-aws-token → x-upstream-provider + x-upstream-token\n", comp.cloud, comp.folder)
+	}
+}
+
+// ── Cache Pruning ──
+
+// pruneCache deletes any trimmed cache files that don't correspond to a
+// provider@version currently used by any component.
+func pruneCache(results []componentResult) {
+	activeFiles := make(map[string]bool)
+	for _, r := range results {
+		activeFiles[fmt.Sprintf("%s-%s-trimmed.json", r.provider, r.pinned)] = true
+		activeFiles[fmt.Sprintf("%s-latest-version.txt", r.provider)] = true
+	}
+
+	entries, err := os.ReadDir(cacheDir)
+	if err != nil {
+		return
+	}
+
+	pruned := 0
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		if !activeFiles[entry.Name()] {
+			os.Remove(filepath.Join(cacheDir, entry.Name()))
+			pruned++
+		}
+	}
+
+	if pruned > 0 {
+		fmt.Printf("\n🧹 Pruned %d stale cache file(s)\n", pruned)
 	}
 }
 
