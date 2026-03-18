@@ -11,9 +11,14 @@ const bucket = new anvil.aws.Bucket('hi', { dataClassification: '' });
 
 const lambda = new anvil.aws.Lambda('aaa', { name: `the-name-of-the-lambda` });
 
-const func = new anvil.azure.FunctionApp('aa', {
-  runtime: 'python',
-  location: 'ss',
-  name: 'damien',
-  resourceGroupName: 'fefe',
+const gcp = new anvil.gcp.Function('asdasdas', {
+  runtime: 'rust',
+  entryPoint: './',
+  location: 'au',
+  name: 'asdasd',
+});
+
+new anvil.gcp.StorageBucket('buck', {
+  dataClassification: 'sensitive',
+  location: 'eu',
 });

@@ -31,7 +31,7 @@
           "type": "array"
         },
         "capacityProviderConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionCapacityProviderConfig:FunctionCapacityProviderConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionCapacityProviderConfig:FunctionCapacityProviderConfig",
           "description": "Configuration block for Lambda Capacity Provider. See below.\n"
         },
         "code": {
@@ -47,7 +47,7 @@
           "type": "string"
         },
         "deadLetterConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionDeadLetterConfig:FunctionDeadLetterConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionDeadLetterConfig:FunctionDeadLetterConfig",
           "description": "Configuration block for dead letter queue. See below.\n"
         },
         "description": {
@@ -55,19 +55,19 @@
           "type": "string"
         },
         "durableConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionDurableConfig:FunctionDurableConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionDurableConfig:FunctionDurableConfig",
           "description": "Configuration block for durable function settings. See below. \u003cspan pulumi-lang-nodejs=\"`durableConfig`\" pulumi-lang-dotnet=\"`DurableConfig`\" pulumi-lang-go=\"`durableConfig`\" pulumi-lang-python=\"`durable_config`\" pulumi-lang-yaml=\"`durableConfig`\" pulumi-lang-java=\"`durableConfig`\"\u003e`durable_config`\u003c/span\u003e may only be available in [limited regions](https://builder.aws.com/build/capabilities), including `us-east-2`.\n"
         },
         "environment": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionEnvironment:FunctionEnvironment",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionEnvironment:FunctionEnvironment",
           "description": "Configuration block for environment variables. See below.\n"
         },
         "ephemeralStorage": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionEphemeralStorage:FunctionEphemeralStorage",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionEphemeralStorage:FunctionEphemeralStorage",
           "description": "Amount of ephemeral storage (`/tmp`) to allocate for the Lambda Function. See below.\n"
         },
         "fileSystemConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionFileSystemConfig:FunctionFileSystemConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionFileSystemConfig:FunctionFileSystemConfig",
           "description": "Configuration block for EFS file system. See below.\n"
         },
         "handler": {
@@ -75,7 +75,7 @@
           "type": "string"
         },
         "imageConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionImageConfig:FunctionImageConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionImageConfig:FunctionImageConfig",
           "description": "Container image configuration values. See below.\n"
         },
         "imageUri": {
@@ -94,7 +94,7 @@
           "type": "array"
         },
         "loggingConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionLoggingConfig:FunctionLoggingConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionLoggingConfig:FunctionLoggingConfig",
           "description": "Configuration block for advanced logging settings. See below.\n"
         },
         "memorySize": {
@@ -149,7 +149,7 @@
               "type": "string"
             },
             {
-              "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/Runtime:Runtime",
+              "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/Runtime:Runtime",
               "type": "string"
             }
           ],
@@ -172,7 +172,7 @@
           "type": "boolean"
         },
         "snapStart": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionSnapStart:FunctionSnapStart",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionSnapStart:FunctionSnapStart",
           "description": "Configuration block for snap start settings. See below.\n"
         },
         "sourceCodeHash": {
@@ -191,7 +191,7 @@
           "type": "object"
         },
         "tenancyConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionTenancyConfig:FunctionTenancyConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionTenancyConfig:FunctionTenancyConfig",
           "description": "Configuration block for Tenancy. See below.\n",
           "willReplaceOnChanges": true
         },
@@ -200,11 +200,11 @@
           "type": "integer"
         },
         "tracingConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionTracingConfig:FunctionTracingConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionTracingConfig:FunctionTracingConfig",
           "description": "Configuration block for X-Ray tracing. See below.\n"
         },
         "vpcConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionVpcConfig:FunctionVpcConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionVpcConfig:FunctionVpcConfig",
           "description": "Configuration block for VPC. See below.\n"
         }
       },
@@ -219,5 +219,7 @@
       "type": "object"
     }
   },
-  "x-aws-token": "aws:lambda/function:Function"
+  "x-upstream-provider": "aws",
+  "x-upstream-token": "aws:lambda/function:Function",
+  "x-upstream-version": "v7.23.0"
 }

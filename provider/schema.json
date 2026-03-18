@@ -18,6 +18,7 @@
     "nodejs": {
       "dependencies": {
         "@pulumi/aws": "^7.21.0",
+        "@pulumi/gcp": "^9.0.0",
         "@pulumi/pulumi": "^3.0.0"
       },
       "packageName": "@anvil/cloud"
@@ -68,33 +69,54 @@
         "name"
       ]
     },
-    "anvil:azure:FunctionApp": {
+    "anvil:gcp:Function": {
       "inputProperties": {
+        "entryPoint": {
+          "description": "The name of the function to execute.",
+          "type": "string"
+        },
         "location": {
-          "description": "The Azure region to deploy to.",
+          "description": "The GCP region to deploy to (e.g. us-central1).",
           "type": "string"
         },
         "name": {
-          "description": "The name of the Function App.",
-          "type": "string"
-        },
-        "resourceGroupName": {
-          "description": "The name of the resource group.",
+          "description": "The name of the Cloud Function.",
           "type": "string"
         },
         "runtime": {
-          "description": "The runtime stack (e.g. node, python, dotnet).",
+          "description": "The runtime to use (e.g. nodejs20, python312, go122).",
           "type": "string"
         },
         "transform": {
-          "$ref": "#/types/anvil:azure:TransformArgs"
+          "$ref": "#/types/anvil:gcp:TransformArgs"
         }
       },
       "isComponent": true,
       "requiredInputs": [
         "name",
         "location",
-        "resourceGroupName"
+        "runtime",
+        "entryPoint"
+      ]
+    },
+    "anvil:gcp:StorageBucket": {
+      "inputProperties": {
+        "dataClassification": {
+          "description": "Data classification level for the bucket.",
+          "type": "string"
+        },
+        "location": {
+          "description": "The GCS location (e.g. US, EU, us-central1).",
+          "type": "string"
+        },
+        "transform": {
+          "$ref": "#/types/anvil:gcp:TransformArgs"
+        }
+      },
+      "isComponent": true,
+      "requiredInputs": [
+        "dataClassification",
+        "location"
       ]
     }
   },
@@ -126,7 +148,7 @@
     "anvil:aws:BucketAclTransform": {
       "properties": {
         "accessControlPolicy": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketAclAccessControlPolicy:BucketAclAccessControlPolicy",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketAclAccessControlPolicy:BucketAclAccessControlPolicy",
           "description": "Configuration block that sets the ACL permissions for an object per grantee. See below.\n"
         },
         "acl": {
@@ -160,7 +182,7 @@
         "corsRules": {
           "description": "Set of origins and methods (cross-origin access that you want to allow). See below. You can configure up to 100 rules.\n",
           "items": {
-            "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketCorsConfigurationCorsRule:BucketCorsConfigurationCorsRule"
+            "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketCorsConfigurationCorsRule:BucketCorsConfigurationCorsRule"
           },
           "type": "array"
         },
@@ -194,12 +216,12 @@
         "rules": {
           "description": "List of configuration blocks describing the rules managing the replication. See below.\n",
           "items": {
-            "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketLifecycleConfigurationRule:BucketLifecycleConfigurationRule"
+            "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketLifecycleConfigurationRule:BucketLifecycleConfigurationRule"
           },
           "type": "array"
         },
         "timeouts": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketLifecycleConfigurationTimeouts:BucketLifecycleConfigurationTimeouts"
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketLifecycleConfigurationTimeouts:BucketLifecycleConfigurationTimeouts"
         },
         "transitionDefaultMinimumObjectSize": {
           "description": "The default minimum object size behavior applied to the lifecycle configuration. Valid values: `all_storage_classes_128K` (default), \u003cspan pulumi-lang-nodejs=\"`variesByStorageClass`\" pulumi-lang-dotnet=\"`VariesByStorageClass`\" pulumi-lang-go=\"`variesByStorageClass`\" pulumi-lang-python=\"`varies_by_storage_class`\" pulumi-lang-yaml=\"`variesByStorageClass`\" pulumi-lang-java=\"`variesByStorageClass`\"\u003e`varies_by_storage_class`\u003c/span\u003e. To customize the minimum object size for any transition you can add a \u003cspan pulumi-lang-nodejs=\"`filter`\" pulumi-lang-dotnet=\"`Filter`\" pulumi-lang-go=\"`filter`\" pulumi-lang-python=\"`filter`\" pulumi-lang-yaml=\"`filter`\" pulumi-lang-java=\"`filter`\"\u003e`filter`\u003c/span\u003e that specifies a custom \u003cspan pulumi-lang-nodejs=\"`objectSizeGreaterThan`\" pulumi-lang-dotnet=\"`ObjectSizeGreaterThan`\" pulumi-lang-go=\"`objectSizeGreaterThan`\" pulumi-lang-python=\"`object_size_greater_than`\" pulumi-lang-yaml=\"`objectSizeGreaterThan`\" pulumi-lang-java=\"`objectSizeGreaterThan`\"\u003e`object_size_greater_than`\u003c/span\u003e or \u003cspan pulumi-lang-nodejs=\"`objectSizeLessThan`\" pulumi-lang-dotnet=\"`ObjectSizeLessThan`\" pulumi-lang-go=\"`objectSizeLessThan`\" pulumi-lang-python=\"`object_size_less_than`\" pulumi-lang-yaml=\"`objectSizeLessThan`\" pulumi-lang-java=\"`objectSizeLessThan`\"\u003e`object_size_less_than`\u003c/span\u003e value. Custom filters always take precedence over the default transition behavior.\n",
@@ -231,12 +253,12 @@
         "targetGrants": {
           "description": "Set of configuration blocks with information for granting permissions. See below.\n",
           "items": {
-            "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketLoggingTargetGrant:BucketLoggingTargetGrant"
+            "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketLoggingTargetGrant:BucketLoggingTargetGrant"
           },
           "type": "array"
         },
         "targetObjectKeyFormat": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketLoggingTargetObjectKeyFormat:BucketLoggingTargetObjectKeyFormat",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketLoggingTargetObjectKeyFormat:BucketLoggingTargetObjectKeyFormat",
           "description": "Amazon S3 key format for log objects. See below.\n"
         },
         "targetPrefix": {
@@ -269,7 +291,7 @@
           "type": "string"
         },
         "rule": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketObjectLockConfigurationRule:BucketObjectLockConfigurationRule",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketObjectLockConfigurationRule:BucketObjectLockConfigurationRule",
           "description": "Configuration block for specifying the Object Lock rule for the specified object. See below.\n"
         },
         "token": {
@@ -294,7 +316,7 @@
               "type": "string"
             },
             {
-              "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/PolicyDocument:PolicyDocument",
+              "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/PolicyDocument:PolicyDocument",
               "type": "string"
             }
           ],
@@ -325,7 +347,7 @@
         "rules": {
           "description": "List of configuration blocks describing the rules managing the replication. See below.\n\n\u003e **NOTE:** Replication to multiple destination buckets requires that \u003cspan pulumi-lang-nodejs=\"`priority`\" pulumi-lang-dotnet=\"`Priority`\" pulumi-lang-go=\"`priority`\" pulumi-lang-python=\"`priority`\" pulumi-lang-yaml=\"`priority`\" pulumi-lang-java=\"`priority`\"\u003e`priority`\u003c/span\u003e is specified in the \u003cspan pulumi-lang-nodejs=\"`rule`\" pulumi-lang-dotnet=\"`Rule`\" pulumi-lang-go=\"`rule`\" pulumi-lang-python=\"`rule`\" pulumi-lang-yaml=\"`rule`\" pulumi-lang-java=\"`rule`\"\u003e`rule`\u003c/span\u003e object. If the corresponding rule requires no filter, an empty configuration block `filter {}` must be specified.\n\n\u003e **NOTE:** Amazon S3's latest version of the replication configuration is V2, which includes the \u003cspan pulumi-lang-nodejs=\"`filter`\" pulumi-lang-dotnet=\"`Filter`\" pulumi-lang-go=\"`filter`\" pulumi-lang-python=\"`filter`\" pulumi-lang-yaml=\"`filter`\" pulumi-lang-java=\"`filter`\"\u003e`filter`\u003c/span\u003e attribute for replication rules.\n\n\u003e **NOTE:** The \u003cspan pulumi-lang-nodejs=\"`existingObjectReplication`\" pulumi-lang-dotnet=\"`ExistingObjectReplication`\" pulumi-lang-go=\"`existingObjectReplication`\" pulumi-lang-python=\"`existing_object_replication`\" pulumi-lang-yaml=\"`existingObjectReplication`\" pulumi-lang-java=\"`existingObjectReplication`\"\u003e`existing_object_replication`\u003c/span\u003e parameter is not supported by Amazon S3 at this time and should not be included in your \u003cspan pulumi-lang-nodejs=\"`rule`\" pulumi-lang-dotnet=\"`Rule`\" pulumi-lang-go=\"`rule`\" pulumi-lang-python=\"`rule`\" pulumi-lang-yaml=\"`rule`\" pulumi-lang-java=\"`rule`\"\u003e`rule`\u003c/span\u003e configurations. Specifying this parameter will result in `MalformedXML` errors.\nTo replicate existing objects, please refer to the [Replicating existing objects with S3 Batch Replication](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-batch-replication-batch.html) documentation in the Amazon S3 User Guide.\n",
           "items": {
-            "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketReplicationConfigRule:BucketReplicationConfigRule"
+            "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketReplicationConfigRule:BucketReplicationConfigRule"
           },
           "type": "array"
         },
@@ -380,7 +402,7 @@
         "rules": {
           "description": "Set of server-side encryption configuration rules. See below. Currently, only a single rule is supported.\n",
           "items": {
-            "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketServerSideEncryptionConfigurationRule:BucketServerSideEncryptionConfigurationRule"
+            "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketServerSideEncryptionConfigurationRule:BucketServerSideEncryptionConfigurationRule"
           },
           "type": "array"
         }
@@ -448,7 +470,7 @@
           "type": "string"
         },
         "versioningConfiguration": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketVersioningVersioningConfiguration:BucketVersioningVersioningConfiguration",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketVersioningVersioningConfiguration:BucketVersioningVersioningConfiguration",
           "description": "Configuration block for the versioning parameters. See below.\n"
         }
       },
@@ -462,7 +484,7 @@
           "willReplaceOnChanges": true
         },
         "errorDocument": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationErrorDocument:BucketWebsiteConfigurationErrorDocument",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationErrorDocument:BucketWebsiteConfigurationErrorDocument",
           "description": "Name of the error document for the website. See below.\n"
         },
         "expectedBucketOwner": {
@@ -471,11 +493,11 @@
           "type": "string"
         },
         "indexDocument": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationIndexDocument:BucketWebsiteConfigurationIndexDocument",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationIndexDocument:BucketWebsiteConfigurationIndexDocument",
           "description": "Name of the index document for the website. See below.\n"
         },
         "redirectAllRequestsTo": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationRedirectAllRequestsTo:BucketWebsiteConfigurationRedirectAllRequestsTo",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationRedirectAllRequestsTo:BucketWebsiteConfigurationRedirectAllRequestsTo",
           "description": "Redirect behavior for every request to this bucket's website endpoint. See below. Conflicts with \u003cspan pulumi-lang-nodejs=\"`errorDocument`\" pulumi-lang-dotnet=\"`ErrorDocument`\" pulumi-lang-go=\"`errorDocument`\" pulumi-lang-python=\"`error_document`\" pulumi-lang-yaml=\"`errorDocument`\" pulumi-lang-java=\"`errorDocument`\"\u003e`error_document`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`indexDocument`\" pulumi-lang-dotnet=\"`IndexDocument`\" pulumi-lang-go=\"`indexDocument`\" pulumi-lang-python=\"`index_document`\" pulumi-lang-yaml=\"`indexDocument`\" pulumi-lang-java=\"`indexDocument`\"\u003e`index_document`\u003c/span\u003e, and \u003cspan pulumi-lang-nodejs=\"`routingRule`\" pulumi-lang-dotnet=\"`RoutingRule`\" pulumi-lang-go=\"`routingRule`\" pulumi-lang-python=\"`routing_rule`\" pulumi-lang-yaml=\"`routingRule`\" pulumi-lang-java=\"`routingRule`\"\u003e`routing_rule`\u003c/span\u003e.\n"
         },
         "region": {
@@ -489,7 +511,7 @@
         "routingRules": {
           "description": "List of rules that define when a redirect is applied and the redirect behavior. See below.\n",
           "items": {
-            "$ref": "/aws/v7.21.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationRoutingRule:BucketWebsiteConfigurationRoutingRule"
+            "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationRoutingRule:BucketWebsiteConfigurationRoutingRule"
           },
           "type": "array"
         }
@@ -506,7 +528,7 @@
           "type": "array"
         },
         "capacityProviderConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionCapacityProviderConfig:FunctionCapacityProviderConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionCapacityProviderConfig:FunctionCapacityProviderConfig",
           "description": "Configuration block for Lambda Capacity Provider. See below.\n"
         },
         "code": {
@@ -522,7 +544,7 @@
           "type": "string"
         },
         "deadLetterConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionDeadLetterConfig:FunctionDeadLetterConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionDeadLetterConfig:FunctionDeadLetterConfig",
           "description": "Configuration block for dead letter queue. See below.\n"
         },
         "description": {
@@ -530,19 +552,19 @@
           "type": "string"
         },
         "durableConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionDurableConfig:FunctionDurableConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionDurableConfig:FunctionDurableConfig",
           "description": "Configuration block for durable function settings. See below. \u003cspan pulumi-lang-nodejs=\"`durableConfig`\" pulumi-lang-dotnet=\"`DurableConfig`\" pulumi-lang-go=\"`durableConfig`\" pulumi-lang-python=\"`durable_config`\" pulumi-lang-yaml=\"`durableConfig`\" pulumi-lang-java=\"`durableConfig`\"\u003e`durable_config`\u003c/span\u003e may only be available in [limited regions](https://builder.aws.com/build/capabilities), including `us-east-2`.\n"
         },
         "environment": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionEnvironment:FunctionEnvironment",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionEnvironment:FunctionEnvironment",
           "description": "Configuration block for environment variables. See below.\n"
         },
         "ephemeralStorage": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionEphemeralStorage:FunctionEphemeralStorage",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionEphemeralStorage:FunctionEphemeralStorage",
           "description": "Amount of ephemeral storage (`/tmp`) to allocate for the Lambda Function. See below.\n"
         },
         "fileSystemConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionFileSystemConfig:FunctionFileSystemConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionFileSystemConfig:FunctionFileSystemConfig",
           "description": "Configuration block for EFS file system. See below.\n"
         },
         "handler": {
@@ -550,7 +572,7 @@
           "type": "string"
         },
         "imageConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionImageConfig:FunctionImageConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionImageConfig:FunctionImageConfig",
           "description": "Container image configuration values. See below.\n"
         },
         "imageUri": {
@@ -569,7 +591,7 @@
           "type": "array"
         },
         "loggingConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionLoggingConfig:FunctionLoggingConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionLoggingConfig:FunctionLoggingConfig",
           "description": "Configuration block for advanced logging settings. See below.\n"
         },
         "memorySize": {
@@ -624,7 +646,7 @@
               "type": "string"
             },
             {
-              "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/Runtime:Runtime",
+              "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/Runtime:Runtime",
               "type": "string"
             }
           ],
@@ -647,7 +669,7 @@
           "type": "boolean"
         },
         "snapStart": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionSnapStart:FunctionSnapStart",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionSnapStart:FunctionSnapStart",
           "description": "Configuration block for snap start settings. See below.\n"
         },
         "sourceCodeHash": {
@@ -666,7 +688,7 @@
           "type": "object"
         },
         "tenancyConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionTenancyConfig:FunctionTenancyConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionTenancyConfig:FunctionTenancyConfig",
           "description": "Configuration block for Tenancy. See below.\n",
           "willReplaceOnChanges": true
         },
@@ -675,11 +697,11 @@
           "type": "integer"
         },
         "tracingConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionTracingConfig:FunctionTracingConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionTracingConfig:FunctionTracingConfig",
           "description": "Configuration block for X-Ray tracing. See below.\n"
         },
         "vpcConfig": {
-          "$ref": "/aws/v7.21.0/schema.json#/types/aws:lambda/FunctionVpcConfig:FunctionVpcConfig",
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionVpcConfig:FunctionVpcConfig",
           "description": "Configuration block for VPC. See below.\n"
         }
       },
@@ -727,19 +749,172 @@
       },
       "type": "object"
     },
-    "anvil:azure:TransformArgs": {
+    "anvil:gcp:BucketTransform": {
       "properties": {
-        "functionApp": {
-          "description": "Override properties for the underlying Azure Function App resource.",
+        "autoclass": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketAutoclass:BucketAutoclass",
+          "description": "The bucket's [Autoclass](https://cloud.google.com/storage/docs/autoclass) configuration.  Structure is documented below.\n"
+        },
+        "cors": {
+          "description": "The bucket's [Cross-Origin Resource Sharing (CORS)](https://www.w3.org/TR/cors/) configuration. Multiple blocks of this type are permitted. Structure is documented below.\n",
+          "items": {
+            "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketCor:BucketCor"
+          },
+          "type": "array"
+        },
+        "customPlacementConfig": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketCustomPlacementConfig:BucketCustomPlacementConfig",
+          "description": "The bucket's custom location configuration, which specifies the individual regions that comprise a dual-region bucket. If the bucket is designated a single or multi-region, the parameters are empty. Structure is documented below.\n"
+        },
+        "defaultEventBasedHold": {
+          "description": "Whether or not to automatically apply an eventBasedHold to new objects added to the bucket.\n",
+          "type": "boolean"
+        },
+        "enableObjectRetention": {
+          "description": "Enables [object retention](https://cloud.google.com/storage/docs/object-lock) on a storage bucket.\n",
+          "type": "boolean",
+          "willReplaceOnChanges": true
+        },
+        "encryption": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketEncryption:BucketEncryption",
+          "description": "The bucket's encryption configuration. Structure is documented below.\n"
+        },
+        "forceDestroy": {
+          "description": "When true, before deleting a bucket, delete all objects within the bucket, or Anywhere Caches caching data for that bucket. Otherwise, buckets with objects/caches will fail. Anywhere Cache requires additional permissions to interact with and will be assumed not present when the provider is not permissioned, attempting to delete the bucket anyways. This may result in the objects in the bucket getting destroyed but not the bucket itself if there is a cache in use with the bucket. Force deletion may take a long time to delete buckets with lots of objects or with any Anywhere Caches (80m+).\n",
+          "type": "boolean"
+        },
+        "hierarchicalNamespace": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketHierarchicalNamespace:BucketHierarchicalNamespace",
+          "description": "The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is documented below. To use this configuration, \u003cspan pulumi-lang-nodejs=\"`uniformBucketLevelAccess`\" pulumi-lang-dotnet=\"`UniformBucketLevelAccess`\" pulumi-lang-go=\"`uniformBucketLevelAccess`\" pulumi-lang-python=\"`uniform_bucket_level_access`\" pulumi-lang-yaml=\"`uniformBucketLevelAccess`\" pulumi-lang-java=\"`uniformBucketLevelAccess`\"\u003e`uniform_bucket_level_access`\u003c/span\u003e must be enabled on bucket.\n",
+          "willReplaceOnChanges": true
+        },
+        "ipFilter": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketIpFilter:BucketIpFilter",
+          "description": "The bucket IP filtering configuration. Specifies the network sources that can access the bucket, as well as its underlying objects. Structure is documented below.\n"
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A map of key/value label pairs to assign to the bucket.\n",
           "type": "object"
         },
-        "servicePlan": {
-          "description": "Override properties for the underlying Azure Service Plan resource.",
+        "lifecycleRules": {
+          "description": "The bucket's [Lifecycle Rules](https://cloud.google.com/storage/docs/lifecycle#configuration) configuration. Multiple blocks of this type are permitted. Structure is documented below.\n",
+          "items": {
+            "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketLifecycleRule:BucketLifecycleRule"
+          },
+          "type": "array"
+        },
+        "location": {
+          "description": "The [GCS location](https://cloud.google.com/storage/docs/bucket-locations).\n\n- - -\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "logging": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketLogging:BucketLogging",
+          "description": "The bucket's [Access \u0026 Storage Logs](https://cloud.google.com/storage/docs/access-logs) configuration. Structure is documented below.\n"
+        },
+        "name": {
+          "description": "The name of the bucket. Bucket names must be in lowercase and no more than 63 characters long. You can find the complete list of bucket naming rules [here](https://cloud.google.com/storage/docs/buckets#naming).\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "project": {
+          "description": "The ID of the project in which the resource belongs. If it\nis not provided, the provider project is used.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "publicAccessPrevention": {
+          "description": "Prevents public access to a bucket. Acceptable values are \"inherited\" or \"enforced\". If \"inherited\", the bucket uses [public access prevention](https://cloud.google.com/storage/docs/public-access-prevention) only if the bucket is subject to the public access prevention organization policy constraint. Defaults to \"inherited\".\n",
+          "type": "string"
+        },
+        "requesterPays": {
+          "description": "Enables [Requester Pays](https://cloud.google.com/storage/docs/requester-pays) on a storage bucket.\n",
+          "type": "boolean"
+        },
+        "retentionPolicy": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketRetentionPolicy:BucketRetentionPolicy",
+          "description": "Configuration of the bucket's data retention policy for how long objects in the bucket should be retained. Structure is documented below.\n"
+        },
+        "rpo": {
+          "description": "The recovery point objective for cross-region replication of the bucket. Applicable only for dual and multi-region buckets. `\"DEFAULT\"` sets default replication. `\"ASYNC_TURBO\"` value enables turbo replication, valid for dual-region buckets only. See [Turbo Replication](https://cloud.google.com/storage/docs/managing-turbo-replication) for more information. If rpo is not specified at bucket creation, it defaults to `\"DEFAULT\"` for dual and multi-region buckets. **NOTE** If used with single-region bucket, It will throw an error.\n",
+          "type": "string"
+        },
+        "softDeletePolicy": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketSoftDeletePolicy:BucketSoftDeletePolicy",
+          "description": "The bucket's soft delete policy, which defines the period of time that soft-deleted objects will be retained, and cannot be permanently deleted. If the block is not provided, Server side value will be kept which means removal of block won't generate any terraform change. Structure is documented below.\n"
+        },
+        "storageClass": {
+          "description": "The [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of the new bucket. Supported values include: `STANDARD`, `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`.\n",
+          "type": "string"
+        },
+        "uniformBucketLevelAccess": {
+          "description": "Enables [Uniform bucket-level access](https://cloud.google.com/storage/docs/uniform-bucket-level-access) access to a bucket.\n",
+          "type": "boolean"
+        },
+        "versioning": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketVersioning:BucketVersioning",
+          "description": "The bucket's [Versioning](https://cloud.google.com/storage/docs/object-versioning) configuration.  Structure is documented below.\n"
+        },
+        "website": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketWebsite:BucketWebsite",
+          "description": "Configuration if the bucket acts as a website. Structure is documented below.\n"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:gcp:FunctionTransform": {
+      "properties": {
+        "buildConfig": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:cloudfunctionsv2/FunctionBuildConfig:FunctionBuildConfig",
+          "description": "Describes the Build step of the function that builds a container\nfrom the given source.\nStructure is documented below.\n"
+        },
+        "description": {
+          "description": "User-provided description of a function.\n",
+          "type": "string"
+        },
+        "eventTrigger": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:cloudfunctionsv2/FunctionEventTrigger:FunctionEventTrigger",
+          "description": "An Eventarc trigger managed by Google Cloud Functions that fires events in\nresponse to a condition in another service.\nStructure is documented below.\n"
+        },
+        "kmsKeyName": {
+          "description": "Resource name of a KMS crypto key (managed by the user) used to encrypt/decrypt function resources.\nIt must match the pattern projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}.\n",
+          "type": "string"
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A set of key/value label pairs associated with this Cloud Function.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.\nPlease refer to the field \u003cspan pulumi-lang-nodejs=\"`effectiveLabels`\" pulumi-lang-dotnet=\"`EffectiveLabels`\" pulumi-lang-go=\"`effectiveLabels`\" pulumi-lang-python=\"`effective_labels`\" pulumi-lang-yaml=\"`effectiveLabels`\" pulumi-lang-java=\"`effectiveLabels`\"\u003e`effective_labels`\u003c/span\u003e for all of the labels present on the resource.\n",
           "type": "object"
         },
-        "storageAccount": {
-          "description": "Override properties for the underlying Azure Storage Account resource.",
-          "type": "object"
+        "location": {
+          "description": "The location of this cloud function.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "name": {
+          "description": "A user-defined name of the function. Function names must\nbe unique globally and match pattern `projects/*/locations/*/functions/*`.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "project": {
+          "description": "The ID of the project in which the resource belongs.\nIf it is not provided, the provider project is used.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "serviceConfig": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:cloudfunctionsv2/FunctionServiceConfig:FunctionServiceConfig",
+          "description": "Describes the Service being deployed.\nStructure is documented below.\n"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:gcp:TransformArgs": {
+      "properties": {
+        "function": {
+          "$ref": "#/types/anvil:gcp:FunctionTransform"
         }
       },
       "type": "object"

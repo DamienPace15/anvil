@@ -1,4 +1,7 @@
 {
+  "x-upstream-provider": "azure-native",
+  "x-upstream-token": "azure-native:web/site:Site",
+  "x-upstream-version": "v7.21.0",
   "resources": {
     "anvil:azure:FunctionApp": {
       "inputProperties": {
