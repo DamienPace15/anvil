@@ -9,7 +9,8 @@ import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 	awsbucket "github.com/anvil/pulumi-anvil/aws/bucket"
 	awslambda "github.com/anvil/pulumi-anvil/aws/lambda"
-	azurefunction "github.com/anvil/pulumi-anvil/azure/function"
+	gcpbucket "github.com/anvil/pulumi-anvil/gcp/bucket"
+	gcpfunction "github.com/anvil/pulumi-anvil/gcp/function"
 )
 
 func main() {
@@ -17,7 +18,8 @@ func main() {
 		WithComponents(
 			infer.ComponentF(awsbucket.NewBucket),
 			infer.ComponentF(awslambda.NewLambda),
-			infer.ComponentF(azurefunction.NewFunction),
+			infer.ComponentF(gcpbucket.NewBucket),
+			infer.ComponentF(gcpfunction.NewFunction),
 		).
 		Build()
 	if err != nil {

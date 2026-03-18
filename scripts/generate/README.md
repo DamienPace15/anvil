@@ -1,0 +1,159 @@
+# Generate Schemas
+
+The generate script enriches Anvil component schemas with fully-typed transform properties from upstream Pulumi providers (AWS, GCP, etc.).
+
+## What It Does
+
+Each Anvil component wraps one or more upstream cloud resources. Users can override properties on those resources via the `transform` map. The generate script makes those overrides fully typed by fetching the upstream provider's schema, extracting the `inputProperties` for the relevant resource, and writing them into the component's `schema.json` as typed transform types.
+
+For example, the S3 Bucket component wraps `aws:s3/bucket:Bucket`. The script fetches the AWS provider schema, reads the bucket's input properties, and generates an `anvil:aws:BucketTransform` type so that `transform.bucket` has full autocomplete and type checking in the generated SDKs.
+
+## How To Run
+
+All commands run from the project root.
+
+```bash
+# Standard generate (uses cached schemas when available)
+cd provider && go run ../scripts/generate/generate_schemas.go
+
+# Or via npm from the root directory
+npm run generate
+```
+
+### Flags
+
+| Flag            | Description                                                 |
+| --------------- | ----------------------------------------------------------- |
+| `--upgrade`     | Bump all components to the latest upstream provider version |
+| `--clear-cache` | Delete all cached schemas before running                    |
+| `--help`        | Show usage                                                  |
+
+## Component Schema Fields
+
+Each component's `schema.json` (e.g. `provider/aws/bucket/schema.json`) must declare three `x-upstream-*` fields:
+
+```json
+{
+  "x-upstream-provider": "aws",
+  "x-upstream-token": "aws:s3/bucket:Bucket",
+  "x-upstream-version": "v7.23.0",
+  "resources": { ... },
+  "types": {}
+}
+```
+
+| Field                 | Description                                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `x-upstream-provider` | The Pulumi package name. Used for `pulumi package get-schema <provider>`. Examples: `aws`, `gcp`, `azure-native`. |
+| `x-upstream-token`    | The fully-qualified Pulumi resource token for the primary resource this component wraps.                          |
+| `x-upstream-version`  | The pinned upstream provider version. The script generates against this exact version.                            |
+
+### Adding a New Component
+
+1. Create `provider/<cloud>/<resource>/schema.json` with the three `x-upstream-*` fields, your `resources` definition, and an empty `types: {}`.
+2. Create the Go component file alongside it.
+3. Run `npm run build`. The script auto-discovers the new component and enriches its schema.
+
+## How It Works
+
+### 1. Auto-Discovery
+
+The script scans all subdirectories under `provider/` (skipping `cmd`, `scripts`, `sdk`) looking for `<cloud>/<resource>/schema.json` files. No registration needed — drop in a folder and it's picked up.
+
+### 2. Version Detection
+
+For each unique `x-upstream-provider` found across all components, the script detects the latest available version via `pulumi package get-schema <provider>`. The latest version is cached in `.cache/upstream-schemas/<provider>-latest-version.txt` for 24 hours.
+
+### 3. Version Pinning
+
+Each component pins to a specific upstream version via `x-upstream-version`. The script always generates against the pinned version, not latest. This prevents unexpected schema changes from breaking your builds.
+
+Version warnings:
+
+- **Minor/patch drift** (e.g. `v7.22.0` → `v7.23.0`): quiet info line, no warning.
+- **Major drift** (e.g. `v7.23.0` → `v8.0.0`): loud warning suggesting you review breaking changes.
+
+Use `--upgrade` to bump all components to latest.
+
+### 4. Schema Fetching & Trimmed Caching
+
+Upstream provider schemas are large (~47MB for AWS). The script never stores the full schema on disk. Instead:
+
+1. Fetches the full schema into memory via `pulumi package get-schema <provider>@<version>`.
+2. Extracts only the resources and types needed by the current component.
+3. Recursively follows `$ref` chains to include all referenced types.
+4. Writes a trimmed cache file to `.cache/upstream-schemas/<provider>-<version>-trimmed.json`.
+
+On subsequent runs, the trimmed cache is loaded directly — typically a few hundred KB instead of 47MB, loading in milliseconds.
+
+If multiple components use the same provider@version (e.g. `aws/bucket` and `aws/lambda` both on `aws@v7.23.0`), the cache merges their tokens together. The second component adds its tokens to the existing cache rather than replacing it.
+
+### 5. Deprecation Replacement
+
+Some upstream resources have deprecated inline properties that were replaced by standalone resources (common in AWS). For example, the S3 bucket's `versioning` property is deprecated in favour of `aws:s3/bucketVersioningV2:BucketVersioningV2`.
+
+The script detects these by scanning `deprecationMessage` fields for references to replacement resources, then generates typed transform types for the replacements. This is fully generic — it works for any provider that follows this pattern.
+
+### 6. Provider-Specific Companions
+
+Some companion resources can't be discovered through deprecation messages. These are hardcoded in the `addProviderSpecificTransforms` function. Currently:
+
+- **AWS S3 Bucket** → `BucketPublicAccessBlock` (added as `publicAccessBlock` transform key)
+
+The companion tokens are also declared in `getCompanionTokens` so they're included in the trimmed cache.
+
+### 7. Cache Pruning
+
+At the end of every run, the script deletes any cache files that don't correspond to a provider@version currently used by any component. This keeps the cache directory clean after version upgrades.
+
+### 8. Legacy Migration
+
+Schemas using the old `x-aws-token` / `x-aws-version` fields are automatically migrated to the generic `x-upstream-provider` / `x-upstream-token` / `x-upstream-version` fields on first run.
+
+## Cache Directory
+
+```
+.cache/upstream-schemas/
+├── aws-latest-version.txt          # "v7.23.0" — refreshed every 24h
+├── aws-v7.23.0-trimmed.json        # Trimmed schema with only used resources/types
+├── gcp-latest-version.txt          # "v9.15.0"
+└── gcp-v9.15.0-trimmed.json        # Trimmed schema
+```
+
+Add `.cache/` to your `.gitignore`.
+
+## Example Output
+
+```
+🔍 Discovered 4 component(s) across cloud providers
+
+⏳ Detecting latest versions for upstream providers...
+   (using cached latest version for aws)
+   aws: v7.23.0
+   (using cached latest version for gcp)
+   gcp: v9.15.0
+
+   📦 Loaded trimmed aws@v7.23.0 from cache (671KB, 15 resource(s))
+⚙️  Processing: aws/bucket → aws:s3/bucket:Bucket (provider: aws@v7.23.0)
+   ✅ Success! Mapped 13 additional transforms.
+
+⚙️  Processing: aws/lambda → aws:lambda/function:Function (provider: aws@v7.23.0)
+   ✅ Success! Mapped 0 additional transforms.
+
+   📦 Loaded trimmed gcp@v9.15.0 from cache (333KB, 2 resource(s))
+⚙️  Processing: gcp/bucket → gcp:storage/bucket:Bucket (provider: gcp@v9.15.0)
+   ✅ Success! Mapped 0 additional transforms.
+
+⚙️  Processing: gcp/function → gcp:cloudfunctionsv2/function:Function (provider: gcp@v9.15.0)
+   ✅ Success! Mapped 0 additional transforms.
+
+────────────────────────────────────────
+📋 Version Summary:
+────────────────────────────────────────
+  aws/bucket                     [aws] ✅ current
+  aws/lambda                     [aws] ✅ current
+  gcp/bucket                     [gcp] ✅ current
+  gcp/function                   [gcp] ✅ current
+
+✨ Total processing finished in: 6.43ms
+```
