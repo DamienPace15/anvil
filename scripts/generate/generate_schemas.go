@@ -43,7 +43,7 @@ func discoverComponents(providerDir string) ([]componentInfo, error) {
 		return nil, fmt.Errorf("reading provider directory %s: %w", providerDir, err)
 	}
 
-	skipDirs := map[string]bool{"cmd": true, "scripts": true, "sdk": true}
+	skipDirs := map[string]bool{"cmd": true, "scripts": true, "sdk": true, "internal": true}
 
 	for _, cloudEntry := range cloudDirs {
 		if !cloudEntry.IsDir() || skipDirs[cloudEntry.Name()] {
@@ -88,6 +88,14 @@ type componentResult struct {
 	isMajorBump bool
 	isNew       bool
 	wasUpgraded bool
+}
+
+// ── Error Tracking ──
+
+type componentError struct {
+	cloud   string
+	folder  string
+	message string
 }
 
 func main() {
@@ -167,6 +175,7 @@ func main() {
 	// ── Process Components ──
 	startTime := time.Now()
 	var results []componentResult
+	var fatalErrors []componentError
 
 	for _, comp := range components {
 		schemaBytes, err := os.ReadFile(comp.schemaPath)
@@ -242,13 +251,21 @@ func main() {
 		requiredTokens := []string{upstreamToken}
 		upstreamSchema, err := getUpstreamSchema(upstreamProvider, pinnedVersion, requiredTokens)
 		if err != nil {
-			log.Printf("❌ %s/%s: Failed to fetch %s schema for %s: %v", comp.cloud, comp.folder, upstreamProvider, pinnedVersion, err)
+			fatalErrors = append(fatalErrors, componentError{
+				cloud:   comp.cloud,
+				folder:  comp.folder,
+				message: fmt.Sprintf("failed to fetch %s schema for %s: %v", upstreamProvider, pinnedVersion, err),
+			})
 			continue
 		}
 
 		upstreamResources, ok := upstreamSchema["resources"].(map[string]interface{})
 		if !ok {
-			log.Printf("❌ %s/%s: Invalid upstream schema format for %s@%s: missing 'resources'", comp.cloud, comp.folder, upstreamProvider, pinnedVersion)
+			fatalErrors = append(fatalErrors, componentError{
+				cloud:   comp.cloud,
+				folder:  comp.folder,
+				message: fmt.Sprintf("invalid upstream schema format for %s@%s: missing 'resources'", upstreamProvider, pinnedVersion),
+			})
 			continue
 		}
 
@@ -256,7 +273,11 @@ func main() {
 
 		mainResRaw, exists := upstreamResources[upstreamToken]
 		if !exists {
-			fmt.Printf("   ❌ Error: Could not find upstream resource \"%s\" in %s@%s\n", upstreamToken, upstreamProvider, pinnedVersion)
+			fatalErrors = append(fatalErrors, componentError{
+				cloud:   comp.cloud,
+				folder:  comp.folder,
+				message: fmt.Sprintf("upstream resource \"%s\" not found in %s@%s", upstreamToken, upstreamProvider, pinnedVersion),
+			})
 			continue
 		}
 		mainRes := mainResRaw.(map[string]interface{})
@@ -376,10 +397,26 @@ func main() {
 		fmt.Printf("\nℹ️  %d component(s) behind by minor/patch versions. Run with --upgrade to bump all to latest.\n", staleCount)
 	}
 
+	// ── Error Summary ──
+	if len(fatalErrors) > 0 {
+		fmt.Println("\n────────────────────────────────────────")
+		fmt.Println("❌ Errors:")
+		fmt.Println("────────────────────────────────────────")
+		for _, e := range fatalErrors {
+			fmt.Printf("  %s/%s: %s\n", e.cloud, e.folder, e.message)
+		}
+		fmt.Printf("\n%d component(s) failed. Fix the errors above and re-run.\n", len(fatalErrors))
+	}
+
 	// ── Auto-Prune Cache ──
 	pruneCache(results)
 
 	fmt.Printf("\n✨ Total processing finished in: %v\n", time.Since(startTime))
+
+	// ── Exit non-zero if any fatal errors occurred ──
+	if len(fatalErrors) > 0 {
+		os.Exit(1)
+	}
 }
 
 // ── Legacy Migration ──
