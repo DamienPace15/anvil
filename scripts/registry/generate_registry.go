@@ -67,7 +67,7 @@ func main() {
 		log.Fatalf("❌ Could not read current directory: %v", err)
 	}
 
-	skip := map[string]bool{"cmd": true, "scripts": true, "sdk": true}
+	skip := map[string]bool{"cmd": true, "scripts": true, "sdk": true, "internal": true}
 
 	for _, entry := range entries {
 		if !entry.IsDir() || skip[entry.Name()] {

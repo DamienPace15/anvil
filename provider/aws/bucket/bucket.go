@@ -1,8 +1,7 @@
 package bucket
 
 import (
-	"fmt"
-
+	"github.com/anvil/pulumi-anvil/internal/transform"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/s3"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -38,7 +37,7 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 	isSensitive := args.DataClassification == "sensitive" || args.DataClassification == "restricted"
 
 	// 1. Base Bucket
-	bucketProps := mergeTransform(args.Transform["bucket"], pulumi.Map{
+	bucketProps := transform.MergeTransform(args.Transform["bucket"], pulumi.Map{
 		"forceDestroy": pulumi.Bool(true),
 		"tags": pulumi.StringMap{
 			"ManagedBy":          pulumi.String("anvil"),
@@ -53,7 +52,7 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 	}
 
 	// 2. Public Access Block
-	pabProps := mergeTransform(args.Transform["publicAccessBlock"], pulumi.Map{
+	pabProps := transform.MergeTransform(args.Transform["publicAccessBlock"], pulumi.Map{
 		"bucket":                res.ID(),
 		"blockPublicAcls":       pulumi.Bool(true),
 		"blockPublicPolicy":     pulumi.Bool(true),
@@ -67,7 +66,7 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 
 	// 3. Versioning
 	if vTransform, ok := args.Transform["versioning"]; ok || isSensitive {
-		vProps := mergeTransform(vTransform, pulumi.Map{
+		vProps := transform.MergeTransform(vTransform, pulumi.Map{
 			"bucket": res.ID(),
 			"versioningConfiguration": pulumi.Map{
 				"status": pulumi.String("Enabled"),
@@ -88,22 +87,4 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 	})
 
 	return b, nil
-}
-
-func mergeTransform(transform map[string]interface{}, defaults pulumi.Map) pulumi.Map {
-	for k, v := range transform {
-		if existing, ok := defaults[k]; ok {
-			if existingMap, isMap := existing.(pulumi.StringMap); isMap {
-				if userMap, isUserMap := v.(map[string]interface{}); isUserMap {
-					for uk, uv := range userMap {
-						existingMap[uk] = pulumi.String(fmt.Sprint(uv))
-					}
-					defaults[k] = existingMap
-					continue
-				}
-			}
-		}
-		defaults[k] = pulumi.Any(v)
-	}
-	return defaults
 }

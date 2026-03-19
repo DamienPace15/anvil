@@ -1,8 +1,7 @@
 package function
 
 import (
-	"fmt"
-
+	"github.com/anvil/pulumi-anvil/internal/transform"
 	"github.com/pulumi/pulumi-gcp/sdk/v8/go/gcp/cloudfunctionsv2"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -37,7 +36,7 @@ func NewFunction(ctx *pulumi.Context, name string, args FunctionArgs, opts ...pu
 	}
 
 	// Cloud Function (2nd gen)
-	functionProps := mergeTransform(args.Transform["function"], pulumi.Map{
+	functionProps := transform.MergeTransform(args.Transform["function"], pulumi.Map{
 		"name":     pulumi.String(args.Name),
 		"location": pulumi.String(args.Location),
 		"buildConfig": pulumi.Map{
@@ -66,22 +65,4 @@ func NewFunction(ctx *pulumi.Context, name string, args FunctionArgs, opts ...pu
 	})
 
 	return f, nil
-}
-
-func mergeTransform(transform map[string]interface{}, defaults pulumi.Map) pulumi.Map {
-	for k, v := range transform {
-		if existing, ok := defaults[k]; ok {
-			if existingMap, isMap := existing.(pulumi.StringMap); isMap {
-				if userMap, isUserMap := v.(map[string]interface{}); isUserMap {
-					for uk, uv := range userMap {
-						existingMap[uk] = pulumi.String(fmt.Sprint(uv))
-					}
-					defaults[k] = existingMap
-					continue
-				}
-			}
-		}
-		defaults[k] = pulumi.Any(v)
-	}
-	return defaults
 }
