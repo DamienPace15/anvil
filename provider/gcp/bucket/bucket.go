@@ -1,8 +1,7 @@
 package storagebucket
 
 import (
-	"fmt"
-
+	"github.com/anvil/pulumi-anvil/internal/transform"
 	"github.com/pulumi/pulumi-gcp/sdk/v8/go/gcp/storage"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -36,7 +35,7 @@ func NewBucket(ctx *pulumi.Context, name string, args StorageBucketArgs, opts ..
 	isSensitive := args.DataClassification == "sensitive" || args.DataClassification == "restricted"
 
 	// Storage Bucket
-	bucketProps := mergeTransform(args.Transform["storageBucket"], pulumi.Map{
+	bucketProps := transform.MergeTransform(args.Transform["storageBucket"], pulumi.Map{
 		"location":                 pulumi.String(args.Location),
 		"forceDestroy":             pulumi.Bool(true),
 		"uniformBucketLevelAccess": pulumi.Bool(true),
@@ -69,22 +68,4 @@ func NewBucket(ctx *pulumi.Context, name string, args StorageBucketArgs, opts ..
 	})
 
 	return sb, nil
-}
-
-func mergeTransform(transform map[string]interface{}, defaults pulumi.Map) pulumi.Map {
-	for k, v := range transform {
-		if existing, ok := defaults[k]; ok {
-			if existingMap, isMap := existing.(pulumi.StringMap); isMap {
-				if userMap, isUserMap := v.(map[string]interface{}); isUserMap {
-					for uk, uv := range userMap {
-						existingMap[uk] = pulumi.String(fmt.Sprint(uv))
-					}
-					defaults[k] = existingMap
-					continue
-				}
-			}
-		}
-		defaults[k] = pulumi.Any(v)
-	}
-	return defaults
 }

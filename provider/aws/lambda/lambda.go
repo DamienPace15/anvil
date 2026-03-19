@@ -1,6 +1,7 @@
 package lambda
 
 import (
+	"github.com/anvil/pulumi-anvil/internal/transform"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/lambda"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -31,7 +32,7 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 		return nil, err
 	}
 
-	lambdaProps := mergeTransform(args.Transform["lambda"], pulumi.Map{
+	lambdaProps := transform.MergeTransform(args.Transform["lambda"], pulumi.Map{
 		"name":    pulumi.String(args.Name),
 		"runtime": pulumi.String("nodejs18.x"),
 		"handler": pulumi.String("index.handler"),
@@ -52,12 +53,4 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 	})
 
 	return l, nil
-}
-
-// mergeTransform
-func mergeTransform(transform map[string]interface{}, defaults pulumi.Map) pulumi.Map {
-	for k, v := range transform {
-		defaults[k] = pulumi.Any(v)
-	}
-	return defaults
 }
