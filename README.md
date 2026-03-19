@@ -81,3 +81,21 @@ plugins:
     - name: anvil
       path: ../bin
 ```
+
+## Contributing
+
+Contributions are welcome. Please follow the fork-and-PR workflow:
+
+1. **Fork** this repository to your own GitHub account
+2. **Clone** your fork and create a feature branch off `master`
+3. **Make your changes** — ensure `npm run build` completes successfully
+4. **Push** to your fork and open a **Pull Request** against `master`
+5. Wait for review — all PRs require maintainer approval before merge
+
+Branch protection rules are enforced on `master`. Direct pushes, force pushes, and branch deletion are blocked. All PRs require code owner review and review thread resolution before merging.
+
+Please keep PRs focused — one feature or fix per PR. If you're planning a larger change, open an issue first to discuss the approach.
+
+## License
+
+[MIT](LICENSE)
