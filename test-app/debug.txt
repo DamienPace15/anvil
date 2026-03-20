@@ -1,0 +1,6 @@
+DEBUG URN=urn:pulumi:dev::test-app::pulumi:pulumi:Stack::test-app-dev TYPE=pulumi:pulumi:Stack NAME=test-app-dev
+DEBUG URN=urn:pulumi:dev::test-app::pulumi:providers:anvil::default_0_0_1 TYPE=pulumi:providers:anvil NAME=default_0_0_1
+DEBUG URN=urn:pulumi:dev::test-app::anvil:aws:Bucket::spike-bucket TYPE=anvil:aws:Bucket NAME=spike-bucket
+DEBUG URN=urn:pulumi:dev::test-app::pulumi:providers:aws::default_7_23_0 TYPE=pulumi:providers:aws NAME=default_7_23_0
+DEBUG URN=urn:pulumi:dev::test-app::anvil:aws:Bucket$aws:s3/bucket:Bucket::spike-bucket TYPE=anvil:aws:Bucket$aws:s3/bucket:Bucket NAME=spike-bucket
+DEBUG URN=urn:pulumi:dev::test-app::anvil:aws:Bucket$aws:s3/bucketPublicAccessBlock:BucketPublicAccessBlock::spike-bucket-pab TYPE=anvil:aws:Bucket$aws:s3/bucketPublicAccessBlock:BucketPublicAccessBlock NAME=spike-bucket-pab

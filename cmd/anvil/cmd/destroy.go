@@ -4,15 +4,16 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"time"
 
+	"github.com/pulumi/pulumi/sdk/v3/go/auto/events"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optdestroy"
 	"github.com/spf13/cobra"
 )
 
 var (
-	destroyYes   bool
-	destroyStage string
+	destroyYes     bool
+	destroyStage   string
+	destroyVerbose bool
 )
 
 var destroyCmd = &cobra.Command{
@@ -25,6 +26,7 @@ var destroyCmd = &cobra.Command{
 func init() {
 	destroyCmd.Flags().BoolVarP(&destroyYes, "yes", "y", false, "Confirm destruction (required)")
 	destroyCmd.Flags().StringVar(&destroyStage, "stage", "dev", "Stage name to destroy")
+	destroyCmd.Flags().BoolVar(&destroyVerbose, "verbose", false, "Show underlying cloud resources")
 	rootCmd.AddCommand(destroyCmd)
 }
 
@@ -41,24 +43,25 @@ func runDestroy(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("Destroying stage \"%s\"...\n\n", destroyStage)
-	start := time.Now()
+	printBanner()
+	fmt.Printf("  Destroying %s...\n\n", destroyStage)
 
-	result, err := s.Destroy(ctx, optdestroy.ProgressStreams(os.Stdout))
-	if err != nil {
-		return fmt.Errorf("destroy failed: %w", err)
-	}
+	handler := NewEventHandler(destroyVerbose)
+	eventCh := make(chan events.EngineEvent)
 
-	duration := time.Since(start).Round(time.Second)
-
-	resourceCount := 0
-	if result.Summary.ResourceChanges != nil {
-		for _, count := range *result.Summary.ResourceChanges {
-			resourceCount += count
+	go func() {
+		for event := range eventCh {
+			handler.HandleEvent(event)
 		}
-	}
+	}()
 
-	fmt.Printf("\n✓ Destroy complete (%s, %d resources destroyed)\n", duration, resourceCount)
+	_, err = s.Destroy(ctx, optdestroy.EventStreams(eventCh))
+
+	handler.PrintSummary("destroy", destroyStage)
+
+	if err != nil {
+		return fmt.Errorf("destroy failed")
+	}
 
 	return nil
 }
