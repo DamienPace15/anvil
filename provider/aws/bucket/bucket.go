@@ -24,6 +24,7 @@ type Bucket struct {
 
 // Annotate helps the provider understand the Pulumi token
 func (b *Bucket) Annotate(a infer.Annotator) {
+	a.SetToken("aws", "Bucket")
 	a.Describe(&b, "An Anvil-managed S3 bucket with sensible security defaults.")
 }
 
