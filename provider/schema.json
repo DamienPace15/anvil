@@ -42,7 +42,7 @@
           "type": "integer"
         },
         "transform": {
-          "$ref": "#/types/anvil:aws:TransformArgs"
+          "$ref": "#/types/anvil:aws:BucketTransformArgs"
         }
       },
       "isComponent": true,
@@ -57,7 +57,7 @@
           "type": "string"
         },
         "transform": {
-          "$ref": "#/types/anvil:aws:TransformArgs"
+          "$ref": "#/types/anvil:aws:LambdaTransformArgs"
         },
         "vpc": {
           "description": "The ID of the AWS VPC to deploy this function into.",
@@ -88,7 +88,7 @@
           "type": "string"
         },
         "transform": {
-          "$ref": "#/types/anvil:gcp:TransformArgs"
+          "$ref": "#/types/anvil:gcp:FunctionTransformArgs"
         }
       },
       "isComponent": true,
@@ -110,7 +110,7 @@
           "type": "string"
         },
         "transform": {
-          "$ref": "#/types/anvil:gcp:TransformArgs"
+          "$ref": "#/types/anvil:gcp:BucketTransformArgs"
         }
       },
       "isComponent": true,
@@ -449,6 +449,56 @@
       },
       "type": "object"
     },
+    "anvil:aws:BucketTransformArgs": {
+      "properties": {
+        "accelerationStatus": {
+          "$ref": "#/types/anvil:aws:BucketAccelerateConfigurationTransform"
+        },
+        "acl": {
+          "$ref": "#/types/anvil:aws:BucketAclTransform"
+        },
+        "bucket": {
+          "$ref": "#/types/anvil:aws:BucketTransform"
+        },
+        "corsRules": {
+          "$ref": "#/types/anvil:aws:BucketCorsConfigurationTransform"
+        },
+        "grants": {
+          "$ref": "#/types/anvil:aws:BucketAclTransform"
+        },
+        "lifecycleRules": {
+          "$ref": "#/types/anvil:aws:BucketLifecycleConfigurationTransform"
+        },
+        "logging": {
+          "$ref": "#/types/anvil:aws:BucketLoggingTransform"
+        },
+        "objectLockConfiguration": {
+          "$ref": "#/types/anvil:aws:BucketObjectLockConfigurationTransform"
+        },
+        "policy": {
+          "$ref": "#/types/anvil:aws:BucketPolicyTransform"
+        },
+        "publicAccessBlock": {
+          "$ref": "#/types/anvil:aws:PABTransform"
+        },
+        "replicationConfiguration": {
+          "$ref": "#/types/anvil:aws:BucketReplicationConfigTransform"
+        },
+        "requestPayer": {
+          "$ref": "#/types/anvil:aws:BucketRequestPaymentConfigurationTransform"
+        },
+        "serverSideEncryptionConfiguration": {
+          "$ref": "#/types/anvil:aws:BucketServerSideEncryptionConfigurationTransform"
+        },
+        "versioning": {
+          "$ref": "#/types/anvil:aws:BucketVersioningTransform"
+        },
+        "website": {
+          "$ref": "#/types/anvil:aws:BucketWebsiteConfigurationTransform"
+        }
+      },
+      "type": "object"
+    },
     "anvil:aws:BucketVersioningTransform": {
       "properties": {
         "bucket": {
@@ -707,6 +757,14 @@
       },
       "type": "object"
     },
+    "anvil:aws:LambdaTransformArgs": {
+      "properties": {
+        "lambda": {
+          "$ref": "#/types/anvil:aws:LambdaTransform"
+        }
+      },
+      "type": "object"
+    },
     "anvil:aws:PABTransform": {
       "properties": {
         "blockPublicAcls": {
@@ -737,14 +795,6 @@
         "skipDestroy": {
           "description": "Whether to retain the public access block upon destruction. If set to \u003cspan pulumi-lang-nodejs=\"`true`\" pulumi-lang-dotnet=\"`True`\" pulumi-lang-go=\"`true`\" pulumi-lang-python=\"`true`\" pulumi-lang-yaml=\"`true`\" pulumi-lang-java=\"`true`\"\u003e`true`\u003c/span\u003e, the resource is simply removed from state instead. This may be desirable in certain scenarios to prevent the removal of a public access block before deletion of the associated bucket.\n",
           "type": "boolean"
-        }
-      },
-      "type": "object"
-    },
-    "anvil:aws:TransformArgs": {
-      "properties": {
-        "lambda": {
-          "$ref": "#/types/anvil:aws:LambdaTransform"
         }
       },
       "type": "object"
@@ -864,6 +914,14 @@
       },
       "type": "object"
     },
+    "anvil:gcp:BucketTransformArgs": {
+      "properties": {
+        "bucket": {
+          "$ref": "#/types/anvil:gcp:BucketTransform"
+        }
+      },
+      "type": "object"
+    },
     "anvil:gcp:FunctionTransform": {
       "properties": {
         "buildConfig": {
@@ -911,7 +969,7 @@
       },
       "type": "object"
     },
-    "anvil:gcp:TransformArgs": {
+    "anvil:gcp:FunctionTransformArgs": {
       "properties": {
         "function": {
           "$ref": "#/types/anvil:gcp:FunctionTransform"

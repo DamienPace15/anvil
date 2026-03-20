@@ -7,7 +7,7 @@
           "type": "string"
         },
         "transform": {
-          "$ref": "#/types/anvil:aws:TransformArgs"
+          "$ref": "#/types/anvil:aws:LambdaTransformArgs"
         },
         "vpc": {
           "description": "The ID of the AWS VPC to deploy this function into.",
@@ -210,7 +210,7 @@
       },
       "type": "object"
     },
-    "anvil:aws:TransformArgs": {
+    "anvil:aws:LambdaTransformArgs": {
       "properties": {
         "lambda": {
           "$ref": "#/types/anvil:aws:LambdaTransform"

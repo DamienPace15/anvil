@@ -349,16 +349,29 @@ func main() {
 			transformArgsProps[key] = map[string]interface{}{"$ref": fmt.Sprintf("#/types/%s", typeName)}
 		}
 
-		transformArgsTypeName := fmt.Sprintf("%sTransformArgs", anvilNs)
+		transformArgsTypeName := fmt.Sprintf("%s%sTransformArgs", anvilNs, anvilResourceName)
 		anvilTypes[transformArgsTypeName] = map[string]interface{}{"type": "object", "properties": transformArgsProps}
 
 		if resources, ok := anvilSchema["resources"].(map[string]interface{}); ok {
-			resKey := fmt.Sprintf("%s%s", anvilNs, anvilResourceName)
+			var resKey string
+
+			if resources, ok := anvilSchema["resources"].(map[string]interface{}); ok {
+				for k := range resources {
+					resKey = k
+					break
+				}
+			}
+
 			if resObj, ok := resources[resKey].(map[string]interface{}); ok {
 				if inputs, ok := resObj["inputProperties"].(map[string]interface{}); ok {
 					inputs["transform"] = map[string]interface{}{"$ref": fmt.Sprintf("#/types/%s", transformArgsTypeName)}
 				}
 			}
+		}
+
+		staleKey := fmt.Sprintf("%sTransformArgs", anvilNs)
+		if staleKey != transformArgsTypeName {
+			delete(anvilTypes, staleKey)
 		}
 
 		finalJson, _ := json.MarshalIndent(anvilSchema, "", "  ")
