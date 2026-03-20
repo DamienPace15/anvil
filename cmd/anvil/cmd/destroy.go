@@ -48,6 +48,7 @@ func runDestroy(cmd *cobra.Command, args []string) error {
 	printBanner()
 	fmt.Printf("  Destroying %s...\n\n", destroyStage)
 
+	// ── 1. Destroy app resources via Pulumi ──
 	handler := NewEventHandler(destroyVerbose)
 	eventCh := make(chan events.EngineEvent)
 
