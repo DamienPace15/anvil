@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optup"
 	"github.com/spf13/cobra"
 )
@@ -42,32 +41,10 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 
 	ctx := context.Background()
 
-	// Work directory — where the user's Pulumi project lives.
-	// TODO(2.x): resolve this from the current directory or a config file.
-	workDir, err := os.Getwd()
+	s, err := loadStack(ctx, deployStage)
 	if err != nil {
-		return fmt.Errorf("failed to get working directory: %w", err)
+		return err
 	}
-
-	// Backend URL — local file backend by default, overridable via env var.
-	backendURL := os.Getenv("ANVIL_BACKEND_URL")
-	if backendURL == "" {
-		backendURL = "file://~/.anvil-state"
-	}
-
-	s, err := auto.UpsertStackLocalSource(ctx, deployStage, workDir,
-		auto.EnvVars(map[string]string{
-			"PULUMI_BACKEND_URL":       backendURL,
-			"PULUMI_CONFIG_PASSPHRASE": "",
-		}),
-	)
-	if err != nil {
-		return fmt.Errorf("stack init failed: %w", err)
-	}
-
-	// Set AWS region via stack config.
-	// TODO(2.x): read from anvil config or flags.
-	s.SetConfig(ctx, "aws:region", auto.ConfigValue{Value: "ap-southeast-2"})
 
 	fmt.Printf("Deploying stage \"%s\"...\n\n", deployStage)
 	start := time.Now()
@@ -79,7 +56,6 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 
 	duration := time.Since(start).Round(time.Second)
 
-	// Count resources from the summary.
 	resourceCount := 0
 	if result.Summary.ResourceChanges != nil {
 		for _, count := range *result.Summary.ResourceChanges {
