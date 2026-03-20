@@ -10,7 +10,6 @@ import (
 )
 
 var (
-	deployYes     bool
 	deployStage   string
 	deployVerbose bool
 )
@@ -23,23 +22,12 @@ var deployCmd = &cobra.Command{
 }
 
 func init() {
-	deployCmd.Flags().BoolVarP(&deployYes, "yes", "y", false, "Skip confirmation prompt")
 	deployCmd.Flags().StringVar(&deployStage, "stage", "dev", "Stage name for this deployment")
 	deployCmd.Flags().BoolVar(&deployVerbose, "verbose", false, "Show underlying cloud resources")
 	rootCmd.AddCommand(deployCmd)
 }
 
 func runDeploy(cmd *cobra.Command, args []string) error {
-	if !deployYes {
-		fmt.Print("Deploy to stage \"" + deployStage + "\"? [y/N] ")
-		var confirm string
-		fmt.Scanln(&confirm)
-		if confirm != "y" && confirm != "Y" {
-			fmt.Println("Cancelled.")
-			return nil
-		}
-	}
-
 	ctx := context.Background()
 
 	s, err := loadStack(ctx, deployStage)

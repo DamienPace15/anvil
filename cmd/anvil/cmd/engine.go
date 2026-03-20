@@ -37,7 +37,7 @@ func loadStack(ctx context.Context, stage string) (auto.Stack, error) {
 		}),
 	)
 	if err != nil {
-		return auto.Stack{}, fmt.Errorf("stack init failed: %w", err)
+		return auto.Stack{}, fmt.Errorf("%s", mapError(err.Error()))
 	}
 
 	s.SetConfig(ctx, "aws:region", auto.ConfigValue{Value: defaultRegion})
