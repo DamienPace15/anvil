@@ -22,21 +22,23 @@ var deployCmd = &cobra.Command{
 }
 
 func init() {
-	deployCmd.Flags().StringVar(&deployStage, "stage", "dev", "Stage name for this deployment")
+	deployCmd.Flags().StringVar(&deployStage, "stage", "", "Stage name for this deployment")
 	deployCmd.Flags().BoolVar(&deployVerbose, "verbose", false, "Show underlying cloud resources")
 	rootCmd.AddCommand(deployCmd)
 }
 
 func runDeploy(cmd *cobra.Command, args []string) error {
+	stage := resolveStage(deployStage)
+
 	ctx := context.Background()
 
-	s, err := loadStack(ctx, deployStage)
+	s, err := loadStack(ctx, stage)
 	if err != nil {
 		return err
 	}
 
 	printBanner()
-	fmt.Printf("  Deploying to %s...\n\n", deployStage)
+	fmt.Printf("  Deploying to %s...\n\n", stage)
 
 	handler := NewEventHandler(deployVerbose)
 	eventCh := make(chan events.EngineEvent)
@@ -49,7 +51,7 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 
 	_, err = s.Up(ctx, optup.EventStreams(eventCh))
 
-	handler.PrintSummary("deploy", deployStage)
+	handler.PrintSummary("deploy", stage)
 
 	if err != nil {
 		return fmt.Errorf("deploy failed")
