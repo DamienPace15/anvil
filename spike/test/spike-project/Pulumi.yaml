@@ -1,0 +1,3 @@
+name: anvil-spike
+runtime: nodejs
+description: Spike to test Automation API
