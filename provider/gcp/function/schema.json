@@ -19,7 +19,7 @@
           "type": "string"
         },
         "transform": {
-          "$ref": "#/types/anvil:gcp:TransformArgs"
+          "$ref": "#/types/anvil:gcp:FunctionTransformArgs"
         }
       },
       "isComponent": true,
@@ -79,7 +79,7 @@
       },
       "type": "object"
     },
-    "anvil:gcp:TransformArgs": {
+    "anvil:gcp:FunctionTransformArgs": {
       "properties": {
         "function": {
           "$ref": "#/types/anvil:gcp:FunctionTransform"
