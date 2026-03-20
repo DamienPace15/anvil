@@ -39,4 +39,5 @@ func Execute() error {
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
 }

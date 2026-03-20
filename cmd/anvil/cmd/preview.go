@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optpreview"
 	"github.com/spf13/cobra"
 )
@@ -27,27 +26,10 @@ func init() {
 func runPreview(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
 
-	workDir, err := os.Getwd()
+	s, err := loadStack(ctx, previewStage)
 	if err != nil {
-		return fmt.Errorf("failed to get working directory: %w", err)
+		return err
 	}
-
-	backendURL := os.Getenv("ANVIL_BACKEND_URL")
-	if backendURL == "" {
-		backendURL = "file://~/.anvil-state"
-	}
-
-	s, err := auto.UpsertStackLocalSource(ctx, previewStage, workDir,
-		auto.EnvVars(map[string]string{
-			"PULUMI_BACKEND_URL":       backendURL,
-			"PULUMI_CONFIG_PASSPHRASE": "",
-		}),
-	)
-	if err != nil {
-		return fmt.Errorf("stack init failed: %w", err)
-	}
-
-	s.SetConfig(ctx, "aws:region", auto.ConfigValue{Value: "ap-southeast-2"})
 
 	fmt.Printf("Previewing stage \"%s\"...\n\n", previewStage)
 

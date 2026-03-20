@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optdestroy"
 	"github.com/spf13/cobra"
 )
@@ -37,27 +36,10 @@ func runDestroy(cmd *cobra.Command, args []string) error {
 
 	ctx := context.Background()
 
-	workDir, err := os.Getwd()
+	s, err := loadStack(ctx, destroyStage)
 	if err != nil {
-		return fmt.Errorf("failed to get working directory: %w", err)
+		return err
 	}
-
-	backendURL := os.Getenv("ANVIL_BACKEND_URL")
-	if backendURL == "" {
-		backendURL = "file://~/.anvil-state"
-	}
-
-	s, err := auto.UpsertStackLocalSource(ctx, destroyStage, workDir,
-		auto.EnvVars(map[string]string{
-			"PULUMI_BACKEND_URL":       backendURL,
-			"PULUMI_CONFIG_PASSPHRASE": "",
-		}),
-	)
-	if err != nil {
-		return fmt.Errorf("stack init failed: %w", err)
-	}
-
-	s.SetConfig(ctx, "aws:region", auto.ConfigValue{Value: "ap-southeast-2"})
 
 	fmt.Printf("Destroying stage \"%s\"...\n\n", destroyStage)
 	start := time.Now()
