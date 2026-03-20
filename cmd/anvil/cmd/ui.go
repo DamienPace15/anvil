@@ -357,7 +357,7 @@ func (h *EventHandler) handleDiagnostic(e *apitype.DiagnosticEvent) {
 	if e.Severity == "error" {
 		h.errors = append(h.errors, diagError{
 			urn:     e.URN,
-			message: strings.TrimSpace(e.Message),
+			message: mapError(strings.TrimSpace(e.Message)),
 		})
 	}
 }
