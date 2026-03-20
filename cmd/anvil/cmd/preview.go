@@ -22,20 +22,22 @@ var previewCmd = &cobra.Command{
 }
 
 func init() {
-	previewCmd.Flags().StringVar(&previewStage, "stage", "dev", "Stage name for this deployment")
+	previewCmd.Flags().StringVar(&previewStage, "stage", "", "Stage name for this deployment")
 	previewCmd.Flags().BoolVar(&previewVerbose, "verbose", false, "Show underlying cloud resources")
 	rootCmd.AddCommand(previewCmd)
 }
 
 func runPreview(cmd *cobra.Command, args []string) error {
+	stage := resolveStage(previewStage)
+
 	ctx := context.Background()
 
-	s, err := loadStack(ctx, previewStage)
+	s, err := loadStack(ctx, stage)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("\n  Previewing %s...\n\n", previewStage)
+	fmt.Printf("\n  Previewing %s...\n\n", stage)
 
 	handler := NewEventHandler(previewVerbose)
 	eventCh := make(chan events.EngineEvent)
@@ -48,7 +50,7 @@ func runPreview(cmd *cobra.Command, args []string) error {
 
 	_, err = s.Preview(ctx, optpreview.EventStreams(eventCh))
 
-	handler.PrintSummary("preview", previewStage)
+	handler.PrintSummary("preview", stage)
 
 	if err != nil {
 		return fmt.Errorf("preview failed")

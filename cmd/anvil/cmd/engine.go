@@ -14,6 +14,21 @@ const defaultBackendURL = "file://~/.anvil-state"
 // defaultRegion is the AWS region used for all stacks.
 const defaultRegion = "ap-southeast-2"
 
+// resolveStage determines the effective stage.
+// Priority: explicit flag → active stage from anvil.yaml → "dev"
+func resolveStage(flagValue string) string {
+	if flagValue != "" {
+		return flagValue
+	}
+
+	config, err := loadAnvilConfig()
+	if err == nil && config.Active != "" {
+		return config.Active
+	}
+
+	return "dev"
+}
+
 // resolveBackendForStage determines the backend URL for a specific stage.
 func resolveBackendForStage(stage string) string {
 	if envURL := os.Getenv("ANVIL_BACKEND_URL"); envURL != "" {
@@ -50,7 +65,7 @@ func resolveRegionForStage(stage string) string {
 }
 
 // ensureBootstrapped checks if the given stage is bootstrapped. If not, runs bootstrap automatically.
-func ensureBootstrapped(ctx context.Context, stage string) error {
+func ensureBootstrapped(_ context.Context, stage string) error {
 	config, err := loadAnvilConfig()
 	if err == nil {
 		if _, ok := config.Stages[stage]; ok {
@@ -84,6 +99,36 @@ func loadStack(ctx context.Context, stage string) (auto.Stack, error) {
 	}
 
 	backendURL := resolveBackendForStage(stage)
+	region := resolveRegionForStage(stage)
+
+	s, err := auto.UpsertStackLocalSource(ctx, stage, workDir,
+		auto.EnvVars(map[string]string{
+			"PULUMI_BACKEND_URL":       backendURL,
+			"PULUMI_CONFIG_PASSPHRASE": "",
+		}),
+	)
+	if err != nil {
+		return auto.Stack{}, fmt.Errorf("%s", mapError(err.Error()))
+	}
+
+	s.SetConfig(ctx, "aws:region", auto.ConfigValue{Value: region})
+
+	return s, nil
+}
+
+// loadStackNoBootstrap loads a stack without auto-bootstrapping.
+// Used by destroy — it shouldn't create infrastructure to tear it down.
+func loadStackNoBootstrap(ctx context.Context, stage string) (auto.Stack, error) {
+	workDir, err := os.Getwd()
+	if err != nil {
+		return auto.Stack{}, fmt.Errorf("failed to get working directory: %w", err)
+	}
+
+	backendURL := resolveBackendForStage(stage)
+	if backendURL == defaultBackendURL {
+		return auto.Stack{}, fmt.Errorf("Stage \"%s\" has not been bootstrapped.\n  Nothing to destroy.", stage)
+	}
+
 	region := resolveRegionForStage(stage)
 
 	s, err := auto.UpsertStackLocalSource(ctx, stage, workDir,

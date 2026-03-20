@@ -36,6 +36,7 @@ func init() {
 // anvilConfig represents the anvil.yaml file with multi-stage support.
 type anvilConfig struct {
 	Project string                  `yaml:"project"`
+	Active  string                  `yaml:"active,omitempty"`
 	Stages  map[string]*stageConfig `yaml:"stages"`
 }
 

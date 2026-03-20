@@ -18,20 +18,29 @@ var (
 var destroyCmd = &cobra.Command{
 	Use:   "destroy",
 	Short: "Tear down a deployment",
-	Long:  `Destroy all resources in the specified stage and remove it from anvil.yaml.`,
-	RunE:  runDestroy,
+	Long: `Destroy all resources in the specified stage and remove it from anvil.yaml.
+
+Requires --stage to be set explicitly. The active stage is ignored for safety.`,
+	RunE: runDestroy,
 }
 
 func init() {
-	destroyCmd.Flags().StringVar(&destroyStage, "stage", "dev", "Stage name to destroy")
+	destroyCmd.Flags().StringVar(&destroyStage, "stage", "", "Stage name to destroy (required)")
 	destroyCmd.Flags().BoolVar(&destroyVerbose, "verbose", false, "Show underlying cloud resources")
 	rootCmd.AddCommand(destroyCmd)
 }
 
 func runDestroy(cmd *cobra.Command, args []string) error {
+	if destroyStage == "" {
+		fmt.Fprintf(os.Stderr, "  Destroy requires an explicit --stage flag for safety.\n")
+		fmt.Fprintf(os.Stderr, "  Example: anvil destroy --stage dev\n")
+		return fmt.Errorf("--stage is required for destroy")
+	}
+
 	ctx := context.Background()
 
-	s, err := loadStack(ctx, destroyStage)
+	s, err := loadStackNoBootstrap(ctx, destroyStage)
+
 	if err != nil {
 		return err
 	}
@@ -57,32 +66,34 @@ func runDestroy(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("destroy failed")
 	}
 
-	// ── 2. Remove stage from anvil.yaml ──
+	// ── Remove stage from anvil.yaml ──
 	config, configErr := loadAnvilConfig()
 	if configErr != nil {
 		return nil
 	}
 
-	if _, ok := config.Stages[destroyStage]; !ok {
-		return nil
-	}
+	if _, ok := config.Stages[destroyStage]; ok {
+		delete(config.Stages, destroyStage)
 
-	delete(config.Stages, destroyStage)
+		// If active stage was the one destroyed, clear it
+		if config.Active == destroyStage {
+			config.Active = ""
+		}
 
-	if len(config.Stages) == 0 {
-		// No stages left — remove anvil.yaml entirely
-		os.Remove("anvil.yaml")
-		printCheck("anvil.yaml removed (no stages remaining)")
-	} else {
-		// Other stages still exist — update the file
-		err = writeAnvilConfig(*config)
-		if err != nil {
-			fmt.Printf("  %s Could not update anvil.yaml: %s\n", yellow("⚠"), err)
+		if len(config.Stages) == 0 {
+			os.Remove("anvil.yaml")
+			printCheck("anvil.yaml removed (no stages remaining)")
 		} else {
-			printCheck(fmt.Sprintf("Stage \"%s\" removed from anvil.yaml", destroyStage))
+			err = writeAnvilConfig(*config)
+			if err != nil {
+				fmt.Printf("  %s Could not update anvil.yaml: %s\n", yellow("⚠"), err)
+			} else {
+				printCheck(fmt.Sprintf("Stage \"%s\" removed from anvil.yaml", destroyStage))
+			}
 		}
 	}
 
+	// Clean up Pulumi stack config file
 	os.Remove(fmt.Sprintf("Pulumi.%s.yaml", destroyStage))
 
 	return nil
