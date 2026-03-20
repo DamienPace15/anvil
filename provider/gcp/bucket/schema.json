@@ -11,7 +11,7 @@
           "type": "string"
         },
         "transform": {
-          "$ref": "#/types/anvil:gcp:TransformArgs"
+          "$ref": "#/types/anvil:gcp:BucketTransformArgs"
         }
       },
       "isComponent": true,
@@ -137,7 +137,7 @@
       },
       "type": "object"
     },
-    "anvil:gcp:TransformArgs": {
+    "anvil:gcp:BucketTransformArgs": {
       "properties": {
         "bucket": {
           "$ref": "#/types/anvil:gcp:BucketTransform"
