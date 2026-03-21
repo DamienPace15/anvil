@@ -19,7 +19,7 @@
     },
     "go": {
       "generateResourceContainerTypes": true,
-      "importBasePath": "github.com/anvil/pulumi-anvil/sdk/go/anvil"
+      "importBasePath": "github.com/DamienPace15/anvil/sdk/go/anvil"
     },
     "csharp": {
       "packageReferences": {

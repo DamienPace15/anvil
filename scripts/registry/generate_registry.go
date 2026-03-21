@@ -13,7 +13,7 @@ import (
 
 // Runs from provider/ directory (cd provider && go run ../scripts/registry/generate_registry.go)
 
-const moduleName = "github.com/anvil/pulumi-anvil"
+const moduleName = "github.com/DamienPace15/anvil/provider"
 
 type Component struct {
 	ImportPath  string

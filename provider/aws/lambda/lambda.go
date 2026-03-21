@@ -1,7 +1,7 @@
 package lambda
 
 import (
-	"github.com/anvil/pulumi-anvil/internal/transform"
+	"github.com/DamienPace15/anvil/provider/internal/transform"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/lambda"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
