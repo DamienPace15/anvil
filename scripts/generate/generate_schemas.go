@@ -339,7 +339,7 @@ func main() {
 		// ── Final Wiring ──
 		rewriteRefs(cleanInputs, upstreamProvider, pinnedVersion)
 
-		transformTypeName := fmt.Sprintf("%s%sTransform", anvilNs, anvilResourceName)
+		transformTypeName := fmt.Sprintf("%s%sOverrides", anvilNs, anvilResourceName)
 		anvilTypes[transformTypeName] = map[string]interface{}{"type": "object", "properties": cleanInputs}
 		transformArgsProps[comp.folder] = map[string]interface{}{"$ref": fmt.Sprintf("#/types/%s", transformTypeName)}
 

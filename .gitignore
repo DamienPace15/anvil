@@ -1,6 +1,9 @@
 # ── Build outputs ──
 bin/
 sdk/
+!sdk/go/
+
+echo '!sdk/go/' >> .gitignore
 
 # ── Go ──
 *.exe

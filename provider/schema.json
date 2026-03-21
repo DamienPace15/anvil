@@ -9,7 +9,7 @@
     },
     "go": {
       "generateResourceContainerTypes": true,
-      "importBasePath": "github.com/anvil/pulumi-anvil/sdk/go/anvil"
+      "importBasePath": "github.com/DamienPace15/anvil/sdk/go/anvil"
     },
     "java": {
       "basePackage": "com.anvil.pulumi",
@@ -302,6 +302,46 @@
       },
       "type": "object"
     },
+    "anvil:aws:BucketOverrides": {
+      "properties": {
+        "bucket": {
+          "description": "Name of the bucket. If omitted, the provider will assign a random, unique name. Must be lowercase and less than or equal to 63 characters in length. A full list of bucket naming rules [may be found here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html). The name must not be in the format `\u003cspan pulumi-lang-nodejs=\"[bucketName]\" pulumi-lang-dotnet=\"[BucketName]\" pulumi-lang-go=\"[bucketName]\" pulumi-lang-python=\"[bucket_name]\" pulumi-lang-yaml=\"[bucketName]\" pulumi-lang-java=\"[bucketName]\"\u003e[bucket_name]\u003c/span\u003e--[azid]--x-s3`. Use the \u003cspan pulumi-lang-nodejs=\"`aws.s3.DirectoryBucket`\" pulumi-lang-dotnet=\"`aws.s3.DirectoryBucket`\" pulumi-lang-go=\"`s3.DirectoryBucket`\" pulumi-lang-python=\"`s3.DirectoryBucket`\" pulumi-lang-yaml=\"`aws.s3.DirectoryBucket`\" pulumi-lang-java=\"`aws.s3.DirectoryBucket`\"\u003e`aws.s3.DirectoryBucket`\u003c/span\u003e resource to manage S3 Express buckets.\n",
+          "language": {
+            "csharp": {
+              "name": "BucketName"
+            }
+          },
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "bucketPrefix": {
+          "description": "Creates a unique bucket name beginning with the specified prefix. Conflicts with \u003cspan pulumi-lang-nodejs=\"`bucket`\" pulumi-lang-dotnet=\"`Bucket`\" pulumi-lang-go=\"`bucket`\" pulumi-lang-python=\"`bucket`\" pulumi-lang-yaml=\"`bucket`\" pulumi-lang-java=\"`bucket`\"\u003e`bucket`\u003c/span\u003e. Must be lowercase and less than or equal to 37 characters in length. A full list of bucket naming rules [may be found here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html).\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "forceDestroy": {
+          "description": "Boolean that indicates all objects (including any [locked objects](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html)) should be deleted from the bucket *when the bucket is destroyed* so that the bucket can be destroyed without error. These objects are *not* recoverable. This only deletes objects when the bucket is destroyed, *not* when setting this parameter to \u003cspan pulumi-lang-nodejs=\"`true`\" pulumi-lang-dotnet=\"`True`\" pulumi-lang-go=\"`true`\" pulumi-lang-python=\"`true`\" pulumi-lang-yaml=\"`true`\" pulumi-lang-java=\"`true`\"\u003e`true`\u003c/span\u003e. Once this parameter is set to \u003cspan pulumi-lang-nodejs=\"`true`\" pulumi-lang-dotnet=\"`True`\" pulumi-lang-go=\"`true`\" pulumi-lang-python=\"`true`\" pulumi-lang-yaml=\"`true`\" pulumi-lang-java=\"`true`\"\u003e`true`\u003c/span\u003e, there must be a successful `pulumi up` run before a destroy is required to update this value in the resource state. Without a successful `pulumi up` after this parameter is set, this flag will have no effect. If setting this field in the same operation that would require replacing the bucket or destroying the bucket, this flag will not work. Additionally when importing a bucket, a successful `pulumi up` is required to set this value in state before it will take effect on a destroy operation.\n",
+          "type": "boolean"
+        },
+        "objectLockEnabled": {
+          "description": "Indicates whether this bucket has an Object Lock configuration enabled. Valid values are \u003cspan pulumi-lang-nodejs=\"`true`\" pulumi-lang-dotnet=\"`True`\" pulumi-lang-go=\"`true`\" pulumi-lang-python=\"`true`\" pulumi-lang-yaml=\"`true`\" pulumi-lang-java=\"`true`\"\u003e`true`\u003c/span\u003e or \u003cspan pulumi-lang-nodejs=\"`false`\" pulumi-lang-dotnet=\"`False`\" pulumi-lang-go=\"`false`\" pulumi-lang-python=\"`false`\" pulumi-lang-yaml=\"`false`\" pulumi-lang-java=\"`false`\"\u003e`false`\u003c/span\u003e. This argument is not supported in all regions or partitions.\n",
+          "type": "boolean",
+          "willReplaceOnChanges": true
+        },
+        "region": {
+          "description": "Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.\n",
+          "type": "string"
+        },
+        "tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of tags to assign to the bucket. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`default_tags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n\nThe following arguments are deprecated, and will be removed in a future major version:\n",
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
     "anvil:aws:BucketPolicyTransform": {
       "properties": {
         "bucket": {
@@ -458,7 +498,7 @@
           "$ref": "#/types/anvil:aws:BucketAclTransform"
         },
         "bucket": {
-          "$ref": "#/types/anvil:aws:BucketTransform"
+          "$ref": "#/types/anvil:aws:BucketOverrides"
         },
         "corsRules": {
           "$ref": "#/types/anvil:aws:BucketCorsConfigurationTransform"
@@ -564,6 +604,195 @@
             "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationRoutingRule:BucketWebsiteConfigurationRoutingRule"
           },
           "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:LambdaOverrides": {
+      "properties": {
+        "architectures": {
+          "description": "Instruction set architecture for your Lambda function. Valid values are `[\u003cspan pulumi-lang-nodejs=\"\"x8664\"\" pulumi-lang-dotnet=\"\"X8664\"\" pulumi-lang-go=\"\"x8664\"\" pulumi-lang-python=\"\"x86_64\"\" pulumi-lang-yaml=\"\"x8664\"\" pulumi-lang-java=\"\"x8664\"\"\u003e\"x86_64\"\u003c/span\u003e]` and `[\"arm64\"]`. Default is `[\u003cspan pulumi-lang-nodejs=\"\"x8664\"\" pulumi-lang-dotnet=\"\"X8664\"\" pulumi-lang-go=\"\"x8664\"\" pulumi-lang-python=\"\"x86_64\"\" pulumi-lang-yaml=\"\"x8664\"\" pulumi-lang-java=\"\"x8664\"\"\u003e\"x86_64\"\u003c/span\u003e]`. Removing this attribute, function's architecture stays the same.\n",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "capacityProviderConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionCapacityProviderConfig:FunctionCapacityProviderConfig",
+          "description": "Configuration block for Lambda Capacity Provider. See below.\n"
+        },
+        "code": {
+          "$ref": "pulumi.json#/Archive",
+          "description": "Path to the function's deployment package within the local filesystem. Conflicts with \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3_bucket`\u003c/span\u003e. One of \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e, or \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3_bucket`\u003c/span\u003e must be specified.\n"
+        },
+        "codeSha256": {
+          "description": "Base64-encoded representation the source code package file. Use this argument to trigger updates when the function source code changes. For OCI, this value is relayed directly from the image digest. For zip files, this value is the Base64 encoded SHA-256 hash of the `.zip` file. Layers are not included in the calculation. To trigger updates using a non-standard hashing algorithm, use the \u003cspan pulumi-lang-nodejs=\"`sourceCodeHash`\" pulumi-lang-dotnet=\"`SourceCodeHash`\" pulumi-lang-go=\"`sourceCodeHash`\" pulumi-lang-python=\"`source_code_hash`\" pulumi-lang-yaml=\"`sourceCodeHash`\" pulumi-lang-java=\"`sourceCodeHash`\"\u003e`source_code_hash`\u003c/span\u003e argument instead.\n",
+          "type": "string"
+        },
+        "codeSigningConfigArn": {
+          "description": "ARN of a code-signing configuration to enable code signing for this function.\n",
+          "type": "string"
+        },
+        "deadLetterConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionDeadLetterConfig:FunctionDeadLetterConfig",
+          "description": "Configuration block for dead letter queue. See below.\n"
+        },
+        "description": {
+          "description": "Description of what your Lambda Function does.\n",
+          "type": "string"
+        },
+        "durableConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionDurableConfig:FunctionDurableConfig",
+          "description": "Configuration block for durable function settings. See below. \u003cspan pulumi-lang-nodejs=\"`durableConfig`\" pulumi-lang-dotnet=\"`DurableConfig`\" pulumi-lang-go=\"`durableConfig`\" pulumi-lang-python=\"`durable_config`\" pulumi-lang-yaml=\"`durableConfig`\" pulumi-lang-java=\"`durableConfig`\"\u003e`durable_config`\u003c/span\u003e may only be available in [limited regions](https://builder.aws.com/build/capabilities), including `us-east-2`.\n"
+        },
+        "environment": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionEnvironment:FunctionEnvironment",
+          "description": "Configuration block for environment variables. See below.\n"
+        },
+        "ephemeralStorage": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionEphemeralStorage:FunctionEphemeralStorage",
+          "description": "Amount of ephemeral storage (`/tmp`) to allocate for the Lambda Function. See below.\n"
+        },
+        "fileSystemConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionFileSystemConfig:FunctionFileSystemConfig",
+          "description": "Configuration block for EFS file system. See below.\n"
+        },
+        "handler": {
+          "description": "Function entry point in your code. Required if \u003cspan pulumi-lang-nodejs=\"`packageType`\" pulumi-lang-dotnet=\"`PackageType`\" pulumi-lang-go=\"`packageType`\" pulumi-lang-python=\"`package_type`\" pulumi-lang-yaml=\"`packageType`\" pulumi-lang-java=\"`packageType`\"\u003e`package_type`\u003c/span\u003e is `Zip`.\n",
+          "type": "string"
+        },
+        "imageConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionImageConfig:FunctionImageConfig",
+          "description": "Container image configuration values. See below.\n"
+        },
+        "imageUri": {
+          "description": "ECR image URI containing the function's deployment package. Conflicts with \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3_bucket`\u003c/span\u003e. One of \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e, or \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3_bucket`\u003c/span\u003e must be specified.\n",
+          "type": "string"
+        },
+        "kmsKeyArn": {
+          "description": "ARN of the AWS Key Management Service key used to encrypt environment variables. If not provided when environment variables are in use, AWS Lambda uses a default service key. If provided when environment variables are not in use, the AWS Lambda API does not save this configuration.\n",
+          "type": "string"
+        },
+        "layers": {
+          "description": "List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function.\n",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "loggingConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionLoggingConfig:FunctionLoggingConfig",
+          "description": "Configuration block for advanced logging settings. See below.\n"
+        },
+        "memorySize": {
+          "description": "Amount of memory in MB your Lambda Function can use at runtime. Valid value between 128 MB to 32,768 MB (32 GB), in 1 MB increments. Defaults to 128.\n",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Unique name for your Lambda Function.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "packageType": {
+          "description": "Lambda deployment package type. Valid values are `Zip` and `Image`. Defaults to `Zip`.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "publish": {
+          "description": "Whether to publish creation/change as new Lambda Function Version. Defaults to \u003cspan pulumi-lang-nodejs=\"`false`\" pulumi-lang-dotnet=\"`False`\" pulumi-lang-go=\"`false`\" pulumi-lang-python=\"`false`\" pulumi-lang-yaml=\"`false`\" pulumi-lang-java=\"`false`\"\u003e`false`\u003c/span\u003e.\n",
+          "type": "boolean"
+        },
+        "publishTo": {
+          "description": "Whether to publish to a alias or version number. Omit for regular version publishing. Option is `LATEST_PUBLISHED`.\n",
+          "type": "string"
+        },
+        "region": {
+          "description": "Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.\n",
+          "type": "string"
+        },
+        "replaceSecurityGroupsOnDestroy": {
+          "description": "Whether to replace the security groups on the function's VPC configuration prior to destruction. Default is \u003cspan pulumi-lang-nodejs=\"`false`\" pulumi-lang-dotnet=\"`False`\" pulumi-lang-go=\"`false`\" pulumi-lang-python=\"`false`\" pulumi-lang-yaml=\"`false`\" pulumi-lang-java=\"`false`\"\u003e`false`\u003c/span\u003e.\n",
+          "type": "boolean"
+        },
+        "replacementSecurityGroupIds": {
+          "description": "List of security group IDs to assign to the function's VPC configuration prior to destruction. Required if \u003cspan pulumi-lang-nodejs=\"`replaceSecurityGroupsOnDestroy`\" pulumi-lang-dotnet=\"`ReplaceSecurityGroupsOnDestroy`\" pulumi-lang-go=\"`replaceSecurityGroupsOnDestroy`\" pulumi-lang-python=\"`replace_security_groups_on_destroy`\" pulumi-lang-yaml=\"`replaceSecurityGroupsOnDestroy`\" pulumi-lang-java=\"`replaceSecurityGroupsOnDestroy`\"\u003e`replace_security_groups_on_destroy`\u003c/span\u003e is \u003cspan pulumi-lang-nodejs=\"`true`\" pulumi-lang-dotnet=\"`True`\" pulumi-lang-go=\"`true`\" pulumi-lang-python=\"`true`\" pulumi-lang-yaml=\"`true`\" pulumi-lang-java=\"`true`\"\u003e`true`\u003c/span\u003e.\n",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "reservedConcurrentExecutions": {
+          "description": "Amount of reserved concurrent executions for this lambda function. A value of \u003cspan pulumi-lang-nodejs=\"`0`\" pulumi-lang-dotnet=\"`0`\" pulumi-lang-go=\"`0`\" pulumi-lang-python=\"`0`\" pulumi-lang-yaml=\"`0`\" pulumi-lang-java=\"`0`\"\u003e`0`\u003c/span\u003e disables lambda from being triggered and `-1` removes any concurrency limitations. Defaults to Unreserved Concurrency Limits `-1`.\n",
+          "type": "integer"
+        },
+        "role": {
+          "description": "ARN of the function's execution role. The role provides the function's identity and access to AWS services and resources.\n\nThe following arguments are optional:\n",
+          "type": "string"
+        },
+        "runtime": {
+          "description": "Identifier of the function's runtime. Required if \u003cspan pulumi-lang-nodejs=\"`packageType`\" pulumi-lang-dotnet=\"`PackageType`\" pulumi-lang-go=\"`packageType`\" pulumi-lang-python=\"`package_type`\" pulumi-lang-yaml=\"`packageType`\" pulumi-lang-java=\"`packageType`\"\u003e`package_type`\u003c/span\u003e is `Zip`. See [Runtimes](https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-Runtime) for valid values.\n",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/Runtime:Runtime",
+              "type": "string"
+            }
+          ],
+          "type": "string"
+        },
+        "s3Bucket": {
+          "description": "S3 bucket location containing the function's deployment package. Conflicts with \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e. One of \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e, or \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3_bucket`\u003c/span\u003e must be specified.\n",
+          "type": "string"
+        },
+        "s3Key": {
+          "description": "S3 key of an object containing the function's deployment package. Required if \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3_bucket`\u003c/span\u003e is set.\n",
+          "type": "string"
+        },
+        "s3ObjectVersion": {
+          "description": "Object version containing the function's deployment package. Conflicts with \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e.\n",
+          "type": "string"
+        },
+        "skipDestroy": {
+          "description": "Whether to retain the old version of a previously deployed Lambda Layer. Default is \u003cspan pulumi-lang-nodejs=\"`false`\" pulumi-lang-dotnet=\"`False`\" pulumi-lang-go=\"`false`\" pulumi-lang-python=\"`false`\" pulumi-lang-yaml=\"`false`\" pulumi-lang-java=\"`false`\"\u003e`false`\u003c/span\u003e.\n",
+          "type": "boolean"
+        },
+        "snapStart": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionSnapStart:FunctionSnapStart",
+          "description": "Configuration block for snap start settings. See below.\n"
+        },
+        "sourceCodeHash": {
+          "description": "User-defined hash of the source code package file. Use this argument to trigger updates when the local function source code changes. This is a synthetic argument tracked only by the AWS provider and does not need to match the hashing algorithm used by Lambda to compute the `CodeSha256` response value. Out-of-band changes to the source code _will not_ be captured by this argument. To include out-of-band source code changes as an update trigger, use the \u003cspan pulumi-lang-nodejs=\"`codeSha256`\" pulumi-lang-dotnet=\"`CodeSha256`\" pulumi-lang-go=\"`codeSha256`\" pulumi-lang-python=\"`code_sha256`\" pulumi-lang-yaml=\"`codeSha256`\" pulumi-lang-java=\"`codeSha256`\"\u003e`code_sha256`\u003c/span\u003e argument instead.\n",
+          "type": "string"
+        },
+        "sourceKmsKeyArn": {
+          "description": "ARN of the AWS Key Management Service key used to encrypt the function's `.zip` deployment package. Conflicts with \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e.\n",
+          "type": "string"
+        },
+        "tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Key-value map of tags for the Lambda function. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`default_tags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n",
+          "type": "object"
+        },
+        "tenancyConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionTenancyConfig:FunctionTenancyConfig",
+          "description": "Configuration block for Tenancy. See below.\n",
+          "willReplaceOnChanges": true
+        },
+        "timeout": {
+          "description": "Amount of time your Lambda Function has to run in seconds. Defaults to 3. Valid between 1 and 900.\n",
+          "type": "integer"
+        },
+        "tracingConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionTracingConfig:FunctionTracingConfig",
+          "description": "Configuration block for X-Ray tracing. See below.\n"
+        },
+        "vpcConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionVpcConfig:FunctionVpcConfig",
+          "description": "Configuration block for VPC. See below.\n"
         }
       },
       "type": "object"
@@ -760,7 +989,7 @@
     "anvil:aws:LambdaTransformArgs": {
       "properties": {
         "lambda": {
-          "$ref": "#/types/anvil:aws:LambdaTransform"
+          "$ref": "#/types/anvil:aws:LambdaOverrides"
         }
       },
       "type": "object"
@@ -795,6 +1024,121 @@
         "skipDestroy": {
           "description": "Whether to retain the public access block upon destruction. If set to \u003cspan pulumi-lang-nodejs=\"`true`\" pulumi-lang-dotnet=\"`True`\" pulumi-lang-go=\"`true`\" pulumi-lang-python=\"`true`\" pulumi-lang-yaml=\"`true`\" pulumi-lang-java=\"`true`\"\u003e`true`\u003c/span\u003e, the resource is simply removed from state instead. This may be desirable in certain scenarios to prevent the removal of a public access block before deletion of the associated bucket.\n",
           "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:gcp:BucketOverrides": {
+      "properties": {
+        "autoclass": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketAutoclass:BucketAutoclass",
+          "description": "The bucket's [Autoclass](https://cloud.google.com/storage/docs/autoclass) configuration.  Structure is documented below.\n"
+        },
+        "cors": {
+          "description": "The bucket's [Cross-Origin Resource Sharing (CORS)](https://www.w3.org/TR/cors/) configuration. Multiple blocks of this type are permitted. Structure is documented below.\n",
+          "items": {
+            "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketCor:BucketCor"
+          },
+          "type": "array"
+        },
+        "customPlacementConfig": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketCustomPlacementConfig:BucketCustomPlacementConfig",
+          "description": "The bucket's custom location configuration, which specifies the individual regions that comprise a dual-region bucket. If the bucket is designated a single or multi-region, the parameters are empty. Structure is documented below.\n"
+        },
+        "defaultEventBasedHold": {
+          "description": "Whether or not to automatically apply an eventBasedHold to new objects added to the bucket.\n",
+          "type": "boolean"
+        },
+        "enableObjectRetention": {
+          "description": "Enables [object retention](https://cloud.google.com/storage/docs/object-lock) on a storage bucket.\n",
+          "type": "boolean",
+          "willReplaceOnChanges": true
+        },
+        "encryption": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketEncryption:BucketEncryption",
+          "description": "The bucket's encryption configuration. Structure is documented below.\n"
+        },
+        "forceDestroy": {
+          "description": "When true, before deleting a bucket, delete all objects within the bucket, or Anywhere Caches caching data for that bucket. Otherwise, buckets with objects/caches will fail. Anywhere Cache requires additional permissions to interact with and will be assumed not present when the provider is not permissioned, attempting to delete the bucket anyways. This may result in the objects in the bucket getting destroyed but not the bucket itself if there is a cache in use with the bucket. Force deletion may take a long time to delete buckets with lots of objects or with any Anywhere Caches (80m+).\n",
+          "type": "boolean"
+        },
+        "hierarchicalNamespace": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketHierarchicalNamespace:BucketHierarchicalNamespace",
+          "description": "The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is documented below. To use this configuration, \u003cspan pulumi-lang-nodejs=\"`uniformBucketLevelAccess`\" pulumi-lang-dotnet=\"`UniformBucketLevelAccess`\" pulumi-lang-go=\"`uniformBucketLevelAccess`\" pulumi-lang-python=\"`uniform_bucket_level_access`\" pulumi-lang-yaml=\"`uniformBucketLevelAccess`\" pulumi-lang-java=\"`uniformBucketLevelAccess`\"\u003e`uniform_bucket_level_access`\u003c/span\u003e must be enabled on bucket.\n",
+          "willReplaceOnChanges": true
+        },
+        "ipFilter": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketIpFilter:BucketIpFilter",
+          "description": "The bucket IP filtering configuration. Specifies the network sources that can access the bucket, as well as its underlying objects. Structure is documented below.\n"
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A map of key/value label pairs to assign to the bucket.\n",
+          "type": "object"
+        },
+        "lifecycleRules": {
+          "description": "The bucket's [Lifecycle Rules](https://cloud.google.com/storage/docs/lifecycle#configuration) configuration. Multiple blocks of this type are permitted. Structure is documented below.\n",
+          "items": {
+            "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketLifecycleRule:BucketLifecycleRule"
+          },
+          "type": "array"
+        },
+        "location": {
+          "description": "The [GCS location](https://cloud.google.com/storage/docs/bucket-locations).\n\n- - -\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "logging": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketLogging:BucketLogging",
+          "description": "The bucket's [Access \u0026 Storage Logs](https://cloud.google.com/storage/docs/access-logs) configuration. Structure is documented below.\n"
+        },
+        "name": {
+          "description": "The name of the bucket. Bucket names must be in lowercase and no more than 63 characters long. You can find the complete list of bucket naming rules [here](https://cloud.google.com/storage/docs/buckets#naming).\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "project": {
+          "description": "The ID of the project in which the resource belongs. If it\nis not provided, the provider project is used.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "publicAccessPrevention": {
+          "description": "Prevents public access to a bucket. Acceptable values are \"inherited\" or \"enforced\". If \"inherited\", the bucket uses [public access prevention](https://cloud.google.com/storage/docs/public-access-prevention) only if the bucket is subject to the public access prevention organization policy constraint. Defaults to \"inherited\".\n",
+          "type": "string"
+        },
+        "requesterPays": {
+          "description": "Enables [Requester Pays](https://cloud.google.com/storage/docs/requester-pays) on a storage bucket.\n",
+          "type": "boolean"
+        },
+        "retentionPolicy": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketRetentionPolicy:BucketRetentionPolicy",
+          "description": "Configuration of the bucket's data retention policy for how long objects in the bucket should be retained. Structure is documented below.\n"
+        },
+        "rpo": {
+          "description": "The recovery point objective for cross-region replication of the bucket. Applicable only for dual and multi-region buckets. `\"DEFAULT\"` sets default replication. `\"ASYNC_TURBO\"` value enables turbo replication, valid for dual-region buckets only. See [Turbo Replication](https://cloud.google.com/storage/docs/managing-turbo-replication) for more information. If rpo is not specified at bucket creation, it defaults to `\"DEFAULT\"` for dual and multi-region buckets. **NOTE** If used with single-region bucket, It will throw an error.\n",
+          "type": "string"
+        },
+        "softDeletePolicy": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketSoftDeletePolicy:BucketSoftDeletePolicy",
+          "description": "The bucket's soft delete policy, which defines the period of time that soft-deleted objects will be retained, and cannot be permanently deleted. If the block is not provided, Server side value will be kept which means removal of block won't generate any terraform change. Structure is documented below.\n"
+        },
+        "storageClass": {
+          "description": "The [Storage Class](https://cloud.google.com/storage/docs/storage-classes) of the new bucket. Supported values include: `STANDARD`, `MULTI_REGIONAL`, `REGIONAL`, `NEARLINE`, `COLDLINE`, `ARCHIVE`.\n",
+          "type": "string"
+        },
+        "uniformBucketLevelAccess": {
+          "description": "Enables [Uniform bucket-level access](https://cloud.google.com/storage/docs/uniform-bucket-level-access) access to a bucket.\n",
+          "type": "boolean"
+        },
+        "versioning": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketVersioning:BucketVersioning",
+          "description": "The bucket's [Versioning](https://cloud.google.com/storage/docs/object-versioning) configuration.  Structure is documented below.\n"
+        },
+        "website": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketWebsite:BucketWebsite",
+          "description": "Configuration if the bucket acts as a website. Structure is documented below.\n"
         }
       },
       "type": "object"
@@ -917,7 +1261,54 @@
     "anvil:gcp:BucketTransformArgs": {
       "properties": {
         "bucket": {
-          "$ref": "#/types/anvil:gcp:BucketTransform"
+          "$ref": "#/types/anvil:gcp:BucketOverrides"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:gcp:FunctionOverrides": {
+      "properties": {
+        "buildConfig": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:cloudfunctionsv2/FunctionBuildConfig:FunctionBuildConfig",
+          "description": "Describes the Build step of the function that builds a container\nfrom the given source.\nStructure is documented below.\n"
+        },
+        "description": {
+          "description": "User-provided description of a function.\n",
+          "type": "string"
+        },
+        "eventTrigger": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:cloudfunctionsv2/FunctionEventTrigger:FunctionEventTrigger",
+          "description": "An Eventarc trigger managed by Google Cloud Functions that fires events in\nresponse to a condition in another service.\nStructure is documented below.\n"
+        },
+        "kmsKeyName": {
+          "description": "Resource name of a KMS crypto key (managed by the user) used to encrypt/decrypt function resources.\nIt must match the pattern projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}.\n",
+          "type": "string"
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A set of key/value label pairs associated with this Cloud Function.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.\nPlease refer to the field \u003cspan pulumi-lang-nodejs=\"`effectiveLabels`\" pulumi-lang-dotnet=\"`EffectiveLabels`\" pulumi-lang-go=\"`effectiveLabels`\" pulumi-lang-python=\"`effective_labels`\" pulumi-lang-yaml=\"`effectiveLabels`\" pulumi-lang-java=\"`effectiveLabels`\"\u003e`effective_labels`\u003c/span\u003e for all of the labels present on the resource.\n",
+          "type": "object"
+        },
+        "location": {
+          "description": "The location of this cloud function.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "name": {
+          "description": "A user-defined name of the function. Function names must\nbe unique globally and match pattern `projects/*/locations/*/functions/*`.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "project": {
+          "description": "The ID of the project in which the resource belongs.\nIf it is not provided, the provider project is used.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "serviceConfig": {
+          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:cloudfunctionsv2/FunctionServiceConfig:FunctionServiceConfig",
+          "description": "Describes the Service being deployed.\nStructure is documented below.\n"
         }
       },
       "type": "object"
@@ -972,7 +1363,7 @@
     "anvil:gcp:FunctionTransformArgs": {
       "properties": {
         "function": {
-          "$ref": "#/types/anvil:gcp:FunctionTransform"
+          "$ref": "#/types/anvil:gcp:FunctionOverrides"
         }
       },
       "type": "object"

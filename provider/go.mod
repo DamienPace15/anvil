@@ -1,22 +1,19 @@
-module github.com/anvil/pulumi-anvil
+module github.com/DamienPace15/anvil/provider
 
 go 1.25.6
 
-require (
-	github.com/pulumi/pulumi/pkg/v3 v3.225.1
-	github.com/pulumi/pulumi/sdk/v3 v3.225.1
-)
+require github.com/pulumi/pulumi/sdk/v3 v3.225.1
 
 require (
 	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect
 	github.com/pgavlin/fx/v2 v2.0.10 // indirect
 	github.com/pgavlin/goldmark v1.1.33-0.20200616210433-b5eb04559386 // indirect
-	github.com/pulumi/pulumi-azure/sdk/v6 v6.33.0 // indirect
+	github.com/pulumi/pulumi/pkg/v3 v3.225.1 // indirect
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
 	github.com/segmentio/asm v1.1.3 // indirect
 	github.com/segmentio/encoding v0.3.5 // indirect
-	pgregory.net/rapid v1.2.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 )
 
 require (
@@ -130,3 +127,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/frand v1.5.1 // indirect
 )
+
+replace github.com/DamienPace15/anvil/sdk/go/anvil => ../sdk/go/anvil

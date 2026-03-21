@@ -7,10 +7,10 @@ import (
 	"os"
 
 	"github.com/pulumi/pulumi-go-provider/infer"
-	awsbucket "github.com/anvil/pulumi-anvil/aws/bucket"
-	awslambda "github.com/anvil/pulumi-anvil/aws/lambda"
-	gcpbucket "github.com/anvil/pulumi-anvil/gcp/bucket"
-	gcpfunction "github.com/anvil/pulumi-anvil/gcp/function"
+	awsbucket "github.com/DamienPace15/anvil/provider/aws/bucket"
+	awslambda "github.com/DamienPace15/anvil/provider/aws/lambda"
+	gcpbucket "github.com/DamienPace15/anvil/provider/gcp/bucket"
+	gcpfunction "github.com/DamienPace15/anvil/provider/gcp/function"
 )
 
 func main() {
