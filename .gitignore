@@ -2,6 +2,8 @@
 bin/
 sdk/
 
+echo '!sdk/go/' >> .gitignore
+
 # ── Go ──
 *.exe
 *.dll
