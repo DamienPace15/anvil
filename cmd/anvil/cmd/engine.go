@@ -26,6 +26,9 @@ func resolveStage(flagValue string) string {
 		return config.Active
 	}
 
+	fmt.Printf("  %s No active stage set. Defaulting to \"dev\".\n", dim("hint:"))
+	fmt.Printf("  %s Run `anvil stage set <name>` to set one.\n\n", dim("     "))
+
 	return "dev"
 }
 
