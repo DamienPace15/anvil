@@ -1,9 +1,9 @@
 {
   "name": "anvil",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "language": {
     "nodejs": {
-      "packageName": "@anvil/cloud",
+      "packageName": "@@anvil-cloud/sdk",
       "dependencies": {
         "@pulumi/pulumi": "^3.0.0",
         "@pulumi/aws": "^7.21.0",
