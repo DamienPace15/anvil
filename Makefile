@@ -43,6 +43,15 @@ build-sdk: gen-nodejs
 publish-npm: build-sdk
 	cd sdk/nodejs && npm publish --access public
 
+publish-go: gen-go-sdk
+	git add -f sdk/go/
+	git commit -m "chore: update generated go sdk"
+	git push origion master
+	git tag sdk/go/anvil/$(VERSION)
+	git push origion sdk/go/anvil/$(VERSION)
+
+# make publish-go VERSION=vx.x.x.
+
 # ── Clean ───────────────────────────────────────────────────
 
 clean:
