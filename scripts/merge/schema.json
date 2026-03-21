@@ -20,7 +20,7 @@
         "@pulumi/aws": "^7.21.0",
         "@pulumi/pulumi": "^3.0.0"
       },
-      "packageName": "@anvil/cloud"
+      "packageName": "@anvil-cloud/sdk"
     },
     "python": {
       "packageName": "pulumi_anvil",

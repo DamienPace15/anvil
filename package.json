@@ -7,9 +7,9 @@
     "generate": "cd provider && go run ../scripts/generate/generate_schemas.go",
     "merge": "cd provider && go run ../scripts/merge/merge_schemas.go",
     "registry": "cd provider && go run ../scripts/registry/generate_registry.go",
-    "gensdk": "npm run gen && npm run fix-version && npm run build-sdk",
+    "gensdk": "npm run gen && npm run fix-pkg && npm run build-sdk",
+    "fix-pkg": "node scripts/fix-sdk-package.js",
     "gen": "cd provider && pulumi package gen-sdk schema.json --language nodejs --out ../sdk",
-    "fix-version": "node -e \"const fs = require('fs'); const file = './sdk/nodejs/package.json'; const data = fs.readFileSync(file, 'utf8').replace('\\\"${VERSION}\\\"', '\\\"0.0.1\\\"'); fs.writeFileSync(file, data);\"",
     "build-sdk": "cd sdk/nodejs && npm install && npm run build"
   }
 }
