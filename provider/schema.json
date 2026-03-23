@@ -24,10 +24,11 @@
       "packageName": "@@anvil-cloud/sdk"
     },
     "python": {
-      "packageName": "pulumi_anvil",
+      "packageName": "anvil_cloud",
       "requires": {
         "pulumi": "\u003e=3.0.0,\u003c4.0.0",
-        "pulumi-aws": "^7.21.0"
+        "pulumi-aws": "^7.21.0",
+        "pulumi-gcp": "^9.0.0"
       }
     }
   },
@@ -1369,5 +1370,5 @@
       "type": "object"
     }
   },
-  "version": "0.0.3"
+  "version": "0.0.4"
 }

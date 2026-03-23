@@ -1,8 +1,8 @@
-.PHONY: build clean generate merge registry gen-go-sdk gen-nodejs build-provider build-sdk publish-npm
+.PHONY: build clean generate merge registry gen-go-sdk gen-nodejs gen-python-sdk build-provider build-sdk publish-npm publish-pypi
 
 # ── Full Build ──────────────────────────────────────────────
 
-build: generate merge registry gen-go-sdk build-provider gen-nodejs build-sdk
+build: generate merge registry gen-go-sdk build-provider gen-nodejs build-sdk gen-python-sdk
 	@echo "✅ Build complete"
 
 # ── Schema Pipeline ─────────────────────────────────────────
@@ -38,6 +38,17 @@ build-sdk: gen-nodejs
 	cd sdk/nodejs && npm install && npm run build
 	cp docs/nodejs/README.md sdk/nodejs/README.md
 
+# ── Python SDK ──────────────────────────────────────────────
+
+gen-python-sdk: merge
+	cd provider && pulumi package gen-sdk schema.json --language python --out ../sdk
+	node scripts/fix-sdk-python.js
+
+build-python-sdk: gen-python-sdk
+	python3 -m venv sdk/python/.venv
+	sdk/python/.venv/bin/pip install build twine
+	cd sdk/python && .venv/bin/python -m build
+
 # ── Publish ─────────────────────────────────────────────────
 
 publish-npm: build-sdk
@@ -58,3 +69,4 @@ clean:
 	rm -rf bin/pulumi-resource-anvil
 	rm -rf sdk/nodejs/bin sdk/nodejs/node_modules
 	rm -rf sdk/go
+	rm -rf sdk/python/dist sdk/python/build sdk/python/*.egg-info
