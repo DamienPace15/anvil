@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+
+project_name: anvil
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  # ── Anvil CLI ───────────────────────────────────────────────
+  - id: anvil
+    main: ./cmd/anvil/
+    binary: anvil
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.ShortCommit}}
+
+  # ── Provider Binary ─────────────────────────────────────────
+  - id: provider
+    main: ./provider/cmd/anvil/
+    binary: pulumi-resource-anvil
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+
+archives:
+  - id: anvil-archive
+    ids:
+      - anvil
+      - provider
+    formats:
+      - tar.gz
+    name_template: 'anvil_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    files:
+      - LICENSE*
+      - README.md
+
+checksum:
+  name_template: 'checksums.txt'
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+
+release:
+  github:
+    owner: DamienPace15
+    name: anvil
+  draft: false
+  prerelease: auto
+  name_template: 'Anvil v{{ .Version }}'
