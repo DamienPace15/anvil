@@ -1,24 +1,33 @@
 # provider/
 
-This is the core of the Anvil provider. It contains all component implementations, their schemas, and the auto-generated entrypoint.
+The core of the Anvil provider. Contains all component implementations, their schemas, and the auto-generated entrypoint.
 
 ## How It All Fits Together
 
-Anvil uses a **modular schema system**. Each component lives in its own folder with its own `schema.json` fragment. At build time, scripts crawl these folders, merge everything into a single master schema, and generate the Go entrypoint that registers all components with Pulumi.
+Anvil uses a modular schema system. Each component lives in its own folder with its own `schema.json` fragment. At build time, scripts crawl these folders, merge everything into a single master schema, and generate the Go entrypoint that registers all components with Pulumi.
 
 ```
-npm run build
+make build
     │
-    ├─ 1. generate    Fetch upstream schemas, enrich component schema.json files
-    ├─ 2. merge       Combine all schema.json fragments → provider/schema.json
-    ├─ 3. registry    Discover all .go components → provider/cmd/anvil/main.go
-    ├─ 4. build       Compile Go binary → bin/pulumi-resource-anvil
-    └─ 5. gensdk      Generate language SDKs from provider/schema.json → sdk/
+    ├─ 1. generate       Fetch upstream schemas, enrich component schema.json files
+    ├─ 2. merge          Combine all schema.json fragments → provider/schema.json
+    ├─ 3. registry       Discover all .go components → provider/cmd/anvil/main.go
+    ├─ 4. build-provider Compile Go binary → bin/pulumi-resource-anvil
+    └─ 5. gen-*-sdk      Generate language SDKs from provider/schema.json → sdk/
 ```
+
+## Current Components
+
+| Component                 | Cloud                  | What it does                                                       |
+| ------------------------- | ---------------------- | ------------------------------------------------------------------ |
+| `anvil:aws:Bucket`        | AWS S3                 | Encryption, versioning (sensitive), public access block, lifecycle |
+| `anvil:aws:Lambda`        | AWS Lambda             | VPC placement, least-privilege role                                |
+| `anvil:gcp:StorageBucket` | GCP Cloud Storage      | Uniform bucket-level access, encryption                            |
+| `anvil:gcp:Function`      | GCP Cloud Functions v2 | Secure defaults                                                    |
 
 ## Adding a New Resource
 
-Adding a resource is a 3-step process. No manual wiring required.
+Three steps. No manual wiring required.
 
 ### Step 1: Create the folder
 
@@ -26,7 +35,7 @@ Adding a resource is a 3-step process. No manual wiring required.
 mkdir -p provider/<cloud>/<resource>
 ```
 
-For example: `provider/aws/vpc`, `provider/azure/container`, `provider/gcp/bucket`.
+For example: `provider/aws/vpc`, `provider/gcp/database`.
 
 ### Step 2: Create the schema fragment
 
@@ -40,10 +49,6 @@ Create `provider/<cloud>/<resource>/schema.json`:
         "name": {
           "type": "string",
           "description": "The name of the resource."
-        },
-        "someOption": {
-          "type": "boolean",
-          "description": "An example option."
         }
       },
       "requiredInputs": ["name"],
@@ -54,12 +59,12 @@ Create `provider/<cloud>/<resource>/schema.json`:
 }
 ```
 
-Key rules:
+Rules:
 
-- The resource token follows the format `anvil:<cloud>:<PascalCaseName>`
-- Use `requiredInputs` to make properties mandatory (everything else is optional)
-- Set `"isComponent": true` — Anvil resources are always component resources
-- The `types` section is for complex nested types and transform overrides
+- Resource token format: `anvil:<cloud>:<PascalCaseName>`
+- `requiredInputs` for mandatory properties, everything else is optional
+- `isComponent` is always `true`
+- `types` section is for complex nested types and transform overrides
 
 ### Step 3: Create the Go component
 
@@ -69,23 +74,23 @@ Create `provider/<cloud>/<resource>/<resource>.go`:
 package <resource>
 
 import (
+    "github.com/DamienPace15/anvil/provider/internal/transform"
     p "github.com/pulumi/pulumi-go-provider"
     "github.com/pulumi/pulumi-go-provider/infer"
     "github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
 type <Resource>Args struct {
-    Name       string `pulumi:"name"`
-    SomeOption bool   `pulumi:"someOption,optional"`
+    Name      string                            `pulumi:"name"`
+    Transform map[string]map[string]interface{} `pulumi:"transform,optional"`
 }
 
 type <Resource> struct {
     pulumi.ResourceState
-    // outputs
-    Arn pulumi.StringOutput `pulumi:"arn"`
 }
 
 func (r *<Resource>) Annotate(a infer.Annotator) {
+    a.SetToken("<cloud>", "<Resource>")
     a.Describe(&r, "An Anvil-managed <resource>.")
 }
 
@@ -97,114 +102,108 @@ func New<Resource>(ctx *pulumi.Context, name string, args <Resource>Args, opts .
     }
 
     // Create child resources here using ctx.RegisterResource(...)
+    // Use transform.MergeTransform(args.Transform["key"], defaults) for overrides
 
-    ctx.RegisterResourceOutputs(r, pulumi.Map{
-        "arn": ...,
-    })
+    ctx.RegisterResourceOutputs(r, pulumi.Map{})
 
     return r, nil
 }
 ```
 
-Key rules:
+Rules:
 
-- The **package name** must match the **folder name** (folder `vpc` → `package vpc`)
-- The **constructor** must be `New<PascalCaseFolderName>` (folder `vpc` → `NewVpc`)
+- Package name must match folder name (`vpc` → `package vpc`)
+- Constructor must be `New<PascalCaseFolderName>` (`vpc` → `NewVpc`)
 - Use `p.GetTypeToken(ctx)` for `RegisterComponentResource` — never hardcode the token
-- Use `pulumi.Parent(r)` on all child resources to set the component as parent
+- Use `pulumi.Parent(r)` on all child resources
+- Use `transform.MergeTransform()` for the escape hatch pattern
 
 ### Step 4: Build
 
 ```bash
-npm run build
+make build
 ```
 
-This will:
-
-1. Merge your new `schema.json` into the master schema
-2. Auto-discover your `.go` file and add it to `cmd/anvil/main.go`
-3. Compile the provider binary
-4. Generate updated SDKs
-
-You can verify discovery worked by checking the merge and registry output:
+Verify discovery worked in the output:
 
 ```
-📦 aws/vpc -> awsvpc.NewVpc
+📦 aws/vpc
 ```
 
 ## Schema System
 
 ### Base Schema (`base-schema.json`)
 
-The skeleton that defines provider-level metadata:
-
-```json
-{
-  "name": "anvil",
-  "version": "0.0.1",
-  "description": "A multi-cloud Pulumi provider with secure defaults.",
-  "resources": {},
-  "types": {}
-}
-```
+Provider-level metadata — name, version, description, language-specific config. This is where you set the version for all SDKs.
 
 ### Fragment Schemas (`<cloud>/<resource>/schema.json`)
 
-Each component defines its own schema fragment with its resources and types. These are independent files that get merged at build time.
+Each component defines its own schema fragment. These are independent files that get merged at build time.
 
 ### Master Schema (`schema.json`)
 
-Generated by `scripts/merge/merge_schemas.go`. This file is the union of `base-schema.json` + all fragments. It's what Pulumi reads to generate SDKs and validate programs. **Do not edit this file directly** — it gets overwritten on every build.
+Generated by `scripts/merge/merge_schemas.go`. Union of `base-schema.json` + all fragments. **Do not edit directly** — it gets overwritten on every build.
 
 ### The Generate Step
 
-`scripts/generate/generate_schemas.go` is AWS-specific. It fetches the full AWS provider schema from Pulumi, then for each component that has an `x-aws-token` field in its schema, it:
+`scripts/generate/generate_schemas.go` fetches upstream provider schemas (AWS, GCP) and for each component:
 
-1. Finds the matching AWS resource
+1. Finds the matching upstream resource
 2. Extracts its `inputProperties` (removing deprecated ones)
-3. Builds transform types so users can override any underlying AWS property
+3. Builds per-resource TransformArgs (e.g. `BucketTransformArgs`, `LambdaTransformArgs`)
 4. Writes the enriched schema back to the component's `schema.json`
 
-This is what powers the `transform` property — it lets users escape-hatch into raw AWS properties while keeping Anvil's defaults.
+Supports `--clear-cache` to force fresh upstream fetch and `--upgrade` to bump pinned versions.
 
 ## Registry Generator
 
-`scripts/registry/generate_registry.go` crawls `provider/` and auto-generates `cmd/anvil/main.go`. The rules:
+`scripts/registry/generate_registry.go` crawls `provider/` and auto-generates `cmd/anvil/main.go`:
 
-1. Scans every directory inside `provider/` (skipping `cmd`, `scripts`, `sdk`)
-2. Inside each cloud provider directory, finds subdirectories with `.go` files
-3. For each, generates an import and `infer.ComponentF()` registration
-4. Writes the complete `main.go` file
+1. Scans directories inside `provider/` (skipping `cmd`, `internal`)
+2. Finds subdirectories with `.go` files
+3. Generates imports and `infer.ComponentF()` registrations
+4. Writes `main.go`
 
-The folder-to-code mapping:
+| Folder         | Package    | Constructor   | Import Alias  |
+| -------------- | ---------- | ------------- | ------------- |
+| `aws/bucket`   | `bucket`   | `NewBucket`   | `awsbucket`   |
+| `aws/lambda`   | `lambda`   | `NewLambda`   | `awslambda`   |
+| `gcp/bucket`   | `bucket`   | `NewBucket`   | `gcpbucket`   |
+| `gcp/function` | `function` | `NewFunction` | `gcpfunction` |
 
-| Folder           | Package    | Constructor   | Import Alias    |
-| ---------------- | ---------- | ------------- | --------------- |
-| `aws/bucket`     | `bucket`   | `NewBucket`   | `awsbucket`     |
-| `aws/lambda`     | `lambda`   | `NewLambda`   | `awslambda`     |
-| `azure/function` | `function` | `NewFunction` | `azurefunction` |
-
-Import aliases are `<cloud><resource>` to avoid collisions (e.g., both AWS and GCP could have a `bucket` package).
+Import aliases are `<cloud><resource>` to avoid package name collisions.
 
 ## Transform Pattern
 
-Anvil components accept an optional `transform` map that lets users override properties on underlying cloud resources. The pattern:
+Components accept an optional `transform` map that lets users override properties on underlying cloud resources:
 
 ```typescript
-// TypeScript example
+// TypeScript
 new anvil.aws.Bucket('my-bucket', {
   dataClassification: 'sensitive',
   transform: {
-    bucket: {
-      // Override any raw AWS S3 Bucket property
-      forceDestroy: false,
-    },
-    versioning: {
-      // Override versioning config
-      versioningConfiguration: { status: 'Suspended' },
-    },
+    bucket: { forceDestroy: false },
+    versioning: { versioningConfiguration: { status: 'Suspended' } },
   },
 });
 ```
 
-In Go, transforms are `map[string]map[string]interface{}` and get merged with defaults using `mergeTransform()`. User values override Anvil defaults.
+```python
+# Python
+anvil.aws.Bucket('my-bucket',
+    data_classification='sensitive',
+    transform=anvil.aws.BucketTransformArgsArgs(
+        overrides=anvil.aws.BucketOverridesArgs(force_destroy=False),
+    ),
+)
+```
+
+In Go, transforms are `map[string]map[string]interface{}` merged with defaults via `transform.MergeTransform()`. User values override Anvil defaults.
+
+## Generated Files (Do Not Edit)
+
+- `provider/schema.json` — regenerated by `make merge`
+- `provider/cmd/anvil/main.go` — regenerated by `make registry`
+- `sdk/nodejs/` — regenerated by `make gen-nodejs`
+- `sdk/python/` — regenerated by `make gen-python-sdk`
+- `sdk/go/` — regenerated by `make gen-go-sdk`

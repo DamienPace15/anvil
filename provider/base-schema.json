@@ -3,7 +3,7 @@
   "version": "0.0.4",
   "language": {
     "nodejs": {
-      "packageName": "@@anvil-cloud/sdk",
+      "packageName": "@anvil-cloud/sdk",
       "dependencies": {
         "@pulumi/pulumi": "^3.0.0",
         "@pulumi/aws": "^7.21.0",

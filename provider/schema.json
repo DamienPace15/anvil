@@ -21,7 +21,7 @@
         "@pulumi/gcp": "^9.0.0",
         "@pulumi/pulumi": "^3.0.0"
       },
-      "packageName": "@@anvil-cloud/sdk"
+      "packageName": "@anvil-cloud/sdk"
     },
     "python": {
       "packageName": "anvil_cloud",
