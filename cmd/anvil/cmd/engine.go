@@ -115,6 +115,7 @@ func loadStack(ctx context.Context, stage string) (auto.Stack, error) {
 	}
 
 	s.SetConfig(ctx, "aws:region", auto.ConfigValue{Value: region})
+	s.SetConfig(ctx, "anvil:stage", auto.ConfigValue{Value: stage})
 
 	return s, nil
 }
