@@ -279,20 +279,16 @@ func randomSuffix(length int) (string, error) {
 }
 
 func readProjectName() (string, error) {
-	data, err := os.ReadFile("Pulumi.yaml")
+	config, err := loadAnvilConfig()
 	if err != nil {
-		return "", fmt.Errorf("Could not find Pulumi.yaml in this directory.\n  Run `anvil bootstrap` from your project root.")
+		return "", fmt.Errorf("Could not find anvil.yaml in this directory.\n  Run `anvil init` to create a project, or cd into an existing one.")
 	}
 
-	var project struct {
-		Name string `yaml:"name"`
-	}
-	err = yaml.Unmarshal(data, &project)
-	if err != nil || project.Name == "" {
-		return "", fmt.Errorf("Could not read project name from Pulumi.yaml.")
+	if config.Project == "" {
+		return "", fmt.Errorf("No project name found in anvil.yaml.\n  Add a `project:` field to anvil.yaml.")
 	}
 
-	return strings.ReplaceAll(project.Name, " ", "-"), nil
+	return strings.ReplaceAll(config.Project, " ", "-"), nil
 }
 
 func loadAnvilConfig() (*anvilConfig, error) {
