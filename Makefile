@@ -64,6 +64,9 @@ publish-go: gen-go-sdk
 	git tag sdk/go/anvil/$(VERSION)
 	git push origion sdk/go/anvil/$(VERSION)
 
+publish-pypi: build-python-sdk
+	cd sdk/python && .venv/bin/twine upload dist/*
+
 # make publish-go VERSION=vx.x.x.
 
 # ── Clean ───────────────────────────────────────────────────
