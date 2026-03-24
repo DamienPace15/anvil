@@ -53,7 +53,7 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 
 	handler.PrintSummary("deploy", stage)
 
-	if err != nil {
+	if handler.HasErrors() {
 		return fmt.Errorf("deploy failed")
 	}
 

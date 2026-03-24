@@ -1,5 +1,8 @@
 .PHONY: build clean generate merge registry gen-go-sdk gen-nodejs gen-python-sdk build-provider build-sdk publish-npm publish-pypi
 
+binary:
+	go build -o anvil ./cmd/anvil
+
 # ── Full Build ──────────────────────────────────────────────
 
 build: generate merge registry gen-go-sdk build-provider gen-nodejs build-sdk gen-python-sdk
