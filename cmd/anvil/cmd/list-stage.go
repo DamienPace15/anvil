@@ -3,11 +3,13 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -48,100 +50,52 @@ func runStageList(cmd *cobra.Command, args []string) error {
 	}
 	sort.Strings(names)
 
-	// Build display lines.
-	type displayLine struct {
-		name   string
-		region string
-		active bool
-	}
-
-	activeStage := config.Active
-	var lines []displayLine
-	maxNameLen := 0
-	maxRegionLen := 0
-
-	for _, name := range names {
-		region := ""
-		if sc, ok := config.Stages[name]; ok && sc.Region != "" {
-			region = sc.Region
-		}
-		if len(name) > maxNameLen {
-			maxNameLen = len(name)
-		}
-		if len(region) > maxRegionLen {
-			maxRegionLen = len(region)
-		}
-		lines = append(lines, displayLine{
-			name:   name,
-			region: region,
-			active: name == activeStage,
-		})
-	}
-
-	// Minimum column widths for aesthetics.
-	if maxNameLen < 6 {
-		maxNameLen = 6
-	}
-	if maxRegionLen < 6 {
-		maxRegionLen = 6
-	}
-
 	fmt.Println()
 	printBanner()
 
 	if isTTY() {
-		fmt.Printf("  %s Stages %s\n", green("⚒"), dim(fmt.Sprintf("(%s)", config.Project)))
-		fmt.Println()
-
-		// Column headers — "  " prefix aligns with the "* " / "  " indicator.
-		fmt.Printf("  %-*s   %s\n",
-			maxNameLen+2, dim("  STAGE"),
-			dim("REGION"),
-		)
-		fmt.Printf("  %-*s   %s\n",
-			maxNameLen+2, dim("  "+strings.Repeat("─", maxNameLen)),
-			dim(strings.Repeat("─", maxRegionLen)),
-		)
-
-		for _, l := range lines {
-			indicator := "  "
-			nameStr := l.name
-			if l.active {
-				indicator = green("*") + " "
-				nameStr = bold(l.name)
-			}
-
-			regionStr := ""
-			if l.region != "" {
-				regionStr = dim(l.region)
-			}
-
-			// Use raw name length for padding (bold adds invisible escape chars).
-			namePad := strings.Repeat(" ", maxNameLen-len(l.name))
-
-			fmt.Printf("  %s%s%s   %s\n",
-				indicator,
-				nameStr,
-				namePad,
-				regionStr,
-			)
-		}
-
-		fmt.Println()
-		fmt.Printf("  %s = active stage\n", green("*"))
-		fmt.Println()
+		fmt.Printf("  %s Stages %s\n\n", green("⚒"), dim(fmt.Sprintf("(%s)", config.Project)))
 	} else {
-		// Plain output for piping/CI.
 		fmt.Printf("  Stages (%s)\n\n", config.Project)
-		for _, l := range lines {
-			marker := " "
-			if l.active {
-				marker = "*"
-			}
-			fmt.Printf("  %s %-*s   %s\n", marker, maxNameLen, l.name, l.region)
-		}
-		fmt.Println()
 	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"", "Stage", "Region", "Env"})
+	table.SetBorder(false)
+	table.SetColumnSeparator("")
+	table.SetHeaderLine(false)
+	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
+	table.SetTablePadding("   ")
+	table.SetNoWhiteSpace(true)
+
+	for _, name := range names {
+		indicator := " "
+		if name == config.Active {
+			indicator = "*"
+		}
+
+		region := ""
+		environment := ""
+		if sc, ok := config.Stages[name]; ok {
+			if sc.Region != "" {
+				region = sc.Region
+			}
+			if sc.Environment != "" {
+				environment = sc.Environment
+			}
+		}
+
+		table.Append([]string{indicator, name, region, environment})
+	}
+
+	table.Render()
+
+	fmt.Println()
+	if isTTY() {
+		fmt.Printf("  %s = active stage\n", green("*"))
+	}
+	fmt.Println()
 
 	return nil
 }
@@ -182,8 +136,6 @@ func discoverStacks(config *anvilConfig) map[string]bool {
 			continue
 		}
 		for _, name := range stackNames {
-			// Filter out Pulumi project-qualified names (e.g. "test-app/damien").
-			// These are internal — only show clean stage names.
 			if strings.Contains(name, "/") {
 				continue
 			}
@@ -191,7 +143,6 @@ func discoverStacks(config *anvilConfig) map[string]bool {
 		}
 	}
 
-	// Include all config stages — bootstrapped even if not yet deployed.
 	for name := range config.Stages {
 		found[name] = true
 	}

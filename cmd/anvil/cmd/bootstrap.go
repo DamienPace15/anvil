@@ -19,6 +19,7 @@ import (
 
 var bootstrapRegion string
 var bootstrapStage string
+var bootstrapEnvironment string
 
 var bootstrapCmd = &cobra.Command{
 	Use:   "bootstrap",
@@ -30,6 +31,7 @@ var bootstrapCmd = &cobra.Command{
 func init() {
 	bootstrapCmd.Flags().StringVar(&bootstrapRegion, "region", "", "AWS region for the state bucket (defaults to AWS CLI default)")
 	bootstrapCmd.Flags().StringVar(&bootstrapStage, "stage", "dev", "Stage name (used in bucket naming)")
+	bootstrapCmd.Flags().StringVar(&bootstrapEnvironment, "environment", "", "Environment type: prod or nonprod")
 	rootCmd.AddCommand(bootstrapCmd)
 }
 
@@ -41,8 +43,9 @@ type anvilConfig struct {
 }
 
 type stageConfig struct {
-	ID     string `yaml:"id"`
-	Region string `yaml:"region"`
+	ID          string `yaml:"id"`
+	Region      string `yaml:"region"`
+	Environment string `yaml:"environment"`
 }
 
 // resolveBucketName reconstructs the bucket name from its parts.
@@ -55,6 +58,19 @@ func runBootstrap(cmd *cobra.Command, args []string) error {
 
 	printBanner()
 	fmt.Printf("  Bootstrapping \"%s\"...\n\n", bootstrapStage)
+
+	// ── Resolve environment (flag → prompt) ──
+	if bootstrapEnvironment == "" {
+		env, err := promptEnvironment()
+		if err != nil {
+			return err
+		}
+		bootstrapEnvironment = env
+	}
+
+	if bootstrapEnvironment != "prod" && bootstrapEnvironment != "nonprod" {
+		return fmt.Errorf("Invalid environment %q. Must be \"prod\" or \"nonprod\".", bootstrapEnvironment)
+	}
 
 	// ── Load AWS config ──
 	var cfgOpts []func(*awsconfig.LoadOptions) error
@@ -181,9 +197,11 @@ func runBootstrap(cmd *cobra.Command, args []string) error {
 	if config.Stages == nil {
 		config.Stages = make(map[string]*stageConfig)
 	}
+
 	config.Stages[bootstrapStage] = &stageConfig{
-		ID:     suffix,
-		Region: region,
+		ID:          suffix,
+		Region:      region,
+		Environment: bootstrapEnvironment,
 	}
 
 	err = writeAnvilConfig(*config)
