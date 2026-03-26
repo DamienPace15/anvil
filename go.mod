@@ -7,7 +7,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.32.12
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.97.1
 	github.com/aws/aws-sdk-go-v2/service/sts v1.41.9
+	github.com/blang/semver v3.5.1+incompatible
+	github.com/pulumi/pulumi-aws/sdk/v7 v7.23.0
 	github.com/pulumi/pulumi-azure/sdk/v6 v6.33.0
+	github.com/pulumi/pulumi-gcp/sdk/v9 v9.16.0
 	github.com/pulumi/pulumi-go-provider v1.3.1
 	github.com/pulumi/pulumi/sdk/v3 v3.227.0
 	github.com/spf13/cobra v1.10.2
@@ -39,7 +42,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.17 // indirect
 	github.com/aws/smithy-go v1.24.2 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/charmbracelet/bubbles v1.0.0 // indirect

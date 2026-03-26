@@ -33,3 +33,6 @@ pulumi.runtime.registerResourcePackage("anvil", {
 
 // Hand-written App class
 export { App, AppConfig, Context, AwsProviderConfig, GcpProviderConfig, DefaultsConfig } from "./app";
+
+// Hand-written Block class
+export { Block, BlockArgs } from "./block";
