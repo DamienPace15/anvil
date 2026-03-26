@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
 // BlockArgs holds optional arguments for a Block.
@@ -16,44 +17,70 @@ type BlockArgs struct{}
 // Use block.Opts() when creating child resources to pass the parent
 // relationship explicitly.
 //
+// Stage and Project are automatically populated from Pulumi config —
+// the same config that App sets during initialisation.
+//
+// Tagging is automatic — the App's provider injection applies defaultTags
+// to all resources, including those inside Blocks.
+//
 // Blocks are purely optional — flat top-level resources work identically.
 //
 // Example:
 //
-//	type Storage struct {
+//	type RulesEngine struct {
 //	    anvil.Block
-//	    BucketName pulumi.StringOutput
 //	}
 //
-//	func NewStorage(ctx *pulumi.Context, name string, opts ...pulumi.ResourceOption) (*Storage, error) {
-//	    s := &Storage{}
-//	    err := ctx.RegisterComponentResource("anvil:block:"+name, name, s, opts...)
+//	func NewRulesEngine(ctx *pulumi.Context, name string, opts ...pulumi.ResourceOption) (*RulesEngine, error) {
+//	    r := &RulesEngine{}
+//	    err := ctx.RegisterComponentResource(anvil.TypeName("RulesEngine"), name, r, opts...)
+//	    if err != nil {
+//	        return nil, err
+//	    }
+//	    // r.Stage and r.Project are now available
+//
+//	    bucket, err := aws.NewBucket(ctx, "events", &aws.BucketArgs{
+//	        DataClassification: pulumi.String("internal"),
+//	    }, r.Opts()...)
 //	    if err != nil {
 //	        return nil, err
 //	    }
 //
-//	    bucket, err := aws.NewBucket(ctx, "data", &aws.BucketArgs{...}, s.Opts()...)
-//	    if err != nil {
-//	        return nil, err
-//	    }
-//	    s.BucketName = bucket.BucketName
-//
-//	    ctx.RegisterResourceOutputs(s, pulumi.Map{"bucketName": s.BucketName})
-//	    return s, nil
+//	    ctx.RegisterResourceOutputs(r, pulumi.Map{})
+//	    return r, nil
 //	}
 type Block struct {
 	pulumi.ResourceState
+
+	// Stage is the current deployment stage (e.g. "dev", "staging", "prod", or OS username).
+	Stage string
+
+	// Project is the project name from anvil.yaml.
+	Project string
 }
 
-// TypeName returns the Pulumi type token for this Block.
+// TypeName returns the Pulumi type token for a Block.
+// Pass your struct name to keep URNs consistent: anvil.TypeName("RulesEngine")
 func TypeName(name string) string {
 	return fmt.Sprintf("anvil:block:%s", name)
+}
+
+// InitBlock reads stage and project from Pulumi config and populates
+// the Block fields. Call this after RegisterComponentResource:
+//
+//	err := ctx.RegisterComponentResource(anvil.TypeName("RulesEngine"), name, r, opts...)
+//	if err != nil { return nil, err }
+//	r.InitBlock(ctx)
+func (b *Block) InitBlock(ctx *pulumi.Context) {
+	cfg := config.New(ctx, "anvil")
+	b.Stage = cfg.Require("stage")
+	b.Project = ctx.Project()
 }
 
 // Opts returns a slice of ResourceOption that parents child resources to this Block.
 // Pass the result when creating resources inside the Block:
 //
-//	bucket, err := aws.NewBucket(ctx, "data", &aws.BucketArgs{}, block.Opts()...)
+//	bucket, err := aws.NewBucket(ctx, "events", &aws.BucketArgs{}, block.Opts()...)
 func (b *Block) Opts(extra ...pulumi.ResourceOption) []pulumi.ResourceOption {
 	return append([]pulumi.ResourceOption{pulumi.Parent(b)}, extra...)
 }

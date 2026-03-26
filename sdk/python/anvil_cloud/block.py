@@ -11,24 +11,33 @@ class Block(pulumi.ComponentResource):
     to the Block via Pulumi's built-in auto-parenting. Blocks can expose
     public properties (outputs) for cross-Block references.
 
+    ``stage`` and ``project`` are automatically available via ``self.stage``
+    and ``self.project`` — read from the same Pulumi config that App sets.
+
+    Tagging is automatic — the App's provider injection applies default tags
+    to all resources, including those inside Blocks.
+
     Blocks are purely optional — flat top-level resources work identically.
 
     Example::
 
         import anvil_cloud as anvil
 
-        class Storage(anvil.Block):
-            bucket_name: pulumi.Output[str]
+        class RulesEngine(anvil.Block):
+            def __init__(self, name: str, opts: pulumi.ResourceOptions | None = None):
+                super().__init__(name, opts=opts)
 
-            def __init__(self, name: str, args: dict | None = None,
-                         opts: pulumi.ResourceOptions | None = None):
-                super().__init__(name, args, opts)
-
-                bucket = anvil.aws.Bucket("data", ...)
-                self.bucket_name = bucket.bucket_name
-
-                self.register_outputs({"bucket_name": self.bucket_name})
+                bucket = anvil.aws.Bucket("events",
+                    data_classification="internal",
+                    transform={"bucket": {"bucket": f"rules-{self.stage}-events"}},
+                )
     """
+
+    stage: str
+    """The current deployment stage (e.g. "dev", "staging", "prod", or OS username)."""
+
+    project: str
+    """The project name from anvil.yaml."""
 
     def __init__(
         self,
@@ -43,10 +52,14 @@ class Block(pulumi.ComponentResource):
             args: Optional arguments (passed through for subclass use).
             opts: Standard Pulumi ResourceOptions (aliases, providers, etc.).
         """
-        # Type URN uses "anvil:block:" prefix so Blocks are identifiable in state
+        type_name = type(self).__name__
         super().__init__(
-            f"anvil:block:{name}",
+            f"anvil:block:{type_name}",
             name,
             args or {},
             opts,
         )
+
+        anvil_config = pulumi.Config("anvil")
+        self.stage = anvil_config.require("stage")
+        self.project = pulumi.get_project()
