@@ -1,0 +1,30 @@
+{
+  "name": "@anvil-cloud/sdk",
+  "version": "0.0.5",
+  "scripts": {
+    "build": "tsc && cp package.json bin/"
+  },
+  "dependencies": {
+    "@pulumi/aws": "^7.21.0",
+    "@pulumi/gcp": "^9.0.0",
+    "@pulumi/pulumi": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18",
+    "typescript": "^4.3.5"
+  },
+  "pulumi": {
+    "resource": true,
+    "name": "anvil"
+  },
+  "description": "Anvil — secure-by-default cloud infrastructure components",
+  "main": "bin/index.js",
+  "types": "bin/index.d.ts",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/anvil-cloud/anvil",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anvil-cloud/anvil.git",
+    "directory": "sdk/nodejs"
+  }
+}
