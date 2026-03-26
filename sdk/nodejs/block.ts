@@ -7,22 +7,30 @@ import * as pulumi from '@pulumi/pulumi';
  * to the Block via Pulumi's built-in auto-parenting. Blocks can expose
  * public properties (outputs) for cross-Block references.
  *
+ * `stage` and `project` are automatically available via `this.stage` and
+ * `this.project` — read from the same Pulumi config that App sets.
+ *
+ * Tagging is automatic — the App's provider injection applies `defaultTags`
+ * to all resources, including those inside Blocks.
+ *
  * Blocks are purely optional — flat top-level resources work identically.
  *
  * @example
  * ```ts
  * import * as anvil from "@anvil-cloud/sdk";
  *
- * class Storage extends anvil.Block {
+ * class RulesEngine extends anvil.Block {
  *   public readonly bucketName: pulumi.Output<string>;
  *
- *   constructor(name: string, args?: anvil.BlockArgs, opts?: pulumi.ComponentResourceOptions) {
- *     super(name, args, opts);
+ *   constructor(name: string, opts?: pulumi.ComponentResourceOptions) {
+ *     super(name, {}, opts);
  *
- *     const bucket = new anvil.aws.Bucket("data", { ... });
- *     this.bucketName = bucket.bucketName;
- *
- *     this.registerOutputs({ bucketName: this.bucketName });
+ *     const bucket = new anvil.aws.Bucket("events", {
+ *       dataClassification: "internal",
+ *       transform: {
+ *         bucket: { bucket: `rules-${this.stage}-events` },
+ *       },
+ *     });
  *   }
  * }
  * ```
@@ -33,6 +41,12 @@ export interface BlockArgs {
 }
 
 export class Block extends pulumi.ComponentResource {
+  /** The current deployment stage (e.g. "dev", "staging", "prod", or OS username). */
+  public readonly stage: string;
+
+  /** The project name from anvil.yaml. */
+  public readonly project: string;
+
   /**
    * Creates a new Block.
    *
@@ -45,7 +59,11 @@ export class Block extends pulumi.ComponentResource {
     args?: BlockArgs,
     opts?: pulumi.ComponentResourceOptions
   ) {
-    // Type URN uses "anvil:block:" prefix so Blocks are identifiable in state
-    super(`anvil:block:${name}`, name, args ?? {}, opts);
+    const typeName = new.target?.name ?? name;
+    super(`anvil:block:${typeName}`, name, args ?? {}, opts);
+
+    const anvilConfig = new pulumi.Config('anvil');
+    this.stage = anvilConfig.require('stage');
+    this.project = pulumi.getProject();
   }
 }
