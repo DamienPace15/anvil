@@ -4,7 +4,6 @@ from typing import Any, Mapping, Optional
 
 import pulumi
 
-
 class Block(pulumi.ComponentResource):
     """An optional organisational grouping for Anvil resources.
 
