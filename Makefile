@@ -90,7 +90,7 @@ publish-npm: build-sdk
 
 publish-go: gen-go-sdk
 	git add sdk/go/
-	git commit -m "chore: update generated go sdk"
+	git diff --cached --quiet sdk/go/ || git commit -m "chore: update generated go sdk"
 	git push origion master
 	git tag sdk/go/anvil/$(VERSION)
 	git push origion sdk/go/anvil/$(VERSION)

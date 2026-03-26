@@ -4,5 +4,4 @@ use (
 	.
 	./provider
 	./sdk/go/anvil
-	./test-app-go
 )
