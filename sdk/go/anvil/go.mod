@@ -1,12 +1,12 @@
 module github.com/DamienPace15/anvil/sdk/go/anvil
 
-go 1.25.6
+go 1.25.8
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/pulumi/pulumi-aws/sdk/v7 v7.23.0
 	github.com/pulumi/pulumi-gcp/sdk/v9 v9.16.0
-	github.com/pulumi/pulumi/sdk/v3 v3.227.0
+	github.com/pulumi/pulumi/sdk/v3 v3.228.0
 )
 
 require (
