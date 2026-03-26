@@ -1,9 +1,13 @@
 # ── Build outputs ──
 bin/
-sdk/
-!sdk/go/
 
-echo '!sdk/go/' >> .gitignore
+# SDK build artifacts (source is committed, build output is not)
+sdk/nodejs/bin/
+sdk/nodejs/node_modules/
+sdk/python/.venv/
+sdk/python/dist/
+sdk/python/build/
+sdk/python/*.egg-info/
 
 # ── Go ──
 *.exe

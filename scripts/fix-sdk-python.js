@@ -15,18 +15,6 @@ const schemaPath = path.join(__dirname, '..', 'provider', 'base-schema.json');
 const readmeSrc = path.join(__dirname, '..', 'docs', 'python', 'README.md');
 const readmeDst = path.join(sdkDir, 'README.md');
 
-// ── Copy hand-written files from overrides ──────────────────
-const overridesDir = path.join(__dirname, 'sdk-overrides', 'python');
-if (fs.existsSync(overridesDir)) {
-  const files = fs.readdirSync(overridesDir);
-  for (const file of files) {
-    const src = path.join(overridesDir, file);
-    const dest = path.join(sdkDir, 'anvil_cloud', file);
-    fs.copyFileSync(src, dest);
-    console.log(`  ✔ Copied ${file} from sdk-overrides/python`);
-  }
-}
-
 // ── Read version from schema ────────────────────────────────
 
 function getVersion() {
@@ -179,6 +167,7 @@ if (fs.existsSync(initPath)) {
   let init = fs.readFileSync(initPath, 'utf8');
   if (!init.includes('from .app import')) {
     init += '\n# Hand-written App class\nfrom .app import App, Context\n';
+    init += '\n# Hand-written Block class\nfrom .block import Block\n';
     init += '\n# Re-export core Pulumi functions so users never need to import pulumi directly.\nfrom pulumi import export\n';
     fs.writeFileSync(initPath, init);
     console.log('  ✔ Patched __init__.py → added App import + pulumi.export re-export');
