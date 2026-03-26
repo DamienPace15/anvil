@@ -140,12 +140,18 @@ func ensureBootstrapped(_ context.Context, stage string) error {
 
 	bootstrapStage = stage
 	bootstrapRegion = ""
+
+	env, err := promptEnvironment()
+	if err != nil {
+		return fmt.Errorf("auto-bootstrap failed: %w", err)
+	}
+	bootstrapEnvironment = env
+
 	err = runBootstrap(nil, nil)
 	if err != nil {
 		return fmt.Errorf("auto-bootstrap failed: %w", err)
 	}
 
-	fmt.Println()
 	return nil
 }
 
@@ -193,6 +199,11 @@ func loadStack(ctx context.Context, stage string) (auto.Stack, error) {
 	}
 	if err := s.SetConfig(ctx, "anvil:stage", auto.ConfigValue{Value: stage}); err != nil {
 		return auto.Stack{}, fmt.Errorf("failed to set anvil:stage: %w", err)
+	}
+
+	env := resolveEnvironmentForStage(stage)
+	if err := s.SetConfig(ctx, "anvil:environment", auto.ConfigValue{Value: env}); err != nil {
+		return auto.Stack{}, fmt.Errorf("failed to set anvil:environment: %w", err)
 	}
 
 	return s, nil
@@ -244,5 +255,25 @@ func loadStackNoBootstrap(ctx context.Context, stage string) (auto.Stack, error)
 		return auto.Stack{}, fmt.Errorf("failed to set anvil:stage: %w", err)
 	}
 
+	env := resolveEnvironmentForStage(stage)
+	if err := s.SetConfig(ctx, "anvil:environment", auto.ConfigValue{Value: env}); err != nil {
+		return auto.Stack{}, fmt.Errorf("failed to set anvil:environment: %w", err)
+	}
+
 	return s, nil
+}
+
+// resolveEnvironmentForStage reads the environment from anvil.yaml for the given stage.
+func resolveEnvironmentForStage(stage string) string {
+	config, err := loadAnvilConfig()
+	if err != nil {
+		return "nonprod"
+	}
+
+	sc, ok := config.Stages[stage]
+	if !ok || sc.Environment == "" {
+		return "nonprod"
+	}
+
+	return sc.Environment
 }

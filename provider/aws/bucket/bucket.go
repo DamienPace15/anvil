@@ -1,6 +1,7 @@
 package bucket
 
 import (
+	provider "github.com/DamienPace15/anvil/provider/internal/shared"
 	"github.com/DamienPace15/anvil/provider/internal/transform"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/s3"
 	p "github.com/pulumi/pulumi-go-provider"
@@ -30,6 +31,11 @@ func (b *Bucket) Annotate(a infer.Annotator) {
 
 func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi.ResourceOption) (*Bucket, error) {
 	b := &Bucket{}
+
+	provider.NewContext(ctx)
+
+	opts = provider.WithDefault(opts, true)
+
 	err := ctx.RegisterComponentResource(p.GetTypeToken(ctx), name, b, opts...)
 	if err != nil {
 		return nil, err
