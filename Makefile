@@ -68,11 +68,11 @@ build-sdk: gen-nodejs
 
 gen-python-sdk: merge
 	@mkdir -p /tmp/anvil-sdk-backup/python
-	@for f in app.py block.py; do \
+	@for f in app.py block.py types.py; do \
 		cp sdk/python/anvil_cloud/$$f /tmp/anvil-sdk-backup/python/ 2>/dev/null || true; \
 	done
 	cd provider && pulumi package gen-sdk schema.json --language python --out ../sdk
-	@for f in app.py block.py; do \
+	@for f in app.py block.py types.py; do \
 		cp /tmp/anvil-sdk-backup/python/$$f sdk/python/anvil_cloud/ 2>/dev/null || true; \
 	done
 	@rm -rf /tmp/anvil-sdk-backup/python

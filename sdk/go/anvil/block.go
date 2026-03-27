@@ -84,3 +84,21 @@ func (b *Block) InitBlock(ctx *pulumi.Context) {
 func (b *Block) Opts(extra ...pulumi.ResourceOption) []pulumi.ResourceOption {
 	return append([]pulumi.ResourceOption{pulumi.Parent(b)}, extra...)
 }
+
+// RegisterBlock registers a Block as a ComponentResource and initialises
+// its Stage, Project, and Environment fields from Pulumi config.
+//
+// Usage:
+//
+//	s := &Storage{}
+//	if err := ctx.RegisterBlock("Storage", name, &s.Block, opts...); err != nil {
+//	    return nil, err
+//	}
+func (c *Context) RegisterBlock(typeName string, name string, block *Block, opts ...pulumi.ResourceOption) error {
+	err := c.ctx.RegisterComponentResource(TypeName(typeName), name, block, opts...)
+	if err != nil {
+		return err
+	}
+	block.InitBlock(c.ctx)
+	return nil
+}

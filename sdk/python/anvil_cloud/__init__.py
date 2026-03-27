@@ -59,5 +59,8 @@ from .app import App, Context
 # Hand-written Block class
 from .block import Block
 
+# Re-exported Pulumi primitives
+from .types import *
+
 # Re-export core Pulumi functions so users never need to import pulumi directly.
 from pulumi import export
