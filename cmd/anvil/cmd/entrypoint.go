@@ -20,7 +20,7 @@ var entryPoints = []struct {
 }{
 	{"anvil.config.ts", "nodejs"},
 	{"anvil.config.py", "python"},
-	{"main.go", "go"},
+	{"anvil.config.go", "go"},
 }
 
 // detectRuntime scans the project root for a supported entry point file.
@@ -51,7 +51,7 @@ func detectRuntime(projectRoot string) (*runtime, error) {
 				"  Create one of:\n"+
 				"    • anvil.config.ts  (TypeScript)\n"+
 				"    • anvil.config.py  (Python)\n"+
-				"    • main.go          (Go)",
+				"    • anvil.config.go          (Go)",
 			projectRoot,
 		)
 	case 1:
