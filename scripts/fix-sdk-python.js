@@ -160,17 +160,35 @@ if (fs.existsSync(utilitiesPath)) {
   }
 }
 
-// Append pulumi re-exports to __init__.py so users can call anvil.export()
+// Append imports to __init__.py
 const initPath = path.join(sdkDir, 'anvil_cloud', '__init__.py');
-// Import App class into the package
 if (fs.existsSync(initPath)) {
   let init = fs.readFileSync(initPath, 'utf8');
+  let changed = false;
+
   if (!init.includes('from .app import')) {
     init += '\n# Hand-written App class\nfrom .app import App, Context\n';
+    changed = true;
+  }
+
+  if (!init.includes('from .block import')) {
     init += '\n# Hand-written Block class\nfrom .block import Block\n';
+    changed = true;
+  }
+
+  if (!init.includes('from .types import')) {
+    init += '\n# Re-exported Pulumi primitives\nfrom .types import *\n';
+    changed = true;
+  }
+
+  if (!init.includes('from pulumi import export')) {
     init += '\n# Re-export core Pulumi functions so users never need to import pulumi directly.\nfrom pulumi import export\n';
+    changed = true;
+  }
+
+  if (changed) {
     fs.writeFileSync(initPath, init);
-    console.log('  ✔ Patched __init__.py → added App import + pulumi.export re-export');
+    console.log('  ✔ Patched __init__.py → added App, Block, types, and export imports');
   }
 }
 

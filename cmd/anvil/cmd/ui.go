@@ -36,9 +36,19 @@ func cyan(s string) string   { return colorCyan + s + colorReset }
 func bold(s string) string   { return colorBold + s + colorReset }
 func dim(s string) string    { return colorDim + s + colorReset }
 
-func plainIcon(op string, failed bool) string {
+func plainIcon(op string, failed bool, preview bool) string {
 	if failed {
 		return "[FAIL]"
+	}
+	if preview {
+		switch op {
+		case "delete", "delete-replaced":
+			return "[-]"
+		case "update", "replace", "create-replacement":
+			return "[~]"
+		default:
+			return "[+]"
+		}
 	}
 	switch op {
 	case "update", "replace", "create-replacement":
@@ -188,7 +198,23 @@ func shortTypeName(typeToken string) string {
 
 // ── Op helpers ──
 
-func opVerb(op string) string {
+func opVerb(op string, preview bool) string {
+	if preview {
+		switch op {
+		case "create", "create-replacement":
+			return "will create"
+		case "update":
+			return "will update"
+		case "delete", "delete-replaced":
+			return "will delete"
+		case "replace":
+			return "will replace"
+		case "same", "read":
+			return ""
+		default:
+			return op
+		}
+	}
 	switch op {
 	case "create", "create-replacement":
 		return "created"
@@ -205,7 +231,10 @@ func opVerb(op string) string {
 	}
 }
 
-func opSpinnerVerb(op string) string {
+func opSpinnerVerb(op string, preview bool) string {
+	if preview {
+		return "checking..."
+	}
 	switch op {
 	case "create", "create-replacement":
 		return "creating..."
@@ -220,9 +249,19 @@ func opSpinnerVerb(op string) string {
 	}
 }
 
-func opIcon(op string, failed bool) string {
+func opIcon(op string, failed bool, preview bool) string {
 	if failed {
 		return red("✘")
+	}
+	if preview {
+		switch op {
+		case "delete", "delete-replaced":
+			return red("-")
+		case "update", "replace", "create-replacement":
+			return yellow("~")
+		default:
+			return green("+")
+		}
 	}
 	switch op {
 	case "update", "replace", "create-replacement":
@@ -236,6 +275,7 @@ func opIcon(op string, failed bool) string {
 
 type EventHandler struct {
 	verbose   bool
+	command   string
 	resources map[string]*trackedResource
 	errors    []diagError
 	spinner   *spinner
@@ -247,11 +287,38 @@ type diagError struct {
 	message string
 }
 
-func NewEventHandler(verbose bool) *EventHandler {
+func NewEventHandler(verbose bool, command string) *EventHandler {
 	return &EventHandler{
 		verbose:   verbose,
+		command:   command,
 		resources: make(map[string]*trackedResource),
 		startTime: time.Now(),
+	}
+}
+
+func (h *EventHandler) isPreview() bool {
+	return h.command == "preview"
+}
+
+func (h *EventHandler) commandVerb() string {
+	switch h.command {
+	case "preview":
+		return "Preview"
+	case "destroy":
+		return "Destroy"
+	default:
+		return "Deploy"
+	}
+}
+
+func (h *EventHandler) rerunCmd() string {
+	switch h.command {
+	case "preview":
+		return "anvil preview"
+	case "destroy":
+		return "anvil destroy --yes"
+	default:
+		return "anvil deploy"
 	}
 }
 
@@ -299,7 +366,7 @@ func (h *EventHandler) handleResourcePre(e *apitype.ResourcePreEvent) {
 		indent = "    "
 	}
 
-	line := fmt.Sprintf("%-14s %s", bold(displayName), dim(opSpinnerVerb(string(meta.Op))))
+	line := fmt.Sprintf("%-14s %s", bold(displayName), dim(opSpinnerVerb(string(meta.Op), h.isPreview())))
 
 	if isTTY() {
 		if h.spinner != nil {
@@ -380,19 +447,19 @@ func (h *EventHandler) printResourceLine(tr *trackedResource) {
 		return
 	}
 
-	verb := opVerb(tr.op)
+	verb := opVerb(tr.op, h.isPreview())
 	timing := fmt.Sprintf("(%s)", formatDuration(duration))
 
 	if isTTY() {
-		icon := opIcon(tr.op, false)
+		icon := opIcon(tr.op, false, h.isPreview())
 		fmt.Printf("%s%s %-14s %-10s %s\n", indent, icon, bold(displayName), verb, dim(timing))
 	} else {
-		icon := plainIcon(tr.op, false)
+		icon := plainIcon(tr.op, false, h.isPreview())
 		fmt.Printf("%s%s %-14s %-10s %s\n", indent, icon, displayName, verb, timing)
 	}
 }
 
-func (h *EventHandler) PrintSummary(command string, stage string) {
+func (h *EventHandler) PrintSummary(stage string) {
 	totalDuration := time.Since(h.startTime)
 
 	if h.spinner != nil {
@@ -437,7 +504,7 @@ func (h *EventHandler) PrintSummary(command string, stage string) {
 	fmt.Println()
 
 	if failed > 0 || len(h.errors) > 0 {
-		h.printFailureSummary(command, stage, counts, total, failed)
+		h.printFailureSummary(stage, counts, total, failed)
 		return
 	}
 
@@ -447,41 +514,57 @@ func (h *EventHandler) PrintSummary(command string, stage string) {
 	}
 
 	summaryParts := []string{}
-	if c, ok := counts["created"]; ok {
-		summaryParts = append(summaryParts, fmt.Sprintf("%d created", c))
-	}
-	if c, ok := counts["updated"]; ok {
-		summaryParts = append(summaryParts, fmt.Sprintf("%d updated", c))
-	}
-	if c, ok := counts["replaced"]; ok {
-		summaryParts = append(summaryParts, fmt.Sprintf("%d replaced", c))
-	}
-	if c, ok := counts["deleted"]; ok {
-		summaryParts = append(summaryParts, fmt.Sprintf("%d deleted", c))
+	if h.isPreview() {
+		if c, ok := counts["created"]; ok {
+			summaryParts = append(summaryParts, fmt.Sprintf("%d to create", c))
+		}
+		if c, ok := counts["updated"]; ok {
+			summaryParts = append(summaryParts, fmt.Sprintf("%d to update", c))
+		}
+		if c, ok := counts["replaced"]; ok {
+			summaryParts = append(summaryParts, fmt.Sprintf("%d to replace", c))
+		}
+		if c, ok := counts["deleted"]; ok {
+			summaryParts = append(summaryParts, fmt.Sprintf("%d to delete", c))
+		}
+	} else {
+		if c, ok := counts["created"]; ok {
+			summaryParts = append(summaryParts, fmt.Sprintf("%d created", c))
+		}
+		if c, ok := counts["updated"]; ok {
+			summaryParts = append(summaryParts, fmt.Sprintf("%d updated", c))
+		}
+		if c, ok := counts["replaced"]; ok {
+			summaryParts = append(summaryParts, fmt.Sprintf("%d replaced", c))
+		}
+		if c, ok := counts["deleted"]; ok {
+			summaryParts = append(summaryParts, fmt.Sprintf("%d deleted", c))
+		}
 	}
 
 	summary := strings.Join(summaryParts, ", ")
 
-	commandVerb := "Deploy"
-	if command == "destroy" {
-		commandVerb = "Destroy"
-	}
-
 	if isTTY() {
 		fmt.Printf("  %s %s complete — %s in %s\n",
-			green("✔"), commandVerb, summary, formatDuration(totalDuration))
+			green("✔"), h.commandVerb(), summary, formatDuration(totalDuration))
 	} else {
 		fmt.Printf("  %s complete — %s in %s\n",
-			commandVerb, summary, formatDuration(totalDuration))
+			h.commandVerb(), summary, formatDuration(totalDuration))
 	}
 
 	fmt.Println()
-	switch command {
+	switch h.command {
 	case "deploy":
 		if isTTY() {
 			fmt.Println(dim("  Run `anvil preview` to check for drift"))
 		} else {
 			fmt.Println("  Run `anvil preview` to check for drift")
+		}
+	case "preview":
+		if isTTY() {
+			fmt.Println(dim("  Run `anvil deploy` to apply these changes"))
+		} else {
+			fmt.Println("  Run `anvil deploy` to apply these changes")
 		}
 	case "destroy":
 		if isTTY() {
@@ -492,14 +575,7 @@ func (h *EventHandler) PrintSummary(command string, stage string) {
 	}
 }
 
-func (h *EventHandler) printFailureSummary(command, stage string, counts map[string]int, total, failed int) {
-	commandVerb := "Deploy"
-	rerunCmd := "anvil deploy"
-	if command == "destroy" {
-		commandVerb = "Destroy"
-		rerunCmd = "anvil destroy --yes"
-	}
-
+func (h *EventHandler) printFailureSummary(stage string, counts map[string]int, total, failed int) {
 	parts := []string{}
 	if total > 0 {
 		for verb, c := range counts {
@@ -510,9 +586,9 @@ func (h *EventHandler) printFailureSummary(command, stage string, counts map[str
 	summary := strings.Join(parts, ", ")
 
 	if isTTY() {
-		fmt.Printf("  %s %s failed — %s\n", red("✘"), commandVerb, summary)
+		fmt.Printf("  %s %s failed — %s\n", red("✘"), h.commandVerb(), summary)
 	} else {
-		fmt.Printf("  %s failed — %s\n", commandVerb, summary)
+		fmt.Printf("  %s failed — %s\n", h.commandVerb(), summary)
 	}
 
 	if len(h.errors) > 0 {
@@ -543,18 +619,19 @@ func (h *EventHandler) printFailureSummary(command, stage string, counts map[str
 			fmt.Printf("    %s\n\n", strings.TrimSpace(e.message))
 		}
 
+		rerun := h.rerunCmd()
 		if isTTY() {
-			fmt.Printf(dim("  Fix the errors above, then run `%s` again.\n"), rerunCmd)
-			if command == "deploy" {
+			fmt.Printf(dim("  Fix the errors above, then run `%s` again.\n"), rerun)
+			if h.command == "deploy" {
 				fmt.Println(dim("  Successfully created resources will not be recreated."))
-			} else if command == "destroy" {
+			} else if h.command == "destroy" {
 				fmt.Println(dim("  Successfully deleted resources will not be re-deleted."))
 			}
 		} else {
-			fmt.Printf("  Fix the errors above, then run `%s` again.\n", rerunCmd)
-			if command == "deploy" {
+			fmt.Printf("  Fix the errors above, then run `%s` again.\n", rerun)
+			if h.command == "deploy" {
 				fmt.Println("  Successfully created resources will not be recreated.")
-			} else if command == "destroy" {
+			} else if h.command == "destroy" {
 				fmt.Println("  Successfully deleted resources will not be re-deleted.")
 			}
 		}
