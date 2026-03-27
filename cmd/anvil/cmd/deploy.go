@@ -40,7 +40,7 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 	printBanner()
 	fmt.Printf("  Deploying to %s...\n\n", stage)
 
-	handler := NewEventHandler(deployVerbose)
+	handler := NewEventHandler(deployVerbose, "deploy")
 	eventCh := make(chan events.EngineEvent)
 
 	go func() {
@@ -51,7 +51,7 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 
 	_, err = s.Up(ctx, optup.EventStreams(eventCh))
 
-	handler.PrintSummary("deploy", stage)
+	handler.PrintSummary(stage)
 
 	if handler.HasErrors() {
 		return fmt.Errorf("deploy failed")

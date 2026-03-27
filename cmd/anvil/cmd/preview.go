@@ -39,7 +39,7 @@ func runPreview(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("\n  Previewing %s...\n\n", stage)
 
-	handler := NewEventHandler(previewVerbose)
+	handler := NewEventHandler(previewVerbose, "preview")
 	eventCh := make(chan events.EngineEvent)
 
 	go func() {
@@ -50,7 +50,7 @@ func runPreview(cmd *cobra.Command, args []string) error {
 
 	_, err = s.Preview(ctx, optpreview.EventStreams(eventCh))
 
-	handler.PrintSummary("preview", stage)
+	handler.PrintSummary(stage)
 
 	if err != nil {
 		return fmt.Errorf("preview failed")
