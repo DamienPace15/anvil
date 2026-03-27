@@ -47,9 +47,7 @@
         }
       },
       "isComponent": true,
-      "requiredInputs": [
-        "dataClassification"
-      ]
+      "requiredInputs": ["dataClassification"]
     },
     "anvil:aws:Lambda": {
       "inputProperties": {
@@ -66,9 +64,7 @@
         }
       },
       "isComponent": true,
-      "requiredInputs": [
-        "name"
-      ]
+      "requiredInputs": ["name"]
     },
     "anvil:gcp:Function": {
       "inputProperties": {
@@ -93,12 +89,7 @@
         }
       },
       "isComponent": true,
-      "requiredInputs": [
-        "name",
-        "location",
-        "runtime",
-        "entryPoint"
-      ]
+      "requiredInputs": ["name", "location", "runtime", "entryPoint"]
     },
     "anvil:gcp:StorageBucket": {
       "inputProperties": {
@@ -115,10 +106,7 @@
         }
       },
       "isComponent": true,
-      "requiredInputs": [
-        "dataClassification",
-        "location"
-      ]
+      "requiredInputs": ["dataClassification", "location"]
     }
   },
   "types": {
@@ -1370,5 +1358,5 @@
       "type": "object"
     }
   },
-  "version": "0.0.6"
+  "version": "0.0.7"
 }
