@@ -8,4 +8,5 @@ import typing
 # Export this package's modules as members:
 from .bucket import *
 from .lambda_ import *
+from .svelte_kit_site import *
 from ._inputs import *

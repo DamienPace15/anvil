@@ -8,4 +8,5 @@ import typing
 # Export this package's modules as members:
 from .function import *
 from .storage_bucket import *
+from .svelte_kit_site import *
 from ._inputs import *

@@ -25,6 +25,8 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &Bucket{}
 	case "anvil:aws:Lambda":
 		r = &Lambda{}
+	case "anvil:aws:SvelteKitSite":
+		r = &SvelteKitSite{}
 	default:
 		return nil, fmt.Errorf("unknown resource type: %s", typ)
 	}

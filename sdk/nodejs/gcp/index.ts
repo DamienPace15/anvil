@@ -15,6 +15,11 @@ export type StorageBucket = import("./storageBucket").StorageBucket;
 export const StorageBucket: typeof import("./storageBucket").StorageBucket = null as any;
 utilities.lazyLoad(exports, ["StorageBucket"], () => require("./storageBucket"));
 
+export { SvelteKitSiteArgs } from "./svelteKitSite";
+export type SvelteKitSite = import("./svelteKitSite").SvelteKitSite;
+export const SvelteKitSite: typeof import("./svelteKitSite").SvelteKitSite = null as any;
+utilities.lazyLoad(exports, ["SvelteKitSite"], () => require("./svelteKitSite"));
+
 
 const _module = {
     version: utilities.getVersion(),
@@ -24,6 +29,8 @@ const _module = {
                 return new Function(name, <any>undefined, { urn })
             case "anvil:gcp:StorageBucket":
                 return new StorageBucket(name, <any>undefined, { urn })
+            case "anvil:gcp:SvelteKitSite":
+                return new SvelteKitSite(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

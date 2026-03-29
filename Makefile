@@ -15,7 +15,10 @@ build: generate merge registry gen-go-sdk build-provider gen-nodejs build-sdk ge
 generate:
 	cd provider && GOWORK=off go run ../scripts/generate/generate_schemas.go
 
-merge: generate
+gen-site-schemas:
+	cd provider && go run ../scripts/generate-site-schemas/main.go
+
+merge: generate gen-site-schemas
 	cd provider && GOWORK=off go run ../scripts/merge/merge_schemas.go
 
 registry: merge

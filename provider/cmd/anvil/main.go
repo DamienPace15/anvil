@@ -9,8 +9,10 @@ import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 	awsbucket "github.com/DamienPace15/anvil/provider/aws/bucket"
 	awslambda "github.com/DamienPace15/anvil/provider/aws/lambda"
+	awssveltekitsite "github.com/DamienPace15/anvil/provider/aws/sveltekitsite"
 	gcpbucket "github.com/DamienPace15/anvil/provider/gcp/bucket"
 	gcpfunction "github.com/DamienPace15/anvil/provider/gcp/function"
+	gcpsveltekitsite "github.com/DamienPace15/anvil/provider/gcp/sveltekitsite"
 )
 
 func main() {
@@ -18,8 +20,10 @@ func main() {
 		WithComponents(
 			infer.ComponentF(awsbucket.NewBucket),
 			infer.ComponentF(awslambda.NewLambda),
+			infer.ComponentF(awssveltekitsite.NewSvelteKitSite),
 			infer.ComponentF(gcpbucket.NewBucket),
 			infer.ComponentF(gcpfunction.NewFunction),
+			infer.ComponentF(gcpsveltekitsite.NewSvelteKitSite),
 		).
 		Build()
 	if err != nil {

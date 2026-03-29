@@ -27,7 +27,8 @@ _utilities.register(
   "fqn": "anvil_cloud.aws",
   "classes": {
    "anvil:aws:Bucket": "Bucket",
-   "anvil:aws:Lambda": "Lambda"
+   "anvil:aws:Lambda": "Lambda",
+   "anvil:aws:SvelteKitSite": "SvelteKitSite"
   }
  },
  {
@@ -36,7 +37,8 @@ _utilities.register(
   "fqn": "anvil_cloud.gcp",
   "classes": {
    "anvil:gcp:Function": "Function",
-   "anvil:gcp:StorageBucket": "StorageBucket"
+   "anvil:gcp:StorageBucket": "StorageBucket",
+   "anvil:gcp:SvelteKitSite": "SvelteKitSite"
   }
  }
 ]
