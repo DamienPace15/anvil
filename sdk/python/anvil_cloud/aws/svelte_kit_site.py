@@ -25,8 +25,6 @@ class SvelteKitSiteArgs:
                  transform: Optional[pulumi.Input[_builtins.str]] = None):
         """
         The set of arguments for constructing a SvelteKitSite resource.
-
-        :param pulumi.Input[_builtins.str] path: Path to the SvelteKit project directory.
         """
         if domain is not None:
             pulumi.set(__self__, "domain", domain)
@@ -58,9 +56,6 @@ class SvelteKitSiteArgs:
     @_builtins.property
     @pulumi.getter
     def path(self) -> Optional[pulumi.Input[_builtins.str]]:
-        """
-        Path to the SvelteKit project directory.
-        """
         return pulumi.get(self, "path")
 
     @path.setter
@@ -89,12 +84,10 @@ class SvelteKitSite(pulumi.ComponentResource):
                  transform: Optional[pulumi.Input[_builtins.str]] = None,
                  __props__=None):
         """
-        SvelteKitSite is an Anvil-managed SvelteKit deployment on AWS. Static assets go to S3 behind CloudFront. Server code runs on Lambda.
-
+        Create a SvelteKitSite resource with the given unique name, props, and options.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] path: Path to the SvelteKit project directory.
         """
         ...
     @overload
@@ -103,8 +96,7 @@ class SvelteKitSite(pulumi.ComponentResource):
                  args: Optional[SvelteKitSiteArgs] = None,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        SvelteKitSite is an Anvil-managed SvelteKit deployment on AWS. Static assets go to S3 behind CloudFront. Server code runs on Lambda.
-
+        Create a SvelteKitSite resource with the given unique name, props, and options.
 
         :param str resource_name: The name of the resource.
         :param SvelteKitSiteArgs args: The arguments to use to populate this resource's properties.
@@ -175,8 +167,5 @@ class SvelteKitSite(pulumi.ComponentResource):
     @_builtins.property
     @pulumi.getter
     def url(self) -> pulumi.Output[Optional[_builtins.str]]:
-        """
-        Inline instead of embedding
-        """
         return pulumi.get(self, "url")
 

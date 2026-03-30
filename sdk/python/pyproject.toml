@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "anvil-cloud"
-version = "0.0.7"
+version = "0.0.8"
 description = "Anvil — secure-by-default cloud infrastructure components"
 readme = "README.md"
 license = "Apache-2.0"

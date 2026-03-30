@@ -4,9 +4,6 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "../utilities";
 
-/**
- * SvelteKitSite is an Anvil-managed SvelteKit deployment on AWS. Static assets go to S3 behind CloudFront. Server code runs on Lambda.
- */
 export class SvelteKitSite extends pulumi.ComponentResource {
     /** @internal */
     public static readonly __pulumiType = 'anvil:aws:SvelteKitSite';
@@ -26,9 +23,6 @@ export class SvelteKitSite extends pulumi.ComponentResource {
     declare public /*out*/ readonly cloudFrontDistributionId: pulumi.Output<string | undefined>;
     declare public /*out*/ readonly dnsRecords: pulumi.Output<string | undefined>;
     declare public /*out*/ readonly functionName: pulumi.Output<string | undefined>;
-    /**
-     * Inline instead of embedding
-     */
     declare public /*out*/ readonly url: pulumi.Output<string | undefined>;
 
     /**
@@ -69,9 +63,6 @@ export class SvelteKitSite extends pulumi.ComponentResource {
 export interface SvelteKitSiteArgs {
     domain?: pulumi.Input<string>;
     environment?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
-    /**
-     * Path to the SvelteKit project directory.
-     */
     path?: pulumi.Input<string>;
     transform?: pulumi.Input<string>;
 }
