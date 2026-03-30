@@ -37,8 +37,7 @@ _utilities.register(
   "fqn": "anvil_cloud.gcp",
   "classes": {
    "anvil:gcp:Function": "Function",
-   "anvil:gcp:StorageBucket": "StorageBucket",
-   "anvil:gcp:SvelteKitSite": "SvelteKitSite"
+   "anvil:gcp:StorageBucket": "StorageBucket"
   }
  }
 ]

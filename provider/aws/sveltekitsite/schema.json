@@ -2,51 +2,38 @@
   "resources": {
     "anvil:aws:SvelteKitSite": {
       "isComponent": true,
-      "description": "SvelteKitSite is an Anvil-managed SvelteKit deployment on AWS. Static assets go to S3 behind CloudFront. Server code runs on Lambda.",
       "inputProperties": {
         "domain": {
-          "type": "string",
-          "description": "Custom domain name for the site. When set, Anvil configures DNS and TLS certificates automatically."
+          "type": "string"
         },
         "environment": {
           "type": "object",
-          "description": "Environment variables injected at both build time and runtime. Build time: available via $env/static and import.meta.env during static generation and prerendering. Runtime: set on the compute service (Lambda/Cloud Run) for SSR and API routes via $env/dynamic.",
           "additionalProperties": {
             "type": "string"
           }
         },
         "path": {
-          "type": "string",
-          "description": "Path to the SvelteKit project directory, relative to the project root (where anvil.yaml lives). Not relative to the anvil.config file."
+          "type": "string"
         },
         "transform": {
-          "type": "string",
-          "description": "Transform overrides for underlying AWS resources."
+          "type": "string"
         }
       },
-      "requiredInputs": [
-        "path"
-      ],
       "properties": {
         "bucketName": {
-          "type": "string",
-          "description": "The S3 bucket name storing static assets."
+          "type": "string"
         },
         "cloudFrontDistributionId": {
-          "type": "string",
-          "description": "The CloudFront distribution ID serving the site."
+          "type": "string"
         },
         "dnsRecords": {
-          "type": "string",
-          "description": "DNS records the user needs to create (if domain is set and not on Route53). Empty if no domain or if Route53 records were created automatically."
+          "type": "string"
         },
         "functionName": {
-          "type": "string",
-          "description": "The Lambda function name running SSR."
+          "type": "string"
         },
         "url": {
-          "type": "string",
-          "description": "The URL where the site is accessible."
+          "type": "string"
         }
       }
     }

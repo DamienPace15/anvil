@@ -71,54 +71,41 @@
       ]
     },
     "anvil:aws:SvelteKitSite": {
-      "description": "SvelteKitSite is an Anvil-managed SvelteKit deployment on AWS. Static assets go to S3 behind CloudFront. Server code runs on Lambda.",
       "inputProperties": {
         "domain": {
-          "description": "Custom domain name for the site. When set, Anvil configures DNS and TLS certificates automatically.",
           "type": "string"
         },
         "environment": {
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Environment variables injected at both build time and runtime. Build time: available via $env/static and import.meta.env during static generation and prerendering. Runtime: set on the compute service (Lambda/Cloud Run) for SSR and API routes via $env/dynamic.",
           "type": "object"
         },
         "path": {
-          "description": "Path to the SvelteKit project directory, relative to the project root (where anvil.yaml lives). Not relative to the anvil.config file.",
           "type": "string"
         },
         "transform": {
-          "description": "Transform overrides for underlying AWS resources.",
           "type": "string"
         }
       },
       "isComponent": true,
       "properties": {
         "bucketName": {
-          "description": "The S3 bucket name storing static assets.",
           "type": "string"
         },
         "cloudFrontDistributionId": {
-          "description": "The CloudFront distribution ID serving the site.",
           "type": "string"
         },
         "dnsRecords": {
-          "description": "DNS records the user needs to create (if domain is set and not on Route53). Empty if no domain or if Route53 records were created automatically.",
           "type": "string"
         },
         "functionName": {
-          "description": "The Lambda function name running SSR.",
           "type": "string"
         },
         "url": {
-          "description": "The URL where the site is accessible.",
           "type": "string"
         }
-      },
-      "requiredInputs": [
-        "path"
-      ]
+      }
     },
     "anvil:gcp:Function": {
       "inputProperties": {
@@ -168,48 +155,6 @@
       "requiredInputs": [
         "dataClassification",
         "location"
-      ]
-    },
-    "anvil:gcp:SvelteKitSite": {
-      "description": "SvelteKitSite is an Anvil-managed SvelteKit deployment on GCP. Static assets go to Cloud Storage behind Cloud CDN. Server code runs on Cloud Run.",
-      "inputProperties": {
-        "domain": {
-          "description": "Custom domain name for the site. When set, Anvil configures DNS and TLS certificates automatically.",
-          "type": "string"
-        },
-        "environment": {
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Environment variables injected at both build time and runtime. Build time: available via $env/static and import.meta.env during static generation and prerendering. Runtime: set on the compute service (Lambda/Cloud Run) for SSR and API routes via $env/dynamic.",
-          "type": "object"
-        },
-        "minInstances": {
-          "description": "Minimum number of Cloud Run instances to keep warm. Set to 1 or higher to eliminate cold starts. Defaults to 0.",
-          "type": "integer"
-        },
-        "path": {
-          "description": "Path to the SvelteKit project directory, relative to the project root (where anvil.yaml lives). Not relative to the anvil.config file.",
-          "type": "string"
-        }
-      },
-      "isComponent": true,
-      "properties": {
-        "bucketName": {
-          "description": "The Cloud Storage bucket name storing static assets.",
-          "type": "string"
-        },
-        "cloudRunUrl": {
-          "description": "The Cloud Run service URL.",
-          "type": "string"
-        },
-        "url": {
-          "description": "The URL where the site is accessible.",
-          "type": "string"
-        }
-      },
-      "requiredInputs": [
-        "path"
       ]
     }
   },

@@ -7,37 +7,27 @@ import (
 	"context"
 	"reflect"
 
-	"errors"
 	"github.com/DamienPace15/anvil/sdk/go/anvil/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// SvelteKitSite is an Anvil-managed SvelteKit deployment on AWS. Static assets go to S3 behind CloudFront. Server code runs on Lambda.
 type SvelteKitSite struct {
 	pulumi.ResourceState
 
-	// The S3 bucket name storing static assets.
-	BucketName pulumi.StringPtrOutput `pulumi:"bucketName"`
-	// The CloudFront distribution ID serving the site.
+	BucketName               pulumi.StringPtrOutput `pulumi:"bucketName"`
 	CloudFrontDistributionId pulumi.StringPtrOutput `pulumi:"cloudFrontDistributionId"`
-	// DNS records the user needs to create (if domain is set and not on Route53). Empty if no domain or if Route53 records were created automatically.
-	DnsRecords pulumi.StringPtrOutput `pulumi:"dnsRecords"`
-	// The Lambda function name running SSR.
-	FunctionName pulumi.StringPtrOutput `pulumi:"functionName"`
-	// The URL where the site is accessible.
-	Url pulumi.StringPtrOutput `pulumi:"url"`
+	DnsRecords               pulumi.StringPtrOutput `pulumi:"dnsRecords"`
+	FunctionName             pulumi.StringPtrOutput `pulumi:"functionName"`
+	Url                      pulumi.StringPtrOutput `pulumi:"url"`
 }
 
 // NewSvelteKitSite registers a new resource with the given unique name, arguments, and options.
 func NewSvelteKitSite(ctx *pulumi.Context,
 	name string, args *SvelteKitSiteArgs, opts ...pulumi.ResourceOption) (*SvelteKitSite, error) {
 	if args == nil {
-		return nil, errors.New("missing one or more required arguments")
+		args = &SvelteKitSiteArgs{}
 	}
 
-	if args.Path == nil {
-		return nil, errors.New("invalid value for required argument 'Path'")
-	}
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource SvelteKitSite
 	err := ctx.RegisterRemoteComponentResource("anvil:aws:SvelteKitSite", name, args, &resource, opts...)
@@ -48,26 +38,18 @@ func NewSvelteKitSite(ctx *pulumi.Context,
 }
 
 type svelteKitSiteArgs struct {
-	// Custom domain name for the site. When set, Anvil configures DNS and TLS certificates automatically.
-	Domain *string `pulumi:"domain"`
-	// Environment variables injected at both build time and runtime. Build time: available via $env/static and import.meta.env during static generation and prerendering. Runtime: set on the compute service (Lambda/Cloud Run) for SSR and API routes via $env/dynamic.
+	Domain      *string           `pulumi:"domain"`
 	Environment map[string]string `pulumi:"environment"`
-	// Path to the SvelteKit project directory, relative to the project root (where anvil.yaml lives). Not relative to the anvil.config file.
-	Path string `pulumi:"path"`
-	// Transform overrides for underlying AWS resources.
-	Transform *string `pulumi:"transform"`
+	Path        *string           `pulumi:"path"`
+	Transform   *string           `pulumi:"transform"`
 }
 
 // The set of arguments for constructing a SvelteKitSite resource.
 type SvelteKitSiteArgs struct {
-	// Custom domain name for the site. When set, Anvil configures DNS and TLS certificates automatically.
-	Domain pulumi.StringPtrInput
-	// Environment variables injected at both build time and runtime. Build time: available via $env/static and import.meta.env during static generation and prerendering. Runtime: set on the compute service (Lambda/Cloud Run) for SSR and API routes via $env/dynamic.
+	Domain      pulumi.StringPtrInput
 	Environment pulumi.StringMapInput
-	// Path to the SvelteKit project directory, relative to the project root (where anvil.yaml lives). Not relative to the anvil.config file.
-	Path pulumi.StringInput
-	// Transform overrides for underlying AWS resources.
-	Transform pulumi.StringPtrInput
+	Path        pulumi.StringPtrInput
+	Transform   pulumi.StringPtrInput
 }
 
 func (SvelteKitSiteArgs) ElementType() reflect.Type {
@@ -157,27 +139,22 @@ func (o SvelteKitSiteOutput) ToSvelteKitSiteOutputWithContext(ctx context.Contex
 	return o
 }
 
-// The S3 bucket name storing static assets.
 func (o SvelteKitSiteOutput) BucketName() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *SvelteKitSite) pulumi.StringPtrOutput { return v.BucketName }).(pulumi.StringPtrOutput)
 }
 
-// The CloudFront distribution ID serving the site.
 func (o SvelteKitSiteOutput) CloudFrontDistributionId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *SvelteKitSite) pulumi.StringPtrOutput { return v.CloudFrontDistributionId }).(pulumi.StringPtrOutput)
 }
 
-// DNS records the user needs to create (if domain is set and not on Route53). Empty if no domain or if Route53 records were created automatically.
 func (o SvelteKitSiteOutput) DnsRecords() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *SvelteKitSite) pulumi.StringPtrOutput { return v.DnsRecords }).(pulumi.StringPtrOutput)
 }
 
-// The Lambda function name running SSR.
 func (o SvelteKitSiteOutput) FunctionName() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *SvelteKitSite) pulumi.StringPtrOutput { return v.FunctionName }).(pulumi.StringPtrOutput)
 }
 
-// The URL where the site is accessible.
 func (o SvelteKitSiteOutput) Url() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *SvelteKitSite) pulumi.StringPtrOutput { return v.Url }).(pulumi.StringPtrOutput)
 }

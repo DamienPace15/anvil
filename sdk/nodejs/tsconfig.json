@@ -20,7 +20,6 @@
         "gcp/function.ts",
         "gcp/index.ts",
         "gcp/storageBucket.ts",
-        "gcp/svelteKitSite.ts",
         "index.ts",
         "provider.ts",
         "types/index.ts",

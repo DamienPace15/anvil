@@ -19,44 +19,27 @@ __all__ = ['SvelteKitSiteArgs', 'SvelteKitSite']
 @pulumi.input_type
 class SvelteKitSiteArgs:
     def __init__(__self__, *,
-                 path: pulumi.Input[_builtins.str],
                  domain: Optional[pulumi.Input[_builtins.str]] = None,
                  environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 path: Optional[pulumi.Input[_builtins.str]] = None,
                  transform: Optional[pulumi.Input[_builtins.str]] = None):
         """
         The set of arguments for constructing a SvelteKitSite resource.
 
-        :param pulumi.Input[_builtins.str] path: Path to the SvelteKit project directory, relative to the project root (where anvil.yaml lives). Not relative to the anvil.config file.
-        :param pulumi.Input[_builtins.str] domain: Custom domain name for the site. When set, Anvil configures DNS and TLS certificates automatically.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables injected at both build time and runtime. Build time: available via $env/static and import.meta.env during static generation and prerendering. Runtime: set on the compute service (Lambda/Cloud Run) for SSR and API routes via $env/dynamic.
-        :param pulumi.Input[_builtins.str] transform: Transform overrides for underlying AWS resources.
+        :param pulumi.Input[_builtins.str] path: Path to the SvelteKit project directory.
         """
-        pulumi.set(__self__, "path", path)
         if domain is not None:
             pulumi.set(__self__, "domain", domain)
         if environment is not None:
             pulumi.set(__self__, "environment", environment)
+        if path is not None:
+            pulumi.set(__self__, "path", path)
         if transform is not None:
             pulumi.set(__self__, "transform", transform)
 
     @_builtins.property
     @pulumi.getter
-    def path(self) -> pulumi.Input[_builtins.str]:
-        """
-        Path to the SvelteKit project directory, relative to the project root (where anvil.yaml lives). Not relative to the anvil.config file.
-        """
-        return pulumi.get(self, "path")
-
-    @path.setter
-    def path(self, value: pulumi.Input[_builtins.str]):
-        pulumi.set(self, "path", value)
-
-    @_builtins.property
-    @pulumi.getter
     def domain(self) -> Optional[pulumi.Input[_builtins.str]]:
-        """
-        Custom domain name for the site. When set, Anvil configures DNS and TLS certificates automatically.
-        """
         return pulumi.get(self, "domain")
 
     @domain.setter
@@ -66,9 +49,6 @@ class SvelteKitSiteArgs:
     @_builtins.property
     @pulumi.getter
     def environment(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]:
-        """
-        Environment variables injected at both build time and runtime. Build time: available via $env/static and import.meta.env during static generation and prerendering. Runtime: set on the compute service (Lambda/Cloud Run) for SSR and API routes via $env/dynamic.
-        """
         return pulumi.get(self, "environment")
 
     @environment.setter
@@ -77,10 +57,19 @@ class SvelteKitSiteArgs:
 
     @_builtins.property
     @pulumi.getter
+    def path(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Path to the SvelteKit project directory.
+        """
+        return pulumi.get(self, "path")
+
+    @path.setter
+    def path(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "path", value)
+
+    @_builtins.property
+    @pulumi.getter
     def transform(self) -> Optional[pulumi.Input[_builtins.str]]:
-        """
-        Transform overrides for underlying AWS resources.
-        """
         return pulumi.get(self, "transform")
 
     @transform.setter
@@ -105,16 +94,13 @@ class SvelteKitSite(pulumi.ComponentResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] domain: Custom domain name for the site. When set, Anvil configures DNS and TLS certificates automatically.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables injected at both build time and runtime. Build time: available via $env/static and import.meta.env during static generation and prerendering. Runtime: set on the compute service (Lambda/Cloud Run) for SSR and API routes via $env/dynamic.
-        :param pulumi.Input[_builtins.str] path: Path to the SvelteKit project directory, relative to the project root (where anvil.yaml lives). Not relative to the anvil.config file.
-        :param pulumi.Input[_builtins.str] transform: Transform overrides for underlying AWS resources.
+        :param pulumi.Input[_builtins.str] path: Path to the SvelteKit project directory.
         """
         ...
     @overload
     def __init__(__self__,
                  resource_name: str,
-                 args: SvelteKitSiteArgs,
+                 args: Optional[SvelteKitSiteArgs] = None,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
         SvelteKitSite is an Anvil-managed SvelteKit deployment on AWS. Static assets go to S3 behind CloudFront. Server code runs on Lambda.
@@ -152,8 +138,6 @@ class SvelteKitSite(pulumi.ComponentResource):
 
             __props__.__dict__["domain"] = domain
             __props__.__dict__["environment"] = environment
-            if path is None and not opts.urn:
-                raise TypeError("Missing required property 'path'")
             __props__.__dict__["path"] = path
             __props__.__dict__["transform"] = transform
             __props__.__dict__["bucket_name"] = None
@@ -171,40 +155,28 @@ class SvelteKitSite(pulumi.ComponentResource):
     @_builtins.property
     @pulumi.getter(name="bucketName")
     def bucket_name(self) -> pulumi.Output[Optional[_builtins.str]]:
-        """
-        The S3 bucket name storing static assets.
-        """
         return pulumi.get(self, "bucket_name")
 
     @_builtins.property
     @pulumi.getter(name="cloudFrontDistributionId")
     def cloud_front_distribution_id(self) -> pulumi.Output[Optional[_builtins.str]]:
-        """
-        The CloudFront distribution ID serving the site.
-        """
         return pulumi.get(self, "cloud_front_distribution_id")
 
     @_builtins.property
     @pulumi.getter(name="dnsRecords")
     def dns_records(self) -> pulumi.Output[Optional[_builtins.str]]:
-        """
-        DNS records the user needs to create (if domain is set and not on Route53). Empty if no domain or if Route53 records were created automatically.
-        """
         return pulumi.get(self, "dns_records")
 
     @_builtins.property
     @pulumi.getter(name="functionName")
     def function_name(self) -> pulumi.Output[Optional[_builtins.str]]:
-        """
-        The Lambda function name running SSR.
-        """
         return pulumi.get(self, "function_name")
 
     @_builtins.property
     @pulumi.getter
     def url(self) -> pulumi.Output[Optional[_builtins.str]]:
         """
-        The URL where the site is accessible.
+        Inline instead of embedding
         """
         return pulumi.get(self, "url")
 

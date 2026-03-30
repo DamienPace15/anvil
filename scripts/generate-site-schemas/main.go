@@ -93,14 +93,14 @@ func main() {
 			ArgsStruct:      "SvelteKitSiteArgs",
 			ComponentStruct: "SvelteKitSite",
 		},
-		{
+		/* {
 			Cloud:           "gcp",
 			Resource:        "sveltekitsite",
 			Token:           "anvil:gcp:SvelteKitSite",
 			GoFile:          "gcp/sveltekitsite/sveltekitsite.go",
 			ArgsStruct:      "SvelteKitSiteArgs",
 			ComponentStruct: "SvelteKitSite",
-		},
+		}, */
 	}
 
 	// Parse the shared types file once — embedded structs reference these.

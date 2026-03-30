@@ -22,24 +22,12 @@ export class SvelteKitSite extends pulumi.ComponentResource {
         return obj['__pulumiType'] === SvelteKitSite.__pulumiType;
     }
 
-    /**
-     * The S3 bucket name storing static assets.
-     */
     declare public /*out*/ readonly bucketName: pulumi.Output<string | undefined>;
-    /**
-     * The CloudFront distribution ID serving the site.
-     */
     declare public /*out*/ readonly cloudFrontDistributionId: pulumi.Output<string | undefined>;
-    /**
-     * DNS records the user needs to create (if domain is set and not on Route53). Empty if no domain or if Route53 records were created automatically.
-     */
     declare public /*out*/ readonly dnsRecords: pulumi.Output<string | undefined>;
-    /**
-     * The Lambda function name running SSR.
-     */
     declare public /*out*/ readonly functionName: pulumi.Output<string | undefined>;
     /**
-     * The URL where the site is accessible.
+     * Inline instead of embedding
      */
     declare public /*out*/ readonly url: pulumi.Output<string | undefined>;
 
@@ -50,13 +38,10 @@ export class SvelteKitSite extends pulumi.ComponentResource {
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args: SvelteKitSiteArgs, opts?: pulumi.ComponentResourceOptions) {
+    constructor(name: string, args?: SvelteKitSiteArgs, opts?: pulumi.ComponentResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if (args?.path === undefined && !opts.urn) {
-                throw new Error("Missing required property 'path'");
-            }
             resourceInputs["domain"] = args?.domain;
             resourceInputs["environment"] = args?.environment;
             resourceInputs["path"] = args?.path;
@@ -82,20 +67,11 @@ export class SvelteKitSite extends pulumi.ComponentResource {
  * The set of arguments for constructing a SvelteKitSite resource.
  */
 export interface SvelteKitSiteArgs {
-    /**
-     * Custom domain name for the site. When set, Anvil configures DNS and TLS certificates automatically.
-     */
     domain?: pulumi.Input<string>;
-    /**
-     * Environment variables injected at both build time and runtime. Build time: available via $env/static and import.meta.env during static generation and prerendering. Runtime: set on the compute service (Lambda/Cloud Run) for SSR and API routes via $env/dynamic.
-     */
     environment?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     /**
-     * Path to the SvelteKit project directory, relative to the project root (where anvil.yaml lives). Not relative to the anvil.config file.
+     * Path to the SvelteKit project directory.
      */
-    path: pulumi.Input<string>;
-    /**
-     * Transform overrides for underlying AWS resources.
-     */
+    path?: pulumi.Input<string>;
     transform?: pulumi.Input<string>;
 }
