@@ -1,0 +1,42 @@
+{
+  "resources": {
+    "anvil:aws:SvelteKitSite": {
+      "isComponent": true,
+      "inputProperties": {
+        "domain": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "path": {
+          "type": "string"
+        },
+        "transform": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "bucketName": {
+          "type": "string"
+        },
+        "cloudFrontDistributionId": {
+          "type": "string"
+        },
+        "dnsRecords": {
+          "type": "string"
+        },
+        "functionName": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "types": {}
+}

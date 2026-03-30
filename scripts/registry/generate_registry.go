@@ -93,12 +93,17 @@ func main() {
 				continue
 			}
 
-			structName := toPascalCase(resourceName)
+			constructor, err := findConstructor(filepath.Join(providerName, resourceName))
+			if err != nil {
+				fmt.Printf("   ⚠️  Skipping %s/%s: %v\n", providerName, resourceName, err)
+				continue
+			}
+
 			comp := Component{
 				ImportPath:  fmt.Sprintf("%s/%s/%s", moduleName, providerName, resourceName),
 				PackageName: resourceName,
-				StructName:  structName,
-				Constructor: "New" + structName,
+				StructName:  strings.TrimPrefix(constructor, "New"),
+				Constructor: constructor,
 				Alias:       providerName + resourceName,
 			}
 
@@ -139,4 +144,34 @@ func toPascalCase(s string) string {
 		}
 	}
 	return result
+}
+
+// findConstructor scans Go files in a directory for a function
+// matching the pattern NewXxx(...) that returns a pointer and error.
+// This is the Pulumi component constructor convention.
+func findConstructor(dir string) (string, error) {
+	goFiles, _ := filepath.Glob(filepath.Join(dir, "*.go"))
+
+	re := regexp.MustCompile(`func (New[A-Z]\w*)\(`)
+
+	for _, f := range goFiles {
+		// Skip test files.
+		if strings.HasSuffix(f, "_test.go") {
+			continue
+		}
+
+		data, err := os.ReadFile(f)
+		if err != nil {
+			continue
+		}
+
+		matches := re.FindSubmatch(data)
+		if len(matches) >= 2 {
+			return string(matches[1]), nil
+		}
+	}
+
+	// Fallback to the old behaviour.
+	base := filepath.Base(dir)
+	return "New" + toPascalCase(base), nil
 }

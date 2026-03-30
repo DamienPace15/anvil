@@ -15,6 +15,11 @@ export type Lambda = import("./lambda").Lambda;
 export const Lambda: typeof import("./lambda").Lambda = null as any;
 utilities.lazyLoad(exports, ["Lambda"], () => require("./lambda"));
 
+export { SvelteKitSiteArgs } from "./svelteKitSite";
+export type SvelteKitSite = import("./svelteKitSite").SvelteKitSite;
+export const SvelteKitSite: typeof import("./svelteKitSite").SvelteKitSite = null as any;
+utilities.lazyLoad(exports, ["SvelteKitSite"], () => require("./svelteKitSite"));
+
 
 const _module = {
     version: utilities.getVersion(),
@@ -24,6 +29,8 @@ const _module = {
                 return new Bucket(name, <any>undefined, { urn })
             case "anvil:aws:Lambda":
                 return new Lambda(name, <any>undefined, { urn })
+            case "anvil:aws:SvelteKitSite":
+                return new SvelteKitSite(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

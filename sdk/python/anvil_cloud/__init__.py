@@ -27,7 +27,8 @@ _utilities.register(
   "fqn": "anvil_cloud.aws",
   "classes": {
    "anvil:aws:Bucket": "Bucket",
-   "anvil:aws:Lambda": "Lambda"
+   "anvil:aws:Lambda": "Lambda",
+   "anvil:aws:SvelteKitSite": "SvelteKitSite"
   }
  },
  {
