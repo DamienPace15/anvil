@@ -7,10 +7,14 @@ import * as outputs from "../types/output";
 import * as utilities from "../utilities";
 
 import * as pulumiAws from "@pulumi/aws";
+import * as grants from "../grants";
 
 export class Lambda extends pulumi.ComponentResource {
     /** @internal */
     public static readonly __pulumiType = 'anvil:aws:Lambda';
+
+    /** @internal Logical resource name for grant policy naming. */
+    private __name: string;
 
     /**
      * Returns true if the given object is an instance of Lambda.  This is designed to work even
@@ -23,6 +27,18 @@ export class Lambda extends pulumi.ComponentResource {
         return obj['__pulumiType'] === Lambda.__pulumiType;
     }
 
+    /**
+     * The ARN of the Lambda function.
+     */
+    declare public /*out*/ readonly arn: pulumi.Output<string>;
+    /**
+     * The name of the Lambda function.
+     */
+    declare public /*out*/ readonly functionName: pulumi.Output<string>;
+    /**
+     * The ARN of the Lambda's IAM execution role.
+     */
+    declare public /*out*/ readonly roleArn: pulumi.Output<string>;
 
     /**
      * Create a Lambda resource with the given unique name, arguments, and options.
@@ -41,11 +57,41 @@ export class Lambda extends pulumi.ComponentResource {
             resourceInputs["name"] = args?.name;
             resourceInputs["transform"] = args?.transform;
             resourceInputs["vpc"] = args?.vpc;
+            resourceInputs["arn"] = undefined /*out*/;
+            resourceInputs["functionName"] = undefined /*out*/;
+            resourceInputs["roleArn"] = undefined /*out*/;
         } else {
+            resourceInputs["arn"] = undefined /*out*/;
+            resourceInputs["functionName"] = undefined /*out*/;
+            resourceInputs["roleArn"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(Lambda.__pulumiType, name, resourceInputs, opts, true /*remote*/);
+        this.__name = name;
     }
+
+    /**
+     * Grants invoke access (lambda:InvokeFunction) on this lambda
+     * to the target compute resource's execution role.
+     *
+     * @param target - The compute resource to grant access to.
+     * @param opts - Optional grant options (justification for audit trail).
+     */
+    public grantInvoke(target: grants.GrantTarget, opts?: grants.GrantOptions): void {
+        const name = `${this.__name}-${target.grantName()}-invoke`;
+        const arns = grants.buildResourceArns(this.arn, undefined);
+        grants.createGrant(this, name, target, ["lambda:InvokeFunction"], arns, opts);
+    }
+    /** Implements GrantTarget — returns the logical resource name. */
+    public grantName(): string {
+        return this.__name;
+    }
+
+    /** Implements GrantTarget — returns the IAM execution role ARN. */
+    public grantRoleArn(): pulumi.Output<string> {
+        return this.roleArn;
+    }
+
 }
 
 /**

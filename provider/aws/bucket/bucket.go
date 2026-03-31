@@ -21,6 +21,7 @@ type Bucket struct {
 
 	BucketName pulumi.StringOutput `pulumi:"bucketName"`
 	Arn        pulumi.StringOutput `pulumi:"arn"`
+	name       string
 }
 
 // Annotate helps the provider understand the Pulumi token
@@ -30,7 +31,7 @@ func (b *Bucket) Annotate(a infer.Annotator) {
 }
 
 func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi.ResourceOption) (*Bucket, error) {
-	b := &Bucket{}
+	b := &Bucket{name: name}
 
 	provider.NewContext(ctx)
 

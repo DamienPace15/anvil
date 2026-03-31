@@ -14,6 +14,11 @@ import (
 
 type Bucket struct {
 	pulumi.ResourceState
+
+	// The ARN of the S3 bucket.
+	Arn pulumi.StringOutput `pulumi:"arn"`
+	// The name of the S3 bucket.
+	BucketName pulumi.StringOutput `pulumi:"bucketName"`
 }
 
 // NewBucket registers a new resource with the given unique name, arguments, and options.
@@ -133,6 +138,16 @@ func (o BucketOutput) ToBucketOutput() BucketOutput {
 
 func (o BucketOutput) ToBucketOutputWithContext(ctx context.Context) BucketOutput {
 	return o
+}
+
+// The ARN of the S3 bucket.
+func (o BucketOutput) Arn() pulumi.StringOutput {
+	return o.ApplyT(func(v *Bucket) pulumi.StringOutput { return v.Arn }).(pulumi.StringOutput)
+}
+
+// The name of the S3 bucket.
+func (o BucketOutput) BucketName() pulumi.StringOutput {
+	return o.ApplyT(func(v *Bucket) pulumi.StringOutput { return v.BucketName }).(pulumi.StringOutput)
 }
 
 type BucketArrayOutput struct{ *pulumi.OutputState }

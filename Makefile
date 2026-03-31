@@ -30,14 +30,14 @@ registry: merge
 gen-go-sdk: merge
 	@mkdir -p /tmp/anvil-sdk-backup/go
 	@cp sdk/go/anvil/go.mod sdk/go/anvil/go.sum /tmp/anvil-sdk-backup/go/ 2>/dev/null || true
-	@for f in app.go block.go; do \
+	@for f in app.go block.go grants.go; do \
 		cp sdk/go/anvil/$$f /tmp/anvil-sdk-backup/go/ 2>/dev/null || true; \
 	done
 	cd provider && GOWORK=off pulumi package gen-sdk schema.json --language go --out ../sdk
 	@cp /tmp/anvil-sdk-backup/go/go.mod sdk/go/anvil/ 2>/dev/null || \
 		(cd sdk/go/anvil && go mod init github.com/DamienPace15/anvil/sdk/go/anvil)
 	@cp /tmp/anvil-sdk-backup/go/go.sum sdk/go/anvil/ 2>/dev/null || true
-	@for f in app.go block.go; do \
+	@for f in app.go block.go grants.go; do \
 		cp /tmp/anvil-sdk-backup/go/$$f sdk/go/anvil/ 2>/dev/null || true; \
 	done
 	@rm -rf /tmp/anvil-sdk-backup/go
@@ -53,15 +53,16 @@ build-provider: gen-go-sdk registry
 
 gen-nodejs: merge
 	@mkdir -p /tmp/anvil-sdk-backup/nodejs
-	@for f in app.ts block.ts; do \
+	@for f in app.ts block.ts grants.ts; do \
 		cp sdk/nodejs/$$f /tmp/anvil-sdk-backup/nodejs/ 2>/dev/null || true; \
 	done
 	cd provider && pulumi package gen-sdk schema.json --language nodejs --out ../sdk
-	@for f in app.ts block.ts; do \
+	@for f in app.ts block.ts grants.ts; do \
 		cp /tmp/anvil-sdk-backup/nodejs/$$f sdk/nodejs/ 2>/dev/null || true; \
 	done
 	@rm -rf /tmp/anvil-sdk-backup/nodejs
 	node scripts/fix-sdk-package.js
+	node scripts/fix-sdk-grants.js
 
 build-sdk: gen-nodejs
 	cd sdk/nodejs && npm install && npm run build
@@ -71,15 +72,16 @@ build-sdk: gen-nodejs
 
 gen-python-sdk: merge
 	@mkdir -p /tmp/anvil-sdk-backup/python
-	@for f in app.py block.py types.py; do \
+	@for f in app.py block.py types.py grants.py; do \
 		cp sdk/python/anvil_cloud/$$f /tmp/anvil-sdk-backup/python/ 2>/dev/null || true; \
 	done
 	cd provider && pulumi package gen-sdk schema.json --language python --out ../sdk
-	@for f in app.py block.py types.py; do \
+	@for f in app.py block.py types.py grants.py; do \
 		cp /tmp/anvil-sdk-backup/python/$$f sdk/python/anvil_cloud/ 2>/dev/null || true; \
 	done
 	@rm -rf /tmp/anvil-sdk-backup/python
 	node scripts/fix-sdk-python.js
+	node scripts/fix-sdk-grants-python.js
 
 build-python-sdk: gen-python-sdk
 	python3 -m venv sdk/python/.venv

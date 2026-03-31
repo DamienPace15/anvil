@@ -13,6 +13,20 @@
         }
       },
       "isComponent": true,
+      "properties": {
+        "arn": {
+          "description": "The ARN of the S3 bucket.",
+          "type": "string"
+        },
+        "bucketName": {
+          "description": "The name of the S3 bucket.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "bucketName",
+        "arn"
+      ],
       "requiredInputs": [
         "dataClassification"
       ]

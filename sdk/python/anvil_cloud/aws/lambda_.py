@@ -15,6 +15,9 @@ else:
 from .. import _utilities
 from ._inputs import *
 import pulumi_aws
+from typing import Optional
+from anvil_cloud import grants
+
 
 __all__ = ['LambdaArgs', 'Lambda']
 
@@ -131,10 +134,43 @@ class Lambda(pulumi.ComponentResource):
             __props__.__dict__["name"] = name
             __props__.__dict__["transform"] = transform
             __props__.__dict__["vpc"] = vpc
+            __props__.__dict__["arn"] = None
+            __props__.__dict__["function_name"] = None
+            __props__.__dict__["role_arn"] = None
         super(Lambda, __self__).__init__(
             'anvil:aws:Lambda',
             resource_name,
             __props__,
             opts,
             remote=True)
+
+    @_builtins.property
+    @pulumi.getter
+    def arn(self) -> pulumi.Output[_builtins.str]:
+        """
+        The ARN of the Lambda function.
+        """
+        return pulumi.get(self, "arn")
+
+    @_builtins.property
+    @pulumi.getter(name="functionName")
+    def function_name(self) -> pulumi.Output[_builtins.str]:
+        """
+        The name of the Lambda function.
+        """
+        return pulumi.get(self, "function_name")
+
+    @_builtins.property
+    @pulumi.getter(name="roleArn")
+    def role_arn(self) -> pulumi.Output[_builtins.str]:
+        """
+        The ARN of the Lambda's IAM execution role.
+        """
+        return pulumi.get(self, "role_arn")
+
+    def grant_invoke(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
+        """Grants invoke access on this resource."""
+        name = f"{self._name}-{target.grant_name()}-invoke"
+        arns = grants.build_resource_arns(self.arn, None)
+        grants.create_grant(self, name, target, ["lambda:InvokeFunction"], arns, opts)
 
