@@ -62,7 +62,7 @@ gen-nodejs: merge
 	done
 	@rm -rf /tmp/anvil-sdk-backup/nodejs
 	node scripts/fix-sdk-package.js
-	node scripts/fix-sdk-grants.js
+	node scripts/fix-sdk-grants.js --ts
 
 build-sdk: gen-nodejs
 	cd sdk/nodejs && npm install && npm run build
@@ -81,7 +81,7 @@ gen-python-sdk: merge
 	done
 	@rm -rf /tmp/anvil-sdk-backup/python
 	node scripts/fix-sdk-python.js
-	node scripts/fix-sdk-grants-python.js
+	node scripts/fix-sdk-grants.js --python
 
 build-python-sdk: gen-python-sdk
 	python3 -m venv sdk/python/.venv
@@ -111,3 +111,7 @@ clean:
 	rm -rf bin/pulumi-resource-anvil
 	rm -rf sdk/nodejs/bin sdk/nodejs/node_modules
 	rm -rf sdk/python/dist sdk/python/build sdk/python/*.egg-info sdk/python/.venv
+
+# --Local installs---
+install-py:
+	cd test-app-python && pip install -e "../../anvil-core.nosync/sdk/python/"

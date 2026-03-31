@@ -166,8 +166,8 @@ if (fs.existsSync(initPath)) {
   let init = fs.readFileSync(initPath, 'utf8');
   let changed = false;
 
-  if (!init.includes('from .app import')) {
-    init += '\n# Hand-written App class\nfrom .app import App, Context\n';
+  if (!init.includes('from .app import run')) {
+    init += '\n# Typed entry point\nfrom .app import run\n';
     changed = true;
   }
 
@@ -176,13 +176,18 @@ if (fs.existsSync(initPath)) {
     changed = true;
   }
 
-  if (!init.includes('from .types import')) {
-    init += '\n# Re-exported Pulumi primitives\nfrom .types import *\n';
+  if (!init.includes('from .types import AppConfig')) {
+    init += '\n# Config classes\nfrom .types import AppConfig, DefaultsConfig, AwsProviderConfig, GcpProviderConfig, AssumeRoleConfig\n';
     changed = true;
   }
 
   if (!init.includes('from pulumi import export')) {
     init += '\n# Re-export core Pulumi functions so users never need to import pulumi directly.\nfrom pulumi import export\n';
+    changed = true;
+  }
+
+  if (!init.includes('from .grants import')) {
+    init += '\n# Grant helpers\nfrom .grants import GrantTarget, GrantOptions, create_grant, build_resource_arns\n';
     changed = true;
   }
 
