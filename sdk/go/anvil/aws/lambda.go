@@ -14,6 +14,13 @@ import (
 
 type Lambda struct {
 	pulumi.ResourceState
+
+	// The ARN of the Lambda function.
+	Arn pulumi.StringOutput `pulumi:"arn"`
+	// The name of the Lambda function.
+	FunctionName pulumi.StringOutput `pulumi:"functionName"`
+	// The ARN of the Lambda's IAM execution role.
+	RoleArn pulumi.StringOutput `pulumi:"roleArn"`
 }
 
 // NewLambda registers a new resource with the given unique name, arguments, and options.
@@ -137,6 +144,21 @@ func (o LambdaOutput) ToLambdaOutput() LambdaOutput {
 
 func (o LambdaOutput) ToLambdaOutputWithContext(ctx context.Context) LambdaOutput {
 	return o
+}
+
+// The ARN of the Lambda function.
+func (o LambdaOutput) Arn() pulumi.StringOutput {
+	return o.ApplyT(func(v *Lambda) pulumi.StringOutput { return v.Arn }).(pulumi.StringOutput)
+}
+
+// The name of the Lambda function.
+func (o LambdaOutput) FunctionName() pulumi.StringOutput {
+	return o.ApplyT(func(v *Lambda) pulumi.StringOutput { return v.FunctionName }).(pulumi.StringOutput)
+}
+
+// The ARN of the Lambda's IAM execution role.
+func (o LambdaOutput) RoleArn() pulumi.StringOutput {
+	return o.ApplyT(func(v *Lambda) pulumi.StringOutput { return v.RoleArn }).(pulumi.StringOutput)
 }
 
 type LambdaArrayOutput struct{ *pulumi.OutputState }

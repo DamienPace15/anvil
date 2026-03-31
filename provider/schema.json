@@ -47,6 +47,20 @@
         }
       },
       "isComponent": true,
+      "properties": {
+        "arn": {
+          "description": "The ARN of the S3 bucket.",
+          "type": "string"
+        },
+        "bucketName": {
+          "description": "The name of the S3 bucket.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "bucketName",
+        "arn"
+      ],
       "requiredInputs": [
         "dataClassification"
       ]
@@ -66,6 +80,25 @@
         }
       },
       "isComponent": true,
+      "properties": {
+        "arn": {
+          "description": "The ARN of the Lambda function.",
+          "type": "string"
+        },
+        "functionName": {
+          "description": "The name of the Lambda function.",
+          "type": "string"
+        },
+        "roleArn": {
+          "description": "The ARN of the Lambda's IAM execution role.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "arn",
+        "functionName",
+        "roleArn"
+      ],
       "requiredInputs": [
         "name"
       ]
