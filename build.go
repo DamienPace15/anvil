@@ -48,7 +48,16 @@ func main() {
 		"build-sdk":        targetBuildSDK,
 		"build-python-sdk": targetBuildPythonSDK,
 		"install-py":       targetInstallPy,
-		"clean":            targetClean,
+		"publish-npm":      targetPublishNpm,
+		"publish-pypi":     targetPublishPypi,
+		"publish-go": func() {
+			version, ok := extra["VERSION"]
+			if !ok || version == "" {
+				fatal("publish-go requires VERSION=vx.x.x")
+			}
+			targetPublishGo(version)
+		},
+		"clean": targetClean,
 	}
 
 	fn, ok := targets[target]
@@ -107,14 +116,12 @@ func targetGenGoSDK() {
 	must(os.MkdirAll(backupDir, 0o755))
 	defer os.RemoveAll(backupDir)
 
-	// Back up go.mod, go.sum and hand-written files
 	backupFiles("sdk/go/anvil", backupDir, "go.mod", "go.sum", "app.go", "block.go", "grants.go")
 
 	run("provider", env("GOWORK", "off"),
 		"pulumi", "package", "gen-sdk", "schema.json", "--language", "go", "--out", "../sdk",
 	)
 
-	// Restore go.mod (create fresh if missing)
 	if err := copyFile(filepath.Join(backupDir, "go.mod"), "sdk/go/anvil/go.mod"); err != nil {
 		run("sdk/go/anvil", env("GOWORK", "off"),
 			"go", "mod", "init", "github.com/DamienPace15/anvil/sdk/go/anvil",
@@ -190,11 +197,32 @@ func targetInstallPy() {
 	run("test-app-python", nil, "pip", "install", "-e", "../../anvil-core.nosync/sdk/python/")
 }
 
+func targetPublishNpm() {
+	targetBuildSDK()
+	runInteractive("sdk/nodejs", nil, "npm", "publish", "--access", "public")
+}
+
+func targetPublishPypi() {
+	targetBuildPythonSDK()
+	runInteractive("sdk/python", nil, ".venv/bin/twine", "upload", "dist/*")
+}
+
+func targetPublishGo(version string) {
+	targetGenGoSDK()
+	run(".", nil, "git", "add", "sdk/go/")
+	diffOut, _ := exec.Command("git", "diff", "--cached", "--quiet", "sdk/go/").CombinedOutput()
+	if len(diffOut) > 0 {
+		run(".", nil, "git", "commit", "-m", "chore: update generated go sdk")
+	}
+	run(".", nil, "git", "push", "origin", "master")
+	run(".", nil, "git", "tag", "sdk/go/anvil/"+version)
+	run(".", nil, "git", "push", "origin", "sdk/go/anvil/"+version)
+}
+
 func targetClean() {
 	remove("bin/pulumi-resource-anvil")
 	removeAll("sdk/nodejs/bin", "sdk/nodejs/node_modules")
 	removeAll("sdk/python/dist", "sdk/python/build", "sdk/python/.venv")
-	// Clean python egg-info dirs
 	matches, _ := filepath.Glob("sdk/python/*.egg-info")
 	for _, m := range matches {
 		must(os.RemoveAll(m))
@@ -204,12 +232,29 @@ func targetClean() {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-// run executes a command in dir with optional extra environment variables.
-// extraEnv is a flat list of "KEY=VALUE" strings merged with the current env.
+// run executes a command piping stdout/stderr but NOT stdin.
+// Use for all non-interactive commands.
 func run(dir string, extraEnv []string, name string, args ...string) {
 	log("▶ %s %s  (in %s)", name, strings.Join(args, " "), dir)
 	cmd := exec.Command(name, args...)
 	cmd.Dir = dir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if extraEnv != nil {
+		cmd.Env = append(os.Environ(), extraEnv...)
+	}
+	if err := cmd.Run(); err != nil {
+		fatal("command failed: %v", err)
+	}
+}
+
+// runInteractive is like run but also wires stdin so the terminal can handle
+// interactive prompts (e.g. npm OTP, twine credentials).
+func runInteractive(dir string, extraEnv []string, name string, args ...string) {
+	log("▶ %s %s  (in %s)", name, strings.Join(args, " "), dir)
+	cmd := exec.Command(name, args...)
+	cmd.Dir = dir
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if extraEnv != nil {
