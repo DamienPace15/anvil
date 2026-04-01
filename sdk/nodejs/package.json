@@ -1,6 +1,6 @@
 {
   "name": "@anvil-cloud/sdk",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "scripts": {
     "build": "tsc && cp package.json bin/"
   },
