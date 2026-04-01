@@ -62,7 +62,7 @@ gen-nodejs: merge
 	done
 	@rm -rf /tmp/anvil-sdk-backup/nodejs
 	node scripts/fix-sdk.js --ts
-	node scripts/fix-sdk-grants.js --ts
+	npx ts-node scripts/grants/fix-sdk-grants.ts --ts
 
 build-sdk: gen-nodejs
 	cd sdk/nodejs && npm install && npm run build
@@ -81,7 +81,7 @@ gen-python-sdk: merge
 	done
 	@rm -rf /tmp/anvil-sdk-backup/python
 	node scripts/fix-sdk.js --python
-	node scripts/fix-sdk-grants.js --python
+	npx ts-node scripts/grants/fix-sdk-grants.ts --python
 
 build-python-sdk: gen-python-sdk
 	python3 -m venv sdk/python/.venv
