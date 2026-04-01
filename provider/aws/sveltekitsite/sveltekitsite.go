@@ -25,10 +25,22 @@ import (
 )
 
 type SvelteKitSiteArgs struct {
-	Path        string                            `pulumi:"path"`
-	Environment map[string]string                 `pulumi:"environment,optional"`
-	Domain      string                            `pulumi:"domain,optional"`
-	Transform   map[string]map[string]interface{} `pulumi:"transform,optional"`
+	Path string `pulumi:"path"`
+
+	// Environment vars available at BOTH build time and runtime.
+	// Values must be string literals since they're needed before
+	// the build runs. Available in SvelteKit's $env/static (build)
+	// and $env/dynamic (runtime).
+	Environment map[string]string `pulumi:"environment,optional"`
+
+	// Runtime-only environment vars set on the Lambda function.
+	// Supports Pulumi Output values (e.g. bucket.name, fn.arn).
+	// Only available in SvelteKit's $env/dynamic at request time,
+	// NOT during build/prerendering.
+	RuntimeEnvironment map[string]interface{} `pulumi:"runtimeEnvironment,optional"`
+
+	Domain    string                            `pulumi:"domain,optional"`
+	Transform map[string]map[string]interface{} `pulumi:"transform,optional"`
 }
 
 type SvelteKitSite struct {
@@ -61,6 +73,7 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 		return nil, fmt.Errorf("cannot determine project root: %w", err)
 	}
 
+	// Build-time env vars: only string literals, resolved before build
 	buildResult, err := sites.BuildSvelteKit(sites.BuildOptions{
 		Path:        args.Path,
 		ProjectRoot: projectRoot,
@@ -120,13 +133,22 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 		return nil, fmt.Errorf("failed to package server code: %w", err)
 	}
 
-	lambdaEnv := pulumi.StringMap{
+	// ── Build Lambda env vars ───────────────────────────────────
+	// Start with system defaults
+	lambdaEnv := pulumi.Map{
 		"NODE_ENV":                pulumi.String("production"),
 		"AWS_LWA_PORT":            pulumi.String("3000"),
 		"AWS_LAMBDA_EXEC_WRAPPER": pulumi.String("/opt/bootstrap"),
 	}
+
+	// Add build-time env vars (string literals — available at both build + runtime)
 	for k, v := range args.Environment {
 		lambdaEnv[k] = pulumi.String(v)
+	}
+
+	// Add runtime-only env vars (supports Pulumi Outputs — available only at request time)
+	for k, v := range args.RuntimeEnvironment {
+		lambdaEnv[k] = coerceToStringOutput(v)
 	}
 
 	region, _ := ctx.GetConfig("aws:region")
@@ -239,6 +261,28 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 	})
 
 	return site, nil
+}
+
+// ── Helpers ─────────────────────────────────────────────────
+
+// coerceToStringOutput converts an interface{} value to a pulumi type
+// suitable for use in a Lambda environment variable map.
+// Handles: string, pulumi.StringOutput, pulumi.StringInput, pulumi.Output.
+func coerceToStringOutput(v interface{}) pulumi.Input {
+	switch val := v.(type) {
+	case string:
+		return pulumi.String(val)
+	case pulumi.StringOutput:
+		return val
+	case pulumi.StringInput:
+		return val
+	case pulumi.Output:
+		return val.ApplyT(func(raw interface{}) string {
+			return fmt.Sprintf("%v", raw)
+		}).(pulumi.StringOutput)
+	default:
+		return pulumi.Sprintf("%v", val)
+	}
 }
 
 type domainResult struct {
