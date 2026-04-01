@@ -8,6 +8,7 @@ import (
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	c "github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
 // Compile-time check: Lambda must implement provider.GrantTarget
@@ -48,6 +49,13 @@ func (l *Lambda) Annotate(a infer.Annotator) {
 
 func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi.ResourceOption) (*Lambda, error) {
 	l := &Lambda{name: name}
+
+	cfg := c.New(ctx, "anvil")
+	stage := cfg.Require("stage")
+	stageId := cfg.Require("stageId")
+
+	physicalName := provider.PhysicalName(stage, name, "lambda", stageId)
+
 	err := ctx.RegisterComponentResource(p.GetTypeToken(ctx), name, l, opts...)
 	if err != nil {
 		return nil, err
@@ -86,7 +94,7 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 
 	// 3. Lambda Function
 	lambdaProps := transform.MergeTransform(args.Transform["lambda"], pulumi.Map{
-		"name":    pulumi.String(args.Name),
+		"name":    pulumi.String(physicalName),
 		"runtime": pulumi.String(args.Runtime),
 		"handler": pulumi.String(args.Handler),
 		"role":    role.Arn,
