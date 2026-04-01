@@ -4,15 +4,32 @@
 
 Anvil wraps raw cloud resources into opinionated, production-ready components. No boilerplate. No copy-pasting security configs. Just declare what you need.
 
+Built on [Pulumi](https://www.pulumi.com/).
+
 ## Install
 
 ```bash
 pip install anvil-cloud
 ```
 
-## Quick start
+## Secure by default
 
-Create `anvil.config.py` at your project root:
+Every Anvil component ships with defaults aligned to production from day one — public access blocked, encryption enforced, cost tags applied. The goal isn't to make compliance automatic, but to make it a platform you can actually build on.
+
+## The App class
+
+Every Anvil program starts with `anvil.App()`. The `run` callback receives a `Context` with:
+
+- `ctx.stage` — current deployment stage (defaults to your OS username for dev isolation)
+- `ctx.project` — project name from `anvil.yaml`
+- `ctx.export(name, value)` — export stack outputs
+- `ctx.providers` — named cloud providers for multi-region / multi-account
+
+## Grants
+
+Grants are how Anvil wires permissions between resources. Instead of writing IAM policies by hand, you call `.grant()` on a resource and Anvil handles both the IAM role policy and the environment variable injection automatically.
+
+A Lambda reading from a Bucket:
 
 ```python
 import anvil_cloud as anvil
@@ -21,51 +38,46 @@ def infra(ctx: anvil.Context):
     bucket = anvil.aws.Bucket("uploads",
         data_classification="sensitive",
     )
-    ctx.export("bucketName", bucket.bucket_name)
+
+    fn = anvil.aws.Lambda("processor",
+        runtime="nodejs20.x",
+        handler="index.handler",
+        code="./src",
+    )
+
+    # Grants the Lambda read access to the bucket and scopes down to specific bucket paths.
+    # Anvil creates the IAM policy and injects UPLOADS_BUCKET_NAME
+    # into the Lambda's environment automatically.
+    bucket.grant(fn, actions=["read"], path=["user/*"])
 
 anvil.App(run=infra)
 ```
 
-Deploy:
+What Anvil does under the hood:
 
-```bash
-anvil deploy
-```
+- Creates an IAM `RolePolicy` scoped to the exact actions requested
+- Injects the resource identifier as an environment variable on the target (e.g. `UPLOADS_BUCKET_NAME`)
+- No manual ARN wiring, no forgotten permissions
 
-That S3 bucket ships with public access blocked, encryption enabled, and versioning on — because that's how every bucket should start.
+## SvelteKit deployment
 
-## The App class
-
-Every Anvil program starts with `anvil.App()`. The `run` callback receives a `Context` with:
-
-- `ctx.stage` — the current deployment stage (defaults to your OS username for dev isolation)
-- `ctx.project` — the project name from `anvil.yaml`
-- `ctx.export(name, value)` — export stack outputs
-- `ctx.providers` — named cloud providers for multi-region / multi-account
-
-## Multi-cloud
+Deploy a SvelteKit app to AWS with a single component. Anvil provisions S3, CloudFront, ACM, Lambda (via Lambda Web Adapter), and Route53 — with HTTPS and a custom domain out of the box:
 
 ```python
 import anvil_cloud as anvil
 
 def infra(ctx: anvil.Context):
-    # AWS
-    bucket = anvil.aws.Bucket("data",
-        data_classification="sensitive",
+    site = anvil.aws.SvelteKitSite("web",
+        domain="myapp.com",
     )
-
-    # GCP
-    gcs = anvil.gcp.StorageBucket("backup",
-        data_classification="internal",
-        location="US",
-    )
+    ctx.export("url", site.url)
 
 anvil.App(run=infra)
 ```
 
 ## Overrides
 
-Every component accepts a `transform` argument to override the underlying resource config:
+Every component accepts a `transform` argument to override the underlying resource config when you need to break from the defaults:
 
 ```python
 bucket = anvil.aws.Bucket("custom",
@@ -83,12 +95,13 @@ bucket = anvil.aws.Bucket("custom",
 
 - Python >= 3.8
 - Pulumi >= 3.0.0
-- The Anvil CLI (`curl -fsSL https://raw.githubusercontent.com/DamienPace15/anvil/master/install.sh | sh`)
+- Anvil CLI: `curl -fsSL https://raw.githubusercontent.com/DamienPace15/anvil/master/install.sh | sh`
 
 ## Links
 
+- [Docs](https://anvilcloud.dev)
 - [GitHub](https://github.com/DamienPace15/anvil)
-- [npm (Node SDK)](https://www.npmjs.com/package/@anvil-cloud/sdk)
+- [npm SDK](https://www.npmjs.com/package/@anvil-cloud/sdk)
 - [Go SDK](https://pkg.go.dev/github.com/DamienPace15/anvil/sdk/go/anvil)
 
 ## License

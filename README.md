@@ -3,100 +3,29 @@
 [![Release](https://img.shields.io/github/v/release/DamienPace15/anvil?style=flat-square)](https://github.com/DamienPace15/anvil/releases)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](LICENSE)
 
-Secure-by-default cloud infrastructure. No boilerplate.
+Cloud infrastructure with secure, cost-aware defaults built in. No boilerplate, no shortcuts.
+
+Anvil is built on top of [Pulumi](https://pulumi.com) and lets you write infrastructure in TypeScript, Python, or Go.
+
+---
+
+## Why Anvil
+
+Most IaC tools give you primitives and leave the hard decisions to you. Encryption, access controls, cost tagging, compliance-aligned configuration — that's all on you to remember, every time, across every resource.
+
+Anvil flips that. Every component ships with defaults that:
+
+- **Block public access and enforce encryption** across storage, compute, and networking
+- **Enforce tagging** so costs are attributable from day one
+- **Align to SOC 2 and ISO 27001 controls** — not certified out of the box, but configured in a way that does the heavy lifting when you're building toward compliance
+
+You still own your compliance posture. Anvil just makes sure you're not starting from zero.
+
+---
 
 ## Quick start
 
-**1. Install**
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/DamienPace15/anvil/master/install.sh | sh
-```
-
-**2. Create a project**
-
-```sh
-mkdir my-app && cd my-app
-echo "project: my-app" > anvil.yaml
-npm install @anvil-cloud/sdk
-```
-
-**3. Write infrastructure** — `anvil.config.ts`
-
-```typescript
-import { App } from '@anvil-cloud/sdk';
-import * as anvil from '@anvil-cloud/sdk';
-
-export default new App({
-  run(ctx) {
-    const bucket = new anvil.aws.Bucket('uploads', {
-      dataClassification: 'sensitive',
-    });
-    ctx.export('bucketName', bucket.bucketName);
-  },
-});
-```
-
-That S3 bucket ships with public access blocked, encryption enabled, and versioning on — because that's how every bucket should start.
-
-**4. Deploy**
-
-```sh
-anvil deploy
-```
-
-## Multi-language
-
-<table>
-<tr><td><strong>TypeScript</strong></td><td><code>npm install @anvil-cloud/sdk</code></td></tr>
-<tr><td><strong>Python</strong></td><td><code>pip install anvil-cloud</code></td></tr>
-<tr><td><strong>Go</strong></td><td><code>go get github.com/DamienPace15/anvil/sdk/go/anvil</code></td></tr>
-</table>
-
-**Python** — `anvil.config.py`
-
-```python
-import anvil_cloud as anvil
-
-def infra(ctx: anvil.Context):
-    bucket = anvil.aws.Bucket("uploads",
-        data_classification="sensitive",
-    )
-    ctx.export("bucketName", bucket.bucket_name)
-
-anvil.App(run=infra)
-```
-
-**Go** — `main.go`
-
-```go
-package main
-
-import (
-    "github.com/DamienPace15/anvil/sdk/go/anvil"
-    anvilaws "github.com/DamienPace15/anvil/sdk/go/anvil/aws"
-    "github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-)
-
-func main() {
-    anvil.Run(anvil.AppConfig{
-        Run: func(ctx *anvil.Context) error {
-            _, err := anvilaws.NewBucket(ctx.PulumiCtx(), "uploads", &anvilaws.BucketArgs{
-                DataClassification: pulumi.String("sensitive"),
-            })
-            return err
-        },
-    })
-}
-```
-
-## Multi-cloud
-
-AWS and GCP today. More coming.
-
-## Install
-
-**macOS / Linux**
+**Install**
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/DamienPace15/anvil/master/install.sh | sh
@@ -108,14 +37,34 @@ curl -fsSL https://raw.githubusercontent.com/DamienPace15/anvil/master/install.s
 irm https://raw.githubusercontent.com/DamienPace15/anvil/master/install.ps1 | iex
 ```
 
+---
+
+## Multi-language
+
+Full docs and examples at [anvilcloud.dev](https://anvilcloud.dev).
+
+<table>
+<tr><td><strong>TypeScript</strong></td><td><code>npm install @anvil-cloud/sdk</code></td></tr>
+<tr><td><strong>Python</strong></td><td><code>pip install anvil-cloud</code></td></tr>
+<tr><td><strong>Go</strong></td><td><code>go get github.com/DamienPace15/anvil/sdk/go/anvil</code></td></tr>
+</table>
+
+---
+
+## Multi-cloud
+
+AWS and GCP today. More coming.
+
+---
+
 ## Local development
 
-Prerequisites: Go 1.22+, Node.js 18+, Pulumi CLI.
+**Prerequisites:** Go 1.22+, Node.js 18+, Pulumi CLI
 
 ```sh
 git clone https://github.com/DamienPace15/anvil.git
 cd anvil
-make build
+go run build.go build
 ```
 
 Add `bin/` to your PATH to use the local provider:
@@ -126,18 +75,22 @@ export PATH="$PATH:$(pwd)/bin"
 
 ### Build commands
 
-| Command               | What it does                                                |
-| --------------------- | ----------------------------------------------------------- |
-| `make build`          | Full pipeline: generate → merge → registry → compile → SDKs |
-| `make binary`         | CLI binary only (fast, for CLI-only changes)                |
-| `make build-provider` | Compile the provider binary                                 |
-| `make build-sdk`      | Generate + build the Node.js SDK                            |
-| `make gen-python-sdk` | Generate Python SDK                                         |
-| `make clean`          | Remove build artifacts                                      |
+| Command                          | What it does                                                |
+| -------------------------------- | ----------------------------------------------------------- |
+| `go run build.go build`          | Full pipeline: generate → merge → registry → compile → SDKs |
+| `go run build.go binary`         | CLI binary only (fast, for CLI-only changes)                |
+| `go run build.go build-provider` | Compile the provider binary                                 |
+| `go run build.go build-sdk`      | Generate + build the Node.js SDK                            |
+| `go run build.go gen-python-sdk` | Generate Python SDK                                         |
+| `go run build.go clean`          | Remove build artifacts                                      |
+
+---
 
 ## Docs
 
 [anvilcloud.dev](https://anvilcloud.dev)
+
+---
 
 ## Contributing
 
