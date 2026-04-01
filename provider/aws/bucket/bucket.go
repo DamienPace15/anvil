@@ -7,6 +7,7 @@ import (
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	c "github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
 // BucketArgs matches the inputProperties in your modular schema.json
@@ -35,6 +36,12 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 
 	provider.NewContext(ctx)
 
+	cfg := c.New(ctx, "anvil")
+	stage := cfg.Require("stage")
+	stageId := cfg.Require("stageId")
+
+	physicalName := provider.PhysicalName(stage, name, "bucket", stageId)
+
 	opts = provider.WithDefault(opts, true)
 
 	err := ctx.RegisterComponentResource(p.GetTypeToken(ctx), name, b, opts...)
@@ -46,6 +53,7 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 
 	// 1. Base Bucket
 	bucketProps := transform.MergeTransform(args.Transform["bucket"], pulumi.Map{
+		"bucket":       pulumi.String(physicalName),
 		"forceDestroy": pulumi.Bool(true),
 		"tags": pulumi.StringMap{
 			"ManagedBy":          pulumi.String("anvil"),
