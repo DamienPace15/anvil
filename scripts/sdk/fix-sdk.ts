@@ -145,7 +145,7 @@ function patchTypeScript(): void {
     pkg.homepage = 'https://github.com/anvil-cloud/anvil';
     pkg.repository = {
       type: 'git',
-      url: 'https://github.com/anvil-cloud/anvil.git',
+      url: 'github.com/DamienPace15/anvil',
       directory: 'sdk/nodejs',
     };
 
