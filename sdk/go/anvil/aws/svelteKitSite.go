@@ -38,18 +38,24 @@ func NewSvelteKitSite(ctx *pulumi.Context,
 }
 
 type svelteKitSiteArgs struct {
-	Domain      *string           `pulumi:"domain"`
+	Domain *string `pulumi:"domain"`
+	// Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs. Available in SvelteKit's $env/static (build) and $env/dynamic (runtime).
 	Environment map[string]string `pulumi:"environment"`
 	Path        *string           `pulumi:"path"`
-	Transform   *string           `pulumi:"transform"`
+	// Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available in SvelteKit's $env/dynamic at request time, NOT during build/prerendering.
+	RuntimeEnvironment *string `pulumi:"runtimeEnvironment"`
+	Transform          *string `pulumi:"transform"`
 }
 
 // The set of arguments for constructing a SvelteKitSite resource.
 type SvelteKitSiteArgs struct {
-	Domain      pulumi.StringPtrInput
+	Domain pulumi.StringPtrInput
+	// Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs. Available in SvelteKit's $env/static (build) and $env/dynamic (runtime).
 	Environment pulumi.StringMapInput
 	Path        pulumi.StringPtrInput
-	Transform   pulumi.StringPtrInput
+	// Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available in SvelteKit's $env/dynamic at request time, NOT during build/prerendering.
+	RuntimeEnvironment pulumi.StringPtrInput
+	Transform          pulumi.StringPtrInput
 }
 
 func (SvelteKitSiteArgs) ElementType() reflect.Type {
