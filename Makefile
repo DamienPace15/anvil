@@ -61,7 +61,7 @@ gen-nodejs: merge
 		cp /tmp/anvil-sdk-backup/nodejs/$$f sdk/nodejs/ 2>/dev/null || true; \
 	done
 	@rm -rf /tmp/anvil-sdk-backup/nodejs
-	node scripts/fix-sdk-package.js
+	node scripts/fix-sdk.js --ts
 	node scripts/fix-sdk-grants.js --ts
 
 build-sdk: gen-nodejs
@@ -80,13 +80,18 @@ gen-python-sdk: merge
 		cp /tmp/anvil-sdk-backup/python/$$f sdk/python/anvil_cloud/ 2>/dev/null || true; \
 	done
 	@rm -rf /tmp/anvil-sdk-backup/python
-	node scripts/fix-sdk-python.js
+	node scripts/fix-sdk.js --python
 	node scripts/fix-sdk-grants.js --python
 
 build-python-sdk: gen-python-sdk
 	python3 -m venv sdk/python/.venv
 	sdk/python/.venv/bin/pip install build twine
 	cd sdk/python && .venv/bin/python -m build
+
+# ── Local Installs ──────────────────────────────────────────
+
+install-py:
+	cd test-app-python && pip install -e "../../anvil-core.nosync/sdk/python/"
 
 # ── Publish ─────────────────────────────────────────────────
 
@@ -111,7 +116,3 @@ clean:
 	rm -rf bin/pulumi-resource-anvil
 	rm -rf sdk/nodejs/bin sdk/nodejs/node_modules
 	rm -rf sdk/python/dist sdk/python/build sdk/python/*.egg-info sdk/python/.venv
-
-# --Local installs---
-install-py:
-	cd test-app-python && pip install -e "../../anvil-core.nosync/sdk/python/"

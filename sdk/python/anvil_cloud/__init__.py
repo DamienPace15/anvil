@@ -57,6 +57,9 @@ _utilities.register(
 # Typed entry point
 from .app import run
 
+# Hand-written App class
+from .app import App, Context
+
 # Hand-written Block class
 from .block import Block
 

@@ -37,6 +37,9 @@ export { App, AppConfig, Context, AwsProviderConfig, GcpProviderConfig, Defaults
 // Hand-written Block class
 export { Block, BlockArgs } from "./block";
 
+// Grant helpers
+export * from "./grants";
+
 // Re-exported Pulumi primitives
 // Users can import anvil.Output, anvil.ComponentResource, etc. without @pulumi/pulumi
 export {
