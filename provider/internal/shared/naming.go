@@ -52,10 +52,10 @@ var generalPattern = regexp.MustCompile(`[^a-zA-Z0-9_-]`)
 func PhysicalName(stage, logicalName, resourceType, stageId string) string {
 	raw := fmt.Sprintf("%s-%s-%s-%s", stage, logicalName, resourceType, stageId)
 
+	name := strings.ToLower(raw)
+
 	// Sanitize based on resource type
-	var name string
 	if resourceType == "bucket" || resourceType == "site" {
-		name = strings.ToLower(raw)
 		name = s3SafePattern.ReplaceAllString(name, "-")
 	} else {
 		name = generalPattern.ReplaceAllString(raw, "-")
