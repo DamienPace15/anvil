@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "target": "ES2022",
+      "module": "commonjs",
+      "moduleResolution": "bundler",
+      "strict": true,
+      "esModuleInterop": true,
+      "resolveJsonModule": true,
+      "outDir": "scripts/dist",
+      "rootDir": "scripts",
+      "declaration": false,
+      "skipLibCheck": true,
+      "types": ["node"]
+    },
+    "include": ["scripts/**/*.ts"],
+    "exclude": ["sdk", "provider", "scripts/dist"]
+  }
