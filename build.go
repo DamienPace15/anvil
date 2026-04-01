@@ -48,16 +48,7 @@ func main() {
 		"build-sdk":        targetBuildSDK,
 		"build-python-sdk": targetBuildPythonSDK,
 		"install-py":       targetInstallPy,
-		"publish-npm":      targetPublishNpm,
-		"publish-pypi":     targetPublishPypi,
-		"publish-go": func() {
-			version, ok := extra["VERSION"]
-			if !ok || version == "" {
-				fatal("publish-go requires VERSION=vx.x.x")
-			}
-			targetPublishGo(version)
-		},
-		"clean": targetClean,
+		"clean":            targetClean,
 	}
 
 	fn, ok := targets[target]
@@ -197,29 +188,6 @@ func targetBuildPythonSDK() {
 
 func targetInstallPy() {
 	run("test-app-python", nil, "pip", "install", "-e", "../../anvil-core.nosync/sdk/python/")
-}
-
-func targetPublishNpm() {
-	targetBuildSDK()
-	run("sdk/nodejs", nil, "npm", "publish", "--access", "public")
-}
-
-func targetPublishPypi() {
-	targetBuildPythonSDK()
-	run("sdk/python", nil, ".venv/bin/twine", "upload", "dist/*")
-}
-
-func targetPublishGo(version string) {
-	targetGenGoSDK()
-	run(".", nil, "git", "add", "sdk/go/")
-	// Only commit if there are staged changes
-	diffOut, _ := exec.Command("git", "diff", "--cached", "--quiet", "sdk/go/").CombinedOutput()
-	if len(diffOut) > 0 {
-		run(".", nil, "git", "commit", "-m", "chore: update generated go sdk")
-	}
-	run(".", nil, "git", "push", "origin", "master")
-	run(".", nil, "git", "tag", "sdk/go/anvil/"+version)
-	run(".", nil, "git", "push", "origin", "sdk/go/anvil/"+version)
 }
 
 func targetClean() {
