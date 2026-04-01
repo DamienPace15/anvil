@@ -161,8 +161,8 @@ class Bucket(pulumi.ComponentResource):
         grants.create_grant(self, name, target, ["s3:PutObject"], arns, opts)
 
     def grant_read_write(self, target: "grants.GrantTarget", paths: Optional[list] = None, opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants read_write access on this resource."""
-        name = f"{self._name}-{target.grant_name()}-read_write"
+        """Grants readwrite access on this resource."""
+        name = f"{self._name}-{target.grant_name()}-readwrite"
         arns = grants.build_resource_arns(self.arn, paths)
         grants.create_grant(self, name, target, ["s3:GetObject", "s3:ListBucket", "s3:PutObject"], arns, opts)
 

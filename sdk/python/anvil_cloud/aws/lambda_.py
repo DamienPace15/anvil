@@ -174,3 +174,11 @@ class Lambda(pulumi.ComponentResource):
         arns = grants.build_resource_arns(self.arn, None)
         grants.create_grant(self, name, target, ["lambda:InvokeFunction"], arns, opts)
 
+    def grant_name(self) -> str:
+        """Implements GrantTarget — returns the logical resource name."""
+        return self._name
+
+    def grant_role_arn(self):
+        """Implements GrantTarget — returns the IAM execution role ARN."""
+        return self.role_arn
+

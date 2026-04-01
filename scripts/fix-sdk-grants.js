@@ -3,24 +3,38 @@
 // Patches the auto-generated SDK classes to add grant methods.
 // Runs after pulumi gen-sdk and before build.
 //
-// This script injects:
-// 1. Grant methods on infra resources (e.g. Bucket.grantRead)
-// 2. GrantTarget implementation on compute resources (e.g. Lambda.grantName, Lambda.grantRoleArn)
+// Handles BOTH TypeScript and Python SDKs from a single config.
 //
-// Each resource defines its own grant config (actions per access level).
-// The injected methods delegate to the shared createGrant/buildResourceArns
-// helpers in grants.ts.
+// This script injects:
+// 1. Grant methods on infra resources (e.g. Bucket.grantRead / bucket.grant_read)
+// 2. GrantTarget implementation on compute resources (e.g. Lambda.grantName / lambda.grant_name)
+//
+// Usage:
+//   node fix-sdk-grants.js           # patches both TS and Python
+//   node fix-sdk-grants.js --ts      # patches only TypeScript
+//   node fix-sdk-grants.js --python  # patches only Python
 
 const fs = require("fs");
 const path = require("path");
 
-const sdkDir = path.join(__dirname, "..", "sdk", "nodejs");
+const tsDir = path.join(__dirname, "..", "sdk", "nodejs");
+const pyDir = path.join(__dirname, "..", "sdk", "python", "anvil_cloud");
 
-// ── Grant Definitions ──────────────────────────────────────
+const args = process.argv.slice(2);
+const tsOnly = args.includes("--ts");
+const pyOnly = args.includes("--python");
+const doTS = !pyOnly;
+const doPython = !tsOnly;
+
+// ── Shared Grant Definitions ───────────────────────────────
+//
+// Language-neutral config. TS method names are canonical;
+// Python names are derived automatically (camelCase → snake_case).
 
 const GRANT_CONFIGS = [
     {
-        file: "aws/bucket.ts",
+        tsFile: "aws/bucket.ts",
+        pyFile: "aws/bucket.py",
         className: "Bucket",
         arnProperty: "arn",
         supportsPaths: true,
@@ -37,7 +51,8 @@ const GRANT_CONFIGS = [
         ],
     },
     {
-        file: "aws/lambda.ts",
+        tsFile: "aws/lambda.ts",
+        pyFile: "aws/lambda_.py",
         className: "Lambda",
         arnProperty: "arn",
         supportsPaths: false,
@@ -49,18 +64,35 @@ const GRANT_CONFIGS = [
 
 const GRANT_TARGET_CONFIGS = [
     {
-        file: "aws/lambda.ts",
+        tsFile: "aws/lambda.ts",
+        pyFile: "aws/lambda_.py",
         className: "Lambda",
-        roleArnProperty: "roleArn",
+        roleArnProperty: "roleArn",         // TS property name
+        pyRoleArnProperty: "role_arn",       // Python property name
     },
 ];
 
-// ── Code Generation ────────────────────────────────────────
+// ── Naming Helpers ─────────────────────────────────────────
 
-function generateGrantMethod(config, grant) {
+/** camelCase → snake_case */
+function toSnakeCase(str) {
+    return str.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
+}
+
+/** "grantRead" → "read", "grantFullAccess" → "fullaccess" */
+function grantSuffix(method) {
+    return method.replace("grant", "").toLowerCase();
+}
+
+// ════════════════════════════════════════════════════════════
+// TypeScript Patching
+// ════════════════════════════════════════════════════════════
+
+function generateTSGrantMethod(config, grant) {
     const { className, arnProperty, supportsPaths } = config;
     const { method, actions, isFullAccess } = grant;
     const actionsStr = actions.map((a) => `"${a}"`).join(", ");
+    const suffix = grantSuffix(method);
 
     if (isFullAccess) {
         return `
@@ -85,7 +117,7 @@ function generateGrantMethod(config, grant) {
                 this,
             );
         }
-        const name = \`\${this.__name}-\${target.grantName()}-fullaccess\`;
+        const name = \`\${this.__name}-\${target.grantName()}-${suffix}\`;
         const arns = grants.buildResourceArns(this.${arnProperty}, undefined);
         grants.createGrant(this, name, target, [${actionsStr}], arns, opts);
     }`;
@@ -94,7 +126,7 @@ function generateGrantMethod(config, grant) {
     if (supportsPaths) {
         return `
     /**
-     * Grants ${method.replace("grant", "").toLowerCase()} access (${actions.join(", ")}) on this ${className.toLowerCase()}
+     * Grants ${suffix} access (${actions.join(", ")}) on this ${className.toLowerCase()}
      * to the target compute resource's execution role.
      *
      * @param target - The compute resource to grant access to.
@@ -102,7 +134,7 @@ function generateGrantMethod(config, grant) {
      * @param opts - Optional grant options (justification for audit trail).
      */
     public ${method}(target: grants.GrantTarget, paths?: string[], opts?: grants.GrantOptions): void {
-        const name = \`\${this.__name}-\${target.grantName()}-${method.replace("grant", "").toLowerCase()}\`;
+        const name = \`\${this.__name}-\${target.grantName()}-${suffix}\`;
         const arns = grants.buildResourceArns(this.${arnProperty}, paths);
         grants.createGrant(this, name, target, [${actionsStr}], arns, opts);
     }`;
@@ -110,20 +142,20 @@ function generateGrantMethod(config, grant) {
 
     return `
     /**
-     * Grants ${method.replace("grant", "").toLowerCase()} access (${actions.join(", ")}) on this ${className.toLowerCase()}
+     * Grants ${suffix} access (${actions.join(", ")}) on this ${className.toLowerCase()}
      * to the target compute resource's execution role.
      *
      * @param target - The compute resource to grant access to.
      * @param opts - Optional grant options (justification for audit trail).
      */
     public ${method}(target: grants.GrantTarget, opts?: grants.GrantOptions): void {
-        const name = \`\${this.__name}-\${target.grantName()}-${method.replace("grant", "").toLowerCase()}\`;
+        const name = \`\${this.__name}-\${target.grantName()}-${suffix}\`;
         const arns = grants.buildResourceArns(this.${arnProperty}, undefined);
         grants.createGrant(this, name, target, [${actionsStr}], arns, opts);
     }`;
 }
 
-function generateGrantTargetMethods(roleArnProperty) {
+function generateTSGrantTargetMethods(roleArnProperty) {
     return `
     /** Implements GrantTarget — returns the logical resource name. */
     public grantName(): string {
@@ -136,13 +168,8 @@ function generateGrantTargetMethods(roleArnProperty) {
     }`;
 }
 
-// ── Helpers ────────────────────────────────────────────────
+// ── TS Helpers ─────────────────────────────────────────────
 
-/**
- * Finds the closing brace of the exported class.
- * Looks for "export interface" which always follows the class,
- * then walks backward to find the class closing brace.
- */
 function findClassEnd(content) {
     const interfaceIdx = content.indexOf("\nexport interface ");
     if (interfaceIdx >= 0) {
@@ -190,28 +217,12 @@ function ensureNameProperty(content) {
     return content;
 }
 
-// ── Main ───────────────────────────────────────────────────
-// Single pass per file. Collects all patches, applies them together.
-
-console.log("🔐 Patching SDK with grant methods...");
-
-// Build file → patches map
-const fileMap = {};
-for (const config of GRANT_CONFIGS) {
-    fileMap[config.file] = fileMap[config.file] || {};
-    fileMap[config.file].grantConfig = config;
-}
-for (const config of GRANT_TARGET_CONFIGS) {
-    fileMap[config.file] = fileMap[config.file] || {};
-    fileMap[config.file].grantTargetConfig = config;
-}
-
-for (const [file, configs] of Object.entries(fileMap)) {
-    const filePath = path.join(sdkDir, file);
+function patchTSFile(file, grantConfig, grantTargetConfig) {
+    const filePath = path.join(tsDir, file);
 
     if (!fs.existsSync(filePath)) {
         console.log(`  ⚠ ${file} not found — skipping`);
-        continue;
+        return;
     }
 
     let content = fs.readFileSync(filePath, "utf8");
@@ -220,31 +231,26 @@ for (const [file, configs] of Object.entries(fileMap)) {
         content.includes("grantRead(") || content.includes("grantInvoke(");
     const hasGrantTarget = content.includes("grantName():");
 
-    if (hasGrantMethods && (!configs.grantTargetConfig || hasGrantTarget)) {
+    if (hasGrantMethods && (!grantTargetConfig || hasGrantTarget)) {
         console.log(`  ⏭ ${file} already patched — skipping`);
-        continue;
+        return;
     }
 
-    // Apply all patches
     content = ensureGrantsImport(content);
     content = ensureNameProperty(content);
 
-    // Collect methods to inject
     let methods = "";
 
-    if (configs.grantConfig && !hasGrantMethods) {
-        methods += configs.grantConfig.grants
-            .map((grant) => generateGrantMethod(configs.grantConfig, grant))
+    if (grantConfig && !hasGrantMethods) {
+        methods += grantConfig.grants
+            .map((grant) => generateTSGrantMethod(grantConfig, grant))
             .join("\n");
     }
 
-    if (configs.grantTargetConfig && !hasGrantTarget) {
-        methods += generateGrantTargetMethods(
-            configs.grantTargetConfig.roleArnProperty,
-        );
+    if (grantTargetConfig && !hasGrantTarget) {
+        methods += generateTSGrantTargetMethods(grantTargetConfig.roleArnProperty);
     }
 
-    // Insert before class closing brace
     if (methods) {
         const classEnd = findClassEnd(content);
         if (classEnd >= 0) {
@@ -260,13 +266,185 @@ for (const [file, configs] of Object.entries(fileMap)) {
     fs.writeFileSync(filePath, content);
 
     const patched = [];
-    if (configs.grantConfig && !hasGrantMethods) {
-        patched.push(configs.grantConfig.grants.map((g) => g.method).join(", "));
+    if (grantConfig && !hasGrantMethods) {
+        patched.push(grantConfig.grants.map((g) => g.method).join(", "));
     }
-    if (configs.grantTargetConfig && !hasGrantTarget) {
+    if (grantTargetConfig && !hasGrantTarget) {
         patched.push("GrantTarget (grantName, grantRoleArn)");
     }
     console.log(`  ✔ Patched ${file} → ${patched.join(", ")}`);
 }
 
-console.log("✔ Grant patching complete");
+// ════════════════════════════════════════════════════════════
+// Python Patching
+// ════════════════════════════════════════════════════════════
+
+function generatePyGrantMethod(config, grant) {
+    const { arnProperty, supportsPaths } = config;
+    const { method, actions, isFullAccess } = grant;
+
+    const pyMethod = toSnakeCase(method);
+    const suffix = grantSuffix(method);
+    const actionsStr = actions.map((a) => `"${a}"`).join(", ");
+
+    if (isFullAccess) {
+        return `
+    def ${pyMethod}(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
+        """Grants full access on this resource. Prefer scoped grants."""
+        if not opts or not opts.justification:
+            pulumi.log.warn(
+                f"⚠ {self._name} → {target.grant_name()}: full access granted with no justification.",
+                self,
+            )
+        else:
+            pulumi.log.info(
+                f"ℹ {self._name} → {target.grant_name()}: full access granted. Justification: \\"{opts.justification}\\"",
+                self,
+            )
+        name = f"{self._name}-{target.grant_name()}-${suffix}"
+        arns = grants.build_resource_arns(self.${arnProperty}, None)
+        grants.create_grant(self, name, target, [${actionsStr}], arns, opts)
+`;
+    }
+
+    if (supportsPaths) {
+        return `
+    def ${pyMethod}(self, target: "grants.GrantTarget", paths: Optional[list] = None, opts: Optional["grants.GrantOptions"] = None) -> None:
+        """Grants ${suffix} access on this resource."""
+        name = f"{self._name}-{target.grant_name()}-${suffix}"
+        arns = grants.build_resource_arns(self.${arnProperty}, paths)
+        grants.create_grant(self, name, target, [${actionsStr}], arns, opts)
+`;
+    }
+
+    return `
+    def ${pyMethod}(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
+        """Grants ${suffix} access on this resource."""
+        name = f"{self._name}-{target.grant_name()}-${suffix}"
+        arns = grants.build_resource_arns(self.${arnProperty}, None)
+        grants.create_grant(self, name, target, [${actionsStr}], arns, opts)
+`;
+}
+
+function generatePyGrantTargetMethods(pyRoleArnProperty) {
+    return `
+    def grant_name(self) -> str:
+        """Implements GrantTarget — returns the logical resource name."""
+        return self._name
+
+    def grant_role_arn(self):
+        """Implements GrantTarget — returns the IAM execution role ARN."""
+        return self.${pyRoleArnProperty}
+`;
+}
+
+function ensurePyGrantsImport(content) {
+    if (content.includes("from anvil_cloud import grants")) return content;
+
+    const lines = content.split("\n");
+    let lastImportIdx = 0;
+    for (let i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith("import ") || lines[i].startsWith("from ")) {
+            lastImportIdx = i;
+        }
+    }
+    lines.splice(lastImportIdx + 1, 0, "from typing import Optional", "from anvil_cloud import grants", "");
+    return lines.join("\n");
+}
+
+function patchPyFile(file, grantConfig, grantTargetConfig) {
+    const filePath = path.join(pyDir, file);
+
+    if (!fs.existsSync(filePath)) {
+        console.log(`  ⚠ ${file} not found — skipping`);
+        return;
+    }
+
+    let content = fs.readFileSync(filePath, "utf8");
+
+    const hasGrantMethods =
+        content.includes("grant_read") || content.includes("grant_invoke");
+    const hasGrantTarget = content.includes("grant_name");
+
+    if (hasGrantMethods && (!grantTargetConfig || hasGrantTarget)) {
+        console.log(`  ⏭ ${file} already patched — skipping`);
+        return;
+    }
+
+    if (!hasGrantMethods && !hasGrantTarget) {
+        content = ensurePyGrantsImport(content);
+    }
+
+    let methods = "";
+
+    if (grantConfig && !hasGrantMethods) {
+        methods += grantConfig.grants
+            .map((grant) => generatePyGrantMethod(grantConfig, grant))
+            .join("");
+    }
+
+    if (grantTargetConfig && !hasGrantTarget) {
+        methods += generatePyGrantTargetMethods(grantTargetConfig.pyRoleArnProperty);
+    }
+
+    if (methods) {
+        content = content.trimEnd() + "\n" + methods + "\n";
+    }
+
+    fs.writeFileSync(filePath, content);
+
+    const patched = [];
+    if (grantConfig && !hasGrantMethods) {
+        patched.push(grantConfig.grants.map((g) => toSnakeCase(g.method)).join(", "));
+    }
+    if (grantTargetConfig && !hasGrantTarget) {
+        patched.push("GrantTarget (grant_name, grant_role_arn)");
+    }
+    console.log(`  ✔ Patched ${file} → ${patched.join(", ")}`);
+}
+
+// ════════════════════════════════════════════════════════════
+// Main
+// ════════════════════════════════════════════════════════════
+
+// Build per-file patch maps
+const tsFileMap = {};
+const pyFileMap = {};
+
+for (const config of GRANT_CONFIGS) {
+    if (doTS) {
+        tsFileMap[config.tsFile] = tsFileMap[config.tsFile] || {};
+        tsFileMap[config.tsFile].grantConfig = config;
+    }
+    if (doPython) {
+        pyFileMap[config.pyFile] = pyFileMap[config.pyFile] || {};
+        pyFileMap[config.pyFile].grantConfig = config;
+    }
+}
+
+for (const config of GRANT_TARGET_CONFIGS) {
+    if (doTS) {
+        tsFileMap[config.tsFile] = tsFileMap[config.tsFile] || {};
+        tsFileMap[config.tsFile].grantTargetConfig = config;
+    }
+    if (doPython) {
+        pyFileMap[config.pyFile] = pyFileMap[config.pyFile] || {};
+        pyFileMap[config.pyFile].grantTargetConfig = config;
+    }
+}
+
+if (doTS) {
+    console.log("🔐 Patching TypeScript SDK with grant methods...");
+    for (const [file, configs] of Object.entries(tsFileMap)) {
+        patchTSFile(file, configs.grantConfig, configs.grantTargetConfig);
+    }
+    console.log("✔ TypeScript grant patching complete\n");
+}
+
+if (doPython) {
+    console.log("🔐 Patching Python SDK with grant methods...");
+    for (const [file, configs] of Object.entries(pyFileMap)) {
+        patchPyFile(file, configs.grantConfig, configs.grantTargetConfig);
+    }
+    console.log("✔ Python grant patching complete");
+}
