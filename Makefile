@@ -61,7 +61,7 @@ gen-nodejs: merge
 		cp /tmp/anvil-sdk-backup/nodejs/$$f sdk/nodejs/ 2>/dev/null || true; \
 	done
 	@rm -rf /tmp/anvil-sdk-backup/nodejs
-	node scripts/fix-sdk.js --ts
+	npx ts-node scripts/sdk/fix-sdk.ts --ts
 	npx ts-node scripts/grants/fix-sdk-grants.ts --ts
 
 build-sdk: gen-nodejs
@@ -80,7 +80,7 @@ gen-python-sdk: merge
 		cp /tmp/anvil-sdk-backup/python/$$f sdk/python/anvil_cloud/ 2>/dev/null || true; \
 	done
 	@rm -rf /tmp/anvil-sdk-backup/python
-	node scripts/fix-sdk.js --python
+	npx ts-node scripts/sdk/fix-sdk.ts --python
 	npx ts-node scripts/grants/fix-sdk-grants.ts --python
 
 build-python-sdk: gen-python-sdk
