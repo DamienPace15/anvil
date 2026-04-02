@@ -46,6 +46,7 @@ func main() {
 		"gen-python-sdk":   targetGenPythonSDK,
 		"build-provider":   targetBuildProvider,
 		"build-sdk":        targetBuildSDK,
+		"install":          targetInstall,
 		"build-python-sdk": targetBuildPythonSDK,
 		"install-py":       targetInstallPy,
 		"publish-npm":      targetPublishNpm,
@@ -332,4 +333,33 @@ func log(format string, args ...any) {
 func fatal(format string, args ...any) {
 	fmt.Fprintf(os.Stderr, "❌ "+format+"\n", args...)
 	os.Exit(1)
+}
+
+func targetInstall() {
+	targetBuildProvider()
+	run(".", nil, "go", "build", "-o", "anvil", "./cmd/anvil")
+
+	installDir := os.Getenv("ANVIL_INSTALL_DIR")
+	if installDir == "" {
+		installDir = "/usr/local/bin"
+	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		fatal("could not determine working directory: %v", err)
+	}
+
+	for _, binary := range []struct{ src, name string }{
+		{filepath.Join(cwd, "anvil"), "anvil"},
+		{filepath.Join(cwd, "bin", "pulumi-resource-anvil"), "pulumi-resource-anvil"},
+	} {
+		dst := filepath.Join(installDir, binary.name)
+		log("▶ installing %s → %s", binary.src, dst)
+		if err := copyFile(binary.src, dst); err != nil {
+			fatal("failed to install %s: %v\n\nTry: sudo go run build.go install", binary.name, err)
+		}
+		os.Chmod(dst, 0755)
+	}
+
+	log("✅ Installed anvil + pulumi-resource-anvil to %s", installDir)
 }

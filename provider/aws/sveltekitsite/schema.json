@@ -8,7 +8,7 @@
         },
         "environment": {
           "type": "object",
-          "description": "Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs. Available in SvelteKit's $env/static (build) and $env/dynamic (runtime).",
+          "description": "Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.",
           "additionalProperties": {
             "type": "string"
           }
@@ -18,7 +18,7 @@
         },
         "runtimeEnvironment": {
           "type": "string",
-          "description": "Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available in SvelteKit's $env/dynamic at request time, NOT during build/prerendering."
+          "description": "Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering."
         },
         "transform": {
           "type": "string"

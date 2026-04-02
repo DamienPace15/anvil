@@ -104,7 +104,7 @@ func main() {
 	}
 
 	// Parse the shared types file once — embedded structs reference these.
-	sharedTypesFile := "internal/sites/types.go"
+	sharedTypesFile := "sites/types.go"
 	sharedStructs, err := parseGoFile(sharedTypesFile)
 	if err != nil {
 		log.Fatalf("❌ Failed to parse shared types %s: %v", sharedTypesFile, err)

@@ -184,12 +184,17 @@ func loadStack(ctx context.Context, stage string) (auto.Stack, error) {
 	backendURL := resolveBackendForStage(stage)
 	region := resolveRegionForStage(stage)
 
+	execPath, _ := os.Executable()
+	pluginDir := filepath.Dir(execPath)
+
 	s, err := auto.UpsertStackLocalSource(ctx, stage, workDir,
 		auto.EnvVars(map[string]string{
 			"PULUMI_BACKEND_URL":       backendURL,
 			"PULUMI_CONFIG_PASSPHRASE": "",
+			"PATH":                     pluginDir + ":" + os.Getenv("PATH"),
 		}),
 	)
+
 	if err != nil {
 		return auto.Stack{}, fmt.Errorf("%s", mapError(err.Error()))
 	}
@@ -238,12 +243,17 @@ func loadStackNoBootstrap(ctx context.Context, stage string) (auto.Stack, error)
 
 	region := resolveRegionForStage(stage)
 
+	execPath, _ := os.Executable()
+	pluginDir := filepath.Dir(execPath)
+
 	s, err := auto.UpsertStackLocalSource(ctx, stage, workDir,
 		auto.EnvVars(map[string]string{
 			"PULUMI_BACKEND_URL":       backendURL,
 			"PULUMI_CONFIG_PASSPHRASE": "",
+			"PATH":                     pluginDir + ":" + os.Getenv("PATH"),
 		}),
 	)
+
 	if err != nil {
 		return auto.Stack{}, fmt.Errorf("%s", mapError(err.Error()))
 	}
