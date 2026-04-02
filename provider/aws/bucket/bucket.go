@@ -49,6 +49,8 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 		return nil, err
 	}
 
+	ctx.Log.Warn("🪣 test warning from bucket", nil)
+
 	isSensitive := args.DataClassification == "sensitive" || args.DataClassification == "restricted"
 
 	// 1. Base Bucket

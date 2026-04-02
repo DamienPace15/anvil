@@ -421,12 +421,48 @@ func (h *EventHandler) handleResOpFailed(e *apitype.ResOpFailedEvent) {
 }
 
 func (h *EventHandler) handleDiagnostic(e *apitype.DiagnosticEvent) {
-	if e.Severity == "error" {
+	switch e.Severity {
+	case "error":
 		h.errors = append(h.errors, diagError{
 			urn:     e.URN,
 			message: mapError(strings.TrimSpace(e.Message)),
 		})
+	case "warning":
+		msg := strings.TrimSpace(stripAnsi(e.Message))
+		if msg == "" {
+			return
+		}
+		// Filter known Pulumi internal noise
+		if strings.Contains(msg, "using pulumi-resource-") ||
+			strings.Contains(msg, "from $PATH") ||
+			strings.Contains(msg, "resource plugin anvil is expected") {
+			return
+		}
+		if h.spinner != nil {
+			h.spinner.finish()
+			h.spinner = nil
+		}
+		fmt.Printf("\n  %s %s\n\n", red("⚠"), msg)
 	}
+}
+
+func stripAnsi(s string) string {
+	var result strings.Builder
+	inEscape := false
+	for _, r := range s {
+		if r == '\033' {
+			inEscape = true
+			continue
+		}
+		if inEscape {
+			if r == 'm' {
+				inEscape = false
+			}
+			continue
+		}
+		result.WriteRune(r)
+	}
+	return result.String()
 }
 
 func (h *EventHandler) printResourceLine(tr *trackedResource) {
