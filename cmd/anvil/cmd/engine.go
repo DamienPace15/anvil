@@ -206,6 +206,15 @@ func loadStack(ctx context.Context, stage string) (auto.Stack, error) {
 		return auto.Stack{}, fmt.Errorf("failed to set anvil:stage: %w", err)
 	}
 
+	anvilConfig, _ := loadAnvilConfig()
+	stageId := ""
+	if sc, ok := anvilConfig.Stages[stage]; ok {
+		stageId = sc.ID
+	}
+	if err := s.SetConfig(ctx, "anvil:stageId", auto.ConfigValue{Value: stageId}); err != nil {
+		return auto.Stack{}, fmt.Errorf("failed to set anvil:stageId: %w", err)
+	}
+
 	env := resolveEnvironmentForStage(stage)
 	if err := s.SetConfig(ctx, "anvil:environment", auto.ConfigValue{Value: env}); err != nil {
 		return auto.Stack{}, fmt.Errorf("failed to set anvil:environment: %w", err)
@@ -263,6 +272,15 @@ func loadStackNoBootstrap(ctx context.Context, stage string) (auto.Stack, error)
 	}
 	if err := s.SetConfig(ctx, "anvil:stage", auto.ConfigValue{Value: stage}); err != nil {
 		return auto.Stack{}, fmt.Errorf("failed to set anvil:stage: %w", err)
+	}
+
+	anvilConfig, _ := loadAnvilConfig()
+	stageId := ""
+	if sc, ok := anvilConfig.Stages[stage]; ok {
+		stageId = sc.ID
+	}
+	if err := s.SetConfig(ctx, "anvil:stageId", auto.ConfigValue{Value: stageId}); err != nil {
+		return auto.Stack{}, fmt.Errorf("failed to set anvil:stageId: %w", err)
 	}
 
 	env := resolveEnvironmentForStage(stage)
