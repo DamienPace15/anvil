@@ -64,12 +64,12 @@ export class SvelteKitSite extends pulumi.ComponentResource {
 export interface SvelteKitSiteArgs {
     domain?: pulumi.Input<string>;
     /**
-     * Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs. Available in SvelteKit's $env/static (build) and $env/dynamic (runtime).
+     * Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
      */
     environment?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     path?: pulumi.Input<string>;
     /**
-     * Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available in SvelteKit's $env/dynamic at request time, NOT during build/prerendering.
+     * Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
      */
     runtimeEnvironment?: pulumi.Input<string>;
     transform?: pulumi.Input<string>;

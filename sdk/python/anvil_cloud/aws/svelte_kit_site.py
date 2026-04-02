@@ -27,8 +27,8 @@ class SvelteKitSiteArgs:
         """
         The set of arguments for constructing a SvelteKitSite resource.
 
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs. Available in SvelteKit's $env/static (build) and $env/dynamic (runtime).
-        :param pulumi.Input[_builtins.str] runtime_environment: Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available in SvelteKit's $env/dynamic at request time, NOT during build/prerendering.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
+        :param pulumi.Input[_builtins.str] runtime_environment: Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
         """
         if domain is not None:
             pulumi.set(__self__, "domain", domain)
@@ -54,7 +54,7 @@ class SvelteKitSiteArgs:
     @pulumi.getter
     def environment(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
-        Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs. Available in SvelteKit's $env/static (build) and $env/dynamic (runtime).
+        Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
         """
         return pulumi.get(self, "environment")
 
@@ -75,7 +75,7 @@ class SvelteKitSiteArgs:
     @pulumi.getter(name="runtimeEnvironment")
     def runtime_environment(self) -> Optional[pulumi.Input[_builtins.str]]:
         """
-        Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available in SvelteKit's $env/dynamic at request time, NOT during build/prerendering.
+        Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
         """
         return pulumi.get(self, "runtime_environment")
 
@@ -110,8 +110,8 @@ class SvelteKitSite(pulumi.ComponentResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs. Available in SvelteKit's $env/static (build) and $env/dynamic (runtime).
-        :param pulumi.Input[_builtins.str] runtime_environment: Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available in SvelteKit's $env/dynamic at request time, NOT during build/prerendering.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
+        :param pulumi.Input[_builtins.str] runtime_environment: Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
         """
         ...
     @overload

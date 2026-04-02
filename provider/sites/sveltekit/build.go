@@ -1,8 +1,7 @@
-// Package sites provides shared framework build orchestration for Anvil's site components.
-// This layer is provider-agnostic — it detects frameworks, runs builds, and parses output
-// into a structured format that provider-specific components (aws/sveltekitsite, gcp/sveltekitsite)
-// consume to wire up cloud resources.
-package sites
+// Package sveltekit provides build orchestration for SvelteKit sites using adapter-node.
+// It is provider-agnostic — the output BuildResult is consumed by provider-specific
+// components (aws/sveltekitsite, gcp/sveltekitsite) to wire up cloud resources.
+package sveltekit
 
 import (
 	"encoding/json"
@@ -11,24 +10,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/DamienPace15/anvil/provider/sites"
 )
-
-// BuildResult is the structured output of a framework build.
-// Provider-specific components consume this to deploy static assets
-// to object storage (S3/Cloud Storage) and server code to compute (Lambda/Cloud Run).
-type BuildResult struct {
-	// StaticDir is the absolute path to the directory containing static/client assets.
-	// These get uploaded to object storage and served via CDN.
-	StaticDir string
-
-	// ServerDir is the absolute path to the directory containing the Node.js server bundle.
-	// This gets packaged and deployed to a compute service.
-	ServerDir string
-
-	// ServerEntry is the absolute path to the Node.js server entry point (e.g. index.js).
-	// The compute service uses this as its handler.
-	ServerEntry string
-}
 
 // BuildOptions configures the SvelteKit build process.
 type BuildOptions struct {
@@ -58,7 +42,7 @@ type BuildOptions struct {
 //
 // Returns a BuildResult the provider layer can consume, or an error with
 // a clear message indicating what went wrong.
-func BuildSvelteKit(opts BuildOptions) (*BuildResult, error) {
+func BuildSvelteKit(opts BuildOptions) (*sites.BuildResult, error) {
 	// Resolve site directory relative to project root.
 	siteDir := opts.Path
 	if !filepath.IsAbs(siteDir) {
@@ -105,12 +89,7 @@ func BuildSvelteKit(opts BuildOptions) (*BuildResult, error) {
 	}
 
 	// 7. Parse and validate output.
-	result, err := parseBuildOutput(siteDir)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return parseBuildOutput(siteDir)
 }
 
 // findSvelteConfig looks for svelte.config.js, .ts, or .mjs in the site directory.
@@ -142,14 +121,7 @@ func findSvelteConfig(siteDir string) (string, error) {
 }
 
 // checkAdapterNode reads the svelte config and package.json to verify adapter-node is present.
-// We check two signals:
-//   - package.json lists @sveltejs/adapter-node as a dependency
-//   - svelte.config references adapter-node (best-effort string check)
-//
-// If neither signal is found, we warn — the build will likely fail but we let the user
-// know exactly what to do.
 func checkAdapterNode(siteDir string, configPath string) error {
-	// Check package.json for the dependency.
 	pkgPath := filepath.Join(siteDir, "package.json")
 	pkgData, err := os.ReadFile(pkgPath)
 	if err != nil {
@@ -166,7 +138,6 @@ func checkAdapterNode(siteDir string, configPath string) error {
 
 	hasAdapterDep := hasPackageDependency(pkgData, "@sveltejs/adapter-node")
 
-	// Check svelte config for adapter-node reference.
 	configData, err := os.ReadFile(configPath)
 	if err != nil {
 		return fmt.Errorf("cannot read %s: %w", configPath, err)
@@ -188,7 +159,6 @@ func checkAdapterNode(siteDir string, configPath string) error {
 	}
 
 	if hasAdapterDep && !hasAdapterImport {
-		// Dependency installed but config doesn't reference it — warn but continue.
 		fmt.Fprintf(os.Stderr, "⚠  @sveltejs/adapter-node is installed but not referenced in %s\n"+
 			"   Make sure your svelte.config.js uses adapter-node, not adapter-auto.\n\n",
 			filepath.Base(configPath),
@@ -205,8 +175,7 @@ func hasPackageDependency(pkgData []byte, pkg string) bool {
 		return false
 	}
 
-	depKeys := []string{"dependencies", "devDependencies", "peerDependencies"}
-	for _, key := range depKeys {
+	for _, key := range []string{"dependencies", "devDependencies", "peerDependencies"} {
 		raw, ok := pkgJSON[key]
 		if !ok {
 			continue
@@ -225,8 +194,7 @@ func hasPackageDependency(pkgData []byte, pkg string) bool {
 
 // checkNodeInstalled verifies Node.js is available on PATH.
 func checkNodeInstalled() error {
-	_, err := exec.LookPath("node")
-	if err != nil {
+	if _, err := exec.LookPath("node"); err != nil {
 		return fmt.Errorf(
 			"Node.js is not installed or not on PATH\n\n" +
 				"SvelteKit builds require Node.js. Install it from https://nodejs.org\n" +
@@ -238,13 +206,10 @@ func checkNodeInstalled() error {
 
 // ensureDependencies runs npm install if node_modules doesn't exist.
 func ensureDependencies(siteDir string) error {
-	modulesDir := filepath.Join(siteDir, "node_modules")
-	if _, err := os.Stat(modulesDir); err == nil {
-		// node_modules exists, skip install.
+	if _, err := os.Stat(filepath.Join(siteDir, "node_modules")); err == nil {
 		return nil
 	}
 
-	// Check npm is available.
 	npmPath, err := exec.LookPath("npm")
 	if err != nil {
 		return fmt.Errorf(
@@ -258,7 +223,7 @@ func ensureDependencies(siteDir string) error {
 
 	cmd := exec.Command(npmPath, "install")
 	cmd.Dir = siteDir
-	cmd.Stdout = os.Stderr // Build output goes to stderr so it doesn't pollute structured output.
+	cmd.Stdout = os.Stderr
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
@@ -288,8 +253,6 @@ func runBuild(siteDir string, env map[string]string) error {
 	cmd.Dir = siteDir
 	cmd.Stdout = os.Stderr
 	cmd.Stderr = os.Stderr
-
-	// Inherit current environment and overlay build-time env vars.
 	cmd.Env = os.Environ()
 	for k, v := range env {
 		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
@@ -317,12 +280,8 @@ func runBuild(siteDir string, env map[string]string) error {
 //	build/
 //	├── client/     → static assets (JS, CSS, images, prerendered pages)
 //	└── server/     → Node.js server
-//	    └── index.js  → entry point
-//
-// The output directory can be customised via adapter options, but the default is "build".
-// We check for the default first, then fall back to common alternatives.
-func parseBuildOutput(siteDir string) (*BuildResult, error) {
-	// adapter-node defaults to "build" output directory.
+//	    └── index.js
+func parseBuildOutput(siteDir string) (*sites.BuildResult, error) {
 	buildDir := filepath.Join(siteDir, "build")
 
 	if _, err := os.Stat(buildDir); os.IsNotExist(err) {
@@ -341,19 +300,15 @@ func parseBuildOutput(siteDir string) (*BuildResult, error) {
 	serverDir := filepath.Join(buildDir, "server")
 	serverEntry := filepath.Join(serverDir, "index.js")
 
-	// Validate client directory.
 	if _, err := os.Stat(clientDir); os.IsNotExist(err) {
 		return nil, fmt.Errorf(
 			"static assets directory not found: %s\n\n"+
 				"adapter-node should produce a 'build/client/' directory containing static assets.\n"+
-				"This usually means adapter-node is not configured correctly, or a different\n"+
-				"adapter is being used.\n\n"+
 				"Check your svelte.config.js uses @sveltejs/adapter-node.",
 			clientDir,
 		)
 	}
 
-	// Validate server directory.
 	if _, err := os.Stat(serverDir); os.IsNotExist(err) {
 		return nil, fmt.Errorf(
 			"server directory not found: %s\n\n"+
@@ -364,7 +319,6 @@ func parseBuildOutput(siteDir string) (*BuildResult, error) {
 		)
 	}
 
-	// Validate server entry point.
 	if _, err := os.Stat(serverEntry); os.IsNotExist(err) {
 		return nil, fmt.Errorf(
 			"server entry point not found: %s\n\n"+
@@ -374,9 +328,10 @@ func parseBuildOutput(siteDir string) (*BuildResult, error) {
 		)
 	}
 
-	return &BuildResult{
+	return &sites.BuildResult{
 		StaticDir:   clientDir,
 		ServerDir:   serverDir,
 		ServerEntry: serverEntry,
+		Framework:   "sveltekit",
 	}, nil
 }

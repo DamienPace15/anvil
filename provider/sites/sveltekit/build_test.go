@@ -1,4 +1,4 @@
-package sites
+package sveltekit
 
 import (
 	"os"
@@ -7,17 +7,14 @@ import (
 )
 
 // setupTestProject creates a minimal SvelteKit project structure for testing.
-// Returns the temp directory path and a cleanup function.
 func setupTestProject(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
 
-	// svelte.config.js
 	writeFile(t, filepath.Join(dir, "svelte.config.js"),
 		`import adapter from '@sveltejs/adapter-node';
 export default { kit: { adapter: adapter() } };`)
 
-	// package.json with adapter-node
 	writeFile(t, filepath.Join(dir, "package.json"),
 		`{
   "name": "test-sveltekit-app",
@@ -113,7 +110,6 @@ func TestFindSvelteConfig_Missing(t *testing.T) {
 }
 
 func TestFindSvelteConfig_PrefersJS(t *testing.T) {
-	// If both .js and .ts exist, .js should win (first in candidate list).
 	dir := t.TempDir()
 	writeFile(t, filepath.Join(dir, "svelte.config.js"), "export default {};")
 	writeFile(t, filepath.Join(dir, "svelte.config.ts"), "export default {};")
@@ -185,14 +181,12 @@ func TestCheckAdapterNode_MissingPackageJSON(t *testing.T) {
 
 func TestCheckAdapterNode_DepInstalledButNotInConfig(t *testing.T) {
 	dir := t.TempDir()
-	// Config doesn't reference adapter-node, but package.json has it.
 	writeFile(t, filepath.Join(dir, "svelte.config.js"),
 		`import adapter from '@sveltejs/adapter-auto';
 export default { kit: { adapter: adapter() } };`)
 	writeFile(t, filepath.Join(dir, "package.json"),
 		`{"devDependencies": {"@sveltejs/adapter-node": "^2.0.0"}}`)
 
-	// Should succeed (dep found) but print a warning to stderr.
 	err := checkAdapterNode(dir, filepath.Join(dir, "svelte.config.js"))
 	if err != nil {
 		t.Fatalf("expected warning only (not error), got: %v", err)
@@ -232,8 +226,6 @@ func TestHasPackageDependency_InvalidJSON(t *testing.T) {
 // --- Node.js check tests ---
 
 func TestCheckNodeInstalled(t *testing.T) {
-	// This test passes if Node.js is on PATH, fails if not.
-	// In CI or dev environments where Node.js is expected, this validates the check.
 	err := checkNodeInstalled()
 	if err != nil {
 		t.Skipf("Node.js not installed, skipping: %v", err)
@@ -263,6 +255,9 @@ func TestParseBuildOutput_Valid(t *testing.T) {
 	}
 	if result.ServerEntry != expectedEntry {
 		t.Errorf("ServerEntry = %s, want %s", result.ServerEntry, expectedEntry)
+	}
+	if result.Framework != "sveltekit" {
+		t.Errorf("Framework = %s, want sveltekit", result.Framework)
 	}
 }
 
@@ -309,7 +304,6 @@ func TestParseBuildOutput_NoServerEntry(t *testing.T) {
 	dir := t.TempDir()
 	mkdirAll(t, filepath.Join(dir, "build", "client"))
 	mkdirAll(t, filepath.Join(dir, "build", "server"))
-	// No index.js
 
 	_, err := parseBuildOutput(dir)
 	if err == nil {
@@ -333,9 +327,7 @@ export default { kit: { adapter: adapter() } };`)
 	writeFile(t, filepath.Join(siteDir, "package.json"),
 		`{"devDependencies": {"@sveltejs/adapter-node": "^2.0.0"}, "scripts": {"build": "echo mock"}}`)
 
-	// Create node_modules so npm install is skipped.
 	mkdirAll(t, filepath.Join(siteDir, "node_modules"))
-	// Create build output so the full pipeline succeeds.
 	setupBuildOutput(t, siteDir)
 
 	result, err := BuildSvelteKit(BuildOptions{
@@ -343,7 +335,6 @@ export default { kit: { adapter: adapter() } };`)
 		ProjectRoot: root,
 	})
 
-	// If node/npm isn't available, skip gracefully.
 	if err != nil {
 		if containsAny(err.Error(), "Node.js is not installed", "npm is not installed") {
 			t.Skipf("Node.js/npm not available: %v", err)
@@ -353,6 +344,9 @@ export default { kit: { adapter: adapter() } };`)
 
 	if result.StaticDir != filepath.Join(siteDir, "build", "client") {
 		t.Errorf("StaticDir resolved incorrectly: %s", result.StaticDir)
+	}
+	if result.Framework != "sveltekit" {
+		t.Errorf("Framework = %s, want sveltekit", result.Framework)
 	}
 }
 
