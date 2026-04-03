@@ -13,6 +13,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from .. import _utilities
+from .. import _enums as _root_enums
 from ._inputs import *
 import pulumi_aws
 from typing import Optional
@@ -24,26 +25,32 @@ __all__ = ['BucketArgs', 'Bucket']
 @pulumi.input_type
 class BucketArgs:
     def __init__(__self__, *,
-                 data_classification: pulumi.Input[_builtins.str],
+                 compliance: Optional[pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]]] = None,
                  lifecycle: Optional[pulumi.Input[_builtins.int]] = None,
                  transform: Optional[pulumi.Input['BucketTransformArgsArgs']] = None):
         """
         The set of arguments for constructing a Bucket resource.
+
+        :param pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]] compliance: Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.
         """
-        pulumi.set(__self__, "data_classification", data_classification)
+        if compliance is not None:
+            pulumi.set(__self__, "compliance", compliance)
         if lifecycle is not None:
             pulumi.set(__self__, "lifecycle", lifecycle)
         if transform is not None:
             pulumi.set(__self__, "transform", transform)
 
     @_builtins.property
-    @pulumi.getter(name="dataClassification")
-    def data_classification(self) -> pulumi.Input[_builtins.str]:
-        return pulumi.get(self, "data_classification")
+    @pulumi.getter
+    def compliance(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]]]:
+        """
+        Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.
+        """
+        return pulumi.get(self, "compliance")
 
-    @data_classification.setter
-    def data_classification(self, value: pulumi.Input[_builtins.str]):
-        pulumi.set(self, "data_classification", value)
+    @compliance.setter
+    def compliance(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]]]):
+        pulumi.set(self, "compliance", value)
 
     @_builtins.property
     @pulumi.getter
@@ -70,7 +77,7 @@ class Bucket(pulumi.ComponentResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 data_classification: Optional[pulumi.Input[_builtins.str]] = None,
+                 compliance: Optional[pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]]] = None,
                  lifecycle: Optional[pulumi.Input[_builtins.int]] = None,
                  transform: Optional[pulumi.Input[Union['BucketTransformArgsArgs', 'BucketTransformArgsArgsDict']]] = None,
                  __props__=None):
@@ -79,12 +86,13 @@ class Bucket(pulumi.ComponentResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
+        :param pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]] compliance: Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.
         """
         ...
     @overload
     def __init__(__self__,
                  resource_name: str,
-                 args: BucketArgs,
+                 args: Optional[BucketArgs] = None,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
         Create a Bucket resource with the given unique name, props, and options.
@@ -104,7 +112,7 @@ class Bucket(pulumi.ComponentResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 data_classification: Optional[pulumi.Input[_builtins.str]] = None,
+                 compliance: Optional[pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]]] = None,
                  lifecycle: Optional[pulumi.Input[_builtins.int]] = None,
                  transform: Optional[pulumi.Input[Union['BucketTransformArgsArgs', 'BucketTransformArgsArgsDict']]] = None,
                  __props__=None):
@@ -118,9 +126,7 @@ class Bucket(pulumi.ComponentResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = BucketArgs.__new__(BucketArgs)
 
-            if data_classification is None and not opts.urn:
-                raise TypeError("Missing required property 'data_classification'")
-            __props__.__dict__["data_classification"] = data_classification
+            __props__.__dict__["compliance"] = compliance
             __props__.__dict__["lifecycle"] = lifecycle
             __props__.__dict__["transform"] = transform
             __props__.__dict__["arn"] = None

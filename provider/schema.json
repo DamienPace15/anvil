@@ -36,8 +36,12 @@
   "resources": {
     "anvil:aws:Bucket": {
       "inputProperties": {
-        "dataClassification": {
-          "type": "string"
+        "compliance": {
+          "description": "Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.",
+          "items": {
+            "$ref": "#/types/anvil:index:ComplianceFramework"
+          },
+          "type": "array"
         },
         "lifecycle": {
           "type": "integer"
@@ -61,9 +65,7 @@
         "bucketName",
         "arn"
       ],
-      "requiredInputs": [
-        "dataClassification"
-      ]
+      "requiredInputs": []
     },
     "anvil:aws:Lambda": {
       "inputProperties": {
@@ -1443,6 +1445,59 @@
         }
       },
       "type": "object"
+    },
+    "anvil:index:ComplianceFramework": {
+      "enum": [
+        {
+          "description": "SOC 2 Type II",
+          "value": "soc2"
+        },
+        {
+          "description": "ISO/IEC 27001",
+          "value": "iso27001"
+        },
+        {
+          "description": "CIS AWS Foundations Benchmark",
+          "value": "cis"
+        },
+        {
+          "description": "PCI DSS",
+          "value": "pci-dss"
+        },
+        {
+          "description": "HIPAA",
+          "value": "hipaa"
+        },
+        {
+          "description": "FedRAMP",
+          "value": "fedramp"
+        },
+        {
+          "description": "HITRUST CSF",
+          "value": "hitrust"
+        },
+        {
+          "description": "GDPR",
+          "value": "gdpr"
+        },
+        {
+          "description": "SOC 1 Type II",
+          "value": "soc1"
+        },
+        {
+          "description": "IRAP (Australian Government)",
+          "value": "irap"
+        },
+        {
+          "description": "NIST Cybersecurity Framework",
+          "value": "nist-csf"
+        },
+        {
+          "description": "CSA STAR",
+          "value": "csa-star"
+        }
+      ],
+      "type": "string"
     }
   },
   "version": "0.0.11"

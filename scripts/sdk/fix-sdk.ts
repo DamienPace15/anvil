@@ -60,7 +60,8 @@ function patchTypeScript(): void {
 
     // App class
     const appExport =
-      'export { App, AppConfig, Context, AwsProviderConfig, GcpProviderConfig, DefaultsConfig } from "./app";';
+      'export { App, AppConfig, Context, AwsProviderConfig, GcpProviderConfig, DefaultsConfig, ComplianceFramework } from "./app";';
+
     if (!indexContent.includes('./app')) {
       indexContent =
         indexContent.trimEnd() +
