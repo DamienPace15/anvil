@@ -13,7 +13,7 @@ Example::
     value: anvil.Output[str] = anvil.Output.from_input("hello")
 """
 
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Literal, Optional
 
 # ── Resource base classes ──────────────────────────────────
 from pulumi import (
@@ -47,6 +47,27 @@ from pulumi import (
 import pulumi
 
 
+# ── Compliance ─────────────────────────────────────────────
+
+#: Supported compliance frameworks.
+#: Mirrors the Go ComplianceFramework constants in
+#: provider/internal/shared/compliance.go — keep in sync.
+ComplianceFramework = Literal[
+    "soc2",
+    "iso27001",
+    "cis",
+    "pci-dss",
+    "hipaa",
+    "fedramp",
+    "hitrust",
+    "gdpr",
+    "soc1",
+    "irap",
+    "nist-csf",
+    "csa-star",
+]
+
+
 # ── Config Classes ─────────────────────────────────────────
 # Typed configuration for App, providing intellisense and validation.
 
@@ -54,8 +75,13 @@ import pulumi
 class DefaultsConfig:
     """Default configuration applied to all resources."""
 
-    def __init__(self, tags: Optional[Dict[str, str]] = None):
+    def __init__(
+        self,
+        tags: Optional[Dict[str, str]] = None,
+        compliance: Optional[List[ComplianceFramework]] = None,
+    ):
         self.tags = tags or {}
+        self.compliance = compliance or []
 
 
 class AssumeRoleConfig:
@@ -109,7 +135,10 @@ class AppConfig:
     Example::
 
         anvil.run(anvil.AppConfig(
-            defaults=anvil.DefaultsConfig(tags={"team": "platform"}),
+            defaults=anvil.DefaultsConfig(
+                tags={"team": "platform"},
+                compliance=["soc2", "iso27001"],
+            ),
             aws_providers={
                 "aws": anvil.AwsProviderConfig(region="ap-southeast-2"),
             },

@@ -11,6 +11,9 @@ export const Provider: typeof import("./provider").Provider = null as any;
 utilities.lazyLoad(exports, ["Provider"], () => require("./provider"));
 
 
+// Export enums:
+export * from "./types/enums";
+
 // Export sub-modules:
 import * as aws from "./aws";
 import * as gcp from "./gcp";
@@ -32,7 +35,7 @@ pulumi.runtime.registerResourcePackage("anvil", {
 });
 
 // Hand-written App class
-export { App, AppConfig, Context, AwsProviderConfig, GcpProviderConfig, DefaultsConfig } from "./app";
+export { App, AppConfig, Context, AwsProviderConfig, GcpProviderConfig, DefaultsConfig, ComplianceFramework } from "./app";
 
 // Hand-written Block class
 export { Block, BlockArgs } from "./block";

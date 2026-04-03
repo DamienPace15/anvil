@@ -2,8 +2,12 @@
   "resources": {
     "anvil:aws:Bucket": {
       "inputProperties": {
-        "dataClassification": {
-          "type": "string"
+        "compliance": {
+          "description": "Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.",
+          "items": {
+            "$ref": "#/types/anvil:index:ComplianceFramework"
+          },
+          "type": "array"
         },
         "lifecycle": {
           "type": "integer"
@@ -23,13 +27,8 @@
           "type": "string"
         }
       },
-      "required": [
-        "bucketName",
-        "arn"
-      ],
-      "requiredInputs": [
-        "dataClassification"
-      ]
+      "required": ["bucketName", "arn"],
+      "requiredInputs": []
     }
   },
   "types": {

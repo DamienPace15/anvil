@@ -4,6 +4,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as inputs from "../types/input";
 import * as outputs from "../types/output";
+import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 import * as pulumiAws from "@pulumi/aws";
@@ -43,14 +44,11 @@ export class Bucket extends pulumi.ComponentResource {
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args: BucketArgs, opts?: pulumi.ComponentResourceOptions) {
+    constructor(name: string, args?: BucketArgs, opts?: pulumi.ComponentResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if (args?.dataClassification === undefined && !opts.urn) {
-                throw new Error("Missing required property 'dataClassification'");
-            }
-            resourceInputs["dataClassification"] = args?.dataClassification;
+            resourceInputs["compliance"] = args?.compliance;
             resourceInputs["lifecycle"] = args?.lifecycle;
             resourceInputs["transform"] = args?.transform;
             resourceInputs["arn"] = undefined /*out*/;
@@ -152,7 +150,10 @@ export class Bucket extends pulumi.ComponentResource {
  * The set of arguments for constructing a Bucket resource.
  */
 export interface BucketArgs {
-    dataClassification: pulumi.Input<string>;
+    /**
+     * Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.
+     */
+    compliance?: pulumi.Input<pulumi.Input<enums.ComplianceFramework>[]>;
     lifecycle?: pulumi.Input<number>;
     transform?: pulumi.Input<inputs.aws.BucketTransformArgsArgs>;
 }

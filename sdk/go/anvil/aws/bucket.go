@@ -7,7 +7,7 @@ import (
 	"context"
 	"reflect"
 
-	"errors"
+	"github.com/DamienPace15/anvil/sdk/go/anvil"
 	"github.com/DamienPace15/anvil/sdk/go/anvil/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
@@ -25,12 +25,9 @@ type Bucket struct {
 func NewBucket(ctx *pulumi.Context,
 	name string, args *BucketArgs, opts ...pulumi.ResourceOption) (*Bucket, error) {
 	if args == nil {
-		return nil, errors.New("missing one or more required arguments")
+		args = &BucketArgs{}
 	}
 
-	if args.DataClassification == nil {
-		return nil, errors.New("invalid value for required argument 'DataClassification'")
-	}
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource Bucket
 	err := ctx.RegisterRemoteComponentResource("anvil:aws:Bucket", name, args, &resource, opts...)
@@ -41,16 +38,18 @@ func NewBucket(ctx *pulumi.Context,
 }
 
 type bucketArgs struct {
-	DataClassification string               `pulumi:"dataClassification"`
-	Lifecycle          *int                 `pulumi:"lifecycle"`
-	Transform          *BucketTransformArgs `pulumi:"transform"`
+	// Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.
+	Compliance []anvil.ComplianceFramework `pulumi:"compliance"`
+	Lifecycle  *int                        `pulumi:"lifecycle"`
+	Transform  *BucketTransformArgs        `pulumi:"transform"`
 }
 
 // The set of arguments for constructing a Bucket resource.
 type BucketArgs struct {
-	DataClassification pulumi.StringInput
-	Lifecycle          pulumi.IntPtrInput
-	Transform          BucketTransformArgsPtrInput
+	// Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.
+	Compliance anvil.ComplianceFrameworkArrayInput
+	Lifecycle  pulumi.IntPtrInput
+	Transform  BucketTransformArgsPtrInput
 }
 
 func (BucketArgs) ElementType() reflect.Type {
