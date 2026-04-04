@@ -13,7 +13,6 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from .. import _utilities
-from .. import _enums as _root_enums
 from ._inputs import *
 import pulumi_aws
 from typing import Optional
@@ -25,41 +24,65 @@ __all__ = ['BucketArgs', 'Bucket']
 @pulumi.input_type
 class BucketArgs:
     def __init__(__self__, *,
-                 compliance: Optional[pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]]] = None,
-                 lifecycle: Optional[pulumi.Input[_builtins.int]] = None,
-                 transform: Optional[pulumi.Input['BucketTransformArgsArgs']] = None):
+                 encryption: Optional[pulumi.Input[_builtins.str]] = None,
+                 logging: Optional[pulumi.Input[_builtins.bool]] = None,
+                 retention: Optional[pulumi.Input[_builtins.int]] = None,
+                 transform: Optional[pulumi.Input['BucketTransformArgsArgs']] = None,
+                 versioning: Optional[pulumi.Input[_builtins.bool]] = None):
         """
         The set of arguments for constructing a Bucket resource.
 
-        :param pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]] compliance: Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.
+        :param pulumi.Input[_builtins.str] encryption: Upgrade at-rest encryption to SSE-KMS. Set to "kms" to enable. SSE-S3 (AES256) is always on by default at no cost. SSE-KMS incurs KMS API call cost and is required by HIPAA, PCI-DSS, FedRAMP, and IRAP.
+        :param pulumi.Input[_builtins.bool] logging: Enable S3 server access logging to the centralised logging bucket created during `anvil bootstrap`. Required by most compliance frameworks for audit trails. Incurs storage cost. Default: false.
+        :param pulumi.Input[_builtins.int] retention: Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).
+        :param pulumi.Input[_builtins.bool] versioning: Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.
         """
-        if compliance is not None:
-            pulumi.set(__self__, "compliance", compliance)
-        if lifecycle is not None:
-            pulumi.set(__self__, "lifecycle", lifecycle)
+        if encryption is not None:
+            pulumi.set(__self__, "encryption", encryption)
+        if logging is not None:
+            pulumi.set(__self__, "logging", logging)
+        if retention is not None:
+            pulumi.set(__self__, "retention", retention)
         if transform is not None:
             pulumi.set(__self__, "transform", transform)
+        if versioning is not None:
+            pulumi.set(__self__, "versioning", versioning)
 
     @_builtins.property
     @pulumi.getter
-    def compliance(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]]]:
+    def encryption(self) -> Optional[pulumi.Input[_builtins.str]]:
         """
-        Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.
+        Upgrade at-rest encryption to SSE-KMS. Set to "kms" to enable. SSE-S3 (AES256) is always on by default at no cost. SSE-KMS incurs KMS API call cost and is required by HIPAA, PCI-DSS, FedRAMP, and IRAP.
         """
-        return pulumi.get(self, "compliance")
+        return pulumi.get(self, "encryption")
 
-    @compliance.setter
-    def compliance(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]]]):
-        pulumi.set(self, "compliance", value)
+    @encryption.setter
+    def encryption(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "encryption", value)
 
     @_builtins.property
     @pulumi.getter
-    def lifecycle(self) -> Optional[pulumi.Input[_builtins.int]]:
-        return pulumi.get(self, "lifecycle")
+    def logging(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Enable S3 server access logging to the centralised logging bucket created during `anvil bootstrap`. Required by most compliance frameworks for audit trails. Incurs storage cost. Default: false.
+        """
+        return pulumi.get(self, "logging")
 
-    @lifecycle.setter
-    def lifecycle(self, value: Optional[pulumi.Input[_builtins.int]]):
-        pulumi.set(self, "lifecycle", value)
+    @logging.setter
+    def logging(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "logging", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def retention(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).
+        """
+        return pulumi.get(self, "retention")
+
+    @retention.setter
+    def retention(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "retention", value)
 
     @_builtins.property
     @pulumi.getter
@@ -70,6 +93,18 @@ class BucketArgs:
     def transform(self, value: Optional[pulumi.Input['BucketTransformArgsArgs']]):
         pulumi.set(self, "transform", value)
 
+    @_builtins.property
+    @pulumi.getter
+    def versioning(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.
+        """
+        return pulumi.get(self, "versioning")
+
+    @versioning.setter
+    def versioning(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "versioning", value)
+
 
 @pulumi.type_token("anvil:aws:Bucket")
 class Bucket(pulumi.ComponentResource):
@@ -77,16 +112,21 @@ class Bucket(pulumi.ComponentResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 compliance: Optional[pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]]] = None,
-                 lifecycle: Optional[pulumi.Input[_builtins.int]] = None,
+                 encryption: Optional[pulumi.Input[_builtins.str]] = None,
+                 logging: Optional[pulumi.Input[_builtins.bool]] = None,
+                 retention: Optional[pulumi.Input[_builtins.int]] = None,
                  transform: Optional[pulumi.Input[Union['BucketTransformArgsArgs', 'BucketTransformArgsArgsDict']]] = None,
+                 versioning: Optional[pulumi.Input[_builtins.bool]] = None,
                  __props__=None):
         """
         Create a Bucket resource with the given unique name, props, and options.
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]] compliance: Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.
+        :param pulumi.Input[_builtins.str] encryption: Upgrade at-rest encryption to SSE-KMS. Set to "kms" to enable. SSE-S3 (AES256) is always on by default at no cost. SSE-KMS incurs KMS API call cost and is required by HIPAA, PCI-DSS, FedRAMP, and IRAP.
+        :param pulumi.Input[_builtins.bool] logging: Enable S3 server access logging to the centralised logging bucket created during `anvil bootstrap`. Required by most compliance frameworks for audit trails. Incurs storage cost. Default: false.
+        :param pulumi.Input[_builtins.int] retention: Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).
+        :param pulumi.Input[_builtins.bool] versioning: Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.
         """
         ...
     @overload
@@ -112,9 +152,11 @@ class Bucket(pulumi.ComponentResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 compliance: Optional[pulumi.Input[Sequence[pulumi.Input['_root_enums.ComplianceFramework']]]] = None,
-                 lifecycle: Optional[pulumi.Input[_builtins.int]] = None,
+                 encryption: Optional[pulumi.Input[_builtins.str]] = None,
+                 logging: Optional[pulumi.Input[_builtins.bool]] = None,
+                 retention: Optional[pulumi.Input[_builtins.int]] = None,
                  transform: Optional[pulumi.Input[Union['BucketTransformArgsArgs', 'BucketTransformArgsArgsDict']]] = None,
+                 versioning: Optional[pulumi.Input[_builtins.bool]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -126,9 +168,11 @@ class Bucket(pulumi.ComponentResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = BucketArgs.__new__(BucketArgs)
 
-            __props__.__dict__["compliance"] = compliance
-            __props__.__dict__["lifecycle"] = lifecycle
+            __props__.__dict__["encryption"] = encryption
+            __props__.__dict__["logging"] = logging
+            __props__.__dict__["retention"] = retention
             __props__.__dict__["transform"] = transform
+            __props__.__dict__["versioning"] = versioning
             __props__.__dict__["arn"] = None
             __props__.__dict__["bucket_name"] = None
         super(Bucket, __self__).__init__(

@@ -10,11 +10,43 @@ import (
 	c "github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
-// BucketArgs matches the inputProperties in your modular schema.json
+// BucketArgs defines the inputs for an Anvil-managed S3 bucket.
+//
+// Tier 1 controls (free, universally required by CIS, ISO 27017, SOC 2,
+// NIST 800-53, ISO 27001) are always enforced with no configuration needed:
+//   - Block all public access
+//   - SSE-S3 encryption at rest
+//   - TLS-only bucket policy
+//   - Versioning in production
+//
+// Tier 2 controls incur cost and must be explicitly opted into.
 type BucketArgs struct {
-	Lifecycle  int                               `pulumi:"lifecycle,optional"`
-	Compliance []provider.ComplianceFramework    `pulumi:"compliance,optional"`
-	Transform  map[string]map[string]interface{} `pulumi:"transform,optional"`
+	// Logging enables S3 server access logging to the centralised logging
+	// bucket created during `anvil bootstrap`. Required by most compliance
+	// frameworks for audit trails but incurs storage cost.
+	// Default: false
+	Logging bool `pulumi:"logging,optional"`
+
+	// Encryption upgrades at-rest encryption from SSE-S3 (free, tier 1
+	// default) to SSE-KMS. Required by HIPAA, PCI-DSS, FedRAMP, and IRAP
+	// for key management audit trails. Incurs KMS API call cost.
+	// Valid values: "kms" — omit to use the tier 1 SSE-S3 default.
+	Encryption string `pulumi:"encryption,optional"`
+
+	// Versioning enables versioning in non-production stages. Versioning is
+	// always on in production (tier 1). Enable this if you need version
+	// history in dev/staging, or if a compliance framework requires it in
+	// all environments. Incurs additional storage cost for each object version.
+	// Default: false (production always on regardless)
+	Versioning bool `pulumi:"versioning,optional"`
+
+	// Retention enables Object Lock with a retention period in days.
+	// Required by PCI-DSS (365 days), FedRAMP (1095 days), and HIPAA
+	// (2190 days) for immutable audit logs. Incurs storage cost.
+	// Default: 0 (disabled)
+	Retention int `pulumi:"retention,optional"`
+
+	Transform map[string]map[string]interface{} `pulumi:"transform,optional"`
 }
 
 type Bucket struct {
@@ -25,10 +57,9 @@ type Bucket struct {
 	name       string
 }
 
-// Annotate helps the provider understand the Pulumi token
 func (b *Bucket) Annotate(a infer.Annotator) {
 	a.SetToken("aws", "Bucket")
-	a.Describe(&b, "An Anvil-managed S3 bucket with secure-by-default settings and optional compliance enforcement.")
+	a.Describe(&b, "An Anvil-managed S3 bucket. Tier 1 security controls (public access block, SSE-S3 encryption, TLS policy, production versioning) are enforced automatically at no cost, satisfying the technical baseline of CIS Benchmarks, ISO 27017, SOC 2, NIST 800-53, and ISO 27001.")
 }
 
 func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi.ResourceOption) (*Bucket, error) {
@@ -40,8 +71,11 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 	stage := cfg.Require("stage")
 	stageId := cfg.Require("stageId")
 	environment := cfg.Require("environment")
+	loggingBucket := cfg.Get("loggingBucket")
 
 	isProduction := environment == "prod"
+	useKMS := args.Encryption == "kms"
+	needsVersioning := isProduction || args.Versioning
 
 	physicalName := provider.PhysicalName(stage, name, "bucket", stageId)
 
@@ -52,62 +86,8 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 		return nil, err
 	}
 
-	// ── Compliance resolution ──────────────────────────
-	// 1. Read app-level defaults from Pulumi config (set by App class)
-	// 2. Merge with component-level frameworks (additive, never replaces)
-	// 3. Filter to only storage-applicable frameworks
-	appCompliance := provider.GetAppCompliance(ctx)
-	resolved := provider.ResolveCompliance(appCompliance, args.Compliance)
-	compliance := provider.FilterFrameworks(resolved, provider.StorageFrameworks)
-
-	// ── Enforcement flags ──────────────────────────────
-
-	// Versioning: required by most frameworks and always on in prod
-	needsVersioning := isProduction ||
-		provider.HasFramework(compliance, provider.ComplianceSOC2) ||
-		provider.HasFramework(compliance, provider.ComplianceISO27001) ||
-		provider.HasFramework(compliance, provider.ComplianceCIS) ||
-		provider.HasFramework(compliance, provider.CompliancePCIDSS) ||
-		provider.HasFramework(compliance, provider.ComplianceHIPAA) ||
-		provider.HasFramework(compliance, provider.ComplianceFedRAMP) ||
-		provider.HasFramework(compliance, provider.ComplianceIRAP)
-
-	// Encryption: all frameworks require at-rest encryption
-	needsEncryption := len(compliance) > 0
-
-	// KMS: stricter frameworks require SSE-KMS over SSE-S3 for key audit trails
-	needsKMS :=
-		provider.HasFramework(compliance, provider.ComplianceHIPAA) ||
-			provider.HasFramework(compliance, provider.CompliancePCIDSS) ||
-			provider.HasFramework(compliance, provider.ComplianceFedRAMP) ||
-			provider.HasFramework(compliance, provider.ComplianceIRAP)
-
-	// MFA delete: strictest frameworks only, always on in prod when these are active
-	needsMFADelete :=
-		provider.HasFramework(compliance, provider.ComplianceHIPAA) ||
-			provider.HasFramework(compliance, provider.CompliancePCIDSS) ||
-			provider.HasFramework(compliance, provider.ComplianceFedRAMP)
-
-	// Logging: audit trail requirement across most frameworks
-	needsLogging :=
-		provider.HasFramework(compliance, provider.ComplianceSOC2) ||
-			provider.HasFramework(compliance, provider.ComplianceISO27001) ||
-			provider.HasFramework(compliance, provider.ComplianceCIS) ||
-			provider.HasFramework(compliance, provider.CompliancePCIDSS) ||
-			provider.HasFramework(compliance, provider.ComplianceHIPAA) ||
-			provider.HasFramework(compliance, provider.ComplianceFedRAMP) ||
-			provider.HasFramework(compliance, provider.ComplianceIRAP)
-
-	// GDPR version expiry: versioning is required by other frameworks but GDPR
-	// requires the ability to erase data — expire old versions via lifecycle so
-	// deletion requests can be honoured.
-	needsVersionExpiry :=
-		provider.HasFramework(compliance, provider.ComplianceGDPR) && needsVersioning
-
-	// TLS policy: any active compliance framework or production environment
-	needsTLSPolicy := len(compliance) > 0 || isProduction
-
 	// ── 1. Base Bucket ─────────────────────────────────
+	// Tier 1: always created.
 	bucketProps := transform.MergeTransform(args.Transform["bucket"], pulumi.Map{
 		"bucket":       pulumi.String(physicalName),
 		"forceDestroy": pulumi.Bool(true),
@@ -122,7 +102,9 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 		return nil, err
 	}
 
-	// ── 2. Public Access Block (always on) ─────────────
+	// ── 2. Public Access Block ─────────────────────────
+	// Tier 1: always on. Required by CIS, ISO 27017, SOC 2, NIST 800-53,
+	// ISO 27001. Free.
 	pabProps := transform.MergeTransform(args.Transform["publicAccessBlock"], pulumi.Map{
 		"bucket":                res.ID(),
 		"blockPublicAcls":       pulumi.Bool(true),
@@ -135,62 +117,89 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 		return nil, err
 	}
 
-	// ── 3. Versioning ──────────────────────────────────
-	if _, hasTransform := args.Transform["versioning"]; hasTransform || needsVersioning {
-		versioningConfig := pulumi.Map{
-			"status": pulumi.String("Enabled"),
-		}
+	// ── 3. Encryption ──────────────────────────────────
+	// Tier 1: SSE-S3 (AES256) always on. Free.
+	// Tier 2: SSE-KMS when encryption: "kms". Incurs KMS API call cost.
+	sseAlgorithm := "AES256"
+	if useKMS {
+		sseAlgorithm = "aws:kms"
+	}
 
+	encProps := transform.MergeTransform(args.Transform["serverSideEncryptionConfiguration"], pulumi.Map{
+		"bucket": res.ID(),
+		"serverSideEncryptionConfiguration": pulumi.Map{
+			"rule": pulumi.Map{
+				"applyServerSideEncryptionByDefault": pulumi.Map{
+					"sseAlgorithm": pulumi.String(sseAlgorithm),
+				},
+				"bucketKeyEnabled": pulumi.Bool(true),
+			},
+		},
+	})
+	err = ctx.RegisterResource("aws:s3/bucketServerSideEncryptionConfigurationV2:BucketServerSideEncryptionConfigurationV2", name+"-enc", encProps, &s3.BucketServerSideEncryptionConfigurationV2{}, pulumi.Parent(b))
+	if err != nil {
+		return nil, err
+	}
+
+	// ── 4. TLS-only bucket policy ──────────────────────
+	// Tier 1: always on. Denies any request not using HTTPS.
+	// Required by all 5 tier 1 frameworks. Free.
+	bucketArn := res.Arn
+	tlsPolicy := pulumi.Sprintf(`{
+		"Version": "2012-10-17",
+		"Statement": [{
+			"Sid": "DenyNonTLS",
+			"Effect": "Deny",
+			"Principal": "*",
+			"Action": "s3:*",
+			"Resource": ["%s", "%s/*"],
+			"Condition": {
+				"Bool": { "aws:SecureTransport": "false" }
+			}
+		}]
+	}`, bucketArn, bucketArn)
+
+	policyProps := transform.MergeTransform(args.Transform["policy"], pulumi.Map{
+		"bucket": res.ID(),
+		"policy": tlsPolicy,
+	})
+	err = ctx.RegisterResource("aws:s3/bucketPolicy:BucketPolicy", name+"-policy", policyProps, &s3.BucketPolicy{}, pulumi.Parent(b))
+	if err != nil {
+		return nil, err
+	}
+
+	// ── 5. Versioning ──────────────────────────────────
+	// Tier 1: always on in production. Near-free (storage overhead only).
+	// Tier 2: opt-in for non-production via versioning: true.
+	if needsVersioning {
 		vProps := transform.MergeTransform(args.Transform["versioning"], pulumi.Map{
-			"bucket":                  res.ID(),
-			"versioningConfiguration": versioningConfig,
+			"bucket": res.ID(),
+			"versioningConfiguration": pulumi.Map{
+				"status": pulumi.String("Enabled"),
+			},
 		})
-
-		// MFA delete — requires versioning to be enabled first.
-		// Only applied when stricter frameworks are active.
-		if needsMFADelete {
-			vProps["mfa"] = pulumi.String("") // user must supply MFA via transform["versioning"].mfa
-		}
-
 		err = ctx.RegisterResource("aws:s3/bucketVersioningV2:BucketVersioningV2", name+"-ver", vProps, &s3.BucketVersioningV2{}, pulumi.Parent(b))
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	// ── 4. Server-side encryption ──────────────────────
-	// SSE-KMS for stricter frameworks (HIPAA, PCI-DSS, FedRAMP, IRAP).
-	// SSE-S3 (AES256) for all others. Both satisfy baseline encryption requirements.
-	if needsEncryption {
-		sseAlgorithm := "AES256"
-		if needsKMS {
-			sseAlgorithm = "aws:kms"
+	// ── 6. Server access logging ───────────────────────
+	// Tier 2: opt-in via logging: true. Logs to the centralised logging
+	// bucket created during `anvil bootstrap`. Falls back to self if
+	// bootstrap has not been run or loggingBucket is not set.
+	// Incurs storage cost on the logging bucket.
+	if args.Logging {
+		var targetBucket pulumi.StringInput
+		if loggingBucket != "" {
+			targetBucket = pulumi.String(loggingBucket)
+		} else {
+			targetBucket = res.ID().ToStringOutput()
 		}
 
-		encProps := transform.MergeTransform(args.Transform["encryption"], pulumi.Map{
-			"bucket": res.ID(),
-			"serverSideEncryptionConfiguration": pulumi.Map{
-				"rule": pulumi.Map{
-					"applyServerSideEncryptionByDefault": pulumi.Map{
-						"sseAlgorithm": pulumi.String(sseAlgorithm),
-					},
-					"bucketKeyEnabled": pulumi.Bool(true),
-				},
-			},
-		})
-		err = ctx.RegisterResource("aws:s3/bucketServerSideEncryptionConfigurationV2:BucketServerSideEncryptionConfigurationV2", name+"-enc", encProps, &s3.BucketServerSideEncryptionConfigurationV2{}, pulumi.Parent(b))
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// ── 5. Server access logging ───────────────────────
-	// Logs written to self by default. Override target bucket via
-	// transform["logging"].targetBucket for production setups.
-	if needsLogging {
 		logProps := transform.MergeTransform(args.Transform["logging"], pulumi.Map{
 			"bucket":       res.ID(),
-			"targetBucket": res.ID(),
+			"targetBucket": targetBucket,
 			"targetPrefix": pulumi.Sprintf("s3-access-logs/%s/", physicalName),
 		})
 		err = ctx.RegisterResource("aws:s3/bucketLoggingV2:BucketLoggingV2", name+"-log", logProps, &s3.BucketLoggingV2{}, pulumi.Parent(b))
@@ -199,52 +208,25 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 		}
 	}
 
-	// ── 6. TLS-only bucket policy ──────────────────────
-	if needsTLSPolicy {
-		bucketArn := res.Arn
-		tlsPolicy := pulumi.Sprintf(`{
-			"Version": "2012-10-17",
-			"Statement": [{
-				"Sid": "DenyNonTLS",
-				"Effect": "Deny",
-				"Principal": "*",
-				"Action": "s3:*",
-				"Resource": ["%s", "%s/*"],
-				"Condition": {
-					"Bool": { "aws:SecureTransport": "false" }
-				}
-			}]
-		}`, bucketArn, bucketArn)
-
-		policyProps := transform.MergeTransform(args.Transform["policy"], pulumi.Map{
-			"bucket": res.ID(),
-			"policy": tlsPolicy,
-		})
-		err = ctx.RegisterResource("aws:s3/bucketPolicy:BucketPolicy", name+"-policy", policyProps, &s3.BucketPolicy{}, pulumi.Parent(b))
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// ── 7. GDPR version expiry lifecycle ──────────────
-	// GDPR requires the ability to honour erasure requests. When versioning is
-	// active (required by other frameworks), old versions must expire so deleted
-	// objects are actually gone within a reasonable window.
-	// Default: expire non-current versions after 90 days.
-	if needsVersionExpiry {
-		lifecycleProps := transform.MergeTransform(args.Transform["lifecycleRules"], pulumi.Map{
-			"bucket": res.ID(),
-			"rules": pulumi.Array{
-				pulumi.Map{
-					"id":     pulumi.String("gdpr-version-expiry"),
-					"status": pulumi.String("Enabled"),
-					"noncurrentVersionExpiration": pulumi.Map{
-						"noncurrentDays": pulumi.Int(90),
-					},
+	// ── 7. Object Lock / Retention ─────────────────────
+	// Tier 2: opt-in via retention: N (days). Enables Object Lock in
+	// COMPLIANCE mode — objects cannot be deleted or overwritten until
+	// the retention period expires. Required by PCI-DSS (365), FedRAMP
+	// (1095), HIPAA (2190). Incurs storage cost.
+	// Note: Object Lock must be enabled at bucket creation. If retention
+	// is set after initial deploy, the bucket must be recreated.
+	if args.Retention > 0 {
+		lockProps := transform.MergeTransform(args.Transform["objectLockConfiguration"], pulumi.Map{
+			"bucket":            res.ID(),
+			"objectLockEnabled": pulumi.String("Enabled"),
+			"rule": pulumi.Map{
+				"defaultRetention": pulumi.Map{
+					"mode": pulumi.String("COMPLIANCE"),
+					"days": pulumi.Int(args.Retention),
 				},
 			},
 		})
-		err = ctx.RegisterResource("aws:s3/bucketLifecycleConfigurationV2:BucketLifecycleConfigurationV2", name+"-lifecycle", lifecycleProps, &s3.BucketLifecycleConfigurationV2{}, pulumi.Parent(b))
+		err = ctx.RegisterResource("aws:s3/bucketObjectLockConfigurationV2:BucketObjectLockConfigurationV2", name+"-lock", lockProps, &s3.BucketObjectLockConfigurationV2{}, pulumi.Parent(b))
 		if err != nil {
 			return nil, err
 		}

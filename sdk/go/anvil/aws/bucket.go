@@ -7,7 +7,6 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/DamienPace15/anvil/sdk/go/anvil"
 	"github.com/DamienPace15/anvil/sdk/go/anvil/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
@@ -38,18 +37,28 @@ func NewBucket(ctx *pulumi.Context,
 }
 
 type bucketArgs struct {
-	// Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.
-	Compliance []anvil.ComplianceFramework `pulumi:"compliance"`
-	Lifecycle  *int                        `pulumi:"lifecycle"`
-	Transform  *BucketTransformArgs        `pulumi:"transform"`
+	// Upgrade at-rest encryption to SSE-KMS. Set to "kms" to enable. SSE-S3 (AES256) is always on by default at no cost. SSE-KMS incurs KMS API call cost and is required by HIPAA, PCI-DSS, FedRAMP, and IRAP.
+	Encryption *string `pulumi:"encryption"`
+	// Enable S3 server access logging to the centralised logging bucket created during `anvil bootstrap`. Required by most compliance frameworks for audit trails. Incurs storage cost. Default: false.
+	Logging *bool `pulumi:"logging"`
+	// Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).
+	Retention *int                 `pulumi:"retention"`
+	Transform *BucketTransformArgs `pulumi:"transform"`
+	// Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.
+	Versioning *bool `pulumi:"versioning"`
 }
 
 // The set of arguments for constructing a Bucket resource.
 type BucketArgs struct {
-	// Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.
-	Compliance anvil.ComplianceFrameworkArrayInput
-	Lifecycle  pulumi.IntPtrInput
-	Transform  BucketTransformArgsPtrInput
+	// Upgrade at-rest encryption to SSE-KMS. Set to "kms" to enable. SSE-S3 (AES256) is always on by default at no cost. SSE-KMS incurs KMS API call cost and is required by HIPAA, PCI-DSS, FedRAMP, and IRAP.
+	Encryption pulumi.StringPtrInput
+	// Enable S3 server access logging to the centralised logging bucket created during `anvil bootstrap`. Required by most compliance frameworks for audit trails. Incurs storage cost. Default: false.
+	Logging pulumi.BoolPtrInput
+	// Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).
+	Retention pulumi.IntPtrInput
+	Transform BucketTransformArgsPtrInput
+	// Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.
+	Versioning pulumi.BoolPtrInput
 }
 
 func (BucketArgs) ElementType() reflect.Type {
