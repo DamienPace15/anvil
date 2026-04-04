@@ -13,21 +13,20 @@ import (
 
 // ComplianceFramework represents a supported compliance standard.
 // Mirrors the Go constants in provider/internal/shared/compliance.go.
-type ComplianceFramework string
 
 const (
-	ComplianceSOC2     ComplianceFramework = "soc2"
-	ComplianceISO27001 ComplianceFramework = "iso27001"
-	ComplianceCIS      ComplianceFramework = "cis"
-	CompliancePCIDSS   ComplianceFramework = "pci-dss"
-	ComplianceHIPAA    ComplianceFramework = "hipaa"
-	ComplianceFedRAMP  ComplianceFramework = "fedramp"
-	ComplianceHITRUST  ComplianceFramework = "hitrust"
-	ComplianceGDPR     ComplianceFramework = "gdpr"
-	ComplianceSOC1     ComplianceFramework = "soc1"
-	ComplianceIRAP     ComplianceFramework = "irap"
-	ComplianceNISTCSF  ComplianceFramework = "nist-csf"
-	ComplianceCSASTAR  ComplianceFramework = "csa-star"
+	ComplianceSOC2     string = "soc2"
+	ComplianceISO27001 string = "iso27001"
+	ComplianceCIS      string = "cis"
+	CompliancePCIDSS   string = "pci-dss"
+	ComplianceHIPAA    string = "hipaa"
+	ComplianceFedRAMP  string = "fedramp"
+	ComplianceHITRUST  string = "hitrust"
+	ComplianceGDPR     string = "gdpr"
+	ComplianceSOC1     string = "soc1"
+	ComplianceIRAP     string = "irap"
+	ComplianceNISTCSF  string = "nist-csf"
+	ComplianceCSASTAR  string = "csa-star"
 )
 
 // ── Context ────────────────────────────────────────────────

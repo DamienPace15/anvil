@@ -41,10 +41,14 @@ type bucketArgs struct {
 	Encryption *string `pulumi:"encryption"`
 	// Enable S3 server access logging to the centralised logging bucket created during `anvil bootstrap`. Required by most compliance frameworks for audit trails. Incurs storage cost. Default: false.
 	Logging *bool `pulumi:"logging"`
-	// Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).
-	Retention *int                 `pulumi:"retention"`
-	Transform *BucketTransformArgs `pulumi:"transform"`
-	// Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.
+	// Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing requires bucket replacement. Default: 0 (disabled).
+	Retention *int `pulumi:"retention"`
+	// When to move objects to cheaper storage classes. Omit to use Intelligent-Tiering (recommended default). Only applies when no custom lifecycle is provided via transform.
+	StorageTransition *string              `pulumi:"storageTransition"`
+	Transform         *BucketTransformArgs `pulumi:"transform"`
+	// How long non-current object versions are kept before automatic expiry. Strongly recommended when versioning is enabled to prevent unbounded storage growth. Default: keep forever.
+	VersionRetention *string `pulumi:"versionRetention"`
+	// Enable versioning in non-production stages. Versioning is always enabled in production. Incurs additional storage cost per version. Default: false.
 	Versioning *bool `pulumi:"versioning"`
 }
 
@@ -54,10 +58,14 @@ type BucketArgs struct {
 	Encryption pulumi.StringPtrInput
 	// Enable S3 server access logging to the centralised logging bucket created during `anvil bootstrap`. Required by most compliance frameworks for audit trails. Incurs storage cost. Default: false.
 	Logging pulumi.BoolPtrInput
-	// Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).
+	// Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing requires bucket replacement. Default: 0 (disabled).
 	Retention pulumi.IntPtrInput
-	Transform BucketTransformArgsPtrInput
-	// Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.
+	// When to move objects to cheaper storage classes. Omit to use Intelligent-Tiering (recommended default). Only applies when no custom lifecycle is provided via transform.
+	StorageTransition pulumi.StringPtrInput
+	Transform         BucketTransformArgsPtrInput
+	// How long non-current object versions are kept before automatic expiry. Strongly recommended when versioning is enabled to prevent unbounded storage growth. Default: keep forever.
+	VersionRetention pulumi.StringPtrInput
+	// Enable versioning in non-production stages. Versioning is always enabled in production. Incurs additional storage cost per version. Default: false.
 	Versioning pulumi.BoolPtrInput
 }
 
