@@ -2,18 +2,24 @@
   "resources": {
     "anvil:aws:Bucket": {
       "inputProperties": {
-        "compliance": {
-          "description": "Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.",
-          "items": {
-            "$ref": "#/types/anvil:index:ComplianceFramework"
-          },
-          "type": "array"
+        "encryption": {
+          "description": "Upgrade at-rest encryption to SSE-KMS. Set to \"kms\" to enable. SSE-S3 (AES256) is always on by default at no cost. SSE-KMS incurs KMS API call cost and is required by HIPAA, PCI-DSS, FedRAMP, and IRAP.",
+          "type": "string"
         },
-        "lifecycle": {
+        "logging": {
+          "description": "Enable S3 server access logging to the centralised logging bucket created during `anvil bootstrap`. Required by most compliance frameworks for audit trails. Incurs storage cost. Default: false.",
+          "type": "boolean"
+        },
+        "retention": {
+          "description": "Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).",
           "type": "integer"
         },
         "transform": {
           "$ref": "#/types/anvil:aws:BucketTransformArgs"
+        },
+        "versioning": {
+          "description": "Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.",
+          "type": "boolean"
         }
       },
       "isComponent": true,
@@ -27,7 +33,10 @@
           "type": "string"
         }
       },
-      "required": ["bucketName", "arn"],
+      "required": [
+        "bucketName",
+        "arn"
+      ],
       "requiredInputs": []
     }
   },
@@ -363,38 +372,33 @@
     "anvil:aws:BucketTransform": {
       "properties": {
         "bucket": {
-          "description": "Name of the bucket. If omitted, the provider will assign a random, unique name. Must be lowercase and less than or equal to 63 characters in length. A full list of bucket naming rules [may be found here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html). The name must not be in the format `\u003cspan pulumi-lang-nodejs=\"[bucketName]\" pulumi-lang-dotnet=\"[BucketName]\" pulumi-lang-go=\"[bucketName]\" pulumi-lang-python=\"[bucket_name]\" pulumi-lang-yaml=\"[bucketName]\" pulumi-lang-java=\"[bucketName]\"\u003e[bucket_name]\u003c/span\u003e--[azid]--x-s3`. Use the \u003cspan pulumi-lang-nodejs=\"`aws.s3.DirectoryBucket`\" pulumi-lang-dotnet=\"`aws.s3.DirectoryBucket`\" pulumi-lang-go=\"`s3.DirectoryBucket`\" pulumi-lang-python=\"`s3.DirectoryBucket`\" pulumi-lang-yaml=\"`aws.s3.DirectoryBucket`\" pulumi-lang-java=\"`aws.s3.DirectoryBucket`\"\u003e`aws.s3.DirectoryBucket`\u003c/span\u003e resource to manage S3 Express buckets.\n",
-          "language": {
-            "csharp": {
-              "name": "BucketName"
-            }
-          },
+          "description": "Name of the bucket.\n",
           "type": "string",
           "willReplaceOnChanges": true
         },
         "bucketPrefix": {
-          "description": "Creates a unique bucket name beginning with the specified prefix. Conflicts with \u003cspan pulumi-lang-nodejs=\"`bucket`\" pulumi-lang-dotnet=\"`Bucket`\" pulumi-lang-go=\"`bucket`\" pulumi-lang-python=\"`bucket`\" pulumi-lang-yaml=\"`bucket`\" pulumi-lang-java=\"`bucket`\"\u003e`bucket`\u003c/span\u003e. Must be lowercase and less than or equal to 37 characters in length. A full list of bucket naming rules [may be found here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html).\n",
+          "description": "Creates a unique bucket name beginning with the specified prefix.\n",
           "type": "string",
           "willReplaceOnChanges": true
         },
         "forceDestroy": {
-          "description": "Boolean that indicates all objects (including any [locked objects](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html)) should be deleted from the bucket *when the bucket is destroyed* so that the bucket can be destroyed without error. These objects are *not* recoverable. This only deletes objects when the bucket is destroyed, *not* when setting this parameter to \u003cspan pulumi-lang-nodejs=\"`true`\" pulumi-lang-dotnet=\"`True`\" pulumi-lang-go=\"`true`\" pulumi-lang-python=\"`true`\" pulumi-lang-yaml=\"`true`\" pulumi-lang-java=\"`true`\"\u003e`true`\u003c/span\u003e. Once this parameter is set to \u003cspan pulumi-lang-nodejs=\"`true`\" pulumi-lang-dotnet=\"`True`\" pulumi-lang-go=\"`true`\" pulumi-lang-python=\"`true`\" pulumi-lang-yaml=\"`true`\" pulumi-lang-java=\"`true`\"\u003e`true`\u003c/span\u003e, there must be a successful `pulumi up` run before a destroy is required to update this value in the resource state. Without a successful `pulumi up` after this parameter is set, this flag will have no effect. If setting this field in the same operation that would require replacing the bucket or destroying the bucket, this flag will not work. Additionally when importing a bucket, a successful `pulumi up` is required to set this value in state before it will take effect on a destroy operation.\n",
+          "description": "Boolean that indicates all objects should be deleted from the bucket when the bucket is destroyed.\n",
           "type": "boolean"
         },
         "objectLockEnabled": {
-          "description": "Indicates whether this bucket has an Object Lock configuration enabled. Valid values are \u003cspan pulumi-lang-nodejs=\"`true`\" pulumi-lang-dotnet=\"`True`\" pulumi-lang-go=\"`true`\" pulumi-lang-python=\"`true`\" pulumi-lang-yaml=\"`true`\" pulumi-lang-java=\"`true`\"\u003e`true`\u003c/span\u003e or \u003cspan pulumi-lang-nodejs=\"`false`\" pulumi-lang-dotnet=\"`False`\" pulumi-lang-go=\"`false`\" pulumi-lang-python=\"`false`\" pulumi-lang-yaml=\"`false`\" pulumi-lang-java=\"`false`\"\u003e`false`\u003c/span\u003e. This argument is not supported in all regions or partitions.\n",
+          "description": "Indicates whether this bucket has an Object Lock configuration enabled.\n",
           "type": "boolean",
           "willReplaceOnChanges": true
         },
         "region": {
-          "description": "Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.\n",
+          "description": "Region where this resource will be managed.\n",
           "type": "string"
         },
         "tags": {
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Map of tags to assign to the bucket. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`default_tags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n\nThe following arguments are deprecated, and will be removed in a future major version:\n",
+          "description": "Map of tags to assign to the bucket.\n",
           "type": "object"
         }
       },

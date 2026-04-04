@@ -48,9 +48,11 @@ export class Bucket extends pulumi.ComponentResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            resourceInputs["compliance"] = args?.compliance;
-            resourceInputs["lifecycle"] = args?.lifecycle;
+            resourceInputs["encryption"] = args?.encryption;
+            resourceInputs["logging"] = args?.logging;
+            resourceInputs["retention"] = args?.retention;
             resourceInputs["transform"] = args?.transform;
+            resourceInputs["versioning"] = args?.versioning;
             resourceInputs["arn"] = undefined /*out*/;
             resourceInputs["bucketName"] = undefined /*out*/;
         } else {
@@ -151,9 +153,20 @@ export class Bucket extends pulumi.ComponentResource {
  */
 export interface BucketArgs {
     /**
-     * Compliance frameworks to enforce on this bucket. Extends app-level defaults — never replaces them.
+     * Upgrade at-rest encryption to SSE-KMS. Set to "kms" to enable. SSE-S3 (AES256) is always on by default at no cost. SSE-KMS incurs KMS API call cost and is required by HIPAA, PCI-DSS, FedRAMP, and IRAP.
      */
-    compliance?: pulumi.Input<pulumi.Input<enums.ComplianceFramework>[]>;
-    lifecycle?: pulumi.Input<number>;
+    encryption?: pulumi.Input<string>;
+    /**
+     * Enable S3 server access logging to the centralised logging bucket created during `anvil bootstrap`. Required by most compliance frameworks for audit trails. Incurs storage cost. Default: false.
+     */
+    logging?: pulumi.Input<boolean>;
+    /**
+     * Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).
+     */
+    retention?: pulumi.Input<number>;
     transform?: pulumi.Input<inputs.aws.BucketTransformArgsArgs>;
+    /**
+     * Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.
+     */
+    versioning?: pulumi.Input<boolean>;
 }
