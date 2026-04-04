@@ -51,7 +51,9 @@ export class Bucket extends pulumi.ComponentResource {
             resourceInputs["encryption"] = args?.encryption;
             resourceInputs["logging"] = args?.logging;
             resourceInputs["retention"] = args?.retention;
+            resourceInputs["storageTransition"] = args?.storageTransition;
             resourceInputs["transform"] = args?.transform;
+            resourceInputs["versionRetention"] = args?.versionRetention;
             resourceInputs["versioning"] = args?.versioning;
             resourceInputs["arn"] = undefined /*out*/;
             resourceInputs["bucketName"] = undefined /*out*/;
@@ -161,12 +163,20 @@ export interface BucketArgs {
      */
     logging?: pulumi.Input<boolean>;
     /**
-     * Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).
+     * Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing requires bucket replacement. Default: 0 (disabled).
      */
     retention?: pulumi.Input<number>;
+    /**
+     * When to move objects to cheaper storage classes. Omit to use Intelligent-Tiering (recommended default). Only applies when no custom lifecycle is provided via transform.
+     */
+    storageTransition?: pulumi.Input<string>;
     transform?: pulumi.Input<inputs.aws.BucketTransformArgsArgs>;
     /**
-     * Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.
+     * How long non-current object versions are kept before automatic expiry. Strongly recommended when versioning is enabled to prevent unbounded storage growth. Default: keep forever.
+     */
+    versionRetention?: pulumi.Input<string>;
+    /**
+     * Enable versioning in non-production stages. Versioning is always enabled in production. Incurs additional storage cost per version. Default: false.
      */
     versioning?: pulumi.Input<boolean>;
 }

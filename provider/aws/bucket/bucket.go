@@ -18,12 +18,14 @@ import (
 //   - SSE-S3 encryption at rest
 //   - TLS-only bucket policy
 //   - Versioning in production
+//   - Incomplete multipart upload cleanup after 7 days
+//   - Intelligent-Tiering for objects >= 128KB (disabled if custom lifecycle provided)
 //
 // Tier 2 controls incur cost and must be explicitly opted into.
 type BucketArgs struct {
 	// Logging enables S3 server access logging to the centralised logging
 	// bucket created during `anvil bootstrap`. Required by most compliance
-	// frameworks for audit trails but incurs storage cost.
+	// frameworks for audit trails. Incurs storage cost on the logging bucket.
 	// Default: false
 	Logging bool `pulumi:"logging,optional"`
 
@@ -35,15 +37,33 @@ type BucketArgs struct {
 
 	// Versioning enables versioning in non-production stages. Versioning is
 	// always on in production (tier 1). Enable this if you need version
-	// history in dev/staging, or if a compliance framework requires it in
-	// all environments. Incurs additional storage cost for each object version.
+	// history in dev/staging. Incurs additional storage cost per version.
 	// Default: false (production always on regardless)
 	Versioning bool `pulumi:"versioning,optional"`
 
-	// Retention enables Object Lock with a retention period in days.
-	// Required by PCI-DSS (365 days), FedRAMP (1095 days), and HIPAA
-	// (2190 days) for immutable audit logs. Incurs storage cost.
-	// Default: 0 (disabled)
+	// VersionRetention sets how long non-current object versions are kept
+	// before automatic expiry. Strongly recommended when versioning is enabled
+	// to prevent unbounded storage growth.
+	// Presets: "7d" | "30d" | "90d" | "1y" | "3y" | "6y" | "7y"
+	// Default: "" (keep versions forever)
+	VersionRetention string `pulumi:"versionRetention,optional"`
+
+	// StorageTransition controls when objects move from Standard storage to
+	// cheaper storage classes. Only applies when no custom lifecycle is
+	// provided via transform["lifecycleRules"] — custom lifecycles replace
+	// this setting entirely.
+	// Presets: "30d" | "90d" | "1y"
+	//   "30d" → IA at 30d, Glacier at 90d
+	//   "90d" → IA at 90d, Glacier at 365d
+	//   "1y"  → IA at 365d, Glacier at 730d
+	// Default: "" (Intelligent-Tiering handles transitions automatically)
+	StorageTransition string `pulumi:"storageTransition,optional"`
+
+	// Retention enables Object Lock with a retention period in days (COMPLIANCE mode).
+	// Objects cannot be deleted or overwritten until the period expires.
+	// Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190).
+	// Must be set at bucket creation — changing requires bucket replacement.
+	// Incurs storage cost. Default: 0 (disabled)
 	Retention int `pulumi:"retention,optional"`
 
 	Transform map[string]map[string]interface{} `pulumi:"transform,optional"`
@@ -59,7 +79,30 @@ type Bucket struct {
 
 func (b *Bucket) Annotate(a infer.Annotator) {
 	a.SetToken("aws", "Bucket")
-	a.Describe(&b, "An Anvil-managed S3 bucket. Tier 1 security controls (public access block, SSE-S3 encryption, TLS policy, production versioning) are enforced automatically at no cost, satisfying the technical baseline of CIS Benchmarks, ISO 27017, SOC 2, NIST 800-53, and ISO 27001.")
+	a.Describe(&b, "An Anvil-managed S3 bucket. Tier 1 security controls (public access block, SSE-S3 encryption, TLS policy, production versioning, multipart cleanup, intelligent tiering) are enforced automatically at no cost, satisfying the technical baseline of CIS Benchmarks, ISO 27017, SOC 2, NIST 800-53, and ISO 27001.")
+}
+
+// resolveDays converts a retention preset string to an integer day count.
+// Returns 0 if the preset is unrecognised or empty.
+func resolveDays(preset string) int {
+	switch preset {
+	case "7d":
+		return 7
+	case "30d":
+		return 30
+	case "90d":
+		return 90
+	case "1y":
+		return 365
+	case "3y":
+		return 1095
+	case "6y":
+		return 2190
+	case "7y":
+		return 2555
+	default:
+		return 0
+	}
 }
 
 func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi.ResourceOption) (*Bucket, error) {
@@ -76,6 +119,8 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 	isProduction := environment == "prod"
 	useKMS := args.Encryption == "kms"
 	needsVersioning := isProduction || args.Versioning
+	versionRetentionDays := resolveDays(args.VersionRetention)
+	_, hasCustomLifecycle := args.Transform["lifecycleRules"]
 
 	physicalName := provider.PhysicalName(stage, name, "bucket", stageId)
 
@@ -184,11 +229,106 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 		}
 	}
 
-	// ── 6. Server access logging ───────────────────────
+	// ── 6. Lifecycle rules ─────────────────────────────
+	// Builds lifecycle rules from three independent concerns:
+	//   a) Multipart upload cleanup — always on, pure hygiene, free saving
+	//   b) Intelligent-Tiering OR StorageTransition presets — skipped if
+	//      user provides transform["lifecycleRules"] (their rules replace)
+	//   c) Version expiry — when versionRetention is set and versioning is on
+
+	lifecycleRules := pulumi.Array{
+		// ── a) Multipart upload cleanup ────────────────
+		// Tier 1: always on. Cleans up abandoned multipart uploads after
+		// 7 days. Prevents silent storage cost accumulation. Free.
+		pulumi.Map{
+			"id":     pulumi.String("anvil-cleanup-incomplete-uploads"),
+			"status": pulumi.String("Enabled"),
+			"abortIncompleteMultipartUpload": pulumi.Map{
+				"daysAfterInitiation": pulumi.Int(7),
+			},
+		},
+	}
+
+	if !hasCustomLifecycle {
+		if args.StorageTransition != "" {
+			// ── b1) StorageTransition preset ───────────────
+			// User has chosen explicit transition points.
+			// Standard → IA → Glacier based on preset.
+			var iaDays, glacierDays int
+			switch args.StorageTransition {
+			case "30d":
+				iaDays, glacierDays = 30, 90
+			case "90d":
+				iaDays, glacierDays = 90, 365
+			case "1y":
+				iaDays, glacierDays = 365, 730
+			}
+
+			lifecycleRules = append(lifecycleRules, pulumi.Map{
+				"id":     pulumi.String("anvil-storage-transition"),
+				"status": pulumi.String("Enabled"),
+				"transitions": pulumi.Array{
+					pulumi.Map{
+						"days":         pulumi.Int(iaDays),
+						"storageClass": pulumi.String("STANDARD_IA"),
+					},
+					pulumi.Map{
+						"days":         pulumi.Int(glacierDays),
+						"storageClass": pulumi.String("GLACIER"),
+					},
+				},
+			})
+		} else {
+			// ── b2) Intelligent-Tiering default ────────────
+			// Applied when no custom lifecycle and no StorageTransition preset.
+			// Automatically moves objects >= 128KB between frequent and
+			// infrequent access tiers based on actual access patterns.
+			// Objects < 128KB excluded — monitoring fee without benefit.
+			lifecycleRules = append(lifecycleRules, pulumi.Map{
+				"id":     pulumi.String("anvil-intelligent-tiering"),
+				"status": pulumi.String("Enabled"),
+				"filter": pulumi.Map{
+					"objectSizeGreaterThan": pulumi.Int(131072), // 128KB
+				},
+				"transitions": pulumi.Array{
+					pulumi.Map{
+						"days":         pulumi.Int(0),
+						"storageClass": pulumi.String("INTELLIGENT_TIERING"),
+					},
+				},
+			})
+		}
+	}
+
+	// ── c) Version expiry ──────────────────────────────
+	// Applied whenever versionRetention is set and versioning is active.
+	// Prevents unbounded storage growth from accumulated old versions.
+	// Also cleans up expired delete markers.
+	// Independent of custom lifecycle — always appended if set.
+	if versionRetentionDays > 0 && needsVersioning {
+		lifecycleRules = append(lifecycleRules, pulumi.Map{
+			"id":     pulumi.String("anvil-version-expiry"),
+			"status": pulumi.String("Enabled"),
+			"noncurrentVersionExpiration": pulumi.Map{
+				"noncurrentDays": pulumi.Int(versionRetentionDays),
+			},
+			"expiredObjectDeleteMarker": pulumi.Bool(true),
+		})
+	}
+
+	lifecycleProps := transform.MergeTransform(args.Transform["lifecycleRules"], pulumi.Map{
+		"bucket": res.ID(),
+		"rules":  lifecycleRules,
+	})
+	err = ctx.RegisterResource("aws:s3/bucketLifecycleConfigurationV2:BucketLifecycleConfigurationV2", name+"-lifecycle", lifecycleProps, &s3.BucketLifecycleConfigurationV2{}, pulumi.Parent(b))
+	if err != nil {
+		return nil, err
+	}
+
+	// ── 7. Server access logging ───────────────────────
 	// Tier 2: opt-in via logging: true. Logs to the centralised logging
 	// bucket created during `anvil bootstrap`. Falls back to self if
-	// bootstrap has not been run or loggingBucket is not set.
-	// Incurs storage cost on the logging bucket.
+	// loggingBucket is not set. Incurs storage cost on the logging bucket.
 	if args.Logging {
 		var targetBucket pulumi.StringInput
 		if loggingBucket != "" {
@@ -208,13 +348,13 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 		}
 	}
 
-	// ── 7. Object Lock / Retention ─────────────────────
+	// ── 8. Object Lock / Retention ─────────────────────
 	// Tier 2: opt-in via retention: N (days). Enables Object Lock in
 	// COMPLIANCE mode — objects cannot be deleted or overwritten until
 	// the retention period expires. Required by PCI-DSS (365), FedRAMP
 	// (1095), HIPAA (2190). Incurs storage cost.
-	// Note: Object Lock must be enabled at bucket creation. If retention
-	// is set after initial deploy, the bucket must be recreated.
+	// Note: Object Lock must be enabled at bucket creation. Changing this
+	// value after initial deploy requires bucket replacement.
 	if args.Retention > 0 {
 		lockProps := transform.MergeTransform(args.Transform["objectLockConfiguration"], pulumi.Map{
 			"bucket":            res.ID(),

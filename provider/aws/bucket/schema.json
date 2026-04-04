@@ -11,14 +11,66 @@
           "type": "boolean"
         },
         "retention": {
-          "description": "Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).",
+          "description": "Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing requires bucket replacement. Default: 0 (disabled).",
           "type": "integer"
+        },
+        "storageTransition": {
+          "description": "When to move objects to cheaper storage classes. Omit to use Intelligent-Tiering (recommended default). Only applies when no custom lifecycle is provided via transform.",
+          "enum": [
+            {
+              "description": "Standard → IA at 30 days, Glacier at 90 days",
+              "value": "30d"
+            },
+            {
+              "description": "Standard → IA at 90 days, Glacier at 365 days",
+              "value": "90d"
+            },
+            {
+              "description": "Standard → IA at 365 days, Glacier at 730 days",
+              "value": "1y"
+            }
+          ],
+          "type": "string"
         },
         "transform": {
           "$ref": "#/types/anvil:aws:BucketTransformArgs"
         },
+        "versionRetention": {
+          "description": "How long non-current object versions are kept before automatic expiry. Strongly recommended when versioning is enabled to prevent unbounded storage growth. Default: keep forever.",
+          "enum": [
+            {
+              "description": "7 days",
+              "value": "7d"
+            },
+            {
+              "description": "30 days (1 month)",
+              "value": "30d"
+            },
+            {
+              "description": "90 days (3 months)",
+              "value": "90d"
+            },
+            {
+              "description": "1 year (365 days)",
+              "value": "1y"
+            },
+            {
+              "description": "3 years (1095 days) — FedRAMP minimum",
+              "value": "3y"
+            },
+            {
+              "description": "6 years (2190 days) — HIPAA minimum",
+              "value": "6y"
+            },
+            {
+              "description": "7 years (2555 days) — IRAP minimum",
+              "value": "7y"
+            }
+          ],
+          "type": "string"
+        },
         "versioning": {
-          "description": "Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.",
+          "description": "Enable versioning in non-production stages. Versioning is always enabled in production. Incurs additional storage cost per version. Default: false.",
           "type": "boolean"
         }
       },

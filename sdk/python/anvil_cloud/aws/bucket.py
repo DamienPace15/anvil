@@ -27,15 +27,19 @@ class BucketArgs:
                  encryption: Optional[pulumi.Input[_builtins.str]] = None,
                  logging: Optional[pulumi.Input[_builtins.bool]] = None,
                  retention: Optional[pulumi.Input[_builtins.int]] = None,
+                 storage_transition: Optional[pulumi.Input[_builtins.str]] = None,
                  transform: Optional[pulumi.Input['BucketTransformArgsArgs']] = None,
+                 version_retention: Optional[pulumi.Input[_builtins.str]] = None,
                  versioning: Optional[pulumi.Input[_builtins.bool]] = None):
         """
         The set of arguments for constructing a Bucket resource.
 
         :param pulumi.Input[_builtins.str] encryption: Upgrade at-rest encryption to SSE-KMS. Set to "kms" to enable. SSE-S3 (AES256) is always on by default at no cost. SSE-KMS incurs KMS API call cost and is required by HIPAA, PCI-DSS, FedRAMP, and IRAP.
         :param pulumi.Input[_builtins.bool] logging: Enable S3 server access logging to the centralised logging bucket created during `anvil bootstrap`. Required by most compliance frameworks for audit trails. Incurs storage cost. Default: false.
-        :param pulumi.Input[_builtins.int] retention: Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).
-        :param pulumi.Input[_builtins.bool] versioning: Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.
+        :param pulumi.Input[_builtins.int] retention: Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing requires bucket replacement. Default: 0 (disabled).
+        :param pulumi.Input[_builtins.str] storage_transition: When to move objects to cheaper storage classes. Omit to use Intelligent-Tiering (recommended default). Only applies when no custom lifecycle is provided via transform.
+        :param pulumi.Input[_builtins.str] version_retention: How long non-current object versions are kept before automatic expiry. Strongly recommended when versioning is enabled to prevent unbounded storage growth. Default: keep forever.
+        :param pulumi.Input[_builtins.bool] versioning: Enable versioning in non-production stages. Versioning is always enabled in production. Incurs additional storage cost per version. Default: false.
         """
         if encryption is not None:
             pulumi.set(__self__, "encryption", encryption)
@@ -43,8 +47,12 @@ class BucketArgs:
             pulumi.set(__self__, "logging", logging)
         if retention is not None:
             pulumi.set(__self__, "retention", retention)
+        if storage_transition is not None:
+            pulumi.set(__self__, "storage_transition", storage_transition)
         if transform is not None:
             pulumi.set(__self__, "transform", transform)
+        if version_retention is not None:
+            pulumi.set(__self__, "version_retention", version_retention)
         if versioning is not None:
             pulumi.set(__self__, "versioning", versioning)
 
@@ -76,13 +84,25 @@ class BucketArgs:
     @pulumi.getter
     def retention(self) -> Optional[pulumi.Input[_builtins.int]]:
         """
-        Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).
+        Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing requires bucket replacement. Default: 0 (disabled).
         """
         return pulumi.get(self, "retention")
 
     @retention.setter
     def retention(self, value: Optional[pulumi.Input[_builtins.int]]):
         pulumi.set(self, "retention", value)
+
+    @_builtins.property
+    @pulumi.getter(name="storageTransition")
+    def storage_transition(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        When to move objects to cheaper storage classes. Omit to use Intelligent-Tiering (recommended default). Only applies when no custom lifecycle is provided via transform.
+        """
+        return pulumi.get(self, "storage_transition")
+
+    @storage_transition.setter
+    def storage_transition(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "storage_transition", value)
 
     @_builtins.property
     @pulumi.getter
@@ -94,10 +114,22 @@ class BucketArgs:
         pulumi.set(self, "transform", value)
 
     @_builtins.property
+    @pulumi.getter(name="versionRetention")
+    def version_retention(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        How long non-current object versions are kept before automatic expiry. Strongly recommended when versioning is enabled to prevent unbounded storage growth. Default: keep forever.
+        """
+        return pulumi.get(self, "version_retention")
+
+    @version_retention.setter
+    def version_retention(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "version_retention", value)
+
+    @_builtins.property
     @pulumi.getter
     def versioning(self) -> Optional[pulumi.Input[_builtins.bool]]:
         """
-        Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.
+        Enable versioning in non-production stages. Versioning is always enabled in production. Incurs additional storage cost per version. Default: false.
         """
         return pulumi.get(self, "versioning")
 
@@ -115,7 +147,9 @@ class Bucket(pulumi.ComponentResource):
                  encryption: Optional[pulumi.Input[_builtins.str]] = None,
                  logging: Optional[pulumi.Input[_builtins.bool]] = None,
                  retention: Optional[pulumi.Input[_builtins.int]] = None,
+                 storage_transition: Optional[pulumi.Input[_builtins.str]] = None,
                  transform: Optional[pulumi.Input[Union['BucketTransformArgsArgs', 'BucketTransformArgsArgsDict']]] = None,
+                 version_retention: Optional[pulumi.Input[_builtins.str]] = None,
                  versioning: Optional[pulumi.Input[_builtins.bool]] = None,
                  __props__=None):
         """
@@ -125,8 +159,10 @@ class Bucket(pulumi.ComponentResource):
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[_builtins.str] encryption: Upgrade at-rest encryption to SSE-KMS. Set to "kms" to enable. SSE-S3 (AES256) is always on by default at no cost. SSE-KMS incurs KMS API call cost and is required by HIPAA, PCI-DSS, FedRAMP, and IRAP.
         :param pulumi.Input[_builtins.bool] logging: Enable S3 server access logging to the centralised logging bucket created during `anvil bootstrap`. Required by most compliance frameworks for audit trails. Incurs storage cost. Default: false.
-        :param pulumi.Input[_builtins.int] retention: Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing this value requires bucket replacement. Default: 0 (disabled).
-        :param pulumi.Input[_builtins.bool] versioning: Enable versioning in non-production stages. Versioning is always enabled in production. Enable this for dev/staging or when a compliance framework requires it across all environments. Incurs additional storage cost. Default: false.
+        :param pulumi.Input[_builtins.int] retention: Enable Object Lock with a retention period in days (COMPLIANCE mode). Objects cannot be deleted or overwritten until the period expires. Required by PCI-DSS (365), FedRAMP (1095), HIPAA (2190). Must be set at bucket creation — changing requires bucket replacement. Default: 0 (disabled).
+        :param pulumi.Input[_builtins.str] storage_transition: When to move objects to cheaper storage classes. Omit to use Intelligent-Tiering (recommended default). Only applies when no custom lifecycle is provided via transform.
+        :param pulumi.Input[_builtins.str] version_retention: How long non-current object versions are kept before automatic expiry. Strongly recommended when versioning is enabled to prevent unbounded storage growth. Default: keep forever.
+        :param pulumi.Input[_builtins.bool] versioning: Enable versioning in non-production stages. Versioning is always enabled in production. Incurs additional storage cost per version. Default: false.
         """
         ...
     @overload
@@ -155,7 +191,9 @@ class Bucket(pulumi.ComponentResource):
                  encryption: Optional[pulumi.Input[_builtins.str]] = None,
                  logging: Optional[pulumi.Input[_builtins.bool]] = None,
                  retention: Optional[pulumi.Input[_builtins.int]] = None,
+                 storage_transition: Optional[pulumi.Input[_builtins.str]] = None,
                  transform: Optional[pulumi.Input[Union['BucketTransformArgsArgs', 'BucketTransformArgsArgsDict']]] = None,
+                 version_retention: Optional[pulumi.Input[_builtins.str]] = None,
                  versioning: Optional[pulumi.Input[_builtins.bool]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
@@ -171,7 +209,9 @@ class Bucket(pulumi.ComponentResource):
             __props__.__dict__["encryption"] = encryption
             __props__.__dict__["logging"] = logging
             __props__.__dict__["retention"] = retention
+            __props__.__dict__["storage_transition"] = storage_transition
             __props__.__dict__["transform"] = transform
+            __props__.__dict__["version_retention"] = version_retention
             __props__.__dict__["versioning"] = versioning
             __props__.__dict__["arn"] = None
             __props__.__dict__["bucket_name"] = None
