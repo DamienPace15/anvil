@@ -529,6 +529,15 @@ export namespace aws {
         vpcConfig?: pulumi.Input<pulumiAws.types.input.lambda.FunctionVpcConfig>;
     }
 
+    export interface LambdaPermissionArgs {
+        actions?: pulumi.Input<pulumi.Input<string>[]>;
+        path?: pulumi.Input<string>;
+        /**
+         * ARN of the resource to grant access to. Accepts plain strings and Pulumi outputs.
+         */
+        resource?: any;
+    }
+
     export interface LambdaTransformArgsArgs {
         lambda?: pulumi.Input<inputs.aws.LambdaOverridesArgs>;
     }

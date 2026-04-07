@@ -13,8 +13,10 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from .. import _utilities
+from ._enums import *
 from ._inputs import *
 import pulumi_aws
+from .. import _enums as enums
 from typing import Optional
 from anvil_cloud import grants
 
@@ -24,32 +26,195 @@ __all__ = ['LambdaArgs', 'Lambda']
 @pulumi.input_type
 class LambdaArgs:
     def __init__(__self__, *,
-                 name: pulumi.Input[_builtins.str],
+                 handler: pulumi.Input[_builtins.str],
+                 runtime: pulumi.Input['LambdaRuntime'],
+                 architecture: Optional[pulumi.Input['LambdaArchitecture']] = None,
+                 encryption: Optional[pulumi.Input[_builtins.str]] = None,
+                 entry: Optional[pulumi.Input[_builtins.str]] = None,
+                 environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 log_retention: Optional[pulumi.Input['LambdaLogRetention']] = None,
+                 memory: Optional[pulumi.Input[_builtins.int]] = None,
+                 permissions: Optional[pulumi.Input[Sequence[pulumi.Input['LambdaPermissionArgs']]]] = None,
+                 timeout: Optional[pulumi.Input[_builtins.int]] = None,
+                 tracing: Optional[pulumi.Input[_builtins.bool]] = None,
                  transform: Optional[pulumi.Input['LambdaTransformArgsArgs']] = None,
+                 url: Optional[pulumi.Input[_builtins.bool]] = None,
                  vpc: Optional[pulumi.Input[_builtins.str]] = None):
         """
         The set of arguments for constructing a Lambda resource.
 
-        :param pulumi.Input[_builtins.str] name: The logical name of the Lambda function.
-        :param pulumi.Input[_builtins.str] vpc: The ID of the AWS VPC to deploy this function into.
+        :param pulumi.Input[_builtins.str] handler: The exported function name in the entry file. e.g. "handler" for `export const handler = ...`
+        :param pulumi.Input['LambdaRuntime'] runtime: The Lambda runtime identifier.
+        :param pulumi.Input['LambdaArchitecture'] architecture: CPU architecture. Default: arm64 (Graviton).
+        :param pulumi.Input[_builtins.str] encryption: Upgrade environment variable encryption to SSE-KMS. Set to "kms" to enable. Incurs KMS API call cost. Required by HIPAA, PCI-DSS, FedRAMP. Supply kmsKeyArn via transform["lambda"].
+        :param pulumi.Input[_builtins.str] entry: Path to the function's entry point file, relative to the project root. e.g. "functions/api/index.ts". Omit to deploy a blank Lambda placeholder.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables available to the function at runtime. Supports plain strings and Pulumi outputs.
+        :param pulumi.Input['LambdaLogRetention'] log_retention: CloudWatch log group retention period. Default: "1y" (satisfies SOC 2, ISO 27001, PCI-DSS baseline).
+        :param pulumi.Input[_builtins.int] memory: Memory in MB. Valid: 128 to 32768 in 1MB increments. Default: 1024.
+        :param pulumi.Input[Sequence[pulumi.Input['LambdaPermissionArgs']]] permissions: Inline IAM permissions added to the execution role. Use for ad-hoc access not covered by the grant system.
+        :param pulumi.Input[_builtins.int] timeout: Timeout in seconds. Valid: 1 to 900. Default: 5.
+        :param pulumi.Input[_builtins.bool] tracing: Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.
+        :param pulumi.Input[_builtins.bool] url: Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
+        :param pulumi.Input[_builtins.str] vpc: VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).
         """
-        pulumi.set(__self__, "name", name)
+        pulumi.set(__self__, "handler", handler)
+        pulumi.set(__self__, "runtime", runtime)
+        if architecture is not None:
+            pulumi.set(__self__, "architecture", architecture)
+        if encryption is not None:
+            pulumi.set(__self__, "encryption", encryption)
+        if entry is not None:
+            pulumi.set(__self__, "entry", entry)
+        if environment is not None:
+            pulumi.set(__self__, "environment", environment)
+        if log_retention is not None:
+            pulumi.set(__self__, "log_retention", log_retention)
+        if memory is not None:
+            pulumi.set(__self__, "memory", memory)
+        if permissions is not None:
+            pulumi.set(__self__, "permissions", permissions)
+        if timeout is not None:
+            pulumi.set(__self__, "timeout", timeout)
+        if tracing is not None:
+            pulumi.set(__self__, "tracing", tracing)
         if transform is not None:
             pulumi.set(__self__, "transform", transform)
+        if url is not None:
+            pulumi.set(__self__, "url", url)
         if vpc is not None:
             pulumi.set(__self__, "vpc", vpc)
 
     @_builtins.property
     @pulumi.getter
-    def name(self) -> pulumi.Input[_builtins.str]:
+    def handler(self) -> pulumi.Input[_builtins.str]:
         """
-        The logical name of the Lambda function.
+        The exported function name in the entry file. e.g. "handler" for `export const handler = ...`
         """
-        return pulumi.get(self, "name")
+        return pulumi.get(self, "handler")
 
-    @name.setter
-    def name(self, value: pulumi.Input[_builtins.str]):
-        pulumi.set(self, "name", value)
+    @handler.setter
+    def handler(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "handler", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def runtime(self) -> pulumi.Input['LambdaRuntime']:
+        """
+        The Lambda runtime identifier.
+        """
+        return pulumi.get(self, "runtime")
+
+    @runtime.setter
+    def runtime(self, value: pulumi.Input['LambdaRuntime']):
+        pulumi.set(self, "runtime", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def architecture(self) -> Optional[pulumi.Input['LambdaArchitecture']]:
+        """
+        CPU architecture. Default: arm64 (Graviton).
+        """
+        return pulumi.get(self, "architecture")
+
+    @architecture.setter
+    def architecture(self, value: Optional[pulumi.Input['LambdaArchitecture']]):
+        pulumi.set(self, "architecture", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def encryption(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Upgrade environment variable encryption to SSE-KMS. Set to "kms" to enable. Incurs KMS API call cost. Required by HIPAA, PCI-DSS, FedRAMP. Supply kmsKeyArn via transform["lambda"].
+        """
+        return pulumi.get(self, "encryption")
+
+    @encryption.setter
+    def encryption(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "encryption", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def entry(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Path to the function's entry point file, relative to the project root. e.g. "functions/api/index.ts". Omit to deploy a blank Lambda placeholder.
+        """
+        return pulumi.get(self, "entry")
+
+    @entry.setter
+    def entry(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "entry", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def environment(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]:
+        """
+        Environment variables available to the function at runtime. Supports plain strings and Pulumi outputs.
+        """
+        return pulumi.get(self, "environment")
+
+    @environment.setter
+    def environment(self, value: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "environment", value)
+
+    @_builtins.property
+    @pulumi.getter(name="logRetention")
+    def log_retention(self) -> Optional[pulumi.Input['LambdaLogRetention']]:
+        """
+        CloudWatch log group retention period. Default: "1y" (satisfies SOC 2, ISO 27001, PCI-DSS baseline).
+        """
+        return pulumi.get(self, "log_retention")
+
+    @log_retention.setter
+    def log_retention(self, value: Optional[pulumi.Input['LambdaLogRetention']]):
+        pulumi.set(self, "log_retention", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def memory(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Memory in MB. Valid: 128 to 32768 in 1MB increments. Default: 1024.
+        """
+        return pulumi.get(self, "memory")
+
+    @memory.setter
+    def memory(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "memory", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def permissions(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['LambdaPermissionArgs']]]]:
+        """
+        Inline IAM permissions added to the execution role. Use for ad-hoc access not covered by the grant system.
+        """
+        return pulumi.get(self, "permissions")
+
+    @permissions.setter
+    def permissions(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['LambdaPermissionArgs']]]]):
+        pulumi.set(self, "permissions", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def timeout(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Timeout in seconds. Valid: 1 to 900. Default: 5.
+        """
+        return pulumi.get(self, "timeout")
+
+    @timeout.setter
+    def timeout(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "timeout", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def tracing(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.
+        """
+        return pulumi.get(self, "tracing")
+
+    @tracing.setter
+    def tracing(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "tracing", value)
 
     @_builtins.property
     @pulumi.getter
@@ -62,9 +227,21 @@ class LambdaArgs:
 
     @_builtins.property
     @pulumi.getter
+    def url(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
+        """
+        return pulumi.get(self, "url")
+
+    @url.setter
+    def url(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "url", value)
+
+    @_builtins.property
+    @pulumi.getter
     def vpc(self) -> Optional[pulumi.Input[_builtins.str]]:
         """
-        The ID of the AWS VPC to deploy this function into.
+        VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).
         """
         return pulumi.get(self, "vpc")
 
@@ -79,8 +256,19 @@ class Lambda(pulumi.ComponentResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 name: Optional[pulumi.Input[_builtins.str]] = None,
+                 architecture: Optional[pulumi.Input['LambdaArchitecture']] = None,
+                 encryption: Optional[pulumi.Input[_builtins.str]] = None,
+                 entry: Optional[pulumi.Input[_builtins.str]] = None,
+                 environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 handler: Optional[pulumi.Input[_builtins.str]] = None,
+                 log_retention: Optional[pulumi.Input['LambdaLogRetention']] = None,
+                 memory: Optional[pulumi.Input[_builtins.int]] = None,
+                 permissions: Optional[pulumi.Input[Sequence[pulumi.Input[Union['LambdaPermissionArgs', 'LambdaPermissionArgsDict']]]]] = None,
+                 runtime: Optional[pulumi.Input['LambdaRuntime']] = None,
+                 timeout: Optional[pulumi.Input[_builtins.int]] = None,
+                 tracing: Optional[pulumi.Input[_builtins.bool]] = None,
                  transform: Optional[pulumi.Input[Union['LambdaTransformArgsArgs', 'LambdaTransformArgsArgsDict']]] = None,
+                 url: Optional[pulumi.Input[_builtins.bool]] = None,
                  vpc: Optional[pulumi.Input[_builtins.str]] = None,
                  __props__=None):
         """
@@ -88,8 +276,19 @@ class Lambda(pulumi.ComponentResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.str] name: The logical name of the Lambda function.
-        :param pulumi.Input[_builtins.str] vpc: The ID of the AWS VPC to deploy this function into.
+        :param pulumi.Input['LambdaArchitecture'] architecture: CPU architecture. Default: arm64 (Graviton).
+        :param pulumi.Input[_builtins.str] encryption: Upgrade environment variable encryption to SSE-KMS. Set to "kms" to enable. Incurs KMS API call cost. Required by HIPAA, PCI-DSS, FedRAMP. Supply kmsKeyArn via transform["lambda"].
+        :param pulumi.Input[_builtins.str] entry: Path to the function's entry point file, relative to the project root. e.g. "functions/api/index.ts". Omit to deploy a blank Lambda placeholder.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment variables available to the function at runtime. Supports plain strings and Pulumi outputs.
+        :param pulumi.Input[_builtins.str] handler: The exported function name in the entry file. e.g. "handler" for `export const handler = ...`
+        :param pulumi.Input['LambdaLogRetention'] log_retention: CloudWatch log group retention period. Default: "1y" (satisfies SOC 2, ISO 27001, PCI-DSS baseline).
+        :param pulumi.Input[_builtins.int] memory: Memory in MB. Valid: 128 to 32768 in 1MB increments. Default: 1024.
+        :param pulumi.Input[Sequence[pulumi.Input[Union['LambdaPermissionArgs', 'LambdaPermissionArgsDict']]]] permissions: Inline IAM permissions added to the execution role. Use for ad-hoc access not covered by the grant system.
+        :param pulumi.Input['LambdaRuntime'] runtime: The Lambda runtime identifier.
+        :param pulumi.Input[_builtins.int] timeout: Timeout in seconds. Valid: 1 to 900. Default: 5.
+        :param pulumi.Input[_builtins.bool] tracing: Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.
+        :param pulumi.Input[_builtins.bool] url: Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
+        :param pulumi.Input[_builtins.str] vpc: VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).
         """
         ...
     @overload
@@ -115,8 +314,19 @@ class Lambda(pulumi.ComponentResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 name: Optional[pulumi.Input[_builtins.str]] = None,
+                 architecture: Optional[pulumi.Input['LambdaArchitecture']] = None,
+                 encryption: Optional[pulumi.Input[_builtins.str]] = None,
+                 entry: Optional[pulumi.Input[_builtins.str]] = None,
+                 environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 handler: Optional[pulumi.Input[_builtins.str]] = None,
+                 log_retention: Optional[pulumi.Input['LambdaLogRetention']] = None,
+                 memory: Optional[pulumi.Input[_builtins.int]] = None,
+                 permissions: Optional[pulumi.Input[Sequence[pulumi.Input[Union['LambdaPermissionArgs', 'LambdaPermissionArgsDict']]]]] = None,
+                 runtime: Optional[pulumi.Input['LambdaRuntime']] = None,
+                 timeout: Optional[pulumi.Input[_builtins.int]] = None,
+                 tracing: Optional[pulumi.Input[_builtins.bool]] = None,
                  transform: Optional[pulumi.Input[Union['LambdaTransformArgsArgs', 'LambdaTransformArgsArgsDict']]] = None,
+                 url: Optional[pulumi.Input[_builtins.bool]] = None,
                  vpc: Optional[pulumi.Input[_builtins.str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
@@ -129,13 +339,27 @@ class Lambda(pulumi.ComponentResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = LambdaArgs.__new__(LambdaArgs)
 
-            if name is None and not opts.urn:
-                raise TypeError("Missing required property 'name'")
-            __props__.__dict__["name"] = name
+            __props__.__dict__["architecture"] = architecture
+            __props__.__dict__["encryption"] = encryption
+            __props__.__dict__["entry"] = entry
+            __props__.__dict__["environment"] = environment
+            if handler is None and not opts.urn:
+                raise TypeError("Missing required property 'handler'")
+            __props__.__dict__["handler"] = handler
+            __props__.__dict__["log_retention"] = log_retention
+            __props__.__dict__["memory"] = memory
+            __props__.__dict__["permissions"] = permissions
+            if runtime is None and not opts.urn:
+                raise TypeError("Missing required property 'runtime'")
+            __props__.__dict__["runtime"] = runtime
+            __props__.__dict__["timeout"] = timeout
+            __props__.__dict__["tracing"] = tracing
             __props__.__dict__["transform"] = transform
+            __props__.__dict__["url"] = url
             __props__.__dict__["vpc"] = vpc
             __props__.__dict__["arn"] = None
             __props__.__dict__["function_name"] = None
+            __props__.__dict__["function_url"] = None
             __props__.__dict__["role_arn"] = None
         super(Lambda, __self__).__init__(
             'anvil:aws:Lambda',
@@ -156,9 +380,17 @@ class Lambda(pulumi.ComponentResource):
     @pulumi.getter(name="functionName")
     def function_name(self) -> pulumi.Output[_builtins.str]:
         """
-        The name of the Lambda function.
+        The physical name of the Lambda function.
         """
         return pulumi.get(self, "function_name")
+
+    @_builtins.property
+    @pulumi.getter(name="functionUrl")
+    def function_url(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        The HTTPS endpoint URL when url: true. Empty string if URL is not enabled.
+        """
+        return pulumi.get(self, "function_url")
 
     @_builtins.property
     @pulumi.getter(name="roleArn")

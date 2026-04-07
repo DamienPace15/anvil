@@ -2,15 +2,65 @@
   "resources": {
     "anvil:aws:Lambda": {
       "inputProperties": {
-        "name": {
-          "description": "The logical name of the Lambda function.",
+        "architecture": {
+          "$ref": "#/types/anvil:aws:LambdaArchitecture",
+          "description": "CPU architecture. Default: arm64 (Graviton)."
+        },
+        "encryption": {
+          "description": "Upgrade environment variable encryption to SSE-KMS. Set to \"kms\" to enable. Incurs KMS API call cost. Required by HIPAA, PCI-DSS, FedRAMP. Supply kmsKeyArn via transform[\"lambda\"].",
           "type": "string"
+        },
+        "entry": {
+          "description": "Path to the function's entry point file, relative to the project root. e.g. \"functions/api/index.ts\". Omit to deploy a blank Lambda placeholder.",
+          "type": "string"
+        },
+        "environment": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Environment variables available to the function at runtime. Supports plain strings and Pulumi outputs.",
+          "type": "object"
+        },
+        "handler": {
+          "description": "The exported function name in the entry file. e.g. \"handler\" for `export const handler = ...`",
+          "type": "string"
+        },
+        "logRetention": {
+          "$ref": "#/types/anvil:aws:LambdaLogRetention",
+          "description": "CloudWatch log group retention period. Default: \"1y\" (satisfies SOC 2, ISO 27001, PCI-DSS baseline)."
+        },
+        "memory": {
+          "description": "Memory in MB. Valid: 128 to 32768 in 1MB increments. Default: 1024.",
+          "type": "integer"
+        },
+        "permissions": {
+          "description": "Inline IAM permissions added to the execution role. Use for ad-hoc access not covered by the grant system.",
+          "items": {
+            "$ref": "#/types/anvil:aws:LambdaPermission"
+          },
+          "type": "array"
+        },
+        "runtime": {
+          "$ref": "#/types/anvil:aws:LambdaRuntime",
+          "description": "The Lambda runtime identifier."
+        },
+        "timeout": {
+          "description": "Timeout in seconds. Valid: 1 to 900. Default: 5.",
+          "type": "integer"
+        },
+        "tracing": {
+          "description": "Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.",
+          "type": "boolean"
         },
         "transform": {
           "$ref": "#/types/anvil:aws:LambdaTransformArgs"
         },
+        "url": {
+          "description": "Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.",
+          "type": "boolean"
+        },
         "vpc": {
-          "description": "The ID of the AWS VPC to deploy this function into.",
+          "description": "VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).",
           "type": "string"
         }
       },
@@ -21,7 +71,11 @@
           "type": "string"
         },
         "functionName": {
-          "description": "The name of the Lambda function.",
+          "description": "The physical name of the Lambda function.",
+          "type": "string"
+        },
+        "functionUrl": {
+          "description": "The HTTPS endpoint URL when url: true. Empty string if URL is not enabled.",
           "type": "string"
         },
         "roleArn": {
@@ -35,11 +89,58 @@
         "roleArn"
       ],
       "requiredInputs": [
-        "name"
+        "runtime",
+        "handler"
       ]
     }
   },
   "types": {
+    "anvil:aws:LambdaArchitecture": {
+      "enum": [
+        {
+          "description": "Graviton — 20% cheaper, better performance. Default.",
+          "value": "arm64"
+        },
+        {
+          "description": "Intel/AMD — use for x86-specific native dependencies.",
+          "value": "x86_64"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:LambdaLogRetention": {
+      "enum": [
+        {
+          "description": "7 days",
+          "value": "7d"
+        },
+        {
+          "description": "30 days (1 month)",
+          "value": "30d"
+        },
+        {
+          "description": "90 days (3 months)",
+          "value": "90d"
+        },
+        {
+          "description": "1 year (365 days) — SOC 2 / ISO 27001 / PCI-DSS baseline. Default.",
+          "value": "1y"
+        },
+        {
+          "description": "3 years (1095 days) — FedRAMP minimum",
+          "value": "3y"
+        },
+        {
+          "description": "6 years (2190 days) — HIPAA minimum",
+          "value": "6y"
+        },
+        {
+          "description": "7 years (2555 days) — IRAP minimum",
+          "value": "7y"
+        }
+      ],
+      "type": "string"
+    },
     "anvil:aws:LambdaOverrides": {
       "properties": {
         "architectures": {
@@ -228,6 +329,37 @@
         }
       },
       "type": "object"
+    },
+    "anvil:aws:LambdaPermission": {
+      "properties": {
+        "actions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "path": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "pulumi.json#/Any",
+          "description": "ARN of the resource to grant access to. Accepts plain strings and Pulumi outputs."
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:LambdaRuntime": {
+      "enum": [
+        {
+          "description": "Node.js 24 (LTS) — recommended",
+          "value": "nodejs24.x"
+        },
+        {
+          "description": "Node.js 22 (LTS)",
+          "value": "nodejs22.x"
+        }
+      ],
+      "type": "string"
     },
     "anvil:aws:LambdaTransform": {
       "properties": {

@@ -33,9 +33,13 @@ export class Lambda extends pulumi.ComponentResource {
      */
     declare public /*out*/ readonly arn: pulumi.Output<string>;
     /**
-     * The name of the Lambda function.
+     * The physical name of the Lambda function.
      */
     declare public /*out*/ readonly functionName: pulumi.Output<string>;
+    /**
+     * The HTTPS endpoint URL when url: true. Empty string if URL is not enabled.
+     */
+    declare public /*out*/ readonly functionUrl: pulumi.Output<string | undefined>;
     /**
      * The ARN of the Lambda's IAM execution role.
      */
@@ -52,18 +56,34 @@ export class Lambda extends pulumi.ComponentResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if (args?.name === undefined && !opts.urn) {
-                throw new Error("Missing required property 'name'");
+            if (args?.handler === undefined && !opts.urn) {
+                throw new Error("Missing required property 'handler'");
             }
-            resourceInputs["name"] = args?.name;
+            if (args?.runtime === undefined && !opts.urn) {
+                throw new Error("Missing required property 'runtime'");
+            }
+            resourceInputs["architecture"] = args?.architecture;
+            resourceInputs["encryption"] = args?.encryption;
+            resourceInputs["entry"] = args?.entry;
+            resourceInputs["environment"] = args?.environment;
+            resourceInputs["handler"] = args?.handler;
+            resourceInputs["logRetention"] = args?.logRetention;
+            resourceInputs["memory"] = args?.memory;
+            resourceInputs["permissions"] = args?.permissions;
+            resourceInputs["runtime"] = args?.runtime;
+            resourceInputs["timeout"] = args?.timeout;
+            resourceInputs["tracing"] = args?.tracing;
             resourceInputs["transform"] = args?.transform;
+            resourceInputs["url"] = args?.url;
             resourceInputs["vpc"] = args?.vpc;
             resourceInputs["arn"] = undefined /*out*/;
             resourceInputs["functionName"] = undefined /*out*/;
+            resourceInputs["functionUrl"] = undefined /*out*/;
             resourceInputs["roleArn"] = undefined /*out*/;
         } else {
             resourceInputs["arn"] = undefined /*out*/;
             resourceInputs["functionName"] = undefined /*out*/;
+            resourceInputs["functionUrl"] = undefined /*out*/;
             resourceInputs["roleArn"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
@@ -100,12 +120,56 @@ export class Lambda extends pulumi.ComponentResource {
  */
 export interface LambdaArgs {
     /**
-     * The logical name of the Lambda function.
+     * CPU architecture. Default: arm64 (Graviton).
      */
-    name: pulumi.Input<string>;
+    architecture?: pulumi.Input<enums.aws.LambdaArchitecture>;
+    /**
+     * Upgrade environment variable encryption to SSE-KMS. Set to "kms" to enable. Incurs KMS API call cost. Required by HIPAA, PCI-DSS, FedRAMP. Supply kmsKeyArn via transform["lambda"].
+     */
+    encryption?: pulumi.Input<string>;
+    /**
+     * Path to the function's entry point file, relative to the project root. e.g. "functions/api/index.ts". Omit to deploy a blank Lambda placeholder.
+     */
+    entry?: pulumi.Input<string>;
+    /**
+     * Environment variables available to the function at runtime. Supports plain strings and Pulumi outputs.
+     */
+    environment?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * The exported function name in the entry file. e.g. "handler" for `export const handler = ...`
+     */
+    handler: pulumi.Input<string>;
+    /**
+     * CloudWatch log group retention period. Default: "1y" (satisfies SOC 2, ISO 27001, PCI-DSS baseline).
+     */
+    logRetention?: pulumi.Input<enums.aws.LambdaLogRetention>;
+    /**
+     * Memory in MB. Valid: 128 to 32768 in 1MB increments. Default: 1024.
+     */
+    memory?: pulumi.Input<number>;
+    /**
+     * Inline IAM permissions added to the execution role. Use for ad-hoc access not covered by the grant system.
+     */
+    permissions?: pulumi.Input<pulumi.Input<inputs.aws.LambdaPermissionArgs>[]>;
+    /**
+     * The Lambda runtime identifier.
+     */
+    runtime: pulumi.Input<enums.aws.LambdaRuntime>;
+    /**
+     * Timeout in seconds. Valid: 1 to 900. Default: 5.
+     */
+    timeout?: pulumi.Input<number>;
+    /**
+     * Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.
+     */
+    tracing?: pulumi.Input<boolean>;
     transform?: pulumi.Input<inputs.aws.LambdaTransformArgsArgs>;
     /**
-     * The ID of the AWS VPC to deploy this function into.
+     * Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
+     */
+    url?: pulumi.Input<boolean>;
+    /**
+     * VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).
      */
     vpc?: pulumi.Input<string>;
 }

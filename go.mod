@@ -1,6 +1,6 @@
 module github.com/DamienPace15/anvil
 
-go 1.25.6
+go 1.25.8
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.41.4
@@ -11,10 +11,16 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pulumi/pulumi-azure/sdk/v6 v6.33.0
 	github.com/pulumi/pulumi-go-provider v1.3.1
-	github.com/pulumi/pulumi/sdk/v3 v3.227.0
+	github.com/pulumi/pulumi/sdk/v3 v3.228.0
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/term v0.41.0
 	gopkg.in/yaml.v3 v3.0.1
+)
+
+require (
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 )
 
 require (
@@ -52,7 +58,7 @@ require (
 	github.com/charmbracelet/x/cellbuf v0.0.15 // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/cheggaaa/pb v1.0.29 // indirect
-	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
+	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/cloudflare/circl v1.6.3 // indirect
@@ -61,8 +67,9 @@ require (
 	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
+	github.com/evanw/esbuild v0.28.0
 	github.com/fatih/color v1.18.0 // indirect
-	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
 	github.com/go-git/go-billy/v5 v5.6.2 // indirect
 	github.com/go-git/go-git/v5 v5.16.5 // indirect

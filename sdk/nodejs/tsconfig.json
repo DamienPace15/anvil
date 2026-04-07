@@ -22,6 +22,7 @@
         "gcp/storageBucket.ts",
         "index.ts",
         "provider.ts",
+        "types/enums/aws/index.ts",
         "types/enums/index.ts",
         "types/index.ts",
         "types/input.ts",

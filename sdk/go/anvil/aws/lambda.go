@@ -17,8 +17,10 @@ type Lambda struct {
 
 	// The ARN of the Lambda function.
 	Arn pulumi.StringOutput `pulumi:"arn"`
-	// The name of the Lambda function.
+	// The physical name of the Lambda function.
 	FunctionName pulumi.StringOutput `pulumi:"functionName"`
+	// The HTTPS endpoint URL when url: true. Empty string if URL is not enabled.
+	FunctionUrl pulumi.StringPtrOutput `pulumi:"functionUrl"`
 	// The ARN of the Lambda's IAM execution role.
 	RoleArn pulumi.StringOutput `pulumi:"roleArn"`
 }
@@ -30,8 +32,11 @@ func NewLambda(ctx *pulumi.Context,
 		return nil, errors.New("missing one or more required arguments")
 	}
 
-	if args.Name == nil {
-		return nil, errors.New("invalid value for required argument 'Name'")
+	if args.Handler == nil {
+		return nil, errors.New("invalid value for required argument 'Handler'")
+	}
+	if args.Runtime == nil {
+		return nil, errors.New("invalid value for required argument 'Runtime'")
 	}
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource Lambda
@@ -43,19 +48,63 @@ func NewLambda(ctx *pulumi.Context,
 }
 
 type lambdaArgs struct {
-	// The logical name of the Lambda function.
-	Name      string               `pulumi:"name"`
+	// CPU architecture. Default: arm64 (Graviton).
+	Architecture *LambdaArchitecture `pulumi:"architecture"`
+	// Upgrade environment variable encryption to SSE-KMS. Set to "kms" to enable. Incurs KMS API call cost. Required by HIPAA, PCI-DSS, FedRAMP. Supply kmsKeyArn via transform["lambda"].
+	Encryption *string `pulumi:"encryption"`
+	// Path to the function's entry point file, relative to the project root. e.g. "functions/api/index.ts". Omit to deploy a blank Lambda placeholder.
+	Entry *string `pulumi:"entry"`
+	// Environment variables available to the function at runtime. Supports plain strings and Pulumi outputs.
+	Environment map[string]string `pulumi:"environment"`
+	// The exported function name in the entry file. e.g. "handler" for `export const handler = ...`
+	Handler string `pulumi:"handler"`
+	// CloudWatch log group retention period. Default: "1y" (satisfies SOC 2, ISO 27001, PCI-DSS baseline).
+	LogRetention *LambdaLogRetention `pulumi:"logRetention"`
+	// Memory in MB. Valid: 128 to 32768 in 1MB increments. Default: 1024.
+	Memory *int `pulumi:"memory"`
+	// Inline IAM permissions added to the execution role. Use for ad-hoc access not covered by the grant system.
+	Permissions []LambdaPermission `pulumi:"permissions"`
+	// The Lambda runtime identifier.
+	Runtime LambdaRuntime `pulumi:"runtime"`
+	// Timeout in seconds. Valid: 1 to 900. Default: 5.
+	Timeout *int `pulumi:"timeout"`
+	// Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.
+	Tracing   *bool                `pulumi:"tracing"`
 	Transform *LambdaTransformArgs `pulumi:"transform"`
-	// The ID of the AWS VPC to deploy this function into.
+	// Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
+	Url *bool `pulumi:"url"`
+	// VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).
 	Vpc *string `pulumi:"vpc"`
 }
 
 // The set of arguments for constructing a Lambda resource.
 type LambdaArgs struct {
-	// The logical name of the Lambda function.
-	Name      pulumi.StringInput
+	// CPU architecture. Default: arm64 (Graviton).
+	Architecture LambdaArchitecturePtrInput
+	// Upgrade environment variable encryption to SSE-KMS. Set to "kms" to enable. Incurs KMS API call cost. Required by HIPAA, PCI-DSS, FedRAMP. Supply kmsKeyArn via transform["lambda"].
+	Encryption pulumi.StringPtrInput
+	// Path to the function's entry point file, relative to the project root. e.g. "functions/api/index.ts". Omit to deploy a blank Lambda placeholder.
+	Entry pulumi.StringPtrInput
+	// Environment variables available to the function at runtime. Supports plain strings and Pulumi outputs.
+	Environment pulumi.StringMapInput
+	// The exported function name in the entry file. e.g. "handler" for `export const handler = ...`
+	Handler pulumi.StringInput
+	// CloudWatch log group retention period. Default: "1y" (satisfies SOC 2, ISO 27001, PCI-DSS baseline).
+	LogRetention LambdaLogRetentionPtrInput
+	// Memory in MB. Valid: 128 to 32768 in 1MB increments. Default: 1024.
+	Memory pulumi.IntPtrInput
+	// Inline IAM permissions added to the execution role. Use for ad-hoc access not covered by the grant system.
+	Permissions LambdaPermissionArrayInput
+	// The Lambda runtime identifier.
+	Runtime LambdaRuntimeInput
+	// Timeout in seconds. Valid: 1 to 900. Default: 5.
+	Timeout pulumi.IntPtrInput
+	// Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.
+	Tracing   pulumi.BoolPtrInput
 	Transform LambdaTransformArgsPtrInput
-	// The ID of the AWS VPC to deploy this function into.
+	// Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
+	Url pulumi.BoolPtrInput
+	// VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).
 	Vpc pulumi.StringPtrInput
 }
 
@@ -151,9 +200,14 @@ func (o LambdaOutput) Arn() pulumi.StringOutput {
 	return o.ApplyT(func(v *Lambda) pulumi.StringOutput { return v.Arn }).(pulumi.StringOutput)
 }
 
-// The name of the Lambda function.
+// The physical name of the Lambda function.
 func (o LambdaOutput) FunctionName() pulumi.StringOutput {
 	return o.ApplyT(func(v *Lambda) pulumi.StringOutput { return v.FunctionName }).(pulumi.StringOutput)
+}
+
+// The HTTPS endpoint URL when url: true. Empty string if URL is not enabled.
+func (o LambdaOutput) FunctionUrl() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Lambda) pulumi.StringPtrOutput { return v.FunctionUrl }).(pulumi.StringPtrOutput)
 }
 
 // The ARN of the Lambda's IAM execution role.

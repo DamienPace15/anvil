@@ -4206,6 +4206,115 @@ func (o LambdaOverridesPtrOutput) VpcConfig() lambda.FunctionVpcConfigPtrOutput 
 	}).(lambda.FunctionVpcConfigPtrOutput)
 }
 
+type LambdaPermission struct {
+	Actions []string `pulumi:"actions"`
+	Path    *string  `pulumi:"path"`
+	// ARN of the resource to grant access to. Accepts plain strings and Pulumi outputs.
+	Resource interface{} `pulumi:"resource"`
+}
+
+// LambdaPermissionInput is an input type that accepts LambdaPermissionArgs and LambdaPermissionOutput values.
+// You can construct a concrete instance of `LambdaPermissionInput` via:
+//
+//	LambdaPermissionArgs{...}
+type LambdaPermissionInput interface {
+	pulumi.Input
+
+	ToLambdaPermissionOutput() LambdaPermissionOutput
+	ToLambdaPermissionOutputWithContext(context.Context) LambdaPermissionOutput
+}
+
+type LambdaPermissionArgs struct {
+	Actions pulumi.StringArrayInput `pulumi:"actions"`
+	Path    pulumi.StringPtrInput   `pulumi:"path"`
+	// ARN of the resource to grant access to. Accepts plain strings and Pulumi outputs.
+	Resource pulumi.Input `pulumi:"resource"`
+}
+
+func (LambdaPermissionArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LambdaPermission)(nil)).Elem()
+}
+
+func (i LambdaPermissionArgs) ToLambdaPermissionOutput() LambdaPermissionOutput {
+	return i.ToLambdaPermissionOutputWithContext(context.Background())
+}
+
+func (i LambdaPermissionArgs) ToLambdaPermissionOutputWithContext(ctx context.Context) LambdaPermissionOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(LambdaPermissionOutput)
+}
+
+// LambdaPermissionArrayInput is an input type that accepts LambdaPermissionArray and LambdaPermissionArrayOutput values.
+// You can construct a concrete instance of `LambdaPermissionArrayInput` via:
+//
+//	LambdaPermissionArray{ LambdaPermissionArgs{...} }
+type LambdaPermissionArrayInput interface {
+	pulumi.Input
+
+	ToLambdaPermissionArrayOutput() LambdaPermissionArrayOutput
+	ToLambdaPermissionArrayOutputWithContext(context.Context) LambdaPermissionArrayOutput
+}
+
+type LambdaPermissionArray []LambdaPermissionInput
+
+func (LambdaPermissionArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]LambdaPermission)(nil)).Elem()
+}
+
+func (i LambdaPermissionArray) ToLambdaPermissionArrayOutput() LambdaPermissionArrayOutput {
+	return i.ToLambdaPermissionArrayOutputWithContext(context.Background())
+}
+
+func (i LambdaPermissionArray) ToLambdaPermissionArrayOutputWithContext(ctx context.Context) LambdaPermissionArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(LambdaPermissionArrayOutput)
+}
+
+type LambdaPermissionOutput struct{ *pulumi.OutputState }
+
+func (LambdaPermissionOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LambdaPermission)(nil)).Elem()
+}
+
+func (o LambdaPermissionOutput) ToLambdaPermissionOutput() LambdaPermissionOutput {
+	return o
+}
+
+func (o LambdaPermissionOutput) ToLambdaPermissionOutputWithContext(ctx context.Context) LambdaPermissionOutput {
+	return o
+}
+
+func (o LambdaPermissionOutput) Actions() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v LambdaPermission) []string { return v.Actions }).(pulumi.StringArrayOutput)
+}
+
+func (o LambdaPermissionOutput) Path() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v LambdaPermission) *string { return v.Path }).(pulumi.StringPtrOutput)
+}
+
+// ARN of the resource to grant access to. Accepts plain strings and Pulumi outputs.
+func (o LambdaPermissionOutput) Resource() pulumi.AnyOutput {
+	return o.ApplyT(func(v LambdaPermission) interface{} { return v.Resource }).(pulumi.AnyOutput)
+}
+
+type LambdaPermissionArrayOutput struct{ *pulumi.OutputState }
+
+func (LambdaPermissionArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]LambdaPermission)(nil)).Elem()
+}
+
+func (o LambdaPermissionArrayOutput) ToLambdaPermissionArrayOutput() LambdaPermissionArrayOutput {
+	return o
+}
+
+func (o LambdaPermissionArrayOutput) ToLambdaPermissionArrayOutputWithContext(ctx context.Context) LambdaPermissionArrayOutput {
+	return o
+}
+
+func (o LambdaPermissionArrayOutput) Index(i pulumi.IntInput) LambdaPermissionOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) LambdaPermission {
+		return vs[0].([]LambdaPermission)[vs[1].(int)]
+	}).(LambdaPermissionOutput)
+}
+
 type LambdaTransform struct {
 	// Instruction set architecture for your Lambda function. Valid values are `[<span pulumi-lang-nodejs=""x8664"" pulumi-lang-dotnet=""X8664"" pulumi-lang-go=""x8664"" pulumi-lang-python=""x86_64"" pulumi-lang-yaml=""x8664"" pulumi-lang-java=""x8664"">"x86_64"</span>]` and `["arm64"]`. Default is `[<span pulumi-lang-nodejs=""x8664"" pulumi-lang-dotnet=""X8664"" pulumi-lang-go=""x8664"" pulumi-lang-python=""x86_64"" pulumi-lang-yaml=""x8664"" pulumi-lang-java=""x8664"">"x86_64"</span>]`. Removing this attribute, function's architecture stays the same.
 	Architectures []string `pulumi:"architectures"`
@@ -4726,6 +4835,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketWebsiteConfigurationTransformPtrInput)(nil)).Elem(), BucketWebsiteConfigurationTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaOverridesInput)(nil)).Elem(), LambdaOverridesArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaOverridesPtrInput)(nil)).Elem(), LambdaOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*LambdaPermissionInput)(nil)).Elem(), LambdaPermissionArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*LambdaPermissionArrayInput)(nil)).Elem(), LambdaPermissionArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaTransformArgsInput)(nil)).Elem(), LambdaTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaTransformArgsPtrInput)(nil)).Elem(), LambdaTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformInput)(nil)).Elem(), PABTransformArgs{})
@@ -4760,6 +4871,8 @@ func init() {
 	pulumi.RegisterOutputType(BucketWebsiteConfigurationTransformPtrOutput{})
 	pulumi.RegisterOutputType(LambdaOverridesOutput{})
 	pulumi.RegisterOutputType(LambdaOverridesPtrOutput{})
+	pulumi.RegisterOutputType(LambdaPermissionOutput{})
+	pulumi.RegisterOutputType(LambdaPermissionArrayOutput{})
 	pulumi.RegisterOutputType(LambdaTransformArgsOutput{})
 	pulumi.RegisterOutputType(LambdaTransformArgsPtrOutput{})
 	pulumi.RegisterOutputType(PABTransformOutput{})

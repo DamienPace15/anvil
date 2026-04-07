@@ -21,6 +21,9 @@ export const SvelteKitSite: typeof import("./svelteKitSite").SvelteKitSite = nul
 utilities.lazyLoad(exports, ["SvelteKitSite"], () => require("./svelteKitSite"));
 
 
+// Export enums:
+export * from "../types/enums/aws";
+
 const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
