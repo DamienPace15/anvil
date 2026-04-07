@@ -13,6 +13,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from .. import _utilities
+from ._enums import *
 import pulumi_aws
 
 __all__ = [
@@ -46,6 +47,8 @@ __all__ = [
     'BucketWebsiteConfigurationTransformArgsDict',
     'LambdaOverridesArgs',
     'LambdaOverridesArgsDict',
+    'LambdaPermissionArgs',
+    'LambdaPermissionArgsDict',
     'LambdaTransformArgsArgs',
     'LambdaTransformArgsArgsDict',
     'PABTransformArgs',
@@ -2593,6 +2596,61 @@ class LambdaOverridesArgs:
     @vpc_config.setter
     def vpc_config(self, value: Optional[pulumi.Input['pulumi_aws.lambda_.FunctionVpcConfigArgs']]):
         pulumi.set(self, "vpc_config", value)
+
+
+class LambdaPermissionArgsDict(TypedDict):
+    actions: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    path: NotRequired[pulumi.Input[_builtins.str]]
+    resource: NotRequired[Any]
+    """
+    ARN of the resource to grant access to. Accepts plain strings and Pulumi outputs.
+    """
+
+@pulumi.input_type
+class LambdaPermissionArgs:
+    def __init__(__self__, *,
+                 actions: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 path: Optional[pulumi.Input[_builtins.str]] = None,
+                 resource: Optional[Any] = None):
+        """
+        :param Any resource: ARN of the resource to grant access to. Accepts plain strings and Pulumi outputs.
+        """
+        if actions is not None:
+            pulumi.set(__self__, "actions", actions)
+        if path is not None:
+            pulumi.set(__self__, "path", path)
+        if resource is not None:
+            pulumi.set(__self__, "resource", resource)
+
+    @_builtins.property
+    @pulumi.getter
+    def actions(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        return pulumi.get(self, "actions")
+
+    @actions.setter
+    def actions(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "actions", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def path(self) -> Optional[pulumi.Input[_builtins.str]]:
+        return pulumi.get(self, "path")
+
+    @path.setter
+    def path(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "path", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def resource(self) -> Optional[Any]:
+        """
+        ARN of the resource to grant access to. Accepts plain strings and Pulumi outputs.
+        """
+        return pulumi.get(self, "resource")
+
+    @resource.setter
+    def resource(self, value: Optional[Any]):
+        pulumi.set(self, "resource", value)
 
 
 class LambdaTransformArgsArgsDict(TypedDict):

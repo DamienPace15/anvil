@@ -10,8 +10,10 @@ import (
 )
 
 var (
-	deployStage   string
-	deployVerbose bool
+	deployStage      string
+	deployVerbose    bool
+	deployPartial    bool
+	deployForceCache bool
 )
 
 var deployCmd = &cobra.Command{
@@ -24,14 +26,25 @@ var deployCmd = &cobra.Command{
 func init() {
 	deployCmd.Flags().StringVar(&deployStage, "stage", "", "Stage name for this deployment")
 	deployCmd.Flags().BoolVar(&deployVerbose, "verbose", false, "Show underlying cloud resources")
+	deployCmd.Flags().BoolVar(&deployPartial, "partial", false, "Deploy successfully built functions even if some builds fail")
+	deployCmd.Flags().BoolVar(&deployForceCache, "force-cache", false, "Skip rebuild and use last cached build artifacts")
 	rootCmd.AddCommand(deployCmd)
 }
 
 func runDeploy(cmd *cobra.Command, args []string) error {
 	stage := resolveStage(deployStage)
-
 	ctx := context.Background()
 
+	// ── Step 1: Discover Lambda functions ─────────────
+	// Runs the program with ANVIL_BUILD_MODE=true using a separate
+	// stack instance so the real deploy stack is never contaminated.
+	// Makes no AWS API calls — purely a manifest discovery step.
+	functions, err := discoverFunctions(ctx, stage)
+	if err != nil {
+		return fmt.Errorf("function discovery failed: %w", err)
+	}
+
+	// ── Step 2: Load real deploy stack ────────────────
 	s, err := loadStack(ctx, stage)
 	if err != nil {
 		return err
@@ -40,6 +53,34 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 	printBanner()
 	fmt.Printf("  Deploying to %s...\n\n", stage)
 
+	// ── Step 3: Build functions ────────────────────────
+	// Bundle each discovered function and collect the zip paths.
+	// Skips rebuild if source hash matches cached hash (unless --force-cache).
+	if len(functions) > 0 {
+		fmt.Printf("  📦 Building %d Lambda function(s)...\n\n", len(functions))
+
+		artifacts, buildErrors := buildFunctions(functions, deployForceCache, deployPartial)
+
+		// Surface build errors
+		if len(buildErrors) > 0 {
+			for _, e := range buildErrors {
+				fmt.Printf("  ❌ Build failed: %s\n", e)
+			}
+			if !deployPartial {
+				return fmt.Errorf("build failed — use --partial to deploy successfully built functions, or --force-cache to skip rebuild")
+			}
+			fmt.Printf("\n  ⚠️  --partial: deploying %d successfully built function(s), skipping %d failed\n\n",
+				len(artifacts), len(buildErrors))
+		}
+
+		// ── Step 4: Set artifact paths in Pulumi config ─
+		// Provider reads anvil:fn:{name} to locate the zip during deploy.
+		if err := setFunctionArtifacts(ctx, s, artifacts); err != nil {
+			return fmt.Errorf("failed to set function artifacts: %w", err)
+		}
+	}
+
+	// ── Step 5: Real deploy ────────────────────────────
 	handler := NewEventHandler(deployVerbose, "deploy")
 	eventCh := make(chan events.EngineEvent)
 
