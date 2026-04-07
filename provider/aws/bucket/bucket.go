@@ -172,8 +172,8 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 
 	encProps := transform.MergeTransform(args.Transform["serverSideEncryptionConfiguration"], pulumi.Map{
 		"bucket": res.ID(),
-		"serverSideEncryptionConfiguration": pulumi.Map{
-			"rule": pulumi.Map{
+		"rules": pulumi.Array{
+			pulumi.Map{
 				"applyServerSideEncryptionByDefault": pulumi.Map{
 					"sseAlgorithm": pulumi.String(sseAlgorithm),
 				},
@@ -181,6 +181,7 @@ func NewBucket(ctx *pulumi.Context, name string, args BucketArgs, opts ...pulumi
 			},
 		},
 	})
+
 	err = ctx.RegisterResource("aws:s3/bucketServerSideEncryptionConfigurationV2:BucketServerSideEncryptionConfigurationV2", name+"-enc", encProps, &s3.BucketServerSideEncryptionConfigurationV2{}, pulumi.Parent(b))
 	if err != nil {
 		return nil, err

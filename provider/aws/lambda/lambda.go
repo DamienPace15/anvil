@@ -191,7 +191,7 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 	cfg := c.New(ctx, "anvil")
 	stage := cfg.Require("stage")
 	stageId := cfg.Require("stageId")
-	zipPath := cfg.Get(fmt.Sprintf("fn:%s", name))
+	zipPath := cfg.Get(fmt.Sprintf("fn-%s", name))
 
 	physicalName := provider.PhysicalName(stage, name, "lambda", stageId)
 

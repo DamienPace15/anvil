@@ -182,7 +182,7 @@ func setFunctionArtifacts(ctx context.Context, s auto.Stack, artifacts map[strin
 		if err != nil {
 			return fmt.Errorf("failed to resolve zip path for %s: %w", name, err)
 		}
-		key := fmt.Sprintf("anvil:fn:%s", name)
+		key := fmt.Sprintf("anvil:fn-%s", name)
 		if err := s.SetConfig(ctx, key, auto.ConfigValue{Value: absPath}); err != nil {
 			return fmt.Errorf("failed to set artifact config for %s: %w", name, err)
 		}
