@@ -42,23 +42,32 @@ func SetupCustomDomain(ctx *pulumi.Context, parent pulumi.Resource, name string,
 		return nil, err
 	}
 
-	dnsInstructions := cert.DomainValidationOptions.ApplyT(func(opts []acm.CertificateDomainValidationOption) string {
+	dnsInstructions := pulumi.All(cert.DomainValidationOptions, cert.Status).ApplyT(func(args []interface{}) string {
+		opts := args[0].([]acm.CertificateDomainValidationOption)
+		status := args[1].(string)
+
+		ctx.Log.Warn(fmt.Sprintf("DEBUG cert status for %s: %q", domain, status), nil) // temp
+
 		if len(opts) == 0 {
 			return ""
 		}
+
 		var instructions []string
 		for _, opt := range opts {
 			if opt.ResourceRecordName != nil && opt.ResourceRecordValue != nil && opt.ResourceRecordType != nil {
 				instructions = append(instructions, fmt.Sprintf("  %s  Name: %s  Value: %s",
 					*opt.ResourceRecordType, *opt.ResourceRecordName, *opt.ResourceRecordValue))
 
-				ctx.Log.Warn(fmt.Sprintf(
-					"\n⏳ Add this DNS record to validate your certificate for %s:\n"+
-						"   Type:  %s\n"+
-						"   Name:  %s\n"+
-						"   Value: %s\n"+
-						"   Deploy will continue automatically once the record is detected.\n",
-					domain, *opt.ResourceRecordType, *opt.ResourceRecordName, *opt.ResourceRecordValue), nil)
+				// Only warn when the cert has not yet been validated.
+				if status != "ISSUED" {
+					ctx.Log.Warn(fmt.Sprintf(
+						"\n⚠ ⏳ Add this DNS record to validate your certificate for %s:\n"+
+							"   Type:  %s\n"+
+							"   Name:  %s\n"+
+							"   Value: %s\n"+
+							"   Deploy will continue automatically once the record is detected.\n",
+						domain, *opt.ResourceRecordType, *opt.ResourceRecordName, *opt.ResourceRecordValue), nil)
+				}
 			}
 		}
 		if len(instructions) == 0 {

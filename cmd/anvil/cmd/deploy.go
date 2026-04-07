@@ -57,7 +57,7 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 	// Bundle each discovered function and collect the zip paths.
 	// Skips rebuild if source hash matches cached hash (unless --force-cache).
 	if len(functions) > 0 {
-		fmt.Printf("  📦 Building %d Lambda function(s)...\n\n", len(functions))
+		fmt.Printf("Building %d Lambda function(s)...\n\n", len(functions))
 
 		artifacts, buildErrors := buildFunctions(functions, deployForceCache, deployPartial)
 

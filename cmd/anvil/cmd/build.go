@@ -94,9 +94,6 @@ func discoverFunctions(ctx context.Context, stage string) ([]FunctionSpec, error
 		}
 	}
 
-	// ── Run preview in build mode ──────────────────────
-	fmt.Println("  🔍 Discovering Lambda functions...")
-
 	_, err = discoveryStack.Preview(ctx,
 		optpreview.SuppressProgress(),
 		optpreview.SuppressOutputs(),
