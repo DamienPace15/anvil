@@ -14,6 +14,7 @@ var (
 	deployVerbose    bool
 	deployPartial    bool
 	deployForceCache bool
+	deployRefresh    bool
 )
 
 var deployCmd = &cobra.Command{
@@ -28,6 +29,7 @@ func init() {
 	deployCmd.Flags().BoolVar(&deployVerbose, "verbose", false, "Show underlying cloud resources")
 	deployCmd.Flags().BoolVar(&deployPartial, "partial", false, "Deploy successfully built functions even if some builds fail")
 	deployCmd.Flags().BoolVar(&deployForceCache, "force-cache", false, "Skip rebuild and use last cached build artifacts")
+	deployCmd.Flags().BoolVar(&deployRefresh, "refresh", false, "Refresh state from cloud before deploying")
 	rootCmd.AddCommand(deployCmd)
 }
 
@@ -90,7 +92,12 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 		}
 	}()
 
-	_, err = s.Up(ctx, optup.EventStreams(eventCh))
+	upOpts := []optup.Option{optup.EventStreams(eventCh)}
+	if deployRefresh {
+		upOpts = append(upOpts, optup.Refresh())
+	}
+
+	_, err = s.Up(ctx, upOpts...)
 
 	handler.PrintSummary(stage)
 
