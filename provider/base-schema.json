@@ -1,6 +1,6 @@
 {
   "name": "anvil",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "language": {
     "nodejs": {
       "packageName": "@anvil-cloud/sdk",
