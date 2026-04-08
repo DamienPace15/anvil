@@ -17,7 +17,7 @@ const defaultBackendURL = "file://~/.anvil-state"
 const defaultRegion = "ap-southeast-2"
 
 // resolveStage determines the effective stage.
-// Priority: explicit flag → active stage from anvil.yaml → "dev"
+// Priority: explicit flag → active stage from anvil.yaml → OS username → "dev"
 func resolveStage(flagValue string) string {
 	if flagValue != "" {
 		return flagValue
@@ -157,7 +157,6 @@ func ensureBootstrapped(_ context.Context, stage string) error {
 
 // loadStack creates or selects a stack using the Automation API.
 func loadStack(ctx context.Context, stage string) (auto.Stack, error) {
-	// Detect project root and runtime
 	projectRoot, err := findProjectRoot()
 	if err != nil {
 		return auto.Stack{}, err
@@ -170,13 +169,11 @@ func loadStack(ctx context.Context, stage string) (auto.Stack, error) {
 
 	projectName := resolveProjectName(projectRoot)
 
-	// Write Pulumi.yaml to .anvil/ before anything else.
 	workDir, err := writeProjectFile(projectRoot, projectName, rt)
 	if err != nil {
 		return auto.Stack{}, err
 	}
 
-	// Bootstrap after project file exists so the project name can be resolved.
 	if err := ensureBootstrapped(ctx, stage); err != nil {
 		return auto.Stack{}, err
 	}
@@ -194,7 +191,6 @@ func loadStack(ctx context.Context, stage string) (auto.Stack, error) {
 			"PATH":                     pluginDir + ":" + os.Getenv("PATH"),
 		}),
 	)
-
 	if err != nil {
 		return auto.Stack{}, fmt.Errorf("%s", mapError(err.Error()))
 	}
@@ -208,9 +204,12 @@ func loadStack(ctx context.Context, stage string) (auto.Stack, error) {
 
 	anvilConfig, _ := loadAnvilConfig()
 	stageId := ""
+	loggingBucket := ""
 	if sc, ok := anvilConfig.Stages[stage]; ok {
 		stageId = sc.ID
+		loggingBucket = sc.LoggingBucket
 	}
+
 	if err := s.SetConfig(ctx, "anvil:stageId", auto.ConfigValue{Value: stageId}); err != nil {
 		return auto.Stack{}, fmt.Errorf("failed to set anvil:stageId: %w", err)
 	}
@@ -220,13 +219,18 @@ func loadStack(ctx context.Context, stage string) (auto.Stack, error) {
 		return auto.Stack{}, fmt.Errorf("failed to set anvil:environment: %w", err)
 	}
 
+	if loggingBucket != "" {
+		if err := s.SetConfig(ctx, "anvil:loggingBucket", auto.ConfigValue{Value: loggingBucket}); err != nil {
+			return auto.Stack{}, fmt.Errorf("failed to set anvil:loggingBucket: %w", err)
+		}
+	}
+
 	return s, nil
 }
 
 // loadStackNoBootstrap loads a stack without auto-bootstrapping.
 // Used by destroy — it shouldn't create infrastructure to tear it down.
 func loadStackNoBootstrap(ctx context.Context, stage string) (auto.Stack, error) {
-	// Detect project root and runtime
 	projectRoot, err := findProjectRoot()
 	if err != nil {
 		return auto.Stack{}, err
@@ -239,7 +243,6 @@ func loadStackNoBootstrap(ctx context.Context, stage string) (auto.Stack, error)
 
 	projectName := resolveProjectName(projectRoot)
 
-	// Write Pulumi.yaml to .anvil/
 	workDir, err := writeProjectFile(projectRoot, projectName, rt)
 	if err != nil {
 		return auto.Stack{}, err
@@ -262,7 +265,6 @@ func loadStackNoBootstrap(ctx context.Context, stage string) (auto.Stack, error)
 			"PATH":                     pluginDir + ":" + os.Getenv("PATH"),
 		}),
 	)
-
 	if err != nil {
 		return auto.Stack{}, fmt.Errorf("%s", mapError(err.Error()))
 	}
@@ -276,9 +278,12 @@ func loadStackNoBootstrap(ctx context.Context, stage string) (auto.Stack, error)
 
 	anvilConfig, _ := loadAnvilConfig()
 	stageId := ""
+	loggingBucket := ""
 	if sc, ok := anvilConfig.Stages[stage]; ok {
 		stageId = sc.ID
+		loggingBucket = sc.LoggingBucket
 	}
+
 	if err := s.SetConfig(ctx, "anvil:stageId", auto.ConfigValue{Value: stageId}); err != nil {
 		return auto.Stack{}, fmt.Errorf("failed to set anvil:stageId: %w", err)
 	}
@@ -286,6 +291,12 @@ func loadStackNoBootstrap(ctx context.Context, stage string) (auto.Stack, error)
 	env := resolveEnvironmentForStage(stage)
 	if err := s.SetConfig(ctx, "anvil:environment", auto.ConfigValue{Value: env}); err != nil {
 		return auto.Stack{}, fmt.Errorf("failed to set anvil:environment: %w", err)
+	}
+
+	if loggingBucket != "" {
+		if err := s.SetConfig(ctx, "anvil:loggingBucket", auto.ConfigValue{Value: loggingBucket}); err != nil {
+			return auto.Stack{}, fmt.Errorf("failed to set anvil:loggingBucket: %w", err)
+		}
 	}
 
 	return s, nil
