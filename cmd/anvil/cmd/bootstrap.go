@@ -499,7 +499,17 @@ func setupLoggingInfrastructure(ctx context.Context, cfg aws.Config, accountId, 
 	}
 
 	// ── CloudTrail ──
-	// Check for an existing trail first — CloudTrail is free for one trail per region.
+
+	// Honour user-specified existing trail in anvil.yaml
+	anvilCfg, configErr := loadAnvilConfig()
+	if configErr == nil {
+		if sc, ok := anvilCfg.Stages[bootstrapStage]; ok && sc.ExistingTrailArn != "" {
+			printCheck(fmt.Sprintf("Using existing CloudTrail trail (from anvil.yaml): %s", sc.ExistingTrailArn))
+			return loggingBucket, sc.ExistingTrailArn, nil
+		}
+	}
+
+	// Check for any existing trail — CloudTrail is free for one trail per region.
 	describeOut, err := ctClient.DescribeTrails(ctx, &cloudtrail.DescribeTrailsInput{
 		IncludeShadowTrails: aws.Bool(false),
 	})
