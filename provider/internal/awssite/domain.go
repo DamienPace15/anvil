@@ -46,8 +46,6 @@ func SetupCustomDomain(ctx *pulumi.Context, parent pulumi.Resource, name string,
 		opts := args[0].([]acm.CertificateDomainValidationOption)
 		status := args[1].(string)
 
-		ctx.Log.Warn(fmt.Sprintf("DEBUG cert status for %s: %q", domain, status), nil) // temp
-
 		if len(opts) == 0 {
 			return ""
 		}

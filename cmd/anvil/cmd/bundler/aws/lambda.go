@@ -3,7 +3,6 @@ package aws
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/DamienPace15/anvil/cmd/anvil/cmd/bundler"
 )
@@ -48,9 +47,9 @@ func BuildLambda(functionName, entryPoint, architecture string, forceCache bool)
 		needsRebuild, err := bundler.NeedsRebuild(functionName, sourceDir)
 		if err != nil {
 			// Hash failure is non-fatal — rebuild to be safe
-			fmt.Printf("  ⚠️  Cache check failed for %s, rebuilding: %v\n", functionName, err)
+			fmt.Printf("Cache check failed for %s, rebuilding: %v\n", functionName, err)
 		} else if !needsRebuild {
-			fmt.Printf("  ✓  %s — no changes detected, using cached build\n", functionName)
+			fmt.Printf("%s — no changes detected, using cached build\n", functionName)
 			return &BuildResult{
 				FunctionName: functionName,
 				ZipPath:      zipPath,
@@ -101,9 +100,4 @@ func BuildLambda(functionName, entryPoint, architecture string, forceCache bool)
 		FunctionName: functionName,
 		ZipPath:      zipPath,
 	}, nil
-}
-
-// isNodeRuntime returns true for Node.js runtime identifiers.
-func isNodeRuntime(runtime string) bool {
-	return strings.HasPrefix(runtime, "nodejs")
 }
