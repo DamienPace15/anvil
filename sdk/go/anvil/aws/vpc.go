@@ -14,13 +14,17 @@ import (
 type Vpc struct {
 	pulumi.ResourceState
 
-	// The resolved Availability Zone names deployed into, e.g. ['ap-southeast-2a', 'ap-southeast-2b']. Downstream components (RDS Multi-AZ, ECS spread) consume this directly.
+	// The resolved Availability Zone names, e.g. ['ap-southeast-2a']. Consumed by RDS Multi-AZ, ECS spread, and other downstream components.
 	AvailabilityZones pulumi.StringArrayOutput `pulumi:"availabilityZones"`
-	// The ID of the VPC's default security group. All rules have been removed — not used by Anvil components but exposed for reference.
+	// The EC2 instance ID of the bastion host. Use with: aws ssm start-session --target <bastionInstanceId>. Only populated when bastion is enabled.
+	BastionInstanceId pulumi.StringPtrOutput `pulumi:"bastionInstanceId"`
+	// The security group ID of the bastion host. Use to grant the bastion access to private resources, e.g. db.grant(network.bastion, { access: 'readWrite' }). Only populated when bastion is enabled.
+	BastionSecurityGroupId pulumi.StringPtrOutput `pulumi:"bastionSecurityGroupId"`
+	// The ID of the VPC default security group. All rules removed — not used by Anvil components.
 	DefaultSecurityGroupId pulumi.StringOutput `pulumi:"defaultSecurityGroupId"`
-	// The IDs of the private subnets, one per Availability Zone. Used by Lambda, ECS tasks, EC2 instances, and RDS.
+	// The IDs of the private subnets, one per AZ. Used by Lambda, ECS tasks, EC2, and RDS.
 	PrivateSubnetIds pulumi.StringArrayOutput `pulumi:"privateSubnetIds"`
-	// The IDs of the public subnets, one per Availability Zone. Used by load balancers, NAT Gateways, and bastion hosts.
+	// The IDs of the public subnets, one per AZ. Used by load balancers, NAT Gateways, and the bastion host.
 	PublicSubnetIds pulumi.StringArrayOutput `pulumi:"publicSubnetIds"`
 	// The ID of the VPC.
 	VpcId pulumi.StringOutput `pulumi:"vpcId"`
@@ -43,21 +47,25 @@ func NewVpc(ctx *pulumi.Context,
 }
 
 type vpcArgs struct {
-	// Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Set to 3 for production high-availability workloads. Inherits from App.defaults.availability when not set — 'high' maps to 3, 'low' maps to 1.
+	// Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Inherits from App.defaults.availability — 'high' maps to 3, 'low' maps to 1.
 	AvailabilityZones *int `pulumi:"availabilityZones"`
+	// Optional SSM bastion host for private network access. No SSH, no port 22 — access via AWS SSM Session Manager only. Use to connect to RDS, ElastiCache, and other private resources locally.
+	Bastion *VpcBastionArgs `pulumi:"bastion"`
 	// The IPv4 CIDR block for the VPC. Default: '10.0.0.0/16'. Public subnets carved from offset 0 (/24 each), private subnets from offset 10 (/24 each).
 	Cidr *string `pulumi:"cidr"`
-	// Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC with no outbound internet.
+	// Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC.
 	Nat *VpcNatArgs `pulumi:"nat"`
 }
 
 // The set of arguments for constructing a Vpc resource.
 type VpcArgs struct {
-	// Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Set to 3 for production high-availability workloads. Inherits from App.defaults.availability when not set — 'high' maps to 3, 'low' maps to 1.
+	// Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Inherits from App.defaults.availability — 'high' maps to 3, 'low' maps to 1.
 	AvailabilityZones pulumi.IntPtrInput
+	// Optional SSM bastion host for private network access. No SSH, no port 22 — access via AWS SSM Session Manager only. Use to connect to RDS, ElastiCache, and other private resources locally.
+	Bastion VpcBastionArgsPtrInput
 	// The IPv4 CIDR block for the VPC. Default: '10.0.0.0/16'. Public subnets carved from offset 0 (/24 each), private subnets from offset 10 (/24 each).
 	Cidr pulumi.StringPtrInput
-	// Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC with no outbound internet.
+	// Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC.
 	Nat VpcNatArgsPtrInput
 }
 
@@ -148,22 +156,32 @@ func (o VpcOutput) ToVpcOutputWithContext(ctx context.Context) VpcOutput {
 	return o
 }
 
-// The resolved Availability Zone names deployed into, e.g. ['ap-southeast-2a', 'ap-southeast-2b']. Downstream components (RDS Multi-AZ, ECS spread) consume this directly.
+// The resolved Availability Zone names, e.g. ['ap-southeast-2a']. Consumed by RDS Multi-AZ, ECS spread, and other downstream components.
 func (o VpcOutput) AvailabilityZones() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *Vpc) pulumi.StringArrayOutput { return v.AvailabilityZones }).(pulumi.StringArrayOutput)
 }
 
-// The ID of the VPC's default security group. All rules have been removed — not used by Anvil components but exposed for reference.
+// The EC2 instance ID of the bastion host. Use with: aws ssm start-session --target <bastionInstanceId>. Only populated when bastion is enabled.
+func (o VpcOutput) BastionInstanceId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Vpc) pulumi.StringPtrOutput { return v.BastionInstanceId }).(pulumi.StringPtrOutput)
+}
+
+// The security group ID of the bastion host. Use to grant the bastion access to private resources, e.g. db.grant(network.bastion, { access: 'readWrite' }). Only populated when bastion is enabled.
+func (o VpcOutput) BastionSecurityGroupId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Vpc) pulumi.StringPtrOutput { return v.BastionSecurityGroupId }).(pulumi.StringPtrOutput)
+}
+
+// The ID of the VPC default security group. All rules removed — not used by Anvil components.
 func (o VpcOutput) DefaultSecurityGroupId() pulumi.StringOutput {
 	return o.ApplyT(func(v *Vpc) pulumi.StringOutput { return v.DefaultSecurityGroupId }).(pulumi.StringOutput)
 }
 
-// The IDs of the private subnets, one per Availability Zone. Used by Lambda, ECS tasks, EC2 instances, and RDS.
+// The IDs of the private subnets, one per AZ. Used by Lambda, ECS tasks, EC2, and RDS.
 func (o VpcOutput) PrivateSubnetIds() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *Vpc) pulumi.StringArrayOutput { return v.PrivateSubnetIds }).(pulumi.StringArrayOutput)
 }
 
-// The IDs of the public subnets, one per Availability Zone. Used by load balancers, NAT Gateways, and bastion hosts.
+// The IDs of the public subnets, one per AZ. Used by load balancers, NAT Gateways, and the bastion host.
 func (o VpcOutput) PublicSubnetIds() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *Vpc) pulumi.StringArrayOutput { return v.PublicSubnetIds }).(pulumi.StringArrayOutput)
 }

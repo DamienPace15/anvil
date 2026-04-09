@@ -7,6 +7,7 @@
 //   2. Patches index.ts to re-export Pulumi primitives
 //   3. Patches package.json for npm publishing
 //   4. Patches component files with correct enum types (config-driven)
+//   5. Patches component files with boolean | ObjectType shorthands (config-driven)
 //
 // Python (sdk/python/):
 //   1. Replaces setup.py with pyproject.toml for PyPI publishing
@@ -14,6 +15,7 @@
 //   3. Patches _utilities.py for correct package name lookup
 //   4. Copies/creates README.md
 //   5. Patches component files with correct enum types (config-driven)
+//   6. Patches component files with boolean | ObjectType shorthands (config-driven)
 //
 // Usage:
 //   npx ts-node scripts/sdk/fix-sdk.ts           # patches both TS and Python
@@ -23,6 +25,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { ENUM_PATCHES } from './enum-patches';
+import { BOOLEAN_SHORTHAND_PATCHES } from './boolean-shorthand-patches';
 
 const cliArgs = process.argv.slice(2);
 const tsOnly = cliArgs.includes('--ts');
@@ -161,9 +164,6 @@ function patchTypeScript(): void {
   }
 
   // ── 3. Patch enum types ────────────────────────────────
-  // The Pulumi SDK generator types component inputs as plain string even
-  // when the schema defines a named enum type. We upgrade them here so
-  // users get full IDE intellisense on valid enum values.
   for (const patch of ENUM_PATCHES) {
     const filePath = path.join(sdkDir, patch.tsFile);
     if (!fs.existsSync(filePath)) {
@@ -174,7 +174,6 @@ function patchTypeScript(): void {
     let content = fs.readFileSync(filePath, 'utf8');
     let changed = false;
 
-    // Ensure enums import is present
     if (!content.includes('import * as enums from "../types/enums"')) {
       content = content.replace(
         'import * as utilities from "../utilities";',
@@ -200,6 +199,93 @@ function patchTypeScript(): void {
       console.log(`  ✔ Patched ${patch.tsFile} → enum types for ${fields}`);
     } else {
       console.log(`  ⏭ ${patch.tsFile} enum types already patched — skipping`);
+    }
+  }
+
+  // ── 4. Patch boolean shorthands ────────────────────────
+  // Upgrades field?: ObjectType to field?: boolean | ObjectType so users
+  // can write bastion: true instead of bastion: {} for defaults.
+  //
+  // NOTE: Pulumi's SDK generator appends "Args" to nested object type names,
+  // so VpcBastionArgs in the schema becomes VpcBastionArgsArgs in the
+  // generated TypeScript. The patch uses tsObjectType + "Args" to match.
+  for (const patch of BOOLEAN_SHORTHAND_PATCHES) {
+    const filePath = path.join(sdkDir, patch.tsFile);
+    if (!fs.existsSync(filePath)) {
+      console.log(
+        `  ⚠ ${patch.tsFile} not found — skipping boolean shorthand patches`
+      );
+      continue;
+    }
+
+    let content = fs.readFileSync(filePath, 'utf8');
+    let changed = false;
+
+    for (const field of patch.fields) {
+      // Pulumi generates VpcBastionArgsArgs (double Args) for nested types.
+      // tsObjectType is "VpcBastionArgs" so generated name is tsObjectType + "Args".
+      const generatedType = `inputs.aws.${field.tsObjectType}Args`;
+
+      // Patch the pulumi.Input wrapped form (VpcArgs interface)
+      const plainInputForm = `${field.field}?: pulumi.Input<${generatedType}>;`;
+      const unionInputForm = `${field.field}?: pulumi.Input<boolean | ${generatedType}>;`;
+      if (
+        content.includes(plainInputForm) &&
+        !content.includes(unionInputForm)
+      ) {
+        content = content.replace(plainInputForm, unionInputForm);
+        changed = true;
+      }
+
+      // Patch the plain object form (other interfaces)
+      const plainForm = `${field.field}?: ${generatedType};`;
+      const unionForm = `${field.field}?: boolean | ${generatedType};`;
+      if (content.includes(plainForm) && !content.includes(unionForm)) {
+        content = content.replace(plainForm, unionForm);
+        changed = true;
+      }
+
+      // Inject normalise helper once per field if not already present.
+      // Uses the generated type name (with double Args) throughout so
+      // TypeScript resolves it correctly.
+      const normName = `normalise${field.field
+        .charAt(0)
+        .toUpperCase()}${field.field.slice(1)}`;
+      if (!content.includes(normName)) {
+        const helper = [
+          '',
+          `/**`,
+          ` * Normalises the \`${field.field}\` shorthand so the Pulumi provider`,
+          ` * always receives an object, never a raw boolean.`,
+          ` *`,
+          ` *   ${field.field}: true          // enable with all defaults`,
+          ` *   ${field.field}: {}            // identical to true`,
+          ` *   ${field.field}: { ... }       // enable with custom config`,
+          ` */`,
+          `export function ${normName}(`,
+          `  val: boolean | ${generatedType} | undefined`,
+          `): ${generatedType} | undefined {`,
+          `  if (val === undefined || val === false) return undefined;`,
+          `  if (val === true) return {};`,
+          `  return val;`,
+          `}`,
+          '',
+        ].join('\n');
+        content = content.trimEnd() + '\n' + helper;
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      fs.writeFileSync(filePath, content);
+      const fields = patch.fields.map((f) => f.field).join(', ');
+      console.log(
+        `  ✔ Patched ${patch.tsFile} → boolean shorthand for ${fields}`
+      );
+    } else {
+      console.log(
+        `  ⏭ ${patch.tsFile} boolean shorthands already patched — skipping`
+      );
     }
   }
 
@@ -403,8 +489,6 @@ Apache-2.0
   }
 
   // ── 5. Patch enum types ────────────────────────────────
-  // Python SDK generator also types fields as plain `str` instead of
-  // the proper enum type. We patch them here for Pylance/Pyright intellisense.
   const pyCloudDir = path.join(sdkDir, 'anvil_cloud');
   for (const patch of ENUM_PATCHES) {
     const filePath = path.join(pyCloudDir, patch.pyFile);
@@ -416,7 +500,6 @@ Apache-2.0
     let content = fs.readFileSync(filePath, 'utf8');
     let changed = false;
 
-    // Ensure enums import is present
     if (!content.includes('from .. import _enums as enums')) {
       const lines = content.split('\n');
       let lastImportIdx = 0;
@@ -431,15 +514,10 @@ Apache-2.0
     }
 
     for (const field of patch.fields) {
-      // Python uses snake_case field names
       const pyField = toSnakeCase(field.field);
-      const plainType = `Optional[str]`;
       const enumType = `Optional[Union['enums.${field.pyEnumType}', str]]`;
-
-      // Only patch the specific field line
       const fieldPattern = new RegExp(`(${pyField}\\s*:\\s*)Optional\\[str\\]`);
       if (fieldPattern.test(content) && !content.includes(enumType)) {
-        // Ensure Union is imported
         if (!content.includes('Union')) {
           content = content.replace(
             'from typing import',
@@ -457,6 +535,55 @@ Apache-2.0
       console.log(`  ✔ Patched ${patch.pyFile} → enum types for ${fields}`);
     } else {
       console.log(`  ⏭ ${patch.pyFile} enum types already patched — skipping`);
+    }
+  }
+
+  // ── 6. Patch boolean shorthands ────────────────────────
+  // Upgrades field: Optional[ObjectType] to Optional[Union[bool, ObjectType]]
+  // so users can write bastion=True instead of bastion={} for defaults.
+  for (const patch of BOOLEAN_SHORTHAND_PATCHES) {
+    const filePath = path.join(pyCloudDir, patch.pyFile);
+    if (!fs.existsSync(filePath)) {
+      console.log(
+        `  ⚠ ${patch.pyFile} not found — skipping boolean shorthand patches`
+      );
+      continue;
+    }
+
+    let content = fs.readFileSync(filePath, 'utf8');
+    let changed = false;
+
+    for (const field of patch.fields) {
+      const pyField = toSnakeCase(field.field);
+      const plainType = `Optional['${field.pyObjectType}']`;
+      const unionType = `Optional[Union[bool, '${field.pyObjectType}']]`;
+
+      const fieldPattern = new RegExp(
+        `(${pyField}\\s*:\\s*)Optional\\['${field.pyObjectType}'\\]`
+      );
+
+      if (fieldPattern.test(content) && !content.includes(unionType)) {
+        if (!content.includes('Union')) {
+          content = content.replace(
+            'from typing import',
+            'from typing import Union,'
+          );
+        }
+        content = content.replace(fieldPattern, `$1${unionType}`);
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      fs.writeFileSync(filePath, content);
+      const fields = patch.fields.map((f) => toSnakeCase(f.field)).join(', ');
+      console.log(
+        `  ✔ Patched ${patch.pyFile} → boolean shorthand for ${fields}`
+      );
+    } else {
+      console.log(
+        `  ⏭ ${patch.pyFile} boolean shorthands already patched — skipping`
+      );
     }
   }
 

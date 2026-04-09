@@ -578,9 +578,20 @@ export namespace aws {
         skipDestroy?: pulumi.Input<boolean>;
     }
 
+    export interface VpcBastionArgsArgs {
+        /**
+         * Source IP CIDRs allowed to initiate SSM sessions via IAM policy condition. Omit to allow any authenticated IAM principal. Example: ['203.0.113.0/32'] to restrict to your office IP.
+         */
+        allowedCidrs?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * EC2 instance type for the bastion host. Default: 't4g.nano' — the bastion is purely a jump box with minimal resource requirements.
+         */
+        instanceType?: pulumi.Input<string>;
+    }
+
     export interface VpcNatArgsArgs {
         /**
-         * EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+         * EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'.
          */
         instanceType?: pulumi.Input<string>;
         /**

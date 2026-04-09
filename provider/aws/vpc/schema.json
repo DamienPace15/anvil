@@ -3,7 +3,7 @@
     "anvil:aws:Vpc": {
       "inputProperties": {
         "availabilityZones": {
-          "description": "Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Set to 3 for production high-availability workloads. Inherits from App.defaults.availability when not set — 'high' maps to 3, 'low' maps to 1.",
+          "description": "Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Inherits from App.defaults.availability — 'high' maps to 3, 'low' maps to 1.",
           "type": "integer"
         },
         "cidr": {
@@ -12,38 +12,44 @@
         },
         "nat": {
           "$ref": "#/types/anvil:aws:VpcNatArgs",
-          "description": "Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC with no outbound internet."
+          "description": "Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC."
+        },
+        "bastion": {
+          "$ref": "#/types/anvil:aws:VpcBastionArgs",
+          "description": "Optional SSM bastion host for private network access. No SSH, no port 22 — access via AWS SSM Session Manager only. Use to connect to RDS, ElastiCache, and other private resources locally."
         }
       },
       "isComponent": true,
       "properties": {
         "availabilityZones": {
-          "description": "The resolved Availability Zone names deployed into, e.g. ['ap-southeast-2a', 'ap-southeast-2b']. Downstream components (RDS Multi-AZ, ECS spread) consume this directly.",
-          "items": {
-            "type": "string"
-          },
+          "description": "The resolved Availability Zone names, e.g. ['ap-southeast-2a']. Consumed by RDS Multi-AZ, ECS spread, and other downstream components.",
+          "items": { "type": "string" },
           "type": "array"
         },
         "defaultSecurityGroupId": {
-          "description": "The ID of the VPC's default security group. All rules have been removed — not used by Anvil components but exposed for reference.",
+          "description": "The ID of the VPC default security group. All rules removed — not used by Anvil components.",
           "type": "string"
         },
         "privateSubnetIds": {
-          "description": "The IDs of the private subnets, one per Availability Zone. Used by Lambda, ECS tasks, EC2 instances, and RDS.",
-          "items": {
-            "type": "string"
-          },
+          "description": "The IDs of the private subnets, one per AZ. Used by Lambda, ECS tasks, EC2, and RDS.",
+          "items": { "type": "string" },
           "type": "array"
         },
         "publicSubnetIds": {
-          "description": "The IDs of the public subnets, one per Availability Zone. Used by load balancers, NAT Gateways, and bastion hosts.",
-          "items": {
-            "type": "string"
-          },
+          "description": "The IDs of the public subnets, one per AZ. Used by load balancers, NAT Gateways, and the bastion host.",
+          "items": { "type": "string" },
           "type": "array"
         },
         "vpcId": {
           "description": "The ID of the VPC.",
+          "type": "string"
+        },
+        "bastionInstanceId": {
+          "description": "The EC2 instance ID of the bastion host. Use with: aws ssm start-session --target <bastionInstanceId>. Only populated when bastion is enabled.",
+          "type": "string"
+        },
+        "bastionSecurityGroupId": {
+          "description": "The security group ID of the bastion host. Use to grant the bastion access to private resources, e.g. db.grant(network.bastion, { access: 'readWrite' }). Only populated when bastion is enabled.",
           "type": "string"
         }
       },
@@ -78,11 +84,25 @@
           "description": "Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs."
         },
         "instanceType": {
-          "description": "EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.",
+          "description": "EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'.",
           "type": "string"
         }
       },
       "required": ["natType"],
+      "type": "object"
+    },
+    "anvil:aws:VpcBastionArgs": {
+      "properties": {
+        "instanceType": {
+          "description": "EC2 instance type for the bastion host. Default: 't4g.nano' — the bastion is purely a jump box with minimal resource requirements.",
+          "type": "string"
+        },
+        "allowedCidrs": {
+          "description": "Source IP CIDRs allowed to initiate SSM sessions via IAM policy condition. Omit to allow any authenticated IAM principal. Example: ['203.0.113.0/32'] to restrict to your office IP.",
+          "items": { "type": "string" },
+          "type": "array"
+        }
+      },
       "type": "object"
     }
   },

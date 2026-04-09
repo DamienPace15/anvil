@@ -53,6 +53,8 @@ __all__ = [
     'LambdaTransformArgsArgsDict',
     'PABTransformArgs',
     'PABTransformArgsDict',
+    'VpcBastionArgsArgs',
+    'VpcBastionArgsArgsDict',
     'VpcNatArgsArgs',
     'VpcNatArgsArgsDict',
 ]
@@ -2839,6 +2841,55 @@ class PABTransformArgs:
         pulumi.set(self, "skip_destroy", value)
 
 
+class VpcBastionArgsArgsDict(TypedDict):
+    allowed_cidrs: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Source IP CIDRs allowed to initiate SSM sessions via IAM policy condition. Omit to allow any authenticated IAM principal. Example: ['203.0.113.0/32'] to restrict to your office IP.
+    """
+    instance_type: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    EC2 instance type for the bastion host. Default: 't4g.nano' — the bastion is purely a jump box with minimal resource requirements.
+    """
+
+@pulumi.input_type
+class VpcBastionArgsArgs:
+    def __init__(__self__, *,
+                 allowed_cidrs: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 instance_type: Optional[pulumi.Input[_builtins.str]] = None):
+        """
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] allowed_cidrs: Source IP CIDRs allowed to initiate SSM sessions via IAM policy condition. Omit to allow any authenticated IAM principal. Example: ['203.0.113.0/32'] to restrict to your office IP.
+        :param pulumi.Input[_builtins.str] instance_type: EC2 instance type for the bastion host. Default: 't4g.nano' — the bastion is purely a jump box with minimal resource requirements.
+        """
+        if allowed_cidrs is not None:
+            pulumi.set(__self__, "allowed_cidrs", allowed_cidrs)
+        if instance_type is not None:
+            pulumi.set(__self__, "instance_type", instance_type)
+
+    @_builtins.property
+    @pulumi.getter(name="allowedCidrs")
+    def allowed_cidrs(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Source IP CIDRs allowed to initiate SSM sessions via IAM policy condition. Omit to allow any authenticated IAM principal. Example: ['203.0.113.0/32'] to restrict to your office IP.
+        """
+        return pulumi.get(self, "allowed_cidrs")
+
+    @allowed_cidrs.setter
+    def allowed_cidrs(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "allowed_cidrs", value)
+
+    @_builtins.property
+    @pulumi.getter(name="instanceType")
+    def instance_type(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        EC2 instance type for the bastion host. Default: 't4g.nano' — the bastion is purely a jump box with minimal resource requirements.
+        """
+        return pulumi.get(self, "instance_type")
+
+    @instance_type.setter
+    def instance_type(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "instance_type", value)
+
+
 class VpcNatArgsArgsDict(TypedDict):
     nat_type: pulumi.Input['VpcNatType']
     """
@@ -2846,7 +2897,7 @@ class VpcNatArgsArgsDict(TypedDict):
     """
     instance_type: NotRequired[pulumi.Input[_builtins.str]]
     """
-    EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+    EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'.
     """
 
 @pulumi.input_type
@@ -2856,7 +2907,7 @@ class VpcNatArgsArgs:
                  instance_type: Optional[pulumi.Input[_builtins.str]] = None):
         """
         :param pulumi.Input['VpcNatType'] nat_type: Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs.
-        :param pulumi.Input[_builtins.str] instance_type: EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+        :param pulumi.Input[_builtins.str] instance_type: EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'.
         """
         pulumi.set(__self__, "nat_type", nat_type)
         if instance_type is not None:
@@ -2878,7 +2929,7 @@ class VpcNatArgsArgs:
     @pulumi.getter(name="instanceType")
     def instance_type(self) -> Optional[pulumi.Input[_builtins.str]]:
         """
-        EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+        EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'.
         """
         return pulumi.get(self, "instance_type")
 
