@@ -108,6 +108,16 @@ func privateSubnetCIDR(vpcCIDR string, i int) string {
 	return fmt.Sprintf("%s.%d.0/24", vpcBase(vpcCIDR), 10+i)
 }
 
+// privateSubnetCIDRs returns all private subnet CIDRs for the given AZ count.
+// Used to scope NAT instance inbound rules to only the private subnets.
+func privateSubnetCIDRs(vpcCIDR string, azCount int) []string {
+	cidrs := make([]string, azCount)
+	for i := 0; i < azCount; i++ {
+		cidrs[i] = privateSubnetCIDR(vpcCIDR, i)
+	}
+	return cidrs
+}
+
 // vpcBase extracts the first two octets: "10.0.0.0/16" -> "10.0"
 func vpcBase(cidr string) string {
 	dots := 0
@@ -327,7 +337,8 @@ func NewVpc(ctx *pulumi.Context, name string, args VpcArgs, opts ...pulumi.Resou
 			}
 		case "fck-nat":
 			instanceType := resolveNatInstanceType(args.Nat)
-			if err := createNatInstance(ctx, name, stage, stageId, instanceType, vpcResource, publicSubnets[0], privateRouteTables, v); err != nil {
+			privateCIDRs := privateSubnetCIDRs(vpcCIDR, azCount)
+			if err := createNatInstance(ctx, name, stage, stageId, instanceType, privateCIDRs, publicSubnets[0], privateRouteTables, v); err != nil {
 				return nil, err
 			}
 		}
@@ -424,13 +435,19 @@ func createNatGateways(
 // public subnet. All private route tables point to this instance.
 // One instance regardless of AZ count -- the accepted cost tradeoff for fck-nat.
 //
+// Security hardening applied:
+//   - Inbound scoped to private subnet CIDRs only (not the full VPC CIDR)
+//   - IMDSv2 enforced (HttpTokens: required) -- blocks IMDSv1 SSRF attacks
+//   - No SSH key pair -- access via SSM bastion if needed (ANVIL-N003)
+//   - SourceDestCheck disabled -- required for NAT forwarding
+//
 // The AMI is resolved dynamically from the fck-nat AWS account (568608671756)
 // so it always uses the latest stable arm64 release.
 func createNatInstance(
 	ctx *pulumi.Context,
 	name, stage, stageId string,
 	instanceType string,
-	vpcResource *ec2.Vpc,
+	privateCIDRs []string,
 	publicSubnet *ec2.Subnet,
 	privateRouteTables []*ec2.RouteTable,
 	parent pulumi.Resource,
@@ -454,27 +471,33 @@ func createNatInstance(
 		return fmt.Errorf("failed to resolve fck-nat AMI: %w", err)
 	}
 
-	// Security group for the NAT instance.
-	// Inbound: all traffic from the VPC CIDR so private subnets can route through it.
-	// Outbound: all traffic to the internet.
+	// Build inbound rules scoped to each private subnet CIDR.
+	// Scoping to private subnets only (not full VPC CIDR) ensures only
+	// legitimate NAT traffic can reach the instance -- not anything else
+	// that might be deployed in public subnets.
+	ingressRules := make(ec2.SecurityGroupIngressArray, len(privateCIDRs))
+	for i, cidr := range privateCIDRs {
+		ingressRules[i] = &ec2.SecurityGroupIngressArgs{
+			Description: pulumi.String(fmt.Sprintf("NAT forwarding from private subnet %d", i+1)),
+			FromPort:    pulumi.Int(0),
+			ToPort:      pulumi.Int(0),
+			Protocol:    pulumi.String("-1"),
+			CidrBlocks:  pulumi.StringArray{pulumi.String(cidr)},
+		}
+	}
+
 	natSGName := provider.PhysicalName(stage, name, "nat-sg", stageId)
 	natSG, err := ec2.NewSecurityGroup(ctx, name+"-nat-sg", &ec2.SecurityGroupArgs{
-		VpcId:       vpcResource.ID(),
-		Description: pulumi.String("Security group for Anvil fck-nat instance"),
-		Ingress: ec2.SecurityGroupIngressArray{
-			&ec2.SecurityGroupIngressArgs{
-				FromPort:   pulumi.Int(0),
-				ToPort:     pulumi.Int(0),
-				Protocol:   pulumi.String("-1"),
-				CidrBlocks: pulumi.StringArray{vpcResource.CidrBlock},
-			},
-		},
+		VpcId:       publicSubnet.VpcId,
+		Description: pulumi.String("Security group for Anvil fck-nat instance — inbound from private subnets only"),
+		Ingress:     ingressRules,
 		Egress: ec2.SecurityGroupEgressArray{
 			&ec2.SecurityGroupEgressArgs{
-				FromPort:   pulumi.Int(0),
-				ToPort:     pulumi.Int(0),
-				Protocol:   pulumi.String("-1"),
-				CidrBlocks: pulumi.StringArray{pulumi.String("0.0.0.0/0")},
+				Description: pulumi.String("Allow all outbound for NAT forwarding"),
+				FromPort:    pulumi.Int(0),
+				ToPort:      pulumi.Int(0),
+				Protocol:    pulumi.String("-1"),
+				CidrBlocks:  pulumi.StringArray{pulumi.String("0.0.0.0/0")},
 			},
 		},
 		Tags: pulumi.StringMap{
@@ -489,6 +512,9 @@ func createNatInstance(
 	// NAT EC2 instance in the first public subnet.
 	// SourceDestCheck must be false -- the instance forwards packets not
 	// addressed to it, which AWS blocks by default.
+	// IMDSv2 is enforced (HttpTokens: required) to block SSRF attacks that
+	// exploit the metadata service. HopLimit 1 prevents containers from
+	// reaching the metadata endpoint.
 	natInstanceName := provider.PhysicalName(stage, name, "nat-instance", stageId)
 	natInstance, err := ec2.NewInstance(ctx, name+"-nat-instance", &ec2.InstanceArgs{
 		Ami:                      pulumi.String(natAMI.Id),
@@ -497,6 +523,11 @@ func createNatInstance(
 		VpcSecurityGroupIds:      pulumi.StringArray{natSG.ID()},
 		SourceDestCheck:          pulumi.Bool(false),
 		AssociatePublicIpAddress: pulumi.Bool(true),
+		MetadataOptions: &ec2.InstanceMetadataOptionsArgs{
+			HttpEndpoint:            pulumi.String("enabled"),
+			HttpTokens:              pulumi.String("required"), // IMDSv2 only -- blocks IMDSv1 SSRF
+			HttpPutResponseHopLimit: pulumi.Int(1),             // prevents containers reaching IMDS
+		},
 		Tags: pulumi.StringMap{
 			"Name":      pulumi.String(natInstanceName),
 			"ManagedBy": pulumi.String("anvil"),
