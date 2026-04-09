@@ -31,6 +31,9 @@ var NameLimits = map[string]int{
 	"nat-gw":         255, // NAT Gateway name tag
 	"nat-sg":         255, // NAT instance security group
 	"nat-instance":   255, // fck-nat EC2 instance name tag
+	"bastion":        255,
+	"bastion-sg":     255,
+	"profile":        128, // IAM instance profile — 128 char limit
 }
 
 // ── Character Sanitization ─────────────────────────────────

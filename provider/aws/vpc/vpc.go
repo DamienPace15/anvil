@@ -1,11 +1,13 @@
 package vpc
 
 import (
+	"encoding/json"
 	"fmt"
 
 	provider "github.com/DamienPace15/anvil/provider/internal/shared"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/ec2"
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/iam"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -22,6 +24,44 @@ type NatArgs struct {
 	// InstanceType is the EC2 instance type for the fck-nat instance.
 	// Only applies when NatType is "fck-nat". Default: "t4g.small".
 	InstanceType string `pulumi:"instanceType,optional"`
+}
+
+// BastionArgs configures the SSM bastion host.
+//
+// The bastion is a jump box that gives you access into the private network
+// for local debugging, database migrations, and incident response.
+//
+// # How to connect
+//
+// Prerequisites: AWS CLI + Session Manager plugin installed locally.
+//
+//	aws ssm start-session --target <bastionInstanceId>
+//
+// To forward a local port to RDS (replace values as needed):
+//
+//	aws ssm start-session \
+//	  --target <bastionInstanceId> \
+//	  --document-name AWS-StartPortForwardingSessionToRemoteHost \
+//	  --parameters '{"host":["<rds-endpoint>"],"portNumber":["5432"],"localPortNumber":["5432"]}'
+//
+// Then connect locally:
+//
+//	psql -h localhost -p 5432 -U <user> -d <dbname>
+//
+// The bastion never exposes port 22 or accepts any inbound connections.
+// The SSM agent inside the instance initiates an outbound HTTPS connection
+// to the AWS SSM service, which brokers your session. Access is controlled
+// entirely through IAM — revoke access by revoking IAM permissions.
+type BastionArgs struct {
+	// InstanceType is the EC2 instance type. Default: "t4g.nano".
+	// The bastion is purely a jump box with no CPU/memory requirements.
+	InstanceType string `pulumi:"instanceType,optional"`
+
+	// AllowedCidrs restricts which source IPs can initiate SSM sessions
+	// via an IAM policy condition. Omit to allow any authenticated IAM
+	// principal to start a session.
+	// Example: ["203.0.113.0/32"] to restrict to your office IP.
+	AllowedCidrs []string `pulumi:"allowedCidrs,optional"`
 }
 
 // VpcArgs defines the inputs for an Anvil-managed VPC.
@@ -48,6 +88,11 @@ type VpcArgs struct {
 	// Nat configures outbound internet access for private subnets.
 	// Omit for a fully private VPC with no outbound internet access.
 	Nat *NatArgs `pulumi:"nat,optional"`
+
+	// Bastion enables an SSM bastion host in the first public subnet.
+	// Use this to connect to private resources (RDS, ElastiCache) locally.
+	// No SSH, no port 22, no key pairs — access via AWS SSM Session Manager only.
+	Bastion *BastionArgs `pulumi:"bastion,optional"`
 }
 
 // Vpc is the Anvil-managed VPC component resource.
@@ -60,12 +105,23 @@ type Vpc struct {
 	AvailabilityZones      pulumi.StringArrayOutput `pulumi:"availabilityZones"`
 	DefaultSecurityGroupId pulumi.StringOutput      `pulumi:"defaultSecurityGroupId"`
 
+	// BastionInstanceId is the EC2 instance ID of the bastion host.
+	// Use this with: aws ssm start-session --target <BastionInstanceId>
+	// Only populated when bastion is enabled.
+	BastionInstanceId pulumi.StringOutput `pulumi:"bastionInstanceId"`
+
+	// BastionSecurityGroupId is the security group ID of the bastion host.
+	// Forward-looking: use this to grant the bastion access to private resources.
+	// Example: db.grant(network.bastion, { access: "readWrite" })
+	// Only populated when bastion is enabled.
+	BastionSecurityGroupId pulumi.StringOutput `pulumi:"bastionSecurityGroupId"`
+
 	name string
 }
 
 func (v *Vpc) Annotate(a infer.Annotator) {
 	a.SetToken("aws", "Vpc")
-	a.Describe(&v, "An Anvil-managed VPC. Provides public and private subnets across one to three Availability Zones with an Internet Gateway and correct route tables. Optional NAT Gateway or fck-nat EC2 instance for outbound internet access. DNS hostnames and resolution are enabled by default, required for RDS, ECS service discovery, and PrivateLink.")
+	a.Describe(&v, "An Anvil-managed VPC. Provides public and private subnets across one to three Availability Zones with an Internet Gateway and correct route tables. Optional NAT Gateway or fck-nat EC2 instance for outbound internet access. Optional SSM bastion host for private network access. DNS hostnames and resolution are enabled by default, required for RDS, ECS service discovery, and PrivateLink.")
 }
 
 func resolveAZCount(args VpcArgs, cfg *c.Config) int {
@@ -95,6 +151,13 @@ func resolveNatInstanceType(nat *NatArgs) string {
 	return "t4g.small"
 }
 
+func resolveBastionInstanceType(bastion *BastionArgs) string {
+	if bastion.InstanceType != "" {
+		return bastion.InstanceType
+	}
+	return "t4g.nano"
+}
+
 // publicSubnetCIDR returns the CIDR for public subnet at index i.
 // Offset 0: 10.0.0.0/24, 10.0.1.0/24, 10.0.2.0/24
 func publicSubnetCIDR(vpcCIDR string, i int) string {
@@ -103,13 +166,11 @@ func publicSubnetCIDR(vpcCIDR string, i int) string {
 
 // privateSubnetCIDR returns the CIDR for private subnet at index i.
 // Offset 10: 10.0.10.0/24, 10.0.11.0/24, 10.0.12.0/24
-// Gap from public (0-2) leaves room for future subnet tiers without renumbering.
 func privateSubnetCIDR(vpcCIDR string, i int) string {
 	return fmt.Sprintf("%s.%d.0/24", vpcBase(vpcCIDR), 10+i)
 }
 
 // privateSubnetCIDRs returns all private subnet CIDRs for the given AZ count.
-// Used to scope NAT instance inbound rules to only the private subnets.
 func privateSubnetCIDRs(vpcCIDR string, azCount int) []string {
 	cidrs := make([]string, azCount)
 	for i := 0; i < azCount; i++ {
@@ -167,18 +228,16 @@ func NewVpc(ctx *pulumi.Context, name string, args VpcArgs, opts ...pulumi.Resou
 		return nil, err
 	}
 
-	// 1. Validate nat config early so errors are clear before any AWS calls.
+	// 1. Validate nat config early.
 	if args.Nat != nil {
 		switch args.Nat.NatType {
 		case "gateway", "fck-nat":
-			// valid
 		default:
 			return nil, fmt.Errorf("invalid nat.natType %q: must be \"gateway\" or \"fck-nat\"", args.Nat.NatType)
 		}
 	}
 
 	// 2. Resolve AZ names via aws.GetAvailabilityZones.
-	// Never hardcode AZ suffixes -- regions vary in count and naming convention.
 	azResult, err := aws.GetAvailabilityZones(ctx, &aws.GetAvailabilityZonesArgs{
 		State: pulumi.StringRef("available"),
 	}, pulumi.Parent(v))
@@ -195,8 +254,6 @@ func NewVpc(ctx *pulumi.Context, name string, args VpcArgs, opts ...pulumi.Resou
 	}
 
 	// 3. VPC.
-	// enableDnsHostnames and enableDnsSupport required for RDS, ECS service
-	// discovery, and PrivateLink interface endpoints.
 	vpcName := provider.PhysicalName(stage, name, "vpc", stageId)
 
 	vpcResource, err := ec2.NewVpc(ctx, name, &ec2.VpcArgs{
@@ -213,7 +270,6 @@ func NewVpc(ctx *pulumi.Context, name string, args VpcArgs, opts ...pulumi.Resou
 	}
 
 	// 4. Internet Gateway.
-	// One per VPC. Attached to public subnet route tables.
 	igwName := provider.PhysicalName(stage, name, "igw", stageId)
 
 	igw, err := ec2.NewInternetGateway(ctx, name+"-igw", &ec2.InternetGatewayArgs{
@@ -228,7 +284,6 @@ func NewVpc(ctx *pulumi.Context, name string, args VpcArgs, opts ...pulumi.Resou
 	}
 
 	// 5. Public subnets.
-	// One shared route table for all public subnets -- they all route the same way.
 	publicSubnetIds := make([]pulumi.StringInput, azCount)
 	publicSubnets := make([]*ec2.Subnet, azCount)
 
@@ -282,7 +337,6 @@ func NewVpc(ctx *pulumi.Context, name string, args VpcArgs, opts ...pulumi.Resou
 	}
 
 	// 6. Private subnets.
-	// Each gets its own route table so NAT routes can be scoped per-AZ.
 	privateSubnetIds := make([]pulumi.StringInput, azCount)
 	privateRouteTables := make([]*ec2.RouteTable, azCount)
 
@@ -328,7 +382,6 @@ func NewVpc(ctx *pulumi.Context, name string, args VpcArgs, opts ...pulumi.Resou
 	}
 
 	// 7. NAT (optional).
-	// Wires outbound internet routes onto the private subnet route tables.
 	if args.Nat != nil {
 		switch args.Nat.NatType {
 		case "gateway":
@@ -344,10 +397,18 @@ func NewVpc(ctx *pulumi.Context, name string, args VpcArgs, opts ...pulumi.Resou
 		}
 	}
 
-	// 8. Lock down the VPC default security group.
-	// AWS creates a default SG with allow-all inbound from itself and allow-all
-	// outbound. We adopt it and remove all rules. Anvil components never use
-	// the default SG -- each gets a dedicated SG (ANVIL-N006).
+	// 8. Bastion host (optional).
+	if args.Bastion != nil {
+		instanceType := resolveBastionInstanceType(args.Bastion)
+		bastionInstance, bastionSG, err := createBastion(ctx, name, stage, stageId, instanceType, args.Bastion.AllowedCidrs, vpcResource, publicSubnets[0], v)
+		if err != nil {
+			return nil, err
+		}
+		v.BastionInstanceId = bastionInstance.ID().ToStringOutput()
+		v.BastionSecurityGroupId = bastionSG.ID().ToStringOutput()
+	}
+
+	// 9. Lock down the VPC default security group.
 	defaultSG, err := ec2.NewDefaultSecurityGroup(ctx, name+"-default-sg", &ec2.DefaultSecurityGroupArgs{
 		VpcId: vpcResource.ID(),
 		Tags: pulumi.StringMap{
@@ -359,7 +420,7 @@ func NewVpc(ctx *pulumi.Context, name string, args VpcArgs, opts ...pulumi.Resou
 		return nil, fmt.Errorf("failed to lock down default security group: %w", err)
 	}
 
-	// 9. Wire outputs.
+	// 10. Wire outputs.
 	v.VpcId = vpcResource.ID().ToStringOutput()
 	v.DefaultSecurityGroupId = defaultSG.ID().ToStringOutput()
 	v.PrivateSubnetIds = stringInputsToArrayOutput(privateSubnetIds)
@@ -377,15 +438,235 @@ func NewVpc(ctx *pulumi.Context, name string, args VpcArgs, opts ...pulumi.Resou
 		"publicSubnetIds":        stringInputsToArray(publicSubnetIds),
 		"availabilityZones":      pulumi.ToStringArray(resolvedAZs),
 		"defaultSecurityGroupId": defaultSG.ID(),
+		"bastionInstanceId":      v.BastionInstanceId,
+		"bastionSecurityGroupId": v.BastionSecurityGroupId,
 	})
 
 	return v, nil
 }
 
+// createBastion provisions a hardened SSM-only bastion host in the first
+// public subnet. No SSH, no port 22, no key pairs. Access is via AWS SSM
+// Session Manager only, controlled entirely through IAM.
+//
+// # How to connect
+//
+// Install prerequisites:
+//
+//	brew install awscli session-manager-plugin   # macOS
+//
+// Start a session:
+//
+//	aws ssm start-session --target <bastionInstanceId>
+//
+// Forward a port to RDS:
+//
+//	aws ssm start-session \
+//	  --target <bastionInstanceId> \
+//	  --document-name AWS-StartPortForwardingSessionToRemoteHost \
+//	  --parameters '{"host":["<rds-endpoint>"],"portNumber":["5432"],"localPortNumber":["5432"]}'
+//
+// Then connect locally:
+//
+//	psql -h localhost -p 5432 -U <user> -d <dbname>
+//
+// The bastion polls the SSM service outbound over HTTPS — it never receives
+// inbound connections, so its security group has zero inbound rules.
+func createBastion(
+	ctx *pulumi.Context,
+	name, stage, stageId string,
+	instanceType string,
+	allowedCidrs []string,
+	vpcResource *ec2.Vpc,
+	publicSubnet *ec2.Subnet,
+	parent pulumi.Resource,
+) (*ec2.Instance, *ec2.SecurityGroup, error) {
+
+	// 1. IAM role — EC2 trust policy.
+	// AmazonSSMManagedInstanceCore grants the SSM agent permission to:
+	//   - Register with the SSM service
+	//   - Receive session commands
+	//   - Write session logs
+	assumeRolePolicy := `{
+		"Version": "2012-10-17",
+		"Statement": [{
+			"Effect": "Allow",
+			"Principal": { "Service": "ec2.amazonaws.com" },
+			"Action": "sts:AssumeRole"
+		}]
+	}`
+
+	bastionRole := &iam.Role{}
+	if err := ctx.RegisterResource("aws:iam/role:Role", name+"-bastion-role", pulumi.Map{
+		"name":             pulumi.String(provider.PhysicalName(stage, name+"-bastion", "role", stageId)),
+		"assumeRolePolicy": pulumi.String(assumeRolePolicy),
+		"tags": pulumi.StringMap{
+			"Name":      pulumi.String(provider.PhysicalName(stage, name+"-bastion", "role", stageId)),
+			"ManagedBy": pulumi.String("anvil"),
+		},
+	}, bastionRole, pulumi.Parent(parent)); err != nil {
+		return nil, nil, fmt.Errorf("failed to create bastion IAM role: %w", err)
+	}
+
+	// 2. Attach AmazonSSMManagedInstanceCore — the minimum policy for SSM.
+	if err := ctx.RegisterResource("aws:iam/rolePolicyAttachment:RolePolicyAttachment", name+"-bastion-ssm-policy", pulumi.Map{
+		"role":      bastionRole.Name,
+		"policyArn": pulumi.String("arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"),
+	}, &iam.RolePolicyAttachment{}, pulumi.Parent(parent)); err != nil {
+		return nil, nil, fmt.Errorf("failed to attach SSM policy to bastion role: %w", err)
+	}
+
+	// 3. Optional: restrict SSM session initiation to specific source CIDRs.
+	// This IAM condition checks the source IP of the ssm:StartSession API call
+	// (the developer's IP calling the AWS API) not the session traffic itself.
+	if len(allowedCidrs) > 0 {
+		type condition struct {
+			IpAddress map[string][]string `json:"IpAddress"`
+		}
+		type statement struct {
+			Effect    string    `json:"Effect"`
+			Action    string    `json:"Action"`
+			Resource  string    `json:"Resource"`
+			Condition condition `json:"Condition"`
+		}
+		type doc struct {
+			Version   string      `json:"Version"`
+			Statement []statement `json:"Statement"`
+		}
+
+		policyDoc, err := json.Marshal(doc{
+			Version: "2012-10-17",
+			Statement: []statement{{
+				Effect:   "Allow",
+				Action:   "ssm:StartSession",
+				Resource: "*",
+				Condition: condition{
+					IpAddress: map[string][]string{
+						"aws:SourceIp": allowedCidrs,
+					},
+				},
+			}},
+		})
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to marshal bastion CIDR policy: %w", err)
+		}
+
+		if err := ctx.RegisterResource("aws:iam/rolePolicy:RolePolicy", name+"-bastion-cidr-policy", pulumi.Map{
+			"role":   bastionRole.Name,
+			"policy": pulumi.String(string(policyDoc)),
+		}, &iam.RolePolicy{}, pulumi.Parent(parent)); err != nil {
+			return nil, nil, fmt.Errorf("failed to attach CIDR restriction policy to bastion: %w", err)
+		}
+	}
+
+	// 4. Instance profile wrapping the role.
+	// EC2 instances reference profiles, not roles directly.
+	bastionProfile := &iam.InstanceProfile{}
+	if err := ctx.RegisterResource("aws:iam/instanceProfile:InstanceProfile", name+"-bastion-profile", pulumi.Map{
+		"name": pulumi.String(provider.PhysicalName(stage, name+"-bastion", "profile", stageId)),
+		"role": bastionRole.Name,
+		"tags": pulumi.StringMap{
+			"ManagedBy": pulumi.String("anvil"),
+		},
+	}, bastionProfile, pulumi.Parent(parent)); err != nil {
+		return nil, nil, fmt.Errorf("failed to create bastion instance profile: %w", err)
+	}
+
+	// 5. Security group — zero inbound rules.
+	// The bastion never receives inbound connections. The SSM agent initiates
+	// an outbound HTTPS connection to ssm.amazonaws.com which brokers sessions.
+	// Outbound 443 is required to reach SSM, SSMMessages, and EC2Messages endpoints.
+	bastionSGName := provider.PhysicalName(stage, name, "bastion-sg", stageId)
+	bastionSG, err := ec2.NewSecurityGroup(ctx, name+"-bastion-sg", &ec2.SecurityGroupArgs{
+		VpcId:       vpcResource.ID(),
+		Description: pulumi.String("Anvil bastion host — SSM only, zero inbound rules"),
+		// No ingress rules -- the bastion never receives inbound connections.
+		Egress: ec2.SecurityGroupEgressArray{
+			&ec2.SecurityGroupEgressArgs{
+				Description: pulumi.String("HTTPS outbound for SSM agent (ssm, ssmmessages, ec2messages)"),
+				FromPort:    pulumi.Int(443),
+				ToPort:      pulumi.Int(443),
+				Protocol:    pulumi.String("tcp"),
+				CidrBlocks:  pulumi.StringArray{pulumi.String("0.0.0.0/0")},
+			},
+		},
+		Tags: pulumi.StringMap{
+			"Name":      pulumi.String(bastionSGName),
+			"ManagedBy": pulumi.String("anvil"),
+		},
+	}, pulumi.Parent(parent))
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create bastion security group: %w", err)
+	}
+
+	// 6. Resolve latest Amazon Linux 2023 arm64 AMI.
+	// AL2023 ships with the SSM agent pre-installed and enabled.
+	// We use the official Amazon AMI (owner: amazon) so no third-party trust required.
+	bastionAMI, err := ec2.LookupAmi(ctx, &ec2.LookupAmiArgs{
+		MostRecent: pulumi.BoolRef(true),
+		Owners:     []string{"amazon"},
+		Filters: []ec2.GetAmiFilter{
+			{
+				Name:   "name",
+				Values: []string{"al2023-ami-2023.*-kernel-*-arm64"},
+			},
+			{
+				Name:   "architecture",
+				Values: []string{"arm64"},
+			},
+			{
+				Name:   "virtualization-type",
+				Values: []string{"hvm"},
+			},
+		},
+	}, pulumi.Parent(parent))
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to resolve Amazon Linux 2023 arm64 AMI: %w", err)
+	}
+
+	// 7. User data — ensures SSM agent is running.
+	// AL2023 ships with SSM agent pre-installed but this makes it explicit
+	// and ensures it starts on boot even after unexpected stops.
+	userData := `#!/bin/bash
+set -e
+systemctl enable amazon-ssm-agent
+systemctl start amazon-ssm-agent
+`
+
+	// 8. Bastion EC2 instance.
+	// IMDSv2 enforced. No key pair. No public IP needed — SSM routes via
+	// the outbound HTTPS connection the agent initiates. Public IP is kept
+	// enabled so the instance can reach ssm.amazonaws.com without NAT,
+	// but this can be removed if VpcEndpoints for SSM are present.
+	bastionInstanceName := provider.PhysicalName(stage, name, "bastion", stageId)
+	bastionInstance, err := ec2.NewInstance(ctx, name+"-bastion", &ec2.InstanceArgs{
+		Ami:                      pulumi.String(bastionAMI.Id),
+		InstanceType:             pulumi.String(instanceType),
+		SubnetId:                 publicSubnet.ID(),
+		VpcSecurityGroupIds:      pulumi.StringArray{bastionSG.ID()},
+		IamInstanceProfile:       bastionProfile.Name,
+		AssociatePublicIpAddress: pulumi.Bool(true),
+		UserData:                 pulumi.String(userData),
+		MetadataOptions: &ec2.InstanceMetadataOptionsArgs{
+			HttpEndpoint:            pulumi.String("enabled"),
+			HttpTokens:              pulumi.String("required"), // IMDSv2 only
+			HttpPutResponseHopLimit: pulumi.Int(1),
+		},
+		Tags: pulumi.StringMap{
+			"Name":      pulumi.String(bastionInstanceName),
+			"ManagedBy": pulumi.String("anvil"),
+			// Tag makes it easy to find in the console and target via SSM fleet manager
+			"Role": pulumi.String("bastion"),
+		},
+	}, pulumi.Parent(parent))
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create bastion instance: %w", err)
+	}
+
+	return bastionInstance, bastionSG, nil
+}
+
 // createNatGateways provisions one AWS managed NAT Gateway per AZ.
-// Each gateway sits in the public subnet of its AZ with its own Elastic IP.
-// The private route table in the same AZ routes 0.0.0.0/0 to the local NAT
-// Gateway for true HA -- a private subnet in AZ-a never traverses AZ-b.
 func createNatGateways(
 	ctx *pulumi.Context,
 	name, stage, stageId string,
@@ -431,18 +712,7 @@ func createNatGateways(
 	return nil
 }
 
-// createNatInstance provisions a single fck-nat EC2 instance in the first
-// public subnet. All private route tables point to this instance.
-// One instance regardless of AZ count -- the accepted cost tradeoff for fck-nat.
-//
-// Security hardening applied:
-//   - Inbound scoped to private subnet CIDRs only (not the full VPC CIDR)
-//   - IMDSv2 enforced (HttpTokens: required) -- blocks IMDSv1 SSRF attacks
-//   - No SSH key pair -- access via SSM bastion if needed (ANVIL-N003)
-//   - SourceDestCheck disabled -- required for NAT forwarding
-//
-// The AMI is resolved dynamically from the fck-nat AWS account (568608671756)
-// so it always uses the latest stable arm64 release.
+// createNatInstance provisions a single fck-nat EC2 instance.
 func createNatInstance(
 	ctx *pulumi.Context,
 	name, stage, stageId string,
@@ -452,7 +722,6 @@ func createNatInstance(
 	privateRouteTables []*ec2.RouteTable,
 	parent pulumi.Resource,
 ) error {
-	// Resolve the latest fck-nat AMI for arm64 (required for t4g instances).
 	natAMI, err := ec2.LookupAmi(ctx, &ec2.LookupAmiArgs{
 		MostRecent: pulumi.BoolRef(true),
 		Owners:     []string{"568608671756"},
@@ -471,10 +740,6 @@ func createNatInstance(
 		return fmt.Errorf("failed to resolve fck-nat AMI: %w", err)
 	}
 
-	// Build inbound rules scoped to each private subnet CIDR.
-	// Scoping to private subnets only (not full VPC CIDR) ensures only
-	// legitimate NAT traffic can reach the instance -- not anything else
-	// that might be deployed in public subnets.
 	ingressRules := make(ec2.SecurityGroupIngressArray, len(privateCIDRs))
 	for i, cidr := range privateCIDRs {
 		ingressRules[i] = &ec2.SecurityGroupIngressArgs{
@@ -509,12 +774,6 @@ func createNatInstance(
 		return fmt.Errorf("failed to create NAT instance security group: %w", err)
 	}
 
-	// NAT EC2 instance in the first public subnet.
-	// SourceDestCheck must be false -- the instance forwards packets not
-	// addressed to it, which AWS blocks by default.
-	// IMDSv2 is enforced (HttpTokens: required) to block SSRF attacks that
-	// exploit the metadata service. HopLimit 1 prevents containers from
-	// reaching the metadata endpoint.
 	natInstanceName := provider.PhysicalName(stage, name, "nat-instance", stageId)
 	natInstance, err := ec2.NewInstance(ctx, name+"-nat-instance", &ec2.InstanceArgs{
 		Ami:                      pulumi.String(natAMI.Id),
@@ -525,8 +784,8 @@ func createNatInstance(
 		AssociatePublicIpAddress: pulumi.Bool(true),
 		MetadataOptions: &ec2.InstanceMetadataOptionsArgs{
 			HttpEndpoint:            pulumi.String("enabled"),
-			HttpTokens:              pulumi.String("required"), // IMDSv2 only -- blocks IMDSv1 SSRF
-			HttpPutResponseHopLimit: pulumi.Int(1),             // prevents containers reaching IMDS
+			HttpTokens:              pulumi.String("required"),
+			HttpPutResponseHopLimit: pulumi.Int(1),
 		},
 		Tags: pulumi.StringMap{
 			"Name":      pulumi.String(natInstanceName),
@@ -537,7 +796,6 @@ func createNatInstance(
 		return fmt.Errorf("failed to create NAT instance: %w", err)
 	}
 
-	// Route all private subnet tables through the NAT instance's primary ENI.
 	for i, rt := range privateRouteTables {
 		if _, err = ec2.NewRoute(ctx, fmt.Sprintf("%s-private-nat-route-%d", name, i+1), &ec2.RouteArgs{
 			RouteTableId:         rt.ID(),

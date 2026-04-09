@@ -23,17 +23,21 @@ __all__ = ['VpcArgs', 'Vpc']
 class VpcArgs:
     def __init__(__self__, *,
                  availability_zones: Optional[pulumi.Input[_builtins.int]] = None,
+                 bastion: Optional[pulumi.Input['VpcBastionArgsArgs']] = None,
                  cidr: Optional[pulumi.Input[_builtins.str]] = None,
                  nat: Optional[pulumi.Input['VpcNatArgsArgs']] = None):
         """
         The set of arguments for constructing a Vpc resource.
 
-        :param pulumi.Input[_builtins.int] availability_zones: Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Set to 3 for production high-availability workloads. Inherits from App.defaults.availability when not set — 'high' maps to 3, 'low' maps to 1.
+        :param pulumi.Input[_builtins.int] availability_zones: Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Inherits from App.defaults.availability — 'high' maps to 3, 'low' maps to 1.
+        :param pulumi.Input['VpcBastionArgsArgs'] bastion: Optional SSM bastion host for private network access. No SSH, no port 22 — access via AWS SSM Session Manager only. Use to connect to RDS, ElastiCache, and other private resources locally.
         :param pulumi.Input[_builtins.str] cidr: The IPv4 CIDR block for the VPC. Default: '10.0.0.0/16'. Public subnets carved from offset 0 (/24 each), private subnets from offset 10 (/24 each).
-        :param pulumi.Input['VpcNatArgsArgs'] nat: Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC with no outbound internet.
+        :param pulumi.Input['VpcNatArgsArgs'] nat: Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC.
         """
         if availability_zones is not None:
             pulumi.set(__self__, "availability_zones", availability_zones)
+        if bastion is not None:
+            pulumi.set(__self__, "bastion", bastion)
         if cidr is not None:
             pulumi.set(__self__, "cidr", cidr)
         if nat is not None:
@@ -43,13 +47,25 @@ class VpcArgs:
     @pulumi.getter(name="availabilityZones")
     def availability_zones(self) -> Optional[pulumi.Input[_builtins.int]]:
         """
-        Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Set to 3 for production high-availability workloads. Inherits from App.defaults.availability when not set — 'high' maps to 3, 'low' maps to 1.
+        Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Inherits from App.defaults.availability — 'high' maps to 3, 'low' maps to 1.
         """
         return pulumi.get(self, "availability_zones")
 
     @availability_zones.setter
     def availability_zones(self, value: Optional[pulumi.Input[_builtins.int]]):
         pulumi.set(self, "availability_zones", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def bastion(self) -> Optional[pulumi.Input['VpcBastionArgsArgs']]:
+        """
+        Optional SSM bastion host for private network access. No SSH, no port 22 — access via AWS SSM Session Manager only. Use to connect to RDS, ElastiCache, and other private resources locally.
+        """
+        return pulumi.get(self, "bastion")
+
+    @bastion.setter
+    def bastion(self, value: Optional[pulumi.Input['VpcBastionArgsArgs']]):
+        pulumi.set(self, "bastion", value)
 
     @_builtins.property
     @pulumi.getter
@@ -67,7 +83,7 @@ class VpcArgs:
     @pulumi.getter
     def nat(self) -> Optional[pulumi.Input['VpcNatArgsArgs']]:
         """
-        Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC with no outbound internet.
+        Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC.
         """
         return pulumi.get(self, "nat")
 
@@ -83,6 +99,7 @@ class Vpc(pulumi.ComponentResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  availability_zones: Optional[pulumi.Input[_builtins.int]] = None,
+                 bastion: Optional[pulumi.Input[Union['VpcBastionArgsArgs', 'VpcBastionArgsArgsDict']]] = None,
                  cidr: Optional[pulumi.Input[_builtins.str]] = None,
                  nat: Optional[pulumi.Input[Union['VpcNatArgsArgs', 'VpcNatArgsArgsDict']]] = None,
                  __props__=None):
@@ -91,9 +108,10 @@ class Vpc(pulumi.ComponentResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[_builtins.int] availability_zones: Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Set to 3 for production high-availability workloads. Inherits from App.defaults.availability when not set — 'high' maps to 3, 'low' maps to 1.
+        :param pulumi.Input[_builtins.int] availability_zones: Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Inherits from App.defaults.availability — 'high' maps to 3, 'low' maps to 1.
+        :param pulumi.Input[Union['VpcBastionArgsArgs', 'VpcBastionArgsArgsDict']] bastion: Optional SSM bastion host for private network access. No SSH, no port 22 — access via AWS SSM Session Manager only. Use to connect to RDS, ElastiCache, and other private resources locally.
         :param pulumi.Input[_builtins.str] cidr: The IPv4 CIDR block for the VPC. Default: '10.0.0.0/16'. Public subnets carved from offset 0 (/24 each), private subnets from offset 10 (/24 each).
-        :param pulumi.Input[Union['VpcNatArgsArgs', 'VpcNatArgsArgsDict']] nat: Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC with no outbound internet.
+        :param pulumi.Input[Union['VpcNatArgsArgs', 'VpcNatArgsArgsDict']] nat: Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC.
         """
         ...
     @overload
@@ -120,6 +138,7 @@ class Vpc(pulumi.ComponentResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  availability_zones: Optional[pulumi.Input[_builtins.int]] = None,
+                 bastion: Optional[pulumi.Input[Union['VpcBastionArgsArgs', 'VpcBastionArgsArgsDict']]] = None,
                  cidr: Optional[pulumi.Input[_builtins.str]] = None,
                  nat: Optional[pulumi.Input[Union['VpcNatArgsArgs', 'VpcNatArgsArgsDict']]] = None,
                  __props__=None):
@@ -134,8 +153,11 @@ class Vpc(pulumi.ComponentResource):
             __props__ = VpcArgs.__new__(VpcArgs)
 
             __props__.__dict__["availability_zones"] = availability_zones
+            __props__.__dict__["bastion"] = bastion
             __props__.__dict__["cidr"] = cidr
             __props__.__dict__["nat"] = nat
+            __props__.__dict__["bastion_instance_id"] = None
+            __props__.__dict__["bastion_security_group_id"] = None
             __props__.__dict__["default_security_group_id"] = None
             __props__.__dict__["private_subnet_ids"] = None
             __props__.__dict__["public_subnet_ids"] = None
@@ -151,15 +173,31 @@ class Vpc(pulumi.ComponentResource):
     @pulumi.getter(name="availabilityZones")
     def availability_zones(self) -> pulumi.Output[Sequence[_builtins.str]]:
         """
-        The resolved Availability Zone names deployed into, e.g. ['ap-southeast-2a', 'ap-southeast-2b']. Downstream components (RDS Multi-AZ, ECS spread) consume this directly.
+        The resolved Availability Zone names, e.g. ['ap-southeast-2a']. Consumed by RDS Multi-AZ, ECS spread, and other downstream components.
         """
         return pulumi.get(self, "availability_zones")
+
+    @_builtins.property
+    @pulumi.getter(name="bastionInstanceId")
+    def bastion_instance_id(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        The EC2 instance ID of the bastion host. Use with: aws ssm start-session --target <bastionInstanceId>. Only populated when bastion is enabled.
+        """
+        return pulumi.get(self, "bastion_instance_id")
+
+    @_builtins.property
+    @pulumi.getter(name="bastionSecurityGroupId")
+    def bastion_security_group_id(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        The security group ID of the bastion host. Use to grant the bastion access to private resources, e.g. db.grant(network.bastion, { access: 'readWrite' }). Only populated when bastion is enabled.
+        """
+        return pulumi.get(self, "bastion_security_group_id")
 
     @_builtins.property
     @pulumi.getter(name="defaultSecurityGroupId")
     def default_security_group_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The ID of the VPC's default security group. All rules have been removed — not used by Anvil components but exposed for reference.
+        The ID of the VPC default security group. All rules removed — not used by Anvil components.
         """
         return pulumi.get(self, "default_security_group_id")
 
@@ -167,7 +205,7 @@ class Vpc(pulumi.ComponentResource):
     @pulumi.getter(name="privateSubnetIds")
     def private_subnet_ids(self) -> pulumi.Output[Sequence[_builtins.str]]:
         """
-        The IDs of the private subnets, one per Availability Zone. Used by Lambda, ECS tasks, EC2 instances, and RDS.
+        The IDs of the private subnets, one per AZ. Used by Lambda, ECS tasks, EC2, and RDS.
         """
         return pulumi.get(self, "private_subnet_ids")
 
@@ -175,7 +213,7 @@ class Vpc(pulumi.ComponentResource):
     @pulumi.getter(name="publicSubnetIds")
     def public_subnet_ids(self) -> pulumi.Output[Sequence[_builtins.str]]:
         """
-        The IDs of the public subnets, one per Availability Zone. Used by load balancers, NAT Gateways, and bastion hosts.
+        The IDs of the public subnets, one per AZ. Used by load balancers, NAT Gateways, and the bastion host.
         """
         return pulumi.get(self, "public_subnet_ids")
 

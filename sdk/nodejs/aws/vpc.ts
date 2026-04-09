@@ -23,19 +23,27 @@ export class Vpc extends pulumi.ComponentResource {
     }
 
     /**
-     * The resolved Availability Zone names deployed into, e.g. ['ap-southeast-2a', 'ap-southeast-2b']. Downstream components (RDS Multi-AZ, ECS spread) consume this directly.
+     * The resolved Availability Zone names, e.g. ['ap-southeast-2a']. Consumed by RDS Multi-AZ, ECS spread, and other downstream components.
      */
     declare public readonly availabilityZones: pulumi.Output<string[]>;
     /**
-     * The ID of the VPC's default security group. All rules have been removed — not used by Anvil components but exposed for reference.
+     * The EC2 instance ID of the bastion host. Use with: aws ssm start-session --target <bastionInstanceId>. Only populated when bastion is enabled.
+     */
+    declare public /*out*/ readonly bastionInstanceId: pulumi.Output<string | undefined>;
+    /**
+     * The security group ID of the bastion host. Use to grant the bastion access to private resources, e.g. db.grant(network.bastion, { access: 'readWrite' }). Only populated when bastion is enabled.
+     */
+    declare public /*out*/ readonly bastionSecurityGroupId: pulumi.Output<string | undefined>;
+    /**
+     * The ID of the VPC default security group. All rules removed — not used by Anvil components.
      */
     declare public /*out*/ readonly defaultSecurityGroupId: pulumi.Output<string>;
     /**
-     * The IDs of the private subnets, one per Availability Zone. Used by Lambda, ECS tasks, EC2 instances, and RDS.
+     * The IDs of the private subnets, one per AZ. Used by Lambda, ECS tasks, EC2, and RDS.
      */
     declare public /*out*/ readonly privateSubnetIds: pulumi.Output<string[]>;
     /**
-     * The IDs of the public subnets, one per Availability Zone. Used by load balancers, NAT Gateways, and bastion hosts.
+     * The IDs of the public subnets, one per AZ. Used by load balancers, NAT Gateways, and the bastion host.
      */
     declare public /*out*/ readonly publicSubnetIds: pulumi.Output<string[]>;
     /**
@@ -55,14 +63,19 @@ export class Vpc extends pulumi.ComponentResource {
         opts = opts || {};
         if (!opts.id) {
             resourceInputs["availabilityZones"] = args?.availabilityZones;
+            resourceInputs["bastion"] = args?.bastion;
             resourceInputs["cidr"] = args?.cidr;
             resourceInputs["nat"] = args?.nat;
+            resourceInputs["bastionInstanceId"] = undefined /*out*/;
+            resourceInputs["bastionSecurityGroupId"] = undefined /*out*/;
             resourceInputs["defaultSecurityGroupId"] = undefined /*out*/;
             resourceInputs["privateSubnetIds"] = undefined /*out*/;
             resourceInputs["publicSubnetIds"] = undefined /*out*/;
             resourceInputs["vpcId"] = undefined /*out*/;
         } else {
             resourceInputs["availabilityZones"] = undefined /*out*/;
+            resourceInputs["bastionInstanceId"] = undefined /*out*/;
+            resourceInputs["bastionSecurityGroupId"] = undefined /*out*/;
             resourceInputs["defaultSecurityGroupId"] = undefined /*out*/;
             resourceInputs["privateSubnetIds"] = undefined /*out*/;
             resourceInputs["publicSubnetIds"] = undefined /*out*/;
@@ -78,15 +91,35 @@ export class Vpc extends pulumi.ComponentResource {
  */
 export interface VpcArgs {
     /**
-     * Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Set to 3 for production high-availability workloads. Inherits from App.defaults.availability when not set — 'high' maps to 3, 'low' maps to 1.
+     * Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Inherits from App.defaults.availability — 'high' maps to 3, 'low' maps to 1.
      */
     availabilityZones?: pulumi.Input<number>;
+    /**
+     * Optional SSM bastion host for private network access. No SSH, no port 22 — access via AWS SSM Session Manager only. Use to connect to RDS, ElastiCache, and other private resources locally.
+     */
+    bastion?: pulumi.Input<boolean | inputs.aws.VpcBastionArgsArgs>;
     /**
      * The IPv4 CIDR block for the VPC. Default: '10.0.0.0/16'. Public subnets carved from offset 0 (/24 each), private subnets from offset 10 (/24 each).
      */
     cidr?: pulumi.Input<string>;
     /**
-     * Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC with no outbound internet.
+     * Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC.
      */
     nat?: pulumi.Input<inputs.aws.VpcNatArgsArgs>;
+}
+
+/**
+ * Normalises the `bastion` shorthand so the Pulumi provider
+ * always receives an object, never a raw boolean.
+ *
+ *   bastion: true          // enable with all defaults
+ *   bastion: {}            // identical to true
+ *   bastion: { ... }       // enable with custom config
+ */
+export function normaliseBastion(
+  val: boolean | inputs.aws.VpcBastionArgsArgs | undefined
+): inputs.aws.VpcBastionArgsArgs | undefined {
+  if (val === undefined || val === false) return undefined;
+  if (val === true) return {};
+  return val;
 }

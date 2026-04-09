@@ -4804,8 +4804,164 @@ func (o PABTransformPtrOutput) SkipDestroy() pulumi.BoolPtrOutput {
 	}).(pulumi.BoolPtrOutput)
 }
 
+type VpcBastionArgs struct {
+	// Source IP CIDRs allowed to initiate SSM sessions via IAM policy condition. Omit to allow any authenticated IAM principal. Example: ['203.0.113.0/32'] to restrict to your office IP.
+	AllowedCidrs []string `pulumi:"allowedCidrs"`
+	// EC2 instance type for the bastion host. Default: 't4g.nano' — the bastion is purely a jump box with minimal resource requirements.
+	InstanceType *string `pulumi:"instanceType"`
+}
+
+// VpcBastionArgsInput is an input type that accepts VpcBastionArgsArgs and VpcBastionArgsOutput values.
+// You can construct a concrete instance of `VpcBastionArgsInput` via:
+//
+//	VpcBastionArgsArgs{...}
+type VpcBastionArgsInput interface {
+	pulumi.Input
+
+	ToVpcBastionArgsOutput() VpcBastionArgsOutput
+	ToVpcBastionArgsOutputWithContext(context.Context) VpcBastionArgsOutput
+}
+
+type VpcBastionArgsArgs struct {
+	// Source IP CIDRs allowed to initiate SSM sessions via IAM policy condition. Omit to allow any authenticated IAM principal. Example: ['203.0.113.0/32'] to restrict to your office IP.
+	AllowedCidrs pulumi.StringArrayInput `pulumi:"allowedCidrs"`
+	// EC2 instance type for the bastion host. Default: 't4g.nano' — the bastion is purely a jump box with minimal resource requirements.
+	InstanceType pulumi.StringPtrInput `pulumi:"instanceType"`
+}
+
+func (VpcBastionArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcBastionArgs)(nil)).Elem()
+}
+
+func (i VpcBastionArgsArgs) ToVpcBastionArgsOutput() VpcBastionArgsOutput {
+	return i.ToVpcBastionArgsOutputWithContext(context.Background())
+}
+
+func (i VpcBastionArgsArgs) ToVpcBastionArgsOutputWithContext(ctx context.Context) VpcBastionArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcBastionArgsOutput)
+}
+
+func (i VpcBastionArgsArgs) ToVpcBastionArgsPtrOutput() VpcBastionArgsPtrOutput {
+	return i.ToVpcBastionArgsPtrOutputWithContext(context.Background())
+}
+
+func (i VpcBastionArgsArgs) ToVpcBastionArgsPtrOutputWithContext(ctx context.Context) VpcBastionArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcBastionArgsOutput).ToVpcBastionArgsPtrOutputWithContext(ctx)
+}
+
+// VpcBastionArgsPtrInput is an input type that accepts VpcBastionArgsArgs, VpcBastionArgsPtr and VpcBastionArgsPtrOutput values.
+// You can construct a concrete instance of `VpcBastionArgsPtrInput` via:
+//
+//	        VpcBastionArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type VpcBastionArgsPtrInput interface {
+	pulumi.Input
+
+	ToVpcBastionArgsPtrOutput() VpcBastionArgsPtrOutput
+	ToVpcBastionArgsPtrOutputWithContext(context.Context) VpcBastionArgsPtrOutput
+}
+
+type vpcBastionArgsPtrType VpcBastionArgsArgs
+
+func VpcBastionArgsPtr(v *VpcBastionArgsArgs) VpcBastionArgsPtrInput {
+	return (*vpcBastionArgsPtrType)(v)
+}
+
+func (*vpcBastionArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**VpcBastionArgs)(nil)).Elem()
+}
+
+func (i *vpcBastionArgsPtrType) ToVpcBastionArgsPtrOutput() VpcBastionArgsPtrOutput {
+	return i.ToVpcBastionArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *vpcBastionArgsPtrType) ToVpcBastionArgsPtrOutputWithContext(ctx context.Context) VpcBastionArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcBastionArgsPtrOutput)
+}
+
+type VpcBastionArgsOutput struct{ *pulumi.OutputState }
+
+func (VpcBastionArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcBastionArgs)(nil)).Elem()
+}
+
+func (o VpcBastionArgsOutput) ToVpcBastionArgsOutput() VpcBastionArgsOutput {
+	return o
+}
+
+func (o VpcBastionArgsOutput) ToVpcBastionArgsOutputWithContext(ctx context.Context) VpcBastionArgsOutput {
+	return o
+}
+
+func (o VpcBastionArgsOutput) ToVpcBastionArgsPtrOutput() VpcBastionArgsPtrOutput {
+	return o.ToVpcBastionArgsPtrOutputWithContext(context.Background())
+}
+
+func (o VpcBastionArgsOutput) ToVpcBastionArgsPtrOutputWithContext(ctx context.Context) VpcBastionArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v VpcBastionArgs) *VpcBastionArgs {
+		return &v
+	}).(VpcBastionArgsPtrOutput)
+}
+
+// Source IP CIDRs allowed to initiate SSM sessions via IAM policy condition. Omit to allow any authenticated IAM principal. Example: ['203.0.113.0/32'] to restrict to your office IP.
+func (o VpcBastionArgsOutput) AllowedCidrs() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v VpcBastionArgs) []string { return v.AllowedCidrs }).(pulumi.StringArrayOutput)
+}
+
+// EC2 instance type for the bastion host. Default: 't4g.nano' — the bastion is purely a jump box with minimal resource requirements.
+func (o VpcBastionArgsOutput) InstanceType() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v VpcBastionArgs) *string { return v.InstanceType }).(pulumi.StringPtrOutput)
+}
+
+type VpcBastionArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (VpcBastionArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**VpcBastionArgs)(nil)).Elem()
+}
+
+func (o VpcBastionArgsPtrOutput) ToVpcBastionArgsPtrOutput() VpcBastionArgsPtrOutput {
+	return o
+}
+
+func (o VpcBastionArgsPtrOutput) ToVpcBastionArgsPtrOutputWithContext(ctx context.Context) VpcBastionArgsPtrOutput {
+	return o
+}
+
+func (o VpcBastionArgsPtrOutput) Elem() VpcBastionArgsOutput {
+	return o.ApplyT(func(v *VpcBastionArgs) VpcBastionArgs {
+		if v != nil {
+			return *v
+		}
+		var ret VpcBastionArgs
+		return ret
+	}).(VpcBastionArgsOutput)
+}
+
+// Source IP CIDRs allowed to initiate SSM sessions via IAM policy condition. Omit to allow any authenticated IAM principal. Example: ['203.0.113.0/32'] to restrict to your office IP.
+func (o VpcBastionArgsPtrOutput) AllowedCidrs() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *VpcBastionArgs) []string {
+		if v == nil {
+			return nil
+		}
+		return v.AllowedCidrs
+	}).(pulumi.StringArrayOutput)
+}
+
+// EC2 instance type for the bastion host. Default: 't4g.nano' — the bastion is purely a jump box with minimal resource requirements.
+func (o VpcBastionArgsPtrOutput) InstanceType() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *VpcBastionArgs) *string {
+		if v == nil {
+			return nil
+		}
+		return v.InstanceType
+	}).(pulumi.StringPtrOutput)
+}
+
 type VpcNatArgs struct {
-	// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+	// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'.
 	InstanceType *string `pulumi:"instanceType"`
 	// Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs.
 	NatType VpcNatType `pulumi:"natType"`
@@ -4823,7 +4979,7 @@ type VpcNatArgsInput interface {
 }
 
 type VpcNatArgsArgs struct {
-	// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+	// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'.
 	InstanceType pulumi.StringPtrInput `pulumi:"instanceType"`
 	// Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs.
 	NatType VpcNatTypeInput `pulumi:"natType"`
@@ -4906,7 +5062,7 @@ func (o VpcNatArgsOutput) ToVpcNatArgsPtrOutputWithContext(ctx context.Context) 
 	}).(VpcNatArgsPtrOutput)
 }
 
-// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'.
 func (o VpcNatArgsOutput) InstanceType() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v VpcNatArgs) *string { return v.InstanceType }).(pulumi.StringPtrOutput)
 }
@@ -4940,7 +5096,7 @@ func (o VpcNatArgsPtrOutput) Elem() VpcNatArgsOutput {
 	}).(VpcNatArgsOutput)
 }
 
-// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'.
 func (o VpcNatArgsPtrOutput) InstanceType() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *VpcNatArgs) *string {
 		if v == nil {
@@ -4997,6 +5153,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaTransformArgsPtrInput)(nil)).Elem(), LambdaTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformInput)(nil)).Elem(), PABTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformPtrInput)(nil)).Elem(), PABTransformArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsInput)(nil)).Elem(), VpcBastionArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsPtrInput)(nil)).Elem(), VpcBastionArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatArgsInput)(nil)).Elem(), VpcNatArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatArgsPtrInput)(nil)).Elem(), VpcNatArgsArgs{})
 	pulumi.RegisterOutputType(BucketAccelerateConfigurationTransformOutput{})
@@ -5035,6 +5193,8 @@ func init() {
 	pulumi.RegisterOutputType(LambdaTransformArgsPtrOutput{})
 	pulumi.RegisterOutputType(PABTransformOutput{})
 	pulumi.RegisterOutputType(PABTransformPtrOutput{})
+	pulumi.RegisterOutputType(VpcBastionArgsOutput{})
+	pulumi.RegisterOutputType(VpcBastionArgsPtrOutput{})
 	pulumi.RegisterOutputType(VpcNatArgsOutput{})
 	pulumi.RegisterOutputType(VpcNatArgsPtrOutput{})
 }
