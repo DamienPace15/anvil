@@ -1413,6 +1413,32 @@
       },
       "type": "object"
     },
+    "anvil:aws:VpcLookupArgs": {
+      "properties": {
+        "privateSubnetIds": {
+          "description": "IDs of the private subnets. If omitted, auto-discovered by inspecting route tables — private subnets have no route to an Internet Gateway.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "publicSubnetIds": {
+          "description": "IDs of the public subnets. If omitted, auto-discovered by inspecting route tables — public subnets have a default route to an Internet Gateway.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "vpcId": {
+          "description": "The ID of the existing VPC to import. Anvil does not manage, modify, or own the imported VPC.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vpcId"
+      ],
+      "type": "object"
+    },
     "anvil:aws:VpcNatArgs": {
       "properties": {
         "instanceType": {

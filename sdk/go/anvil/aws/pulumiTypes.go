@@ -5253,6 +5253,15 @@ func (o VpcFlowLogsArgsPtrOutput) S3() VpcS3FlowLogArgsPtrOutput {
 	}).(VpcS3FlowLogArgsPtrOutput)
 }
 
+type VpcLookupArgs struct {
+	// IDs of the private subnets. If omitted, auto-discovered by inspecting route tables — private subnets have no route to an Internet Gateway.
+	PrivateSubnetIds []string `pulumi:"privateSubnetIds"`
+	// IDs of the public subnets. If omitted, auto-discovered by inspecting route tables — public subnets have a default route to an Internet Gateway.
+	PublicSubnetIds []string `pulumi:"publicSubnetIds"`
+	// The ID of the existing VPC to import. Anvil does not manage, modify, or own the imported VPC.
+	VpcId string `pulumi:"vpcId"`
+}
+
 type VpcNatArgs struct {
 	// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'.
 	InstanceType *string `pulumi:"instanceType"`
