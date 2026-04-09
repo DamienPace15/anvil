@@ -185,8 +185,8 @@
           "type": "boolean"
         },
         "vpc": {
-          "description": "VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).",
-          "type": "string"
+          "$ref": "#/types/anvil:aws:LambdaVpcArgs",
+          "description": "Places the Lambda inside a VPC for access to private resources such as RDS or ElastiCache. Anvil creates a dedicated security group with zero inbound and zero outbound rules. Nothing is reachable until explicitly granted via the grant system."
         }
       },
       "isComponent": true,
@@ -205,6 +205,10 @@
         },
         "roleArn": {
           "description": "The ARN of the Lambda's IAM execution role.",
+          "type": "string"
+        },
+        "securityGroupId": {
+          "description": "The ID of the dedicated security group created for this Lambda. Only populated when vpc is set. Use this to grant other resources access to this Lambda via the grant system.",
           "type": "string"
         }
       },
@@ -1327,6 +1331,26 @@
           "$ref": "#/types/anvil:aws:LambdaOverrides"
         }
       },
+      "type": "object"
+    },
+    "anvil:aws:LambdaVpcArgs": {
+      "properties": {
+        "privateSubnetIds": {
+          "description": "The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "vpcId": {
+          "description": "The ID of the VPC to place the Lambda in.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vpcId",
+        "privateSubnetIds"
+      ],
       "type": "object"
     },
     "anvil:aws:PABTransform": {

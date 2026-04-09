@@ -51,6 +51,8 @@ __all__ = [
     'LambdaPermissionArgsDict',
     'LambdaTransformArgsArgs',
     'LambdaTransformArgsArgsDict',
+    'LambdaVpcArgsArgs',
+    'LambdaVpcArgsArgsDict',
     'PABTransformArgs',
     'PABTransformArgsDict',
     'VpcBastionArgsArgs',
@@ -2681,6 +2683,53 @@ class LambdaTransformArgsArgs:
     @lambda_.setter
     def lambda_(self, value: Optional[pulumi.Input['LambdaOverridesArgs']]):
         pulumi.set(self, "lambda_", value)
+
+
+class LambdaVpcArgsArgsDict(TypedDict):
+    private_subnet_ids: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]
+    """
+    The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
+    """
+    vpc_id: pulumi.Input[_builtins.str]
+    """
+    The ID of the VPC to place the Lambda in.
+    """
+
+@pulumi.input_type
+class LambdaVpcArgsArgs:
+    def __init__(__self__, *,
+                 private_subnet_ids: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]],
+                 vpc_id: pulumi.Input[_builtins.str]):
+        """
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] private_subnet_ids: The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
+        :param pulumi.Input[_builtins.str] vpc_id: The ID of the VPC to place the Lambda in.
+        """
+        pulumi.set(__self__, "private_subnet_ids", private_subnet_ids)
+        pulumi.set(__self__, "vpc_id", vpc_id)
+
+    @_builtins.property
+    @pulumi.getter(name="privateSubnetIds")
+    def private_subnet_ids(self) -> pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]:
+        """
+        The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
+        """
+        return pulumi.get(self, "private_subnet_ids")
+
+    @private_subnet_ids.setter
+    def private_subnet_ids(self, value: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]):
+        pulumi.set(self, "private_subnet_ids", value)
+
+    @_builtins.property
+    @pulumi.getter(name="vpcId")
+    def vpc_id(self) -> pulumi.Input[_builtins.str]:
+        """
+        The ID of the VPC to place the Lambda in.
+        """
+        return pulumi.get(self, "vpc_id")
+
+    @vpc_id.setter
+    def vpc_id(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "vpc_id", value)
 
 
 class PABTransformArgsDict(TypedDict):

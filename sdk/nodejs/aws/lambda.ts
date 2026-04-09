@@ -44,6 +44,10 @@ export class Lambda extends pulumi.ComponentResource {
      * The ARN of the Lambda's IAM execution role.
      */
     declare public /*out*/ readonly roleArn: pulumi.Output<string>;
+    /**
+     * The ID of the dedicated security group created for this Lambda. Only populated when vpc is set. Use this to grant other resources access to this Lambda via the grant system.
+     */
+    declare public /*out*/ readonly securityGroupId: pulumi.Output<string | undefined>;
 
     /**
      * Create a Lambda resource with the given unique name, arguments, and options.
@@ -80,11 +84,13 @@ export class Lambda extends pulumi.ComponentResource {
             resourceInputs["functionName"] = undefined /*out*/;
             resourceInputs["functionUrl"] = undefined /*out*/;
             resourceInputs["roleArn"] = undefined /*out*/;
+            resourceInputs["securityGroupId"] = undefined /*out*/;
         } else {
             resourceInputs["arn"] = undefined /*out*/;
             resourceInputs["functionName"] = undefined /*out*/;
             resourceInputs["functionUrl"] = undefined /*out*/;
             resourceInputs["roleArn"] = undefined /*out*/;
+            resourceInputs["securityGroupId"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(Lambda.__pulumiType, name, resourceInputs, opts, true /*remote*/);
@@ -112,6 +118,27 @@ export class Lambda extends pulumi.ComponentResource {
     public grantRoleArn(): pulumi.Output<string> {
         return this.roleArn;
     }
+
+  /**
+   * Grants internet egress from this Lambda's security group.
+   * Opt-in only — a VPC-attached Lambda with no grantEgress has
+   * zero outbound internet access by default.
+   *
+   * Defaults to port 443 (HTTPS) if ports is omitted.
+   *
+   * @example
+   * fn.grantEgress({ internet: true })                        // 443 only (default)
+   * fn.grantEgress({ internet: true, ports: [80, 443] })      // HTTP + HTTPS
+   * fn.grantEgress({ internet: true, allPorts: true })        // unrestricted — code review signal
+   */
+  public grantEgress(args: grants.EgressArgs): void {
+      if (!this.securityGroupId) {
+          throw new Error(
+              `Lambda "${this.__name}" has no VPC — grantEgress requires vpc to be set.`
+          );
+      }
+      grants.createEgressGrant(this, this.__name, this.securityGroupId as pulumi.Output<string>, args);
+  }
 
 }
 
@@ -169,7 +196,7 @@ export interface LambdaArgs {
      */
     url?: pulumi.Input<boolean>;
     /**
-     * VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).
+     * Places the Lambda inside a VPC for access to private resources such as RDS or ElastiCache. Anvil creates a dedicated security group with zero inbound and zero outbound rules. Nothing is reachable until explicitly granted via the grant system.
      */
-    vpc?: pulumi.Input<string>;
+    vpc?: pulumi.Input<inputs.aws.LambdaVpcArgsArgs>;
 }

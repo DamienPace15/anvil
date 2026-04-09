@@ -25,6 +25,10 @@ import {
   generatePyGrantTargetMethods,
   toSnakeCase,
 } from './generators';
+import {
+  EGRESS_GRANT_CONFIGS,
+  EgressGrantConfig,
+} from './configs/egress-config';
 
 // ── Paths ──────────────────────────────────────────────────
 
@@ -118,7 +122,7 @@ function ensurePyGrantsImport(content: string): string {
   return lines.join('\n');
 }
 
-// ── Patching ───────────────────────────────────────────────
+// ── IAM grant patching ─────────────────────────────────────
 
 function patchTSFile(
   file: string,
@@ -239,6 +243,126 @@ function patchPyFile(
   console.log(`  ✔ Patched ${file} → ${patched.join(', ')}`);
 }
 
+// ── Egress grant patching ──────────────────────────────────
+
+function patchEgressTS(config: EgressGrantConfig): void {
+  const filePath = path.join(tsDir, config.tsFile);
+  if (!fs.existsSync(filePath)) {
+    console.log(`  ⚠ ${config.tsFile} not found — skipping egress patch`);
+    return;
+  }
+
+  let content = fs.readFileSync(filePath, 'utf8');
+
+  if (content.includes('grantEgress(')) {
+    console.log(`  ⏭ ${config.tsFile} grantEgress already patched — skipping`);
+    return;
+  }
+
+  // Ensure grants import is present.
+  content = ensureGrantsImport(content);
+  content = ensureNameProperty(content);
+
+  const method = `
+  /**
+   * Grants internet egress from this ${config.className}'s security group.
+   * Opt-in only — a VPC-attached ${config.className} with no grantEgress has
+   * zero outbound internet access by default.
+   *
+   * Defaults to port 443 (HTTPS) if ports is omitted.
+   *
+   * @example
+   * fn.grantEgress({ internet: true })                        // 443 only (default)
+   * fn.grantEgress({ internet: true, ports: [80, 443] })      // HTTP + HTTPS
+   * fn.grantEgress({ internet: true, allPorts: true })        // unrestricted — code review signal
+   */
+  public grantEgress(args: grants.EgressArgs): void {
+      if (!this.${config.securityGroupIdProperty}) {
+          throw new Error(
+              \`${config.className} "\${this.__name}" has no VPC — grantEgress requires vpc to be set.\`
+          );
+      }
+      grants.createEgressGrant(this, this.__name, this.${config.securityGroupIdProperty} as pulumi.Output<string>, args);
+  }
+`;
+
+  const classEnd = findClassEnd(content);
+  if (classEnd >= 0) {
+    content = content.slice(0, classEnd) + method + content.slice(classEnd);
+    fs.writeFileSync(filePath, content);
+    console.log(
+      `  ✔ Patched ${config.tsFile} → grantEgress on ${config.className}`
+    );
+  } else {
+    console.log(
+      `  ⚠ Could not find class end in ${config.tsFile} — skipping egress patch`
+    );
+  }
+}
+
+function patchEgressPython(config: EgressGrantConfig): void {
+  const filePath = path.join(pyDir, config.pyFile);
+  if (!fs.existsSync(filePath)) {
+    console.log(`  ⚠ ${config.pyFile} not found — skipping egress patch`);
+    return;
+  }
+
+  let content = fs.readFileSync(filePath, 'utf8');
+
+  if (content.includes('def grant_egress(')) {
+    console.log(`  ⏭ ${config.pyFile} grant_egress already patched — skipping`);
+    return;
+  }
+
+  // Ensure Optional is imported.
+  if (!content.includes('Optional')) {
+    content = content.replace(
+      'from typing import',
+      'from typing import Optional,'
+    );
+  }
+
+  const method = [
+    '',
+    '    def grant_egress(',
+    '        self,',
+    '        internet: bool,',
+    '        ports: Optional[list] = None,',
+    '        all_ports: bool = False,',
+    '    ) -> None:',
+    `        """`,
+    `        Grants internet egress from this ${config.className}'s security group.`,
+    `        Opt-in only — a VPC-attached ${config.className} with no grant_egress`,
+    `        has zero outbound internet access by default.`,
+    ``,
+    `        Defaults to port 443 (HTTPS) if ports is omitted.`,
+    ``,
+    `        Examples::`,
+    ``,
+    `            fn.grant_egress(internet=True)                       # 443 only`,
+    `            fn.grant_egress(internet=True, ports=[80, 443])      # HTTP + HTTPS`,
+    `            fn.grant_egress(internet=True, all_ports=True)       # unrestricted`,
+    `        """`,
+    `        from anvil_cloud import grants as _grants`,
+    `        if not self.${config.pySecurityGroupIdProperty}:`,
+    `            raise ValueError(`,
+    `                f'${config.className} "{self.__name}" has no VPC — '`,
+    `                'grant_egress requires vpc to be set.'`,
+    `            )`,
+    `        _grants.create_egress_grant(`,
+    `            self, self.__name, self.${config.pySecurityGroupIdProperty},`,
+    `            internet, ports, all_ports`,
+    `        )`,
+    '',
+  ].join('\n');
+
+  content = content.trimEnd() + '\n' + method + '\n';
+  fs.writeFileSync(filePath, content);
+  console.log(
+    `  ✔ Patched ${config.pyFile} → grant_egress on ${config.className}`
+  );
+}
+
 // ── Main ───────────────────────────────────────────────────
 
 interface FilePatches {
@@ -284,5 +408,21 @@ if (doPython) {
   for (const [file, configs] of Object.entries(pyFileMap)) {
     patchPyFile(file, configs.grantConfig, configs.grantTargetConfig);
   }
-  console.log('✔ Python grant patching complete');
+  console.log('✔ Python grant patching complete\n');
+}
+
+if (doTS) {
+  console.log('🌐 Patching TypeScript SDK with egress grant methods...');
+  for (const config of EGRESS_GRANT_CONFIGS) {
+    patchEgressTS(config);
+  }
+  console.log('✔ TypeScript egress grant patching complete\n');
+}
+
+if (doPython) {
+  console.log('🌐 Patching Python SDK with egress grant methods...');
+  for (const config of EGRESS_GRANT_CONFIGS) {
+    patchEgressPython(config);
+  }
+  console.log('✔ Python egress grant patching complete\n');
 }
