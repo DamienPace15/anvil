@@ -526,6 +526,173 @@ func (in *lambdaRuntimePtr) ToLambdaRuntimePtrOutputWithContext(ctx context.Cont
 	return pulumi.ToOutputWithContext(ctx, in).(LambdaRuntimePtrOutput)
 }
 
+type VpcNatType string
+
+const (
+	// AWS managed NAT Gateway. One per AZ for true HA. ~$32/month per AZ plus $0.045/GB data processed.
+	VpcNatTypeGateway = VpcNatType("gateway")
+	// fck-nat EC2 instance. Single instance regardless of AZ count. ~$4-6/month for t4g.small. Accepted single point of failure tradeoff for cost savings.
+	VpcNatType_Fck_Nat = VpcNatType("fck-nat")
+)
+
+func (VpcNatType) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcNatType)(nil)).Elem()
+}
+
+func (e VpcNatType) ToVpcNatTypeOutput() VpcNatTypeOutput {
+	return pulumi.ToOutput(e).(VpcNatTypeOutput)
+}
+
+func (e VpcNatType) ToVpcNatTypeOutputWithContext(ctx context.Context) VpcNatTypeOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(VpcNatTypeOutput)
+}
+
+func (e VpcNatType) ToVpcNatTypePtrOutput() VpcNatTypePtrOutput {
+	return e.ToVpcNatTypePtrOutputWithContext(context.Background())
+}
+
+func (e VpcNatType) ToVpcNatTypePtrOutputWithContext(ctx context.Context) VpcNatTypePtrOutput {
+	return VpcNatType(e).ToVpcNatTypeOutputWithContext(ctx).ToVpcNatTypePtrOutputWithContext(ctx)
+}
+
+func (e VpcNatType) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e VpcNatType) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e VpcNatType) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e VpcNatType) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type VpcNatTypeOutput struct{ *pulumi.OutputState }
+
+func (VpcNatTypeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcNatType)(nil)).Elem()
+}
+
+func (o VpcNatTypeOutput) ToVpcNatTypeOutput() VpcNatTypeOutput {
+	return o
+}
+
+func (o VpcNatTypeOutput) ToVpcNatTypeOutputWithContext(ctx context.Context) VpcNatTypeOutput {
+	return o
+}
+
+func (o VpcNatTypeOutput) ToVpcNatTypePtrOutput() VpcNatTypePtrOutput {
+	return o.ToVpcNatTypePtrOutputWithContext(context.Background())
+}
+
+func (o VpcNatTypeOutput) ToVpcNatTypePtrOutputWithContext(ctx context.Context) VpcNatTypePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v VpcNatType) *VpcNatType {
+		return &v
+	}).(VpcNatTypePtrOutput)
+}
+
+func (o VpcNatTypeOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o VpcNatTypeOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e VpcNatType) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o VpcNatTypeOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o VpcNatTypeOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e VpcNatType) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type VpcNatTypePtrOutput struct{ *pulumi.OutputState }
+
+func (VpcNatTypePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**VpcNatType)(nil)).Elem()
+}
+
+func (o VpcNatTypePtrOutput) ToVpcNatTypePtrOutput() VpcNatTypePtrOutput {
+	return o
+}
+
+func (o VpcNatTypePtrOutput) ToVpcNatTypePtrOutputWithContext(ctx context.Context) VpcNatTypePtrOutput {
+	return o
+}
+
+func (o VpcNatTypePtrOutput) Elem() VpcNatTypeOutput {
+	return o.ApplyT(func(v *VpcNatType) VpcNatType {
+		if v != nil {
+			return *v
+		}
+		var ret VpcNatType
+		return ret
+	}).(VpcNatTypeOutput)
+}
+
+func (o VpcNatTypePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o VpcNatTypePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *VpcNatType) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// VpcNatTypeInput is an input type that accepts values of the VpcNatType enum
+// A concrete instance of `VpcNatTypeInput` can be one of the following:
+//
+//	VpcNatTypeGateway
+//	VpcNatType_Fck_Nat
+type VpcNatTypeInput interface {
+	pulumi.Input
+
+	ToVpcNatTypeOutput() VpcNatTypeOutput
+	ToVpcNatTypeOutputWithContext(context.Context) VpcNatTypeOutput
+}
+
+var vpcNatTypePtrType = reflect.TypeOf((**VpcNatType)(nil)).Elem()
+
+type VpcNatTypePtrInput interface {
+	pulumi.Input
+
+	ToVpcNatTypePtrOutput() VpcNatTypePtrOutput
+	ToVpcNatTypePtrOutputWithContext(context.Context) VpcNatTypePtrOutput
+}
+
+type vpcNatTypePtr string
+
+func VpcNatTypePtr(v string) VpcNatTypePtrInput {
+	return (*vpcNatTypePtr)(&v)
+}
+
+func (*vpcNatTypePtr) ElementType() reflect.Type {
+	return vpcNatTypePtrType
+}
+
+func (in *vpcNatTypePtr) ToVpcNatTypePtrOutput() VpcNatTypePtrOutput {
+	return pulumi.ToOutput(in).(VpcNatTypePtrOutput)
+}
+
+func (in *vpcNatTypePtr) ToVpcNatTypePtrOutputWithContext(ctx context.Context) VpcNatTypePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(VpcNatTypePtrOutput)
+}
+
 func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaArchitectureInput)(nil)).Elem(), LambdaArchitecture("arm64"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaArchitecturePtrInput)(nil)).Elem(), LambdaArchitecture("arm64"))
@@ -533,10 +700,14 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaLogRetentionPtrInput)(nil)).Elem(), LambdaLogRetention("7d"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaRuntimeInput)(nil)).Elem(), LambdaRuntime("nodejs24.x"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaRuntimePtrInput)(nil)).Elem(), LambdaRuntime("nodejs24.x"))
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypeInput)(nil)).Elem(), VpcNatType("gateway"))
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypePtrInput)(nil)).Elem(), VpcNatType("gateway"))
 	pulumi.RegisterOutputType(LambdaArchitectureOutput{})
 	pulumi.RegisterOutputType(LambdaArchitecturePtrOutput{})
 	pulumi.RegisterOutputType(LambdaLogRetentionOutput{})
 	pulumi.RegisterOutputType(LambdaLogRetentionPtrOutput{})
 	pulumi.RegisterOutputType(LambdaRuntimeOutput{})
 	pulumi.RegisterOutputType(LambdaRuntimePtrOutput{})
+	pulumi.RegisterOutputType(VpcNatTypeOutput{})
+	pulumi.RegisterOutputType(VpcNatTypePtrOutput{})
 }

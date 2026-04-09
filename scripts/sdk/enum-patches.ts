@@ -65,6 +65,18 @@ export const ENUM_PATCHES: EnumPatchConfig[] = [
       },
     ],
   },
+  {
+    tsFile: 'aws/vpc.ts',
+    pyFile: 'aws/vpc.py',
+    fields: [
+      {
+        field: 'natType',
+        required: true,
+        tsEnumType: 'enums.aws.VpcNatType',
+        pyEnumType: 'VpcNatType',
+      },
+    ],
+  },
 
   // ── AWS Bucket ─────────────────────────────────────────
   // Add bucket enum patches here when storageTransition and

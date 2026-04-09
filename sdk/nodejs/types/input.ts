@@ -577,6 +577,17 @@ export namespace aws {
          */
         skipDestroy?: pulumi.Input<boolean>;
     }
+
+    export interface VpcNatArgsArgs {
+        /**
+         * EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+         */
+        instanceType?: pulumi.Input<string>;
+        /**
+         * Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs.
+         */
+        natType: pulumi.Input<enums.aws.VpcNatType>;
+    }
 }
 
 export namespace gcp {

@@ -260,6 +260,62 @@
         }
       }
     },
+    "anvil:aws:Vpc": {
+      "inputProperties": {
+        "availabilityZones": {
+          "description": "Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Set to 3 for production high-availability workloads. Inherits from App.defaults.availability when not set — 'high' maps to 3, 'low' maps to 1.",
+          "type": "integer"
+        },
+        "cidr": {
+          "description": "The IPv4 CIDR block for the VPC. Default: '10.0.0.0/16'. Public subnets carved from offset 0 (/24 each), private subnets from offset 10 (/24 each).",
+          "type": "string"
+        },
+        "nat": {
+          "$ref": "#/types/anvil:aws:VpcNatArgs",
+          "description": "Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC with no outbound internet."
+        }
+      },
+      "isComponent": true,
+      "properties": {
+        "availabilityZones": {
+          "description": "The resolved Availability Zone names deployed into, e.g. ['ap-southeast-2a', 'ap-southeast-2b']. Downstream components (RDS Multi-AZ, ECS spread) consume this directly.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "defaultSecurityGroupId": {
+          "description": "The ID of the VPC's default security group. All rules have been removed — not used by Anvil components but exposed for reference.",
+          "type": "string"
+        },
+        "privateSubnetIds": {
+          "description": "The IDs of the private subnets, one per Availability Zone. Used by Lambda, ECS tasks, EC2 instances, and RDS.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "publicSubnetIds": {
+          "description": "The IDs of the public subnets, one per Availability Zone. Used by load balancers, NAT Gateways, and bastion hosts.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "vpcId": {
+          "description": "The ID of the VPC.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "vpcId",
+        "privateSubnetIds",
+        "publicSubnetIds",
+        "availabilityZones",
+        "defaultSecurityGroupId"
+      ],
+      "requiredInputs": []
+    },
     "anvil:gcp:Function": {
       "inputProperties": {
         "entryPoint": {
@@ -1290,6 +1346,35 @@
         }
       },
       "type": "object"
+    },
+    "anvil:aws:VpcNatArgs": {
+      "properties": {
+        "instanceType": {
+          "description": "EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.",
+          "type": "string"
+        },
+        "natType": {
+          "$ref": "#/types/anvil:aws:VpcNatType",
+          "description": "Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs."
+        }
+      },
+      "required": [
+        "natType"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:VpcNatType": {
+      "enum": [
+        {
+          "description": "AWS managed NAT Gateway. One per AZ for true HA. ~$32/month per AZ plus $0.045/GB data processed.",
+          "value": "gateway"
+        },
+        {
+          "description": "fck-nat EC2 instance. Single instance regardless of AZ count. ~$4-6/month for t4g.small. Accepted single point of failure tradeoff for cost savings.",
+          "value": "fck-nat"
+        }
+      ],
+      "type": "string"
     },
     "anvil:gcp:BucketOverrides": {
       "properties": {

@@ -20,6 +20,11 @@ export type SvelteKitSite = import("./svelteKitSite").SvelteKitSite;
 export const SvelteKitSite: typeof import("./svelteKitSite").SvelteKitSite = null as any;
 utilities.lazyLoad(exports, ["SvelteKitSite"], () => require("./svelteKitSite"));
 
+export { VpcArgs } from "./vpc";
+export type Vpc = import("./vpc").Vpc;
+export const Vpc: typeof import("./vpc").Vpc = null as any;
+utilities.lazyLoad(exports, ["Vpc"], () => require("./vpc"));
+
 
 // Export enums:
 export * from "../types/enums/aws";
@@ -34,6 +39,8 @@ const _module = {
                 return new Lambda(name, <any>undefined, { urn })
             case "anvil:aws:SvelteKitSite":
                 return new SvelteKitSite(name, <any>undefined, { urn })
+            case "anvil:aws:Vpc":
+                return new Vpc(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

@@ -4804,6 +4804,162 @@ func (o PABTransformPtrOutput) SkipDestroy() pulumi.BoolPtrOutput {
 	}).(pulumi.BoolPtrOutput)
 }
 
+type VpcNatArgs struct {
+	// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+	InstanceType *string `pulumi:"instanceType"`
+	// Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs.
+	NatType VpcNatType `pulumi:"natType"`
+}
+
+// VpcNatArgsInput is an input type that accepts VpcNatArgsArgs and VpcNatArgsOutput values.
+// You can construct a concrete instance of `VpcNatArgsInput` via:
+//
+//	VpcNatArgsArgs{...}
+type VpcNatArgsInput interface {
+	pulumi.Input
+
+	ToVpcNatArgsOutput() VpcNatArgsOutput
+	ToVpcNatArgsOutputWithContext(context.Context) VpcNatArgsOutput
+}
+
+type VpcNatArgsArgs struct {
+	// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+	InstanceType pulumi.StringPtrInput `pulumi:"instanceType"`
+	// Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs.
+	NatType VpcNatTypeInput `pulumi:"natType"`
+}
+
+func (VpcNatArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcNatArgs)(nil)).Elem()
+}
+
+func (i VpcNatArgsArgs) ToVpcNatArgsOutput() VpcNatArgsOutput {
+	return i.ToVpcNatArgsOutputWithContext(context.Background())
+}
+
+func (i VpcNatArgsArgs) ToVpcNatArgsOutputWithContext(ctx context.Context) VpcNatArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcNatArgsOutput)
+}
+
+func (i VpcNatArgsArgs) ToVpcNatArgsPtrOutput() VpcNatArgsPtrOutput {
+	return i.ToVpcNatArgsPtrOutputWithContext(context.Background())
+}
+
+func (i VpcNatArgsArgs) ToVpcNatArgsPtrOutputWithContext(ctx context.Context) VpcNatArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcNatArgsOutput).ToVpcNatArgsPtrOutputWithContext(ctx)
+}
+
+// VpcNatArgsPtrInput is an input type that accepts VpcNatArgsArgs, VpcNatArgsPtr and VpcNatArgsPtrOutput values.
+// You can construct a concrete instance of `VpcNatArgsPtrInput` via:
+//
+//	        VpcNatArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type VpcNatArgsPtrInput interface {
+	pulumi.Input
+
+	ToVpcNatArgsPtrOutput() VpcNatArgsPtrOutput
+	ToVpcNatArgsPtrOutputWithContext(context.Context) VpcNatArgsPtrOutput
+}
+
+type vpcNatArgsPtrType VpcNatArgsArgs
+
+func VpcNatArgsPtr(v *VpcNatArgsArgs) VpcNatArgsPtrInput {
+	return (*vpcNatArgsPtrType)(v)
+}
+
+func (*vpcNatArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**VpcNatArgs)(nil)).Elem()
+}
+
+func (i *vpcNatArgsPtrType) ToVpcNatArgsPtrOutput() VpcNatArgsPtrOutput {
+	return i.ToVpcNatArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *vpcNatArgsPtrType) ToVpcNatArgsPtrOutputWithContext(ctx context.Context) VpcNatArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcNatArgsPtrOutput)
+}
+
+type VpcNatArgsOutput struct{ *pulumi.OutputState }
+
+func (VpcNatArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcNatArgs)(nil)).Elem()
+}
+
+func (o VpcNatArgsOutput) ToVpcNatArgsOutput() VpcNatArgsOutput {
+	return o
+}
+
+func (o VpcNatArgsOutput) ToVpcNatArgsOutputWithContext(ctx context.Context) VpcNatArgsOutput {
+	return o
+}
+
+func (o VpcNatArgsOutput) ToVpcNatArgsPtrOutput() VpcNatArgsPtrOutput {
+	return o.ToVpcNatArgsPtrOutputWithContext(context.Background())
+}
+
+func (o VpcNatArgsOutput) ToVpcNatArgsPtrOutputWithContext(ctx context.Context) VpcNatArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v VpcNatArgs) *VpcNatArgs {
+		return &v
+	}).(VpcNatArgsPtrOutput)
+}
+
+// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+func (o VpcNatArgsOutput) InstanceType() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v VpcNatArgs) *string { return v.InstanceType }).(pulumi.StringPtrOutput)
+}
+
+// Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs.
+func (o VpcNatArgsOutput) NatType() VpcNatTypeOutput {
+	return o.ApplyT(func(v VpcNatArgs) VpcNatType { return v.NatType }).(VpcNatTypeOutput)
+}
+
+type VpcNatArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (VpcNatArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**VpcNatArgs)(nil)).Elem()
+}
+
+func (o VpcNatArgsPtrOutput) ToVpcNatArgsPtrOutput() VpcNatArgsPtrOutput {
+	return o
+}
+
+func (o VpcNatArgsPtrOutput) ToVpcNatArgsPtrOutputWithContext(ctx context.Context) VpcNatArgsPtrOutput {
+	return o
+}
+
+func (o VpcNatArgsPtrOutput) Elem() VpcNatArgsOutput {
+	return o.ApplyT(func(v *VpcNatArgs) VpcNatArgs {
+		if v != nil {
+			return *v
+		}
+		var ret VpcNatArgs
+		return ret
+	}).(VpcNatArgsOutput)
+}
+
+// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+func (o VpcNatArgsPtrOutput) InstanceType() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *VpcNatArgs) *string {
+		if v == nil {
+			return nil
+		}
+		return v.InstanceType
+	}).(pulumi.StringPtrOutput)
+}
+
+// Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs.
+func (o VpcNatArgsPtrOutput) NatType() VpcNatTypePtrOutput {
+	return o.ApplyT(func(v *VpcNatArgs) *VpcNatType {
+		if v == nil {
+			return nil
+		}
+		return &v.NatType
+	}).(VpcNatTypePtrOutput)
+}
+
 func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketAccelerateConfigurationTransformInput)(nil)).Elem(), BucketAccelerateConfigurationTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketAccelerateConfigurationTransformPtrInput)(nil)).Elem(), BucketAccelerateConfigurationTransformArgs{})
@@ -4841,6 +4997,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaTransformArgsPtrInput)(nil)).Elem(), LambdaTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformInput)(nil)).Elem(), PABTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformPtrInput)(nil)).Elem(), PABTransformArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatArgsInput)(nil)).Elem(), VpcNatArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatArgsPtrInput)(nil)).Elem(), VpcNatArgsArgs{})
 	pulumi.RegisterOutputType(BucketAccelerateConfigurationTransformOutput{})
 	pulumi.RegisterOutputType(BucketAccelerateConfigurationTransformPtrOutput{})
 	pulumi.RegisterOutputType(BucketAclTransformOutput{})
@@ -4877,4 +5035,6 @@ func init() {
 	pulumi.RegisterOutputType(LambdaTransformArgsPtrOutput{})
 	pulumi.RegisterOutputType(PABTransformOutput{})
 	pulumi.RegisterOutputType(PABTransformPtrOutput{})
+	pulumi.RegisterOutputType(VpcNatArgsOutput{})
+	pulumi.RegisterOutputType(VpcNatArgsPtrOutput{})
 }
