@@ -7,6 +7,7 @@ import (
 
 	provider "github.com/DamienPace15/anvil/provider/internal/shared"
 	"github.com/DamienPace15/anvil/provider/internal/transform"
+	"github.com/DamienPace15/anvil/provider/internal/vpcsg"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cloudwatch"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/iam"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/lambda"
@@ -86,8 +87,10 @@ type LambdaArgs struct {
 	URL bool `pulumi:"url,optional"`
 
 	// Vpc places the Lambda inside a VPC for access to private resources
-	// such as RDS or ElastiCache. Provide the VPC ID.
-	Vpc string `pulumi:"vpc,optional"`
+	// such as RDS or ElastiCache. Anvil creates a dedicated security group
+	// with zero inbound and zero outbound rules. Nothing is reachable until
+	// explicitly granted via the grant system.
+	Vpc *vpcsg.VpcPlacementArgs `pulumi:"vpc,optional"`
 
 	// Permissions defines inline IAM permissions added to the execution role.
 	// Use this for ad-hoc access not covered by the grant system.
@@ -114,12 +117,12 @@ type LambdaArgs struct {
 type Lambda struct {
 	pulumi.ResourceState
 
-	Arn          pulumi.StringOutput `pulumi:"arn"`
-	FunctionName pulumi.StringOutput `pulumi:"functionName"`
-	RoleArn      pulumi.StringOutput `pulumi:"roleArn"`
-	FunctionUrl  pulumi.StringOutput `pulumi:"functionUrl"`
-	name         string
-	roleArn      pulumi.StringOutput
+	Arn             pulumi.StringOutput `pulumi:"arn"`
+	FunctionName    pulumi.StringOutput `pulumi:"functionName"`
+	RoleArn         pulumi.StringOutput `pulumi:"roleArn"`
+	FunctionUrl     pulumi.StringOutput `pulumi:"functionUrl"`
+	SecurityGroupID pulumi.StringOutput `pulumi:"securityGroupId"`
+	name            string
 }
 
 // Name implements provider.GrantTarget.
@@ -129,7 +132,13 @@ func (l *Lambda) Name() string {
 
 // RoleARN implements provider.GrantTarget.
 func (l *Lambda) RoleARN() pulumi.StringOutput {
-	return l.roleArn
+	return l.RoleArn
+}
+
+// SecurityGroupId implements provider.GrantTarget.
+// Returns an empty StringOutput if the Lambda is not VPC-attached.
+func (l *Lambda) SecurityGroupId() pulumi.StringOutput {
+	return l.SecurityGroupID
 }
 
 func (l *Lambda) Annotate(a infer.Annotator) {
@@ -278,9 +287,18 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 
 	// ── 3. Basic execution policy ──────────────────────
 	// Grants CloudWatch Logs write access. Required for any Lambda.
+	// When VPC-attached, AWSLambdaVPCAccessExecutionRole is used instead
+	// as it is a superset — it includes CloudWatch Logs + ENI management.
+	var basicExecPolicyArn string
+	if args.Vpc != nil {
+		basicExecPolicyArn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+	} else {
+		basicExecPolicyArn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+	}
+
 	err = ctx.RegisterResource("aws:iam/rolePolicyAttachment:RolePolicyAttachment", name+"-basic-exec", pulumi.Map{
 		"role":      role.Name,
-		"policyArn": pulumi.String("arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"),
+		"policyArn": pulumi.String(basicExecPolicyArn),
 	}, &iam.RolePolicyAttachment{}, pulumi.Parent(l))
 	if err != nil {
 		return nil, err
@@ -290,9 +308,8 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 	// Additional IAM permissions from the permissions field.
 	// Each permission becomes a separate inline role policy for a
 	// clear audit trail and easy revocation.
-	// Resource accepts both plain strings and Pulumi outputs (e.g. bucket.arn).
 	for i, perm := range args.Permissions {
-		i, perm := i, perm // capture loop vars for closure
+		i, perm := i, perm
 
 		policyJSON := pulumi.ToOutput(perm.Resource).ApplyT(func(res interface{}) (string, error) {
 			resource := fmt.Sprintf("%v", res)
@@ -338,10 +355,20 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 		}
 	}
 
-	// ── 5. Lambda Function ─────────────────────────────
-	// Code source resolution:
-	//   - CLI bundler sets anvil:fn:{name} in Pulumi config with the zip path
-	//   - Falls back to inline blank placeholder if no zip path is set
+	// ── 5. VPC security group (optional) ──────────────
+	// When vpc is set, create a dedicated security group with zero inbound
+	// and zero outbound rules. Nothing is reachable until explicitly granted.
+	// AWSLambdaVPCAccessExecutionRole (attached above) gives the Lambda
+	// permission to create and manage its own ENIs in the VPC.
+	if args.Vpc != nil {
+		sg, err := vpcsg.CreateSecurityGroup(ctx, name, stage, stageId, args.Vpc.VpcId, l)
+		if err != nil {
+			return nil, err
+		}
+		l.SecurityGroupID = sg.ID().ToStringOutput()
+	}
+
+	// ── 6. Lambda Function ─────────────────────────────
 	var codeArchive pulumi.Archive
 	if zipPath != "" {
 		codeArchive = pulumi.NewFileArchive(zipPath)
@@ -368,7 +395,19 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 		},
 	}
 
-	// Environment variables
+	// VPC config — attach to private subnets with dedicated SG.
+	if args.Vpc != nil {
+		subnetIds := make(pulumi.StringArray, len(args.Vpc.PrivateSubnetIds))
+		for i, id := range args.Vpc.PrivateSubnetIds {
+			subnetIds[i] = pulumi.String(id)
+		}
+		lambdaMap["vpcConfig"] = pulumi.Map{
+			"subnetIds":        subnetIds,
+			"securityGroupIds": pulumi.StringArray{l.SecurityGroupID},
+		}
+	}
+
+	// Environment variables.
 	if len(args.Environment) > 0 {
 		envVars := pulumi.StringMap{}
 		for k, v := range args.Environment {
@@ -379,7 +418,6 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 		}
 	}
 
-	// KMS encryption for environment variables
 	if args.Encryption == "kms" {
 		ctx.Log.Info("ℹ KMS encryption enabled for environment variables. Supply kmsKeyArn via transform[\"lambda\"].", nil)
 	}
@@ -395,9 +433,7 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 		return nil, err
 	}
 
-	// ── 6. Function URL ────────────────────────────────
-	// Tier 2: opt-in via url: true. Auth mode is always AWS_IAM —
-	// the endpoint is never publicly accessible.
+	// ── 7. Function URL ────────────────────────────────
 	var functionUrl pulumi.StringOutput
 	if args.URL {
 		urlProps := transform.MergeTransform(args.Transform["url"], pulumi.Map{
@@ -412,19 +448,20 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 		functionUrl = urlRes.FunctionUrl
 	}
 
+	// ── 8. Wire outputs ────────────────────────────────
 	l.Arn = res.Arn
 	l.FunctionName = res.Name
 	l.RoleArn = role.Arn
-	l.roleArn = role.Arn
 	if args.URL {
 		l.FunctionUrl = functionUrl
 	}
 
 	ctx.RegisterResourceOutputs(l, pulumi.Map{
-		"arn":          res.Arn,
-		"functionName": res.Name,
-		"roleArn":      role.Arn,
-		"functionUrl":  functionUrl,
+		"arn":             res.Arn,
+		"functionName":    res.Name,
+		"roleArn":         role.Arn,
+		"functionUrl":     functionUrl,
+		"securityGroupId": l.SecurityGroupID,
 	})
 
 	return l, nil
@@ -445,9 +482,6 @@ type manifest struct {
 	Functions []manifestEntry `json:"functions"`
 }
 
-// appendToManifest writes a function entry to .anvil/build-manifest.json.
-// Called when ANVIL_BUILD_MODE=true. The CLI reads this file to discover
-// functions that need bundling before the real deploy.
 func appendToManifest(name string, args LambdaArgs) error {
 	const manifestPath = ".anvil/build-manifest.json"
 

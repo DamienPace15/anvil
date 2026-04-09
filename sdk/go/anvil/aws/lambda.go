@@ -23,6 +23,8 @@ type Lambda struct {
 	FunctionUrl pulumi.StringPtrOutput `pulumi:"functionUrl"`
 	// The ARN of the Lambda's IAM execution role.
 	RoleArn pulumi.StringOutput `pulumi:"roleArn"`
+	// The ID of the dedicated security group created for this Lambda. Only populated when vpc is set. Use this to grant other resources access to this Lambda via the grant system.
+	SecurityGroupId pulumi.StringPtrOutput `pulumi:"securityGroupId"`
 }
 
 // NewLambda registers a new resource with the given unique name, arguments, and options.
@@ -73,8 +75,8 @@ type lambdaArgs struct {
 	Transform *LambdaTransformArgs `pulumi:"transform"`
 	// Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
 	Url *bool `pulumi:"url"`
-	// VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).
-	Vpc *string `pulumi:"vpc"`
+	// Places the Lambda inside a VPC for access to private resources such as RDS or ElastiCache. Anvil creates a dedicated security group with zero inbound and zero outbound rules. Nothing is reachable until explicitly granted via the grant system.
+	Vpc *LambdaVpcArgs `pulumi:"vpc"`
 }
 
 // The set of arguments for constructing a Lambda resource.
@@ -104,8 +106,8 @@ type LambdaArgs struct {
 	Transform LambdaTransformArgsPtrInput
 	// Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
 	Url pulumi.BoolPtrInput
-	// VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).
-	Vpc pulumi.StringPtrInput
+	// Places the Lambda inside a VPC for access to private resources such as RDS or ElastiCache. Anvil creates a dedicated security group with zero inbound and zero outbound rules. Nothing is reachable until explicitly granted via the grant system.
+	Vpc LambdaVpcArgsPtrInput
 }
 
 func (LambdaArgs) ElementType() reflect.Type {
@@ -213,6 +215,11 @@ func (o LambdaOutput) FunctionUrl() pulumi.StringPtrOutput {
 // The ARN of the Lambda's IAM execution role.
 func (o LambdaOutput) RoleArn() pulumi.StringOutput {
 	return o.ApplyT(func(v *Lambda) pulumi.StringOutput { return v.RoleArn }).(pulumi.StringOutput)
+}
+
+// The ID of the dedicated security group created for this Lambda. Only populated when vpc is set. Use this to grant other resources access to this Lambda via the grant system.
+func (o LambdaOutput) SecurityGroupId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Lambda) pulumi.StringPtrOutput { return v.SecurityGroupId }).(pulumi.StringPtrOutput)
 }
 
 type LambdaArrayOutput struct{ *pulumi.OutputState }

@@ -39,7 +39,7 @@ class LambdaArgs:
                  tracing: Optional[pulumi.Input[_builtins.bool]] = None,
                  transform: Optional[pulumi.Input['LambdaTransformArgsArgs']] = None,
                  url: Optional[pulumi.Input[_builtins.bool]] = None,
-                 vpc: Optional[pulumi.Input[_builtins.str]] = None):
+                 vpc: Optional[pulumi.Input['LambdaVpcArgsArgs']] = None):
         """
         The set of arguments for constructing a Lambda resource.
 
@@ -55,7 +55,7 @@ class LambdaArgs:
         :param pulumi.Input[_builtins.int] timeout: Timeout in seconds. Valid: 1 to 900. Default: 5.
         :param pulumi.Input[_builtins.bool] tracing: Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.
         :param pulumi.Input[_builtins.bool] url: Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
-        :param pulumi.Input[_builtins.str] vpc: VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).
+        :param pulumi.Input['LambdaVpcArgsArgs'] vpc: Places the Lambda inside a VPC for access to private resources such as RDS or ElastiCache. Anvil creates a dedicated security group with zero inbound and zero outbound rules. Nothing is reachable until explicitly granted via the grant system.
         """
         pulumi.set(__self__, "handler", handler)
         pulumi.set(__self__, "runtime", runtime)
@@ -239,14 +239,14 @@ class LambdaArgs:
 
     @_builtins.property
     @pulumi.getter
-    def vpc(self) -> Optional[pulumi.Input[_builtins.str]]:
+    def vpc(self) -> Optional[pulumi.Input['LambdaVpcArgsArgs']]:
         """
-        VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).
+        Places the Lambda inside a VPC for access to private resources such as RDS or ElastiCache. Anvil creates a dedicated security group with zero inbound and zero outbound rules. Nothing is reachable until explicitly granted via the grant system.
         """
         return pulumi.get(self, "vpc")
 
     @vpc.setter
-    def vpc(self, value: Optional[pulumi.Input[_builtins.str]]):
+    def vpc(self, value: Optional[pulumi.Input['LambdaVpcArgsArgs']]):
         pulumi.set(self, "vpc", value)
 
 
@@ -269,7 +269,7 @@ class Lambda(pulumi.ComponentResource):
                  tracing: Optional[pulumi.Input[_builtins.bool]] = None,
                  transform: Optional[pulumi.Input[Union['LambdaTransformArgsArgs', 'LambdaTransformArgsArgsDict']]] = None,
                  url: Optional[pulumi.Input[_builtins.bool]] = None,
-                 vpc: Optional[pulumi.Input[_builtins.str]] = None,
+                 vpc: Optional[pulumi.Input[Union['LambdaVpcArgsArgs', 'LambdaVpcArgsArgsDict']]] = None,
                  __props__=None):
         """
         Create a Lambda resource with the given unique name, props, and options.
@@ -288,7 +288,7 @@ class Lambda(pulumi.ComponentResource):
         :param pulumi.Input[_builtins.int] timeout: Timeout in seconds. Valid: 1 to 900. Default: 5.
         :param pulumi.Input[_builtins.bool] tracing: Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.
         :param pulumi.Input[_builtins.bool] url: Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
-        :param pulumi.Input[_builtins.str] vpc: VPC ID to place the Lambda in for access to private resources (RDS, ElastiCache, etc.).
+        :param pulumi.Input[Union['LambdaVpcArgsArgs', 'LambdaVpcArgsArgsDict']] vpc: Places the Lambda inside a VPC for access to private resources such as RDS or ElastiCache. Anvil creates a dedicated security group with zero inbound and zero outbound rules. Nothing is reachable until explicitly granted via the grant system.
         """
         ...
     @overload
@@ -327,7 +327,7 @@ class Lambda(pulumi.ComponentResource):
                  tracing: Optional[pulumi.Input[_builtins.bool]] = None,
                  transform: Optional[pulumi.Input[Union['LambdaTransformArgsArgs', 'LambdaTransformArgsArgsDict']]] = None,
                  url: Optional[pulumi.Input[_builtins.bool]] = None,
-                 vpc: Optional[pulumi.Input[_builtins.str]] = None,
+                 vpc: Optional[pulumi.Input[Union['LambdaVpcArgsArgs', 'LambdaVpcArgsArgsDict']]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -361,6 +361,7 @@ class Lambda(pulumi.ComponentResource):
             __props__.__dict__["function_name"] = None
             __props__.__dict__["function_url"] = None
             __props__.__dict__["role_arn"] = None
+            __props__.__dict__["security_group_id"] = None
         super(Lambda, __self__).__init__(
             'anvil:aws:Lambda',
             resource_name,
@@ -400,6 +401,14 @@ class Lambda(pulumi.ComponentResource):
         """
         return pulumi.get(self, "role_arn")
 
+    @_builtins.property
+    @pulumi.getter(name="securityGroupId")
+    def security_group_id(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        The ID of the dedicated security group created for this Lambda. Only populated when vpc is set. Use this to grant other resources access to this Lambda via the grant system.
+        """
+        return pulumi.get(self, "security_group_id")
+
     def grant_invoke(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
         """Grants invoke access on this resource."""
         name = f"{self._name}-{target.grant_name()}-invoke"
@@ -413,4 +422,34 @@ class Lambda(pulumi.ComponentResource):
     def grant_role_arn(self):
         """Implements GrantTarget — returns the IAM execution role ARN."""
         return self.role_arn
+
+    def grant_egress(
+        self,
+        internet: bool,
+        ports: Optional[list] = None,
+        all_ports: bool = False,
+    ) -> None:
+        """
+        Grants internet egress from this Lambda's security group.
+        Opt-in only — a VPC-attached Lambda with no grant_egress
+        has zero outbound internet access by default.
+
+        Defaults to port 443 (HTTPS) if ports is omitted.
+
+        Examples::
+
+            fn.grant_egress(internet=True)                       # 443 only
+            fn.grant_egress(internet=True, ports=[80, 443])      # HTTP + HTTPS
+            fn.grant_egress(internet=True, all_ports=True)       # unrestricted
+        """
+        from anvil_cloud import grants as _grants
+        if not self.security_group_id:
+            raise ValueError(
+                f'Lambda "{self.__name}" has no VPC — '
+                'grant_egress requires vpc to be set.'
+            )
+        _grants.create_egress_grant(
+            self, self.__name, self.security_group_id,
+            internet, ports, all_ports
+        )
 

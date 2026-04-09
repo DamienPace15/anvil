@@ -542,6 +542,17 @@ export namespace aws {
         lambda?: pulumi.Input<inputs.aws.LambdaOverridesArgs>;
     }
 
+    export interface LambdaVpcArgsArgs {
+        /**
+         * The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
+         */
+        privateSubnetIds: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * The ID of the VPC to place the Lambda in.
+         */
+        vpcId: pulumi.Input<string>;
+    }
+
     export interface PABTransformArgs {
         /**
          * Whether Amazon S3 should block public ACLs for this bucket. Defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>. Enabling this setting does not affect existing policies or ACLs. When set to <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span> causes the following behavior:

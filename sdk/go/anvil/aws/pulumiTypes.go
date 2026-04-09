@@ -4533,6 +4533,162 @@ func (o LambdaTransformArgsPtrOutput) Lambda() LambdaOverridesPtrOutput {
 	}).(LambdaOverridesPtrOutput)
 }
 
+type LambdaVpcArgs struct {
+	// The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
+	PrivateSubnetIds []string `pulumi:"privateSubnetIds"`
+	// The ID of the VPC to place the Lambda in.
+	VpcId string `pulumi:"vpcId"`
+}
+
+// LambdaVpcArgsInput is an input type that accepts LambdaVpcArgsArgs and LambdaVpcArgsOutput values.
+// You can construct a concrete instance of `LambdaVpcArgsInput` via:
+//
+//	LambdaVpcArgsArgs{...}
+type LambdaVpcArgsInput interface {
+	pulumi.Input
+
+	ToLambdaVpcArgsOutput() LambdaVpcArgsOutput
+	ToLambdaVpcArgsOutputWithContext(context.Context) LambdaVpcArgsOutput
+}
+
+type LambdaVpcArgsArgs struct {
+	// The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
+	PrivateSubnetIds pulumi.StringArrayInput `pulumi:"privateSubnetIds"`
+	// The ID of the VPC to place the Lambda in.
+	VpcId pulumi.StringInput `pulumi:"vpcId"`
+}
+
+func (LambdaVpcArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LambdaVpcArgs)(nil)).Elem()
+}
+
+func (i LambdaVpcArgsArgs) ToLambdaVpcArgsOutput() LambdaVpcArgsOutput {
+	return i.ToLambdaVpcArgsOutputWithContext(context.Background())
+}
+
+func (i LambdaVpcArgsArgs) ToLambdaVpcArgsOutputWithContext(ctx context.Context) LambdaVpcArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(LambdaVpcArgsOutput)
+}
+
+func (i LambdaVpcArgsArgs) ToLambdaVpcArgsPtrOutput() LambdaVpcArgsPtrOutput {
+	return i.ToLambdaVpcArgsPtrOutputWithContext(context.Background())
+}
+
+func (i LambdaVpcArgsArgs) ToLambdaVpcArgsPtrOutputWithContext(ctx context.Context) LambdaVpcArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(LambdaVpcArgsOutput).ToLambdaVpcArgsPtrOutputWithContext(ctx)
+}
+
+// LambdaVpcArgsPtrInput is an input type that accepts LambdaVpcArgsArgs, LambdaVpcArgsPtr and LambdaVpcArgsPtrOutput values.
+// You can construct a concrete instance of `LambdaVpcArgsPtrInput` via:
+//
+//	        LambdaVpcArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type LambdaVpcArgsPtrInput interface {
+	pulumi.Input
+
+	ToLambdaVpcArgsPtrOutput() LambdaVpcArgsPtrOutput
+	ToLambdaVpcArgsPtrOutputWithContext(context.Context) LambdaVpcArgsPtrOutput
+}
+
+type lambdaVpcArgsPtrType LambdaVpcArgsArgs
+
+func LambdaVpcArgsPtr(v *LambdaVpcArgsArgs) LambdaVpcArgsPtrInput {
+	return (*lambdaVpcArgsPtrType)(v)
+}
+
+func (*lambdaVpcArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**LambdaVpcArgs)(nil)).Elem()
+}
+
+func (i *lambdaVpcArgsPtrType) ToLambdaVpcArgsPtrOutput() LambdaVpcArgsPtrOutput {
+	return i.ToLambdaVpcArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *lambdaVpcArgsPtrType) ToLambdaVpcArgsPtrOutputWithContext(ctx context.Context) LambdaVpcArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(LambdaVpcArgsPtrOutput)
+}
+
+type LambdaVpcArgsOutput struct{ *pulumi.OutputState }
+
+func (LambdaVpcArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LambdaVpcArgs)(nil)).Elem()
+}
+
+func (o LambdaVpcArgsOutput) ToLambdaVpcArgsOutput() LambdaVpcArgsOutput {
+	return o
+}
+
+func (o LambdaVpcArgsOutput) ToLambdaVpcArgsOutputWithContext(ctx context.Context) LambdaVpcArgsOutput {
+	return o
+}
+
+func (o LambdaVpcArgsOutput) ToLambdaVpcArgsPtrOutput() LambdaVpcArgsPtrOutput {
+	return o.ToLambdaVpcArgsPtrOutputWithContext(context.Background())
+}
+
+func (o LambdaVpcArgsOutput) ToLambdaVpcArgsPtrOutputWithContext(ctx context.Context) LambdaVpcArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v LambdaVpcArgs) *LambdaVpcArgs {
+		return &v
+	}).(LambdaVpcArgsPtrOutput)
+}
+
+// The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
+func (o LambdaVpcArgsOutput) PrivateSubnetIds() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v LambdaVpcArgs) []string { return v.PrivateSubnetIds }).(pulumi.StringArrayOutput)
+}
+
+// The ID of the VPC to place the Lambda in.
+func (o LambdaVpcArgsOutput) VpcId() pulumi.StringOutput {
+	return o.ApplyT(func(v LambdaVpcArgs) string { return v.VpcId }).(pulumi.StringOutput)
+}
+
+type LambdaVpcArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (LambdaVpcArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**LambdaVpcArgs)(nil)).Elem()
+}
+
+func (o LambdaVpcArgsPtrOutput) ToLambdaVpcArgsPtrOutput() LambdaVpcArgsPtrOutput {
+	return o
+}
+
+func (o LambdaVpcArgsPtrOutput) ToLambdaVpcArgsPtrOutputWithContext(ctx context.Context) LambdaVpcArgsPtrOutput {
+	return o
+}
+
+func (o LambdaVpcArgsPtrOutput) Elem() LambdaVpcArgsOutput {
+	return o.ApplyT(func(v *LambdaVpcArgs) LambdaVpcArgs {
+		if v != nil {
+			return *v
+		}
+		var ret LambdaVpcArgs
+		return ret
+	}).(LambdaVpcArgsOutput)
+}
+
+// The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
+func (o LambdaVpcArgsPtrOutput) PrivateSubnetIds() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *LambdaVpcArgs) []string {
+		if v == nil {
+			return nil
+		}
+		return v.PrivateSubnetIds
+	}).(pulumi.StringArrayOutput)
+}
+
+// The ID of the VPC to place the Lambda in.
+func (o LambdaVpcArgsPtrOutput) VpcId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *LambdaVpcArgs) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.VpcId
+	}).(pulumi.StringPtrOutput)
+}
+
 type PABTransform struct {
 	// Whether Amazon S3 should block public ACLs for this bucket. Defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>. Enabling this setting does not affect existing policies or ACLs. When set to <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span> causes the following behavior:
 	// * PUT Bucket ACL and PUT Object ACL calls will fail if the specified ACL allows public access.
@@ -5590,6 +5746,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaPermissionArrayInput)(nil)).Elem(), LambdaPermissionArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaTransformArgsInput)(nil)).Elem(), LambdaTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaTransformArgsPtrInput)(nil)).Elem(), LambdaTransformArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*LambdaVpcArgsInput)(nil)).Elem(), LambdaVpcArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*LambdaVpcArgsPtrInput)(nil)).Elem(), LambdaVpcArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformInput)(nil)).Elem(), PABTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformPtrInput)(nil)).Elem(), PABTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsInput)(nil)).Elem(), VpcBastionArgsArgs{})
@@ -5636,6 +5794,8 @@ func init() {
 	pulumi.RegisterOutputType(LambdaPermissionArrayOutput{})
 	pulumi.RegisterOutputType(LambdaTransformArgsOutput{})
 	pulumi.RegisterOutputType(LambdaTransformArgsPtrOutput{})
+	pulumi.RegisterOutputType(LambdaVpcArgsOutput{})
+	pulumi.RegisterOutputType(LambdaVpcArgsPtrOutput{})
 	pulumi.RegisterOutputType(PABTransformOutput{})
 	pulumi.RegisterOutputType(PABTransformPtrOutput{})
 	pulumi.RegisterOutputType(VpcBastionArgsOutput{})
