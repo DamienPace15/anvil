@@ -10,6 +10,7 @@ __all__ = [
     'LambdaArchitecture',
     'LambdaLogRetention',
     'LambdaRuntime',
+    'VpcNatType',
 ]
 
 
@@ -66,4 +67,16 @@ class LambdaRuntime(_builtins.str, Enum):
     NODEJS22_X = "nodejs22.x"
     """
     Node.js 22 (LTS)
+    """
+
+
+@pulumi.type_token("anvil:aws:VpcNatType")
+class VpcNatType(_builtins.str, Enum):
+    GATEWAY = "gateway"
+    """
+    AWS managed NAT Gateway. One per AZ for true HA. ~$32/month per AZ plus $0.045/GB data processed.
+    """
+    FCK_NAT = "fck-nat"
+    """
+    fck-nat EC2 instance. Single instance regardless of AZ count. ~$4-6/month for t4g.small. Accepted single point of failure tradeoff for cost savings.
     """

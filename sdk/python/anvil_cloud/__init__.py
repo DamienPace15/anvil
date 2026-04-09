@@ -29,7 +29,8 @@ _utilities.register(
   "classes": {
    "anvil:aws:Bucket": "Bucket",
    "anvil:aws:Lambda": "Lambda",
-   "anvil:aws:SvelteKitSite": "SvelteKitSite"
+   "anvil:aws:SvelteKitSite": "SvelteKitSite",
+   "anvil:aws:Vpc": "Vpc"
   }
  },
  {

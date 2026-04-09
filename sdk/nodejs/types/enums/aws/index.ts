@@ -60,3 +60,16 @@ export const LambdaRuntime = {
 } as const;
 
 export type LambdaRuntime = (typeof LambdaRuntime)[keyof typeof LambdaRuntime];
+
+export const VpcNatType = {
+    /**
+     * AWS managed NAT Gateway. One per AZ for true HA. ~$32/month per AZ plus $0.045/GB data processed.
+     */
+    Gateway: "gateway",
+    /**
+     * fck-nat EC2 instance. Single instance regardless of AZ count. ~$4-6/month for t4g.small. Accepted single point of failure tradeoff for cost savings.
+     */
+    Fck_nat: "fck-nat",
+} as const;
+
+export type VpcNatType = (typeof VpcNatType)[keyof typeof VpcNatType];

@@ -11,15 +11,26 @@ import (
 // If a resource type isn't listed, defaults to 255.
 
 var NameLimits = map[string]int{
-	"bucket":   63,  // S3: lowercase, numbers, hyphens only
-	"lambda":   64,  // Lambda function name
-	"function": 64,  // GCP Cloud Function
-	"role":     64,  // IAM Role
-	"policy":   128, // IAM Policy
-	"queue":    80,  // SQS (FIFO .fifo suffix eats 5 chars)
-	"topic":    256, // SNS
-	"table":    255, // DynamoDB
-	"site":     63,  // S3-backed site bucket
+	"bucket":         63,  // S3: lowercase, numbers, hyphens only
+	"lambda":         64,  // Lambda function name
+	"function":       64,  // GCP Cloud Function
+	"role":           64,  // IAM Role
+	"policy":         128, // IAM Policy
+	"queue":          80,  // SQS (FIFO .fifo suffix eats 5 chars)
+	"topic":          256, // SNS
+	"table":          255, // DynamoDB
+	"site":           63,  // S3-backed site bucket
+	"vpc":            256,
+	"subnet":         256,
+	"igw":            256,
+	"rt":             256,
+	"security-group": 256,
+	"vpc-endpoint":   256,
+	"flow-log":       256,
+	"eip":            255, // Elastic IP allocation name tag
+	"nat-gw":         255, // NAT Gateway name tag
+	"nat-sg":         255, // NAT instance security group
+	"nat-instance":   255, // fck-nat EC2 instance name tag
 }
 
 // ── Character Sanitization ─────────────────────────────────

@@ -53,6 +53,8 @@ __all__ = [
     'LambdaTransformArgsArgsDict',
     'PABTransformArgs',
     'PABTransformArgsDict',
+    'VpcNatArgsArgs',
+    'VpcNatArgsArgsDict',
 ]
 
 class BucketAccelerateConfigurationTransformArgsDict(TypedDict):
@@ -2835,5 +2837,53 @@ class PABTransformArgs:
     @skip_destroy.setter
     def skip_destroy(self, value: Optional[pulumi.Input[_builtins.bool]]):
         pulumi.set(self, "skip_destroy", value)
+
+
+class VpcNatArgsArgsDict(TypedDict):
+    nat_type: pulumi.Input['VpcNatType']
+    """
+    Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs.
+    """
+    instance_type: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+    """
+
+@pulumi.input_type
+class VpcNatArgsArgs:
+    def __init__(__self__, *,
+                 nat_type: pulumi.Input['VpcNatType'],
+                 instance_type: Optional[pulumi.Input[_builtins.str]] = None):
+        """
+        :param pulumi.Input['VpcNatType'] nat_type: Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs.
+        :param pulumi.Input[_builtins.str] instance_type: EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+        """
+        pulumi.set(__self__, "nat_type", nat_type)
+        if instance_type is not None:
+            pulumi.set(__self__, "instance_type", instance_type)
+
+    @_builtins.property
+    @pulumi.getter(name="natType")
+    def nat_type(self) -> pulumi.Input['VpcNatType']:
+        """
+        Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs.
+        """
+        return pulumi.get(self, "nat_type")
+
+    @nat_type.setter
+    def nat_type(self, value: pulumi.Input['VpcNatType']):
+        pulumi.set(self, "nat_type", value)
+
+    @_builtins.property
+    @pulumi.getter(name="instanceType")
+    def instance_type(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'. Provides ~500Mbps sustained NAT throughput at ~$4-6/month.
+        """
+        return pulumi.get(self, "instance_type")
+
+    @instance_type.setter
+    def instance_type(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "instance_type", value)
 
 

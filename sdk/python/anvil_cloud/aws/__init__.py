@@ -10,4 +10,5 @@ from ._enums import *
 from .bucket import *
 from .lambda_ import *
 from .svelte_kit_site import *
+from .vpc import *
 from ._inputs import *
