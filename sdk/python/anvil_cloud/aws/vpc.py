@@ -25,6 +25,7 @@ class VpcArgs:
                  availability_zones: Optional[pulumi.Input[_builtins.int]] = None,
                  bastion: Optional[pulumi.Input['VpcBastionArgsArgs']] = None,
                  cidr: Optional[pulumi.Input[_builtins.str]] = None,
+                 flow_logs: Optional[pulumi.Input['VpcFlowLogsArgsArgs']] = None,
                  nat: Optional[pulumi.Input['VpcNatArgsArgs']] = None):
         """
         The set of arguments for constructing a Vpc resource.
@@ -32,6 +33,7 @@ class VpcArgs:
         :param pulumi.Input[_builtins.int] availability_zones: Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Inherits from App.defaults.availability — 'high' maps to 3, 'low' maps to 1.
         :param pulumi.Input['VpcBastionArgsArgs'] bastion: Optional SSM bastion host for private network access. No SSH, no port 22 — access via AWS SSM Session Manager only. Use to connect to RDS, ElastiCache, and other private resources locally.
         :param pulumi.Input[_builtins.str] cidr: The IPv4 CIDR block for the VPC. Default: '10.0.0.0/16'. Public subnets carved from offset 0 (/24 each), private subnets from offset 10 (/24 each).
+        :param pulumi.Input['VpcFlowLogsArgsArgs'] flow_logs: Optional VPC Flow Log configuration. Opt-in only. Either or both destinations can be enabled simultaneously. CloudWatch for active debugging, S3 for long-term compliance retention.
         :param pulumi.Input['VpcNatArgsArgs'] nat: Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC.
         """
         if availability_zones is not None:
@@ -40,6 +42,8 @@ class VpcArgs:
             pulumi.set(__self__, "bastion", bastion)
         if cidr is not None:
             pulumi.set(__self__, "cidr", cidr)
+        if flow_logs is not None:
+            pulumi.set(__self__, "flow_logs", flow_logs)
         if nat is not None:
             pulumi.set(__self__, "nat", nat)
 
@@ -80,6 +84,18 @@ class VpcArgs:
         pulumi.set(self, "cidr", value)
 
     @_builtins.property
+    @pulumi.getter(name="flowLogs")
+    def flow_logs(self) -> Optional[pulumi.Input['VpcFlowLogsArgsArgs']]:
+        """
+        Optional VPC Flow Log configuration. Opt-in only. Either or both destinations can be enabled simultaneously. CloudWatch for active debugging, S3 for long-term compliance retention.
+        """
+        return pulumi.get(self, "flow_logs")
+
+    @flow_logs.setter
+    def flow_logs(self, value: Optional[pulumi.Input['VpcFlowLogsArgsArgs']]):
+        pulumi.set(self, "flow_logs", value)
+
+    @_builtins.property
     @pulumi.getter
     def nat(self) -> Optional[pulumi.Input['VpcNatArgsArgs']]:
         """
@@ -101,6 +117,7 @@ class Vpc(pulumi.ComponentResource):
                  availability_zones: Optional[pulumi.Input[_builtins.int]] = None,
                  bastion: Optional[pulumi.Input[Union['VpcBastionArgsArgs', 'VpcBastionArgsArgsDict']]] = None,
                  cidr: Optional[pulumi.Input[_builtins.str]] = None,
+                 flow_logs: Optional[pulumi.Input[Union['VpcFlowLogsArgsArgs', 'VpcFlowLogsArgsArgsDict']]] = None,
                  nat: Optional[pulumi.Input[Union['VpcNatArgsArgs', 'VpcNatArgsArgsDict']]] = None,
                  __props__=None):
         """
@@ -111,6 +128,7 @@ class Vpc(pulumi.ComponentResource):
         :param pulumi.Input[_builtins.int] availability_zones: Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Inherits from App.defaults.availability — 'high' maps to 3, 'low' maps to 1.
         :param pulumi.Input[Union['VpcBastionArgsArgs', 'VpcBastionArgsArgsDict']] bastion: Optional SSM bastion host for private network access. No SSH, no port 22 — access via AWS SSM Session Manager only. Use to connect to RDS, ElastiCache, and other private resources locally.
         :param pulumi.Input[_builtins.str] cidr: The IPv4 CIDR block for the VPC. Default: '10.0.0.0/16'. Public subnets carved from offset 0 (/24 each), private subnets from offset 10 (/24 each).
+        :param pulumi.Input[Union['VpcFlowLogsArgsArgs', 'VpcFlowLogsArgsArgsDict']] flow_logs: Optional VPC Flow Log configuration. Opt-in only. Either or both destinations can be enabled simultaneously. CloudWatch for active debugging, S3 for long-term compliance retention.
         :param pulumi.Input[Union['VpcNatArgsArgs', 'VpcNatArgsArgsDict']] nat: Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC.
         """
         ...
@@ -140,6 +158,7 @@ class Vpc(pulumi.ComponentResource):
                  availability_zones: Optional[pulumi.Input[_builtins.int]] = None,
                  bastion: Optional[pulumi.Input[Union['VpcBastionArgsArgs', 'VpcBastionArgsArgsDict']]] = None,
                  cidr: Optional[pulumi.Input[_builtins.str]] = None,
+                 flow_logs: Optional[pulumi.Input[Union['VpcFlowLogsArgsArgs', 'VpcFlowLogsArgsArgsDict']]] = None,
                  nat: Optional[pulumi.Input[Union['VpcNatArgsArgs', 'VpcNatArgsArgsDict']]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
@@ -155,6 +174,7 @@ class Vpc(pulumi.ComponentResource):
             __props__.__dict__["availability_zones"] = availability_zones
             __props__.__dict__["bastion"] = bastion
             __props__.__dict__["cidr"] = cidr
+            __props__.__dict__["flow_logs"] = flow_logs
             __props__.__dict__["nat"] = nat
             __props__.__dict__["bastion_instance_id"] = None
             __props__.__dict__["bastion_security_group_id"] = None

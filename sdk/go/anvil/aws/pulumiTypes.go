@@ -4960,6 +4960,299 @@ func (o VpcBastionArgsPtrOutput) InstanceType() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
+type VpcCloudWatchFlowLogArgs struct {
+	// Number of days to retain flow log data in CloudWatch Logs. Common values: 7, 14, 30, 90.
+	Retention int `pulumi:"retention"`
+}
+
+// VpcCloudWatchFlowLogArgsInput is an input type that accepts VpcCloudWatchFlowLogArgsArgs and VpcCloudWatchFlowLogArgsOutput values.
+// You can construct a concrete instance of `VpcCloudWatchFlowLogArgsInput` via:
+//
+//	VpcCloudWatchFlowLogArgsArgs{...}
+type VpcCloudWatchFlowLogArgsInput interface {
+	pulumi.Input
+
+	ToVpcCloudWatchFlowLogArgsOutput() VpcCloudWatchFlowLogArgsOutput
+	ToVpcCloudWatchFlowLogArgsOutputWithContext(context.Context) VpcCloudWatchFlowLogArgsOutput
+}
+
+type VpcCloudWatchFlowLogArgsArgs struct {
+	// Number of days to retain flow log data in CloudWatch Logs. Common values: 7, 14, 30, 90.
+	Retention pulumi.IntInput `pulumi:"retention"`
+}
+
+func (VpcCloudWatchFlowLogArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcCloudWatchFlowLogArgs)(nil)).Elem()
+}
+
+func (i VpcCloudWatchFlowLogArgsArgs) ToVpcCloudWatchFlowLogArgsOutput() VpcCloudWatchFlowLogArgsOutput {
+	return i.ToVpcCloudWatchFlowLogArgsOutputWithContext(context.Background())
+}
+
+func (i VpcCloudWatchFlowLogArgsArgs) ToVpcCloudWatchFlowLogArgsOutputWithContext(ctx context.Context) VpcCloudWatchFlowLogArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcCloudWatchFlowLogArgsOutput)
+}
+
+func (i VpcCloudWatchFlowLogArgsArgs) ToVpcCloudWatchFlowLogArgsPtrOutput() VpcCloudWatchFlowLogArgsPtrOutput {
+	return i.ToVpcCloudWatchFlowLogArgsPtrOutputWithContext(context.Background())
+}
+
+func (i VpcCloudWatchFlowLogArgsArgs) ToVpcCloudWatchFlowLogArgsPtrOutputWithContext(ctx context.Context) VpcCloudWatchFlowLogArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcCloudWatchFlowLogArgsOutput).ToVpcCloudWatchFlowLogArgsPtrOutputWithContext(ctx)
+}
+
+// VpcCloudWatchFlowLogArgsPtrInput is an input type that accepts VpcCloudWatchFlowLogArgsArgs, VpcCloudWatchFlowLogArgsPtr and VpcCloudWatchFlowLogArgsPtrOutput values.
+// You can construct a concrete instance of `VpcCloudWatchFlowLogArgsPtrInput` via:
+//
+//	        VpcCloudWatchFlowLogArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type VpcCloudWatchFlowLogArgsPtrInput interface {
+	pulumi.Input
+
+	ToVpcCloudWatchFlowLogArgsPtrOutput() VpcCloudWatchFlowLogArgsPtrOutput
+	ToVpcCloudWatchFlowLogArgsPtrOutputWithContext(context.Context) VpcCloudWatchFlowLogArgsPtrOutput
+}
+
+type vpcCloudWatchFlowLogArgsPtrType VpcCloudWatchFlowLogArgsArgs
+
+func VpcCloudWatchFlowLogArgsPtr(v *VpcCloudWatchFlowLogArgsArgs) VpcCloudWatchFlowLogArgsPtrInput {
+	return (*vpcCloudWatchFlowLogArgsPtrType)(v)
+}
+
+func (*vpcCloudWatchFlowLogArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**VpcCloudWatchFlowLogArgs)(nil)).Elem()
+}
+
+func (i *vpcCloudWatchFlowLogArgsPtrType) ToVpcCloudWatchFlowLogArgsPtrOutput() VpcCloudWatchFlowLogArgsPtrOutput {
+	return i.ToVpcCloudWatchFlowLogArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *vpcCloudWatchFlowLogArgsPtrType) ToVpcCloudWatchFlowLogArgsPtrOutputWithContext(ctx context.Context) VpcCloudWatchFlowLogArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcCloudWatchFlowLogArgsPtrOutput)
+}
+
+type VpcCloudWatchFlowLogArgsOutput struct{ *pulumi.OutputState }
+
+func (VpcCloudWatchFlowLogArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcCloudWatchFlowLogArgs)(nil)).Elem()
+}
+
+func (o VpcCloudWatchFlowLogArgsOutput) ToVpcCloudWatchFlowLogArgsOutput() VpcCloudWatchFlowLogArgsOutput {
+	return o
+}
+
+func (o VpcCloudWatchFlowLogArgsOutput) ToVpcCloudWatchFlowLogArgsOutputWithContext(ctx context.Context) VpcCloudWatchFlowLogArgsOutput {
+	return o
+}
+
+func (o VpcCloudWatchFlowLogArgsOutput) ToVpcCloudWatchFlowLogArgsPtrOutput() VpcCloudWatchFlowLogArgsPtrOutput {
+	return o.ToVpcCloudWatchFlowLogArgsPtrOutputWithContext(context.Background())
+}
+
+func (o VpcCloudWatchFlowLogArgsOutput) ToVpcCloudWatchFlowLogArgsPtrOutputWithContext(ctx context.Context) VpcCloudWatchFlowLogArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v VpcCloudWatchFlowLogArgs) *VpcCloudWatchFlowLogArgs {
+		return &v
+	}).(VpcCloudWatchFlowLogArgsPtrOutput)
+}
+
+// Number of days to retain flow log data in CloudWatch Logs. Common values: 7, 14, 30, 90.
+func (o VpcCloudWatchFlowLogArgsOutput) Retention() pulumi.IntOutput {
+	return o.ApplyT(func(v VpcCloudWatchFlowLogArgs) int { return v.Retention }).(pulumi.IntOutput)
+}
+
+type VpcCloudWatchFlowLogArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (VpcCloudWatchFlowLogArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**VpcCloudWatchFlowLogArgs)(nil)).Elem()
+}
+
+func (o VpcCloudWatchFlowLogArgsPtrOutput) ToVpcCloudWatchFlowLogArgsPtrOutput() VpcCloudWatchFlowLogArgsPtrOutput {
+	return o
+}
+
+func (o VpcCloudWatchFlowLogArgsPtrOutput) ToVpcCloudWatchFlowLogArgsPtrOutputWithContext(ctx context.Context) VpcCloudWatchFlowLogArgsPtrOutput {
+	return o
+}
+
+func (o VpcCloudWatchFlowLogArgsPtrOutput) Elem() VpcCloudWatchFlowLogArgsOutput {
+	return o.ApplyT(func(v *VpcCloudWatchFlowLogArgs) VpcCloudWatchFlowLogArgs {
+		if v != nil {
+			return *v
+		}
+		var ret VpcCloudWatchFlowLogArgs
+		return ret
+	}).(VpcCloudWatchFlowLogArgsOutput)
+}
+
+// Number of days to retain flow log data in CloudWatch Logs. Common values: 7, 14, 30, 90.
+func (o VpcCloudWatchFlowLogArgsPtrOutput) Retention() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *VpcCloudWatchFlowLogArgs) *int {
+		if v == nil {
+			return nil
+		}
+		return &v.Retention
+	}).(pulumi.IntPtrOutput)
+}
+
+type VpcFlowLogsArgs struct {
+	// Enable flow log delivery to a CloudWatch Log Group. Use for fast querying with CloudWatch Logs Insights and active debugging of connection issues.
+	Cloudwatch *VpcCloudWatchFlowLogArgs `pulumi:"cloudwatch"`
+	// Enable flow log delivery to a dedicated S3 bucket with auto-tiered lifecycle policy. Use for compliance retention and audit evidence.
+	S3 *VpcS3FlowLogArgs `pulumi:"s3"`
+}
+
+// VpcFlowLogsArgsInput is an input type that accepts VpcFlowLogsArgsArgs and VpcFlowLogsArgsOutput values.
+// You can construct a concrete instance of `VpcFlowLogsArgsInput` via:
+//
+//	VpcFlowLogsArgsArgs{...}
+type VpcFlowLogsArgsInput interface {
+	pulumi.Input
+
+	ToVpcFlowLogsArgsOutput() VpcFlowLogsArgsOutput
+	ToVpcFlowLogsArgsOutputWithContext(context.Context) VpcFlowLogsArgsOutput
+}
+
+type VpcFlowLogsArgsArgs struct {
+	// Enable flow log delivery to a CloudWatch Log Group. Use for fast querying with CloudWatch Logs Insights and active debugging of connection issues.
+	Cloudwatch VpcCloudWatchFlowLogArgsPtrInput `pulumi:"cloudwatch"`
+	// Enable flow log delivery to a dedicated S3 bucket with auto-tiered lifecycle policy. Use for compliance retention and audit evidence.
+	S3 VpcS3FlowLogArgsPtrInput `pulumi:"s3"`
+}
+
+func (VpcFlowLogsArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcFlowLogsArgs)(nil)).Elem()
+}
+
+func (i VpcFlowLogsArgsArgs) ToVpcFlowLogsArgsOutput() VpcFlowLogsArgsOutput {
+	return i.ToVpcFlowLogsArgsOutputWithContext(context.Background())
+}
+
+func (i VpcFlowLogsArgsArgs) ToVpcFlowLogsArgsOutputWithContext(ctx context.Context) VpcFlowLogsArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcFlowLogsArgsOutput)
+}
+
+func (i VpcFlowLogsArgsArgs) ToVpcFlowLogsArgsPtrOutput() VpcFlowLogsArgsPtrOutput {
+	return i.ToVpcFlowLogsArgsPtrOutputWithContext(context.Background())
+}
+
+func (i VpcFlowLogsArgsArgs) ToVpcFlowLogsArgsPtrOutputWithContext(ctx context.Context) VpcFlowLogsArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcFlowLogsArgsOutput).ToVpcFlowLogsArgsPtrOutputWithContext(ctx)
+}
+
+// VpcFlowLogsArgsPtrInput is an input type that accepts VpcFlowLogsArgsArgs, VpcFlowLogsArgsPtr and VpcFlowLogsArgsPtrOutput values.
+// You can construct a concrete instance of `VpcFlowLogsArgsPtrInput` via:
+//
+//	        VpcFlowLogsArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type VpcFlowLogsArgsPtrInput interface {
+	pulumi.Input
+
+	ToVpcFlowLogsArgsPtrOutput() VpcFlowLogsArgsPtrOutput
+	ToVpcFlowLogsArgsPtrOutputWithContext(context.Context) VpcFlowLogsArgsPtrOutput
+}
+
+type vpcFlowLogsArgsPtrType VpcFlowLogsArgsArgs
+
+func VpcFlowLogsArgsPtr(v *VpcFlowLogsArgsArgs) VpcFlowLogsArgsPtrInput {
+	return (*vpcFlowLogsArgsPtrType)(v)
+}
+
+func (*vpcFlowLogsArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**VpcFlowLogsArgs)(nil)).Elem()
+}
+
+func (i *vpcFlowLogsArgsPtrType) ToVpcFlowLogsArgsPtrOutput() VpcFlowLogsArgsPtrOutput {
+	return i.ToVpcFlowLogsArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *vpcFlowLogsArgsPtrType) ToVpcFlowLogsArgsPtrOutputWithContext(ctx context.Context) VpcFlowLogsArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcFlowLogsArgsPtrOutput)
+}
+
+type VpcFlowLogsArgsOutput struct{ *pulumi.OutputState }
+
+func (VpcFlowLogsArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcFlowLogsArgs)(nil)).Elem()
+}
+
+func (o VpcFlowLogsArgsOutput) ToVpcFlowLogsArgsOutput() VpcFlowLogsArgsOutput {
+	return o
+}
+
+func (o VpcFlowLogsArgsOutput) ToVpcFlowLogsArgsOutputWithContext(ctx context.Context) VpcFlowLogsArgsOutput {
+	return o
+}
+
+func (o VpcFlowLogsArgsOutput) ToVpcFlowLogsArgsPtrOutput() VpcFlowLogsArgsPtrOutput {
+	return o.ToVpcFlowLogsArgsPtrOutputWithContext(context.Background())
+}
+
+func (o VpcFlowLogsArgsOutput) ToVpcFlowLogsArgsPtrOutputWithContext(ctx context.Context) VpcFlowLogsArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v VpcFlowLogsArgs) *VpcFlowLogsArgs {
+		return &v
+	}).(VpcFlowLogsArgsPtrOutput)
+}
+
+// Enable flow log delivery to a CloudWatch Log Group. Use for fast querying with CloudWatch Logs Insights and active debugging of connection issues.
+func (o VpcFlowLogsArgsOutput) Cloudwatch() VpcCloudWatchFlowLogArgsPtrOutput {
+	return o.ApplyT(func(v VpcFlowLogsArgs) *VpcCloudWatchFlowLogArgs { return v.Cloudwatch }).(VpcCloudWatchFlowLogArgsPtrOutput)
+}
+
+// Enable flow log delivery to a dedicated S3 bucket with auto-tiered lifecycle policy. Use for compliance retention and audit evidence.
+func (o VpcFlowLogsArgsOutput) S3() VpcS3FlowLogArgsPtrOutput {
+	return o.ApplyT(func(v VpcFlowLogsArgs) *VpcS3FlowLogArgs { return v.S3 }).(VpcS3FlowLogArgsPtrOutput)
+}
+
+type VpcFlowLogsArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (VpcFlowLogsArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**VpcFlowLogsArgs)(nil)).Elem()
+}
+
+func (o VpcFlowLogsArgsPtrOutput) ToVpcFlowLogsArgsPtrOutput() VpcFlowLogsArgsPtrOutput {
+	return o
+}
+
+func (o VpcFlowLogsArgsPtrOutput) ToVpcFlowLogsArgsPtrOutputWithContext(ctx context.Context) VpcFlowLogsArgsPtrOutput {
+	return o
+}
+
+func (o VpcFlowLogsArgsPtrOutput) Elem() VpcFlowLogsArgsOutput {
+	return o.ApplyT(func(v *VpcFlowLogsArgs) VpcFlowLogsArgs {
+		if v != nil {
+			return *v
+		}
+		var ret VpcFlowLogsArgs
+		return ret
+	}).(VpcFlowLogsArgsOutput)
+}
+
+// Enable flow log delivery to a CloudWatch Log Group. Use for fast querying with CloudWatch Logs Insights and active debugging of connection issues.
+func (o VpcFlowLogsArgsPtrOutput) Cloudwatch() VpcCloudWatchFlowLogArgsPtrOutput {
+	return o.ApplyT(func(v *VpcFlowLogsArgs) *VpcCloudWatchFlowLogArgs {
+		if v == nil {
+			return nil
+		}
+		return v.Cloudwatch
+	}).(VpcCloudWatchFlowLogArgsPtrOutput)
+}
+
+// Enable flow log delivery to a dedicated S3 bucket with auto-tiered lifecycle policy. Use for compliance retention and audit evidence.
+func (o VpcFlowLogsArgsPtrOutput) S3() VpcS3FlowLogArgsPtrOutput {
+	return o.ApplyT(func(v *VpcFlowLogsArgs) *VpcS3FlowLogArgs {
+		if v == nil {
+			return nil
+		}
+		return v.S3
+	}).(VpcS3FlowLogArgsPtrOutput)
+}
+
 type VpcNatArgs struct {
 	// EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'.
 	InstanceType *string `pulumi:"instanceType"`
@@ -5116,6 +5409,143 @@ func (o VpcNatArgsPtrOutput) NatType() VpcNatTypePtrOutput {
 	}).(VpcNatTypePtrOutput)
 }
 
+type VpcS3FlowLogArgs struct {
+	// Storage tiering policy for flow log retention.
+	Lifecycle S3FlowLogLifecycle `pulumi:"lifecycle"`
+}
+
+// VpcS3FlowLogArgsInput is an input type that accepts VpcS3FlowLogArgsArgs and VpcS3FlowLogArgsOutput values.
+// You can construct a concrete instance of `VpcS3FlowLogArgsInput` via:
+//
+//	VpcS3FlowLogArgsArgs{...}
+type VpcS3FlowLogArgsInput interface {
+	pulumi.Input
+
+	ToVpcS3FlowLogArgsOutput() VpcS3FlowLogArgsOutput
+	ToVpcS3FlowLogArgsOutputWithContext(context.Context) VpcS3FlowLogArgsOutput
+}
+
+type VpcS3FlowLogArgsArgs struct {
+	// Storage tiering policy for flow log retention.
+	Lifecycle S3FlowLogLifecycleInput `pulumi:"lifecycle"`
+}
+
+func (VpcS3FlowLogArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcS3FlowLogArgs)(nil)).Elem()
+}
+
+func (i VpcS3FlowLogArgsArgs) ToVpcS3FlowLogArgsOutput() VpcS3FlowLogArgsOutput {
+	return i.ToVpcS3FlowLogArgsOutputWithContext(context.Background())
+}
+
+func (i VpcS3FlowLogArgsArgs) ToVpcS3FlowLogArgsOutputWithContext(ctx context.Context) VpcS3FlowLogArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcS3FlowLogArgsOutput)
+}
+
+func (i VpcS3FlowLogArgsArgs) ToVpcS3FlowLogArgsPtrOutput() VpcS3FlowLogArgsPtrOutput {
+	return i.ToVpcS3FlowLogArgsPtrOutputWithContext(context.Background())
+}
+
+func (i VpcS3FlowLogArgsArgs) ToVpcS3FlowLogArgsPtrOutputWithContext(ctx context.Context) VpcS3FlowLogArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcS3FlowLogArgsOutput).ToVpcS3FlowLogArgsPtrOutputWithContext(ctx)
+}
+
+// VpcS3FlowLogArgsPtrInput is an input type that accepts VpcS3FlowLogArgsArgs, VpcS3FlowLogArgsPtr and VpcS3FlowLogArgsPtrOutput values.
+// You can construct a concrete instance of `VpcS3FlowLogArgsPtrInput` via:
+//
+//	        VpcS3FlowLogArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type VpcS3FlowLogArgsPtrInput interface {
+	pulumi.Input
+
+	ToVpcS3FlowLogArgsPtrOutput() VpcS3FlowLogArgsPtrOutput
+	ToVpcS3FlowLogArgsPtrOutputWithContext(context.Context) VpcS3FlowLogArgsPtrOutput
+}
+
+type vpcS3FlowLogArgsPtrType VpcS3FlowLogArgsArgs
+
+func VpcS3FlowLogArgsPtr(v *VpcS3FlowLogArgsArgs) VpcS3FlowLogArgsPtrInput {
+	return (*vpcS3FlowLogArgsPtrType)(v)
+}
+
+func (*vpcS3FlowLogArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**VpcS3FlowLogArgs)(nil)).Elem()
+}
+
+func (i *vpcS3FlowLogArgsPtrType) ToVpcS3FlowLogArgsPtrOutput() VpcS3FlowLogArgsPtrOutput {
+	return i.ToVpcS3FlowLogArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *vpcS3FlowLogArgsPtrType) ToVpcS3FlowLogArgsPtrOutputWithContext(ctx context.Context) VpcS3FlowLogArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcS3FlowLogArgsPtrOutput)
+}
+
+type VpcS3FlowLogArgsOutput struct{ *pulumi.OutputState }
+
+func (VpcS3FlowLogArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcS3FlowLogArgs)(nil)).Elem()
+}
+
+func (o VpcS3FlowLogArgsOutput) ToVpcS3FlowLogArgsOutput() VpcS3FlowLogArgsOutput {
+	return o
+}
+
+func (o VpcS3FlowLogArgsOutput) ToVpcS3FlowLogArgsOutputWithContext(ctx context.Context) VpcS3FlowLogArgsOutput {
+	return o
+}
+
+func (o VpcS3FlowLogArgsOutput) ToVpcS3FlowLogArgsPtrOutput() VpcS3FlowLogArgsPtrOutput {
+	return o.ToVpcS3FlowLogArgsPtrOutputWithContext(context.Background())
+}
+
+func (o VpcS3FlowLogArgsOutput) ToVpcS3FlowLogArgsPtrOutputWithContext(ctx context.Context) VpcS3FlowLogArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v VpcS3FlowLogArgs) *VpcS3FlowLogArgs {
+		return &v
+	}).(VpcS3FlowLogArgsPtrOutput)
+}
+
+// Storage tiering policy for flow log retention.
+func (o VpcS3FlowLogArgsOutput) Lifecycle() S3FlowLogLifecycleOutput {
+	return o.ApplyT(func(v VpcS3FlowLogArgs) S3FlowLogLifecycle { return v.Lifecycle }).(S3FlowLogLifecycleOutput)
+}
+
+type VpcS3FlowLogArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (VpcS3FlowLogArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**VpcS3FlowLogArgs)(nil)).Elem()
+}
+
+func (o VpcS3FlowLogArgsPtrOutput) ToVpcS3FlowLogArgsPtrOutput() VpcS3FlowLogArgsPtrOutput {
+	return o
+}
+
+func (o VpcS3FlowLogArgsPtrOutput) ToVpcS3FlowLogArgsPtrOutputWithContext(ctx context.Context) VpcS3FlowLogArgsPtrOutput {
+	return o
+}
+
+func (o VpcS3FlowLogArgsPtrOutput) Elem() VpcS3FlowLogArgsOutput {
+	return o.ApplyT(func(v *VpcS3FlowLogArgs) VpcS3FlowLogArgs {
+		if v != nil {
+			return *v
+		}
+		var ret VpcS3FlowLogArgs
+		return ret
+	}).(VpcS3FlowLogArgsOutput)
+}
+
+// Storage tiering policy for flow log retention.
+func (o VpcS3FlowLogArgsPtrOutput) Lifecycle() S3FlowLogLifecyclePtrOutput {
+	return o.ApplyT(func(v *VpcS3FlowLogArgs) *S3FlowLogLifecycle {
+		if v == nil {
+			return nil
+		}
+		return &v.Lifecycle
+	}).(S3FlowLogLifecyclePtrOutput)
+}
+
 func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketAccelerateConfigurationTransformInput)(nil)).Elem(), BucketAccelerateConfigurationTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketAccelerateConfigurationTransformPtrInput)(nil)).Elem(), BucketAccelerateConfigurationTransformArgs{})
@@ -5155,8 +5585,14 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformPtrInput)(nil)).Elem(), PABTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsInput)(nil)).Elem(), VpcBastionArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsPtrInput)(nil)).Elem(), VpcBastionArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcCloudWatchFlowLogArgsInput)(nil)).Elem(), VpcCloudWatchFlowLogArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcCloudWatchFlowLogArgsPtrInput)(nil)).Elem(), VpcCloudWatchFlowLogArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcFlowLogsArgsInput)(nil)).Elem(), VpcFlowLogsArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcFlowLogsArgsPtrInput)(nil)).Elem(), VpcFlowLogsArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatArgsInput)(nil)).Elem(), VpcNatArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatArgsPtrInput)(nil)).Elem(), VpcNatArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcS3FlowLogArgsInput)(nil)).Elem(), VpcS3FlowLogArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcS3FlowLogArgsPtrInput)(nil)).Elem(), VpcS3FlowLogArgsArgs{})
 	pulumi.RegisterOutputType(BucketAccelerateConfigurationTransformOutput{})
 	pulumi.RegisterOutputType(BucketAccelerateConfigurationTransformPtrOutput{})
 	pulumi.RegisterOutputType(BucketAclTransformOutput{})
@@ -5195,6 +5631,12 @@ func init() {
 	pulumi.RegisterOutputType(PABTransformPtrOutput{})
 	pulumi.RegisterOutputType(VpcBastionArgsOutput{})
 	pulumi.RegisterOutputType(VpcBastionArgsPtrOutput{})
+	pulumi.RegisterOutputType(VpcCloudWatchFlowLogArgsOutput{})
+	pulumi.RegisterOutputType(VpcCloudWatchFlowLogArgsPtrOutput{})
+	pulumi.RegisterOutputType(VpcFlowLogsArgsOutput{})
+	pulumi.RegisterOutputType(VpcFlowLogsArgsPtrOutput{})
 	pulumi.RegisterOutputType(VpcNatArgsOutput{})
 	pulumi.RegisterOutputType(VpcNatArgsPtrOutput{})
+	pulumi.RegisterOutputType(VpcS3FlowLogArgsOutput{})
+	pulumi.RegisterOutputType(VpcS3FlowLogArgsPtrOutput{})
 }

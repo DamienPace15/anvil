@@ -61,6 +61,15 @@ export const LambdaRuntime = {
 
 export type LambdaRuntime = (typeof LambdaRuntime)[keyof typeof LambdaRuntime];
 
+export const S3FlowLogLifecycle = {
+    /**
+     * Auto-tiered: Standard (0-30d) → Standard-IA (30-90d) → Glacier Instant Retrieval (90d+). Suitable for compliance retention at minimal long-term cost.
+     */
+    Standard: "standard",
+} as const;
+
+export type S3FlowLogLifecycle = (typeof S3FlowLogLifecycle)[keyof typeof S3FlowLogLifecycle];
+
 export const VpcNatType = {
     /**
      * AWS managed NAT Gateway. One per AZ for true HA. ~$32/month per AZ plus $0.045/GB data processed.

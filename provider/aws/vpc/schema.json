@@ -2,6 +2,10 @@
   "resources": {
     "anvil:aws:Vpc": {
       "inputProperties": {
+        "flowLogs": {
+          "$ref": "#/types/anvil:aws:VpcFlowLogsArgs",
+          "description": "Optional VPC Flow Log configuration. Opt-in only. Either or both destinations can be enabled simultaneously. CloudWatch for active debugging, S3 for long-term compliance retention."
+        },
         "availabilityZones": {
           "description": "Number of Availability Zones to deploy subnets into. Valid values: 1, 2, 3. Defaults to 1. Inherits from App.defaults.availability — 'high' maps to 3, 'low' maps to 1.",
           "type": "integer"
@@ -64,6 +68,48 @@
     }
   },
   "types": {
+    "anvil:aws:S3FlowLogLifecycle": {
+      "enum": [
+        {
+          "value": "standard",
+          "description": "Auto-tiered: Standard (0-30d) → Standard-IA (30-90d) → Glacier Instant Retrieval (90d+). Suitable for compliance retention at minimal long-term cost."
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:VpcFlowLogsArgs": {
+      "properties": {
+        "cloudwatch": {
+          "$ref": "#/types/anvil:aws:VpcCloudWatchFlowLogArgs",
+          "description": "Enable flow log delivery to a CloudWatch Log Group. Use for fast querying with CloudWatch Logs Insights and active debugging of connection issues."
+        },
+        "s3": {
+          "$ref": "#/types/anvil:aws:VpcS3FlowLogArgs",
+          "description": "Enable flow log delivery to a dedicated S3 bucket with auto-tiered lifecycle policy. Use for compliance retention and audit evidence."
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:VpcCloudWatchFlowLogArgs": {
+      "properties": {
+        "retention": {
+          "type": "integer",
+          "description": "Number of days to retain flow log data in CloudWatch Logs. Common values: 7, 14, 30, 90."
+        }
+      },
+      "required": ["retention"],
+      "type": "object"
+    },
+    "anvil:aws:VpcS3FlowLogArgs": {
+      "properties": {
+        "lifecycle": {
+          "$ref": "#/types/anvil:aws:S3FlowLogLifecycle",
+          "description": "Storage tiering policy for flow log retention."
+        }
+      },
+      "required": ["lifecycle"],
+      "type": "object"
+    },
     "anvil:aws:VpcNatType": {
       "enum": [
         {

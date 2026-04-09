@@ -65,6 +65,7 @@ export class Vpc extends pulumi.ComponentResource {
             resourceInputs["availabilityZones"] = args?.availabilityZones;
             resourceInputs["bastion"] = args?.bastion;
             resourceInputs["cidr"] = args?.cidr;
+            resourceInputs["flowLogs"] = args?.flowLogs;
             resourceInputs["nat"] = args?.nat;
             resourceInputs["bastionInstanceId"] = undefined /*out*/;
             resourceInputs["bastionSecurityGroupId"] = undefined /*out*/;
@@ -102,6 +103,10 @@ export interface VpcArgs {
      * The IPv4 CIDR block for the VPC. Default: '10.0.0.0/16'. Public subnets carved from offset 0 (/24 each), private subnets from offset 10 (/24 each).
      */
     cidr?: pulumi.Input<string>;
+    /**
+     * Optional VPC Flow Log configuration. Opt-in only. Either or both destinations can be enabled simultaneously. CloudWatch for active debugging, S3 for long-term compliance retention.
+     */
+    flowLogs?: pulumi.Input<inputs.aws.VpcFlowLogsArgsArgs>;
     /**
      * Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC.
      */

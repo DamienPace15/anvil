@@ -55,8 +55,14 @@ __all__ = [
     'PABTransformArgsDict',
     'VpcBastionArgsArgs',
     'VpcBastionArgsArgsDict',
+    'VpcCloudWatchFlowLogArgsArgs',
+    'VpcCloudWatchFlowLogArgsArgsDict',
+    'VpcFlowLogsArgsArgs',
+    'VpcFlowLogsArgsArgsDict',
     'VpcNatArgsArgs',
     'VpcNatArgsArgsDict',
+    'VpcS3FlowLogArgsArgs',
+    'VpcS3FlowLogArgsArgsDict',
 ]
 
 class BucketAccelerateConfigurationTransformArgsDict(TypedDict):
@@ -2890,6 +2896,83 @@ class VpcBastionArgsArgs:
         pulumi.set(self, "instance_type", value)
 
 
+class VpcCloudWatchFlowLogArgsArgsDict(TypedDict):
+    retention: pulumi.Input[_builtins.int]
+    """
+    Number of days to retain flow log data in CloudWatch Logs. Common values: 7, 14, 30, 90.
+    """
+
+@pulumi.input_type
+class VpcCloudWatchFlowLogArgsArgs:
+    def __init__(__self__, *,
+                 retention: pulumi.Input[_builtins.int]):
+        """
+        :param pulumi.Input[_builtins.int] retention: Number of days to retain flow log data in CloudWatch Logs. Common values: 7, 14, 30, 90.
+        """
+        pulumi.set(__self__, "retention", retention)
+
+    @_builtins.property
+    @pulumi.getter
+    def retention(self) -> pulumi.Input[_builtins.int]:
+        """
+        Number of days to retain flow log data in CloudWatch Logs. Common values: 7, 14, 30, 90.
+        """
+        return pulumi.get(self, "retention")
+
+    @retention.setter
+    def retention(self, value: pulumi.Input[_builtins.int]):
+        pulumi.set(self, "retention", value)
+
+
+class VpcFlowLogsArgsArgsDict(TypedDict):
+    cloudwatch: NotRequired[pulumi.Input['VpcCloudWatchFlowLogArgsArgsDict']]
+    """
+    Enable flow log delivery to a CloudWatch Log Group. Use for fast querying with CloudWatch Logs Insights and active debugging of connection issues.
+    """
+    s3: NotRequired[pulumi.Input['VpcS3FlowLogArgsArgsDict']]
+    """
+    Enable flow log delivery to a dedicated S3 bucket with auto-tiered lifecycle policy. Use for compliance retention and audit evidence.
+    """
+
+@pulumi.input_type
+class VpcFlowLogsArgsArgs:
+    def __init__(__self__, *,
+                 cloudwatch: Optional[pulumi.Input['VpcCloudWatchFlowLogArgsArgs']] = None,
+                 s3: Optional[pulumi.Input['VpcS3FlowLogArgsArgs']] = None):
+        """
+        :param pulumi.Input['VpcCloudWatchFlowLogArgsArgs'] cloudwatch: Enable flow log delivery to a CloudWatch Log Group. Use for fast querying with CloudWatch Logs Insights and active debugging of connection issues.
+        :param pulumi.Input['VpcS3FlowLogArgsArgs'] s3: Enable flow log delivery to a dedicated S3 bucket with auto-tiered lifecycle policy. Use for compliance retention and audit evidence.
+        """
+        if cloudwatch is not None:
+            pulumi.set(__self__, "cloudwatch", cloudwatch)
+        if s3 is not None:
+            pulumi.set(__self__, "s3", s3)
+
+    @_builtins.property
+    @pulumi.getter
+    def cloudwatch(self) -> Optional[pulumi.Input['VpcCloudWatchFlowLogArgsArgs']]:
+        """
+        Enable flow log delivery to a CloudWatch Log Group. Use for fast querying with CloudWatch Logs Insights and active debugging of connection issues.
+        """
+        return pulumi.get(self, "cloudwatch")
+
+    @cloudwatch.setter
+    def cloudwatch(self, value: Optional[pulumi.Input['VpcCloudWatchFlowLogArgsArgs']]):
+        pulumi.set(self, "cloudwatch", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def s3(self) -> Optional[pulumi.Input['VpcS3FlowLogArgsArgs']]:
+        """
+        Enable flow log delivery to a dedicated S3 bucket with auto-tiered lifecycle policy. Use for compliance retention and audit evidence.
+        """
+        return pulumi.get(self, "s3")
+
+    @s3.setter
+    def s3(self, value: Optional[pulumi.Input['VpcS3FlowLogArgsArgs']]):
+        pulumi.set(self, "s3", value)
+
+
 class VpcNatArgsArgsDict(TypedDict):
     nat_type: pulumi.Input['VpcNatType']
     """
@@ -2936,5 +3019,33 @@ class VpcNatArgsArgs:
     @instance_type.setter
     def instance_type(self, value: Optional[pulumi.Input[_builtins.str]]):
         pulumi.set(self, "instance_type", value)
+
+
+class VpcS3FlowLogArgsArgsDict(TypedDict):
+    lifecycle: pulumi.Input['S3FlowLogLifecycle']
+    """
+    Storage tiering policy for flow log retention.
+    """
+
+@pulumi.input_type
+class VpcS3FlowLogArgsArgs:
+    def __init__(__self__, *,
+                 lifecycle: pulumi.Input['S3FlowLogLifecycle']):
+        """
+        :param pulumi.Input['S3FlowLogLifecycle'] lifecycle: Storage tiering policy for flow log retention.
+        """
+        pulumi.set(__self__, "lifecycle", lifecycle)
+
+    @_builtins.property
+    @pulumi.getter
+    def lifecycle(self) -> pulumi.Input['S3FlowLogLifecycle']:
+        """
+        Storage tiering policy for flow log retention.
+        """
+        return pulumi.get(self, "lifecycle")
+
+    @lifecycle.setter
+    def lifecycle(self, value: pulumi.Input['S3FlowLogLifecycle']):
+        pulumi.set(self, "lifecycle", value)
 
 

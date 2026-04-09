@@ -53,6 +53,8 @@ type vpcArgs struct {
 	Bastion *VpcBastionArgs `pulumi:"bastion"`
 	// The IPv4 CIDR block for the VPC. Default: '10.0.0.0/16'. Public subnets carved from offset 0 (/24 each), private subnets from offset 10 (/24 each).
 	Cidr *string `pulumi:"cidr"`
+	// Optional VPC Flow Log configuration. Opt-in only. Either or both destinations can be enabled simultaneously. CloudWatch for active debugging, S3 for long-term compliance retention.
+	FlowLogs *VpcFlowLogsArgs `pulumi:"flowLogs"`
 	// Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC.
 	Nat *VpcNatArgs `pulumi:"nat"`
 }
@@ -65,6 +67,8 @@ type VpcArgs struct {
 	Bastion VpcBastionArgsPtrInput
 	// The IPv4 CIDR block for the VPC. Default: '10.0.0.0/16'. Public subnets carved from offset 0 (/24 each), private subnets from offset 10 (/24 each).
 	Cidr pulumi.StringPtrInput
+	// Optional VPC Flow Log configuration. Opt-in only. Either or both destinations can be enabled simultaneously. CloudWatch for active debugging, S3 for long-term compliance retention.
+	FlowLogs VpcFlowLogsArgsPtrInput
 	// Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC.
 	Nat VpcNatArgsPtrInput
 }

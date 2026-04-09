@@ -10,6 +10,7 @@ __all__ = [
     'LambdaArchitecture',
     'LambdaLogRetention',
     'LambdaRuntime',
+    'S3FlowLogLifecycle',
     'VpcNatType',
 ]
 
@@ -67,6 +68,14 @@ class LambdaRuntime(_builtins.str, Enum):
     NODEJS22_X = "nodejs22.x"
     """
     Node.js 22 (LTS)
+    """
+
+
+@pulumi.type_token("anvil:aws:S3FlowLogLifecycle")
+class S3FlowLogLifecycle(_builtins.str, Enum):
+    STANDARD = "standard"
+    """
+    Auto-tiered: Standard (0-30d) → Standard-IA (30-90d) → Glacier Instant Retrieval (90d+). Suitable for compliance retention at minimal long-term cost.
     """
 
 
