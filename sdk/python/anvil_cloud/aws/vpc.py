@@ -245,3 +245,20 @@ class Vpc(pulumi.ComponentResource):
         """
         return pulumi.get(self, "vpc_id")
 
+    @staticmethod
+    def from_id(
+        name: str,
+        args: 'VpcLookupArgs',
+        opts: Optional[pulumi.ComponentResourceOptions] = None
+    ) -> 'Vpc':
+        """
+        Imports an existing Vpc into Anvil without managing or modifying it.
+        Returns an identical output shape to constructing a new Vpc.
+
+        Flow logs, NAT, and bastion are not available on an imported VPC.
+
+        If subnet IDs are omitted, Anvil auto-discovers them by inspecting
+        route tables. Provide IDs explicitly if auto-discovery fails.
+        """
+        return Vpc(name, args, opts)  # type: ignore
+

@@ -8,6 +8,7 @@
 //   3. Patches package.json for npm publishing
 //   4. Patches component files with correct enum types (config-driven)
 //   5. Patches component files with boolean | ObjectType shorthands (config-driven)
+//   6. Patches component files with static fromId() methods (config-driven)
 //
 // Python (sdk/python/):
 //   1. Replaces setup.py with pyproject.toml for PyPI publishing
@@ -16,6 +17,7 @@
 //   4. Copies/creates README.md
 //   5. Patches component files with correct enum types (config-driven)
 //   6. Patches component files with boolean | ObjectType shorthands (config-driven)
+//   7. Patches component files with static from_id() methods (config-driven)
 //
 // Usage:
 //   npx ts-node scripts/sdk/fix-sdk.ts           # patches both TS and Python
@@ -26,6 +28,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ENUM_PATCHES } from './enum-patches';
 import { BOOLEAN_SHORTHAND_PATCHES } from './boolean-shorthand-patches';
+import { FROMID_PATCHES } from './fromid-patches';
 
 const cliArgs = process.argv.slice(2);
 const tsOnly = cliArgs.includes('--ts');
@@ -285,6 +288,76 @@ function patchTypeScript(): void {
     } else {
       console.log(
         `  ⏭ ${patch.tsFile} boolean shorthands already patched — skipping`
+      );
+    }
+  }
+
+  // ── 5. Patch fromId static methods ────────────────────
+  for (const patch of FROMID_PATCHES) {
+    const filePath = path.join(sdkDir, patch.tsFile);
+    if (!fs.existsSync(filePath)) {
+      console.log(`  ⚠ ${patch.tsFile} not found — skipping fromId patch`);
+      continue;
+    }
+
+    let content = fs.readFileSync(filePath, 'utf8');
+
+    if (content.includes('static fromId(')) {
+      console.log(`  ⏭ ${patch.tsFile} fromId already patched — skipping`);
+      continue;
+    }
+
+    const fromIdMethod = [
+      '',
+      '    /**',
+      `     * Imports an existing ${patch.className} into Anvil without managing or modifying it.`,
+      `     * Returns an identical output shape to \`new ${patch.className}()\`.`,
+      `     *`,
+      `     * Flow logs, NAT, and bastion are not available on an imported VPC.`,
+      `     *`,
+      `     * If subnet IDs are omitted, Anvil auto-discovers them by inspecting`,
+      `     * route tables. Provide IDs explicitly if auto-discovery fails.`,
+      `     *`,
+      `     * @example`,
+      `     * const network = ${patch.className}.fromId("existing", {`,
+      `     *   vpcId: "vpc-0abc123def456",`,
+      `     * });`,
+      `     */`,
+      `    static fromId(`,
+      `      name: string,`,
+      `      args: {`,
+      `        vpcId: string;`,
+      `        privateSubnetIds?: string[];`,
+      `        publicSubnetIds?: string[];`,
+      `      },`,
+      `      opts?: pulumi.ComponentResourceOptions`,
+      `    ): ${patch.className} {`,
+      `      return new ${patch.className}(name, args as any, {`,
+      `        ...opts,`,
+      `        id: args.vpcId,`,
+      `      });`,
+      `    }`,
+      '',
+    ].join('\n');
+
+    // Insert before the closing brace of the class, which sits just before
+    // the first exported interface that follows it.
+    const interfaceIdx = content.indexOf('\nexport interface ');
+    const insertAt =
+      interfaceIdx >= 0
+        ? content.lastIndexOf('\n}', interfaceIdx)
+        : content.lastIndexOf('\n}');
+
+    if (insertAt >= 0) {
+      content =
+        content.slice(0, insertAt) + fromIdMethod + content.slice(insertAt);
+      fs.writeFileSync(filePath, content);
+      console.log(
+        `  ✔ Patched ${patch.tsFile} → static fromId() on ${patch.className}`
+      );
+    } else {
+      console.log(
+        `  ⚠ Could not find class end in ${patch.tsFile} — skipping fromId patch`
       );
     }
   }
@@ -585,6 +658,59 @@ Apache-2.0
         `  ⏭ ${patch.pyFile} boolean shorthands already patched — skipping`
       );
     }
+  }
+
+  // ── 7. Patch fromId static methods ────────────────────
+  for (const patch of FROMID_PATCHES) {
+    const filePath = path.join(pyCloudDir, patch.pyFile);
+    if (!fs.existsSync(filePath)) {
+      console.log(`  ⚠ ${patch.pyFile} not found — skipping fromId patch`);
+      continue;
+    }
+
+    let content = fs.readFileSync(filePath, 'utf8');
+
+    if (content.includes('def from_id(')) {
+      console.log(`  ⏭ ${patch.pyFile} from_id already patched — skipping`);
+      continue;
+    }
+
+    // Ensure Optional is imported — from_id uses it for opts.
+    if (!content.includes('from typing import')) {
+      content = 'from typing import Optional\n' + content;
+    } else if (!content.includes('Optional')) {
+      content = content.replace(
+        'from typing import',
+        'from typing import Optional,'
+      );
+    }
+
+    const fromIdMethod = [
+      '',
+      '    @staticmethod',
+      `    def from_id(`,
+      `        name: str,`,
+      `        args: '${patch.pyArgsType}',`,
+      `        opts: Optional[pulumi.ComponentResourceOptions] = None`,
+      `    ) -> '${patch.className}':`,
+      `        """`,
+      `        Imports an existing ${patch.className} into Anvil without managing or modifying it.`,
+      `        Returns an identical output shape to constructing a new ${patch.className}.`,
+      ``,
+      `        Flow logs, NAT, and bastion are not available on an imported VPC.`,
+      ``,
+      `        If subnet IDs are omitted, Anvil auto-discovers them by inspecting`,
+      `        route tables. Provide IDs explicitly if auto-discovery fails.`,
+      `        """`,
+      `        return ${patch.className}(name, args, opts)  # type: ignore`,
+      '',
+    ].join('\n');
+
+    content = content.trimEnd() + '\n' + fromIdMethod + '\n';
+    fs.writeFileSync(filePath, content);
+    console.log(
+      `  ✔ Patched ${patch.pyFile} → static from_id() on ${patch.className}`
+    );
   }
 
   console.log(`✔ Python SDK patched → anvil-cloud v${version}`);
