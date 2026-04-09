@@ -75,6 +75,12 @@ export const ENUM_PATCHES: EnumPatchConfig[] = [
         tsEnumType: 'enums.aws.VpcNatType',
         pyEnumType: 'VpcNatType',
       },
+      {
+        field: 'lifecycle',
+        required: true,
+        tsEnumType: 'enums.aws.S3FlowLogLifecycle',
+        pyEnumType: 'S3FlowLogLifecycle',
+      },
     ],
   },
 

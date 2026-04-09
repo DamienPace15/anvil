@@ -589,6 +589,24 @@ export namespace aws {
         instanceType?: pulumi.Input<string>;
     }
 
+    export interface VpcCloudWatchFlowLogArgsArgs {
+        /**
+         * Number of days to retain flow log data in CloudWatch Logs. Common values: 7, 14, 30, 90.
+         */
+        retention: pulumi.Input<number>;
+    }
+
+    export interface VpcFlowLogsArgsArgs {
+        /**
+         * Enable flow log delivery to a CloudWatch Log Group. Use for fast querying with CloudWatch Logs Insights and active debugging of connection issues.
+         */
+        cloudwatch?: pulumi.Input<inputs.aws.VpcCloudWatchFlowLogArgsArgs>;
+        /**
+         * Enable flow log delivery to a dedicated S3 bucket with auto-tiered lifecycle policy. Use for compliance retention and audit evidence.
+         */
+        s3?: pulumi.Input<inputs.aws.VpcS3FlowLogArgsArgs>;
+    }
+
     export interface VpcNatArgsArgs {
         /**
          * EC2 instance type for the fck-nat instance. Only applies when natType is 'fck-nat'. Default: 't4g.small'.
@@ -598,6 +616,13 @@ export namespace aws {
          * Type of NAT to provision. 'gateway' provisions one AWS managed NAT Gateway per AZ. 'fck-nat' provisions a single fck-nat EC2 instance shared across all AZs.
          */
         natType: pulumi.Input<enums.aws.VpcNatType>;
+    }
+
+    export interface VpcS3FlowLogArgsArgs {
+        /**
+         * Storage tiering policy for flow log retention.
+         */
+        lifecycle: pulumi.Input<enums.aws.S3FlowLogLifecycle>;
     }
 }
 

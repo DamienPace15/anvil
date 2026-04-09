@@ -526,6 +526,170 @@ func (in *lambdaRuntimePtr) ToLambdaRuntimePtrOutputWithContext(ctx context.Cont
 	return pulumi.ToOutputWithContext(ctx, in).(LambdaRuntimePtrOutput)
 }
 
+type S3FlowLogLifecycle string
+
+const (
+	// Auto-tiered: Standard (0-30d) → Standard-IA (30-90d) → Glacier Instant Retrieval (90d+). Suitable for compliance retention at minimal long-term cost.
+	S3FlowLogLifecycleStandard = S3FlowLogLifecycle("standard")
+)
+
+func (S3FlowLogLifecycle) ElementType() reflect.Type {
+	return reflect.TypeOf((*S3FlowLogLifecycle)(nil)).Elem()
+}
+
+func (e S3FlowLogLifecycle) ToS3FlowLogLifecycleOutput() S3FlowLogLifecycleOutput {
+	return pulumi.ToOutput(e).(S3FlowLogLifecycleOutput)
+}
+
+func (e S3FlowLogLifecycle) ToS3FlowLogLifecycleOutputWithContext(ctx context.Context) S3FlowLogLifecycleOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(S3FlowLogLifecycleOutput)
+}
+
+func (e S3FlowLogLifecycle) ToS3FlowLogLifecyclePtrOutput() S3FlowLogLifecyclePtrOutput {
+	return e.ToS3FlowLogLifecyclePtrOutputWithContext(context.Background())
+}
+
+func (e S3FlowLogLifecycle) ToS3FlowLogLifecyclePtrOutputWithContext(ctx context.Context) S3FlowLogLifecyclePtrOutput {
+	return S3FlowLogLifecycle(e).ToS3FlowLogLifecycleOutputWithContext(ctx).ToS3FlowLogLifecyclePtrOutputWithContext(ctx)
+}
+
+func (e S3FlowLogLifecycle) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e S3FlowLogLifecycle) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e S3FlowLogLifecycle) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e S3FlowLogLifecycle) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type S3FlowLogLifecycleOutput struct{ *pulumi.OutputState }
+
+func (S3FlowLogLifecycleOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*S3FlowLogLifecycle)(nil)).Elem()
+}
+
+func (o S3FlowLogLifecycleOutput) ToS3FlowLogLifecycleOutput() S3FlowLogLifecycleOutput {
+	return o
+}
+
+func (o S3FlowLogLifecycleOutput) ToS3FlowLogLifecycleOutputWithContext(ctx context.Context) S3FlowLogLifecycleOutput {
+	return o
+}
+
+func (o S3FlowLogLifecycleOutput) ToS3FlowLogLifecyclePtrOutput() S3FlowLogLifecyclePtrOutput {
+	return o.ToS3FlowLogLifecyclePtrOutputWithContext(context.Background())
+}
+
+func (o S3FlowLogLifecycleOutput) ToS3FlowLogLifecyclePtrOutputWithContext(ctx context.Context) S3FlowLogLifecyclePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v S3FlowLogLifecycle) *S3FlowLogLifecycle {
+		return &v
+	}).(S3FlowLogLifecyclePtrOutput)
+}
+
+func (o S3FlowLogLifecycleOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o S3FlowLogLifecycleOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e S3FlowLogLifecycle) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o S3FlowLogLifecycleOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o S3FlowLogLifecycleOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e S3FlowLogLifecycle) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type S3FlowLogLifecyclePtrOutput struct{ *pulumi.OutputState }
+
+func (S3FlowLogLifecyclePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**S3FlowLogLifecycle)(nil)).Elem()
+}
+
+func (o S3FlowLogLifecyclePtrOutput) ToS3FlowLogLifecyclePtrOutput() S3FlowLogLifecyclePtrOutput {
+	return o
+}
+
+func (o S3FlowLogLifecyclePtrOutput) ToS3FlowLogLifecyclePtrOutputWithContext(ctx context.Context) S3FlowLogLifecyclePtrOutput {
+	return o
+}
+
+func (o S3FlowLogLifecyclePtrOutput) Elem() S3FlowLogLifecycleOutput {
+	return o.ApplyT(func(v *S3FlowLogLifecycle) S3FlowLogLifecycle {
+		if v != nil {
+			return *v
+		}
+		var ret S3FlowLogLifecycle
+		return ret
+	}).(S3FlowLogLifecycleOutput)
+}
+
+func (o S3FlowLogLifecyclePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o S3FlowLogLifecyclePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *S3FlowLogLifecycle) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// S3FlowLogLifecycleInput is an input type that accepts values of the S3FlowLogLifecycle enum
+// A concrete instance of `S3FlowLogLifecycleInput` can be one of the following:
+//
+//	S3FlowLogLifecycleStandard
+type S3FlowLogLifecycleInput interface {
+	pulumi.Input
+
+	ToS3FlowLogLifecycleOutput() S3FlowLogLifecycleOutput
+	ToS3FlowLogLifecycleOutputWithContext(context.Context) S3FlowLogLifecycleOutput
+}
+
+var s3flowLogLifecyclePtrType = reflect.TypeOf((**S3FlowLogLifecycle)(nil)).Elem()
+
+type S3FlowLogLifecyclePtrInput interface {
+	pulumi.Input
+
+	ToS3FlowLogLifecyclePtrOutput() S3FlowLogLifecyclePtrOutput
+	ToS3FlowLogLifecyclePtrOutputWithContext(context.Context) S3FlowLogLifecyclePtrOutput
+}
+
+type s3flowLogLifecyclePtr string
+
+func S3FlowLogLifecyclePtr(v string) S3FlowLogLifecyclePtrInput {
+	return (*s3flowLogLifecyclePtr)(&v)
+}
+
+func (*s3flowLogLifecyclePtr) ElementType() reflect.Type {
+	return s3flowLogLifecyclePtrType
+}
+
+func (in *s3flowLogLifecyclePtr) ToS3FlowLogLifecyclePtrOutput() S3FlowLogLifecyclePtrOutput {
+	return pulumi.ToOutput(in).(S3FlowLogLifecyclePtrOutput)
+}
+
+func (in *s3flowLogLifecyclePtr) ToS3FlowLogLifecyclePtrOutputWithContext(ctx context.Context) S3FlowLogLifecyclePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(S3FlowLogLifecyclePtrOutput)
+}
+
 type VpcNatType string
 
 const (
@@ -700,6 +864,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaLogRetentionPtrInput)(nil)).Elem(), LambdaLogRetention("7d"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaRuntimeInput)(nil)).Elem(), LambdaRuntime("nodejs24.x"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaRuntimePtrInput)(nil)).Elem(), LambdaRuntime("nodejs24.x"))
+	pulumi.RegisterInputType(reflect.TypeOf((*S3FlowLogLifecycleInput)(nil)).Elem(), S3FlowLogLifecycle("standard"))
+	pulumi.RegisterInputType(reflect.TypeOf((*S3FlowLogLifecyclePtrInput)(nil)).Elem(), S3FlowLogLifecycle("standard"))
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypeInput)(nil)).Elem(), VpcNatType("gateway"))
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypePtrInput)(nil)).Elem(), VpcNatType("gateway"))
 	pulumi.RegisterOutputType(LambdaArchitectureOutput{})
@@ -708,6 +874,8 @@ func init() {
 	pulumi.RegisterOutputType(LambdaLogRetentionPtrOutput{})
 	pulumi.RegisterOutputType(LambdaRuntimeOutput{})
 	pulumi.RegisterOutputType(LambdaRuntimePtrOutput{})
+	pulumi.RegisterOutputType(S3FlowLogLifecycleOutput{})
+	pulumi.RegisterOutputType(S3FlowLogLifecyclePtrOutput{})
 	pulumi.RegisterOutputType(VpcNatTypeOutput{})
 	pulumi.RegisterOutputType(VpcNatTypePtrOutput{})
 }
