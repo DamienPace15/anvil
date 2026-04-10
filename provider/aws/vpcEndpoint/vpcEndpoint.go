@@ -49,8 +49,10 @@ type VpcEndpoint struct {
 	DnsName pulumi.StringOutput `pulumi:"dnsName"`
 
 	// SecurityGroupId is the ID of the dedicated security group attached to this
-	// endpoint. Zero rules by default. Ingress rules are added when compute
-	// resources call grantEndpointAccess.
+	// endpoint. A single self-referencing ingress rule on port 443 is wired at
+	// creation time. Any compute resource with explicit egress to this SG satisfies
+	// that rule — nothing else in the VPC can reach it. Compute resources add egress
+	// rules pointing at this SG and never modify its ingress.
 	SecurityGroupId pulumi.StringOutput `pulumi:"securityGroupId"`
 
 	name string
@@ -58,7 +60,7 @@ type VpcEndpoint struct {
 
 func (v *VpcEndpoint) Annotate(a infer.Annotator) {
 	a.SetToken("aws", "VpcEndpoint")
-	a.Describe(&v, "An Anvil-managed AWS Interface VPC Endpoint. Creates one ENI per private subnet with private DNS enabled. Includes a dedicated security group with zero rules by default. Use grantEndpointAccess on compute resources to open the network path.")
+	a.Describe(&v, "An Anvil-managed AWS Interface VPC Endpoint. Creates one ENI per private subnet with private DNS enabled. Includes a dedicated security group with a single self-referencing ingress rule on port 443 — only compute resources with explicit egress to this SG can reach the endpoint. Compute resources never modify the endpoint SG ingress, preventing duplicate rule errors when multiple compute resources share the same endpoint.")
 }
 
 // Name returns the logical name of this endpoint, used for rule naming in grants.
@@ -102,10 +104,31 @@ func NewVpcEndpoint(ctx *pulumi.Context, name string, args VpcEndpointArgs, opts
 	}
 
 	// 2. Dedicated security group — zero inbound, zero outbound by default.
-	// Ingress rules are added per compute resource via grantEndpointAccess.
 	sg, err := vpcsg.CreateSecurityGroup(ctx, name, stage, stageId, args.VpcId, v)
 	if err != nil {
 		return nil, err
+	}
+
+	// 2b. Self-referencing ingress rule on port 443.
+	//
+	// The endpoint SG allows ingress from itself — meaning any compute resource
+	// whose SG has an explicit egress rule pointing at this SG satisfies the rule
+	// and can reach the endpoint. Resources with no such egress rule are blocked.
+	//
+	// This is strictly tighter than a VPC CIDR rule (which would allow any resource
+	// in the VPC regardless of whether it was granted access) and requires no
+	// ec2:DescribeVpcs API call. The rule count on the endpoint SG stays at exactly
+	// 1 forever, regardless of how many compute resources reference this endpoint.
+	if err := vpcsg.AddIngressRule(
+		ctx,
+		fmt.Sprintf("%s-self-ingress", name),
+		sg.ID().ToStringOutput(),
+		sg.ID().ToStringOutput(),
+		443, 443,
+		"tcp",
+		v,
+	); err != nil {
+		return nil, fmt.Errorf("failed to wire self-referencing ingress on endpoint SG: %w", err)
 	}
 
 	// 3. Interface VPC Endpoint.
@@ -114,7 +137,7 @@ func NewVpcEndpoint(ctx *pulumi.Context, name string, args VpcEndpointArgs, opts
 	//   so consumers use standard AWS SDK endpoints (e.g. ssm.ap-southeast-2.amazonaws.com)
 	//   and never reference vpce-xxx hostnames directly
 	// - SubnetIds: one per private subnet, AWS places one ENI per AZ automatically
-	// - SecurityGroupIds: dedicated SG with zero rules — nothing reachable until granted
+	// - SecurityGroupIds: dedicated SG — only reachable by compute with explicit egress to this SG
 	endpointName := provider.PhysicalName(stage, name, "vpce", stageId)
 
 	subnetIds := make(pulumi.StringArray, len(args.PrivateSubnetIds))
