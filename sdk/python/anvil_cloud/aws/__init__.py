@@ -11,4 +11,5 @@ from .bucket import *
 from .lambda_ import *
 from .svelte_kit_site import *
 from .vpc import *
+from .vpc_endpoint import *
 from ._inputs import *

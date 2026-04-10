@@ -96,20 +96,9 @@ def create_egress_grant(
     compute resource's dedicated security group.
 
     Must specify either internet=True or cidrs — not both, not neither.
-
-    Examples::
-
-        fn.grant_egress(internet=True)                              # 443 only
-        fn.grant_egress(internet=True, ports=[80, 443])             # HTTP + HTTPS
-        fn.grant_egress(internet=True, all_ports=True)              # unrestricted
-        fn.grant_egress(cidrs=[
-            {"range": "10.0.0.0/8", "ports": [5432]},
-            {"range": "172.16.0.0/12", "ports": [6379]},
-        ])
     """
     import re
 
-    # Validate: internet or cidrs, not both, not neither.
     if internet and cidrs:
         raise ValueError(
             f"{name}: grant_egress cannot specify both internet and cidrs — choose one."
@@ -118,8 +107,6 @@ def create_egress_grant(
         raise ValueError(
             f"{name}: grant_egress requires either internet=True or cidrs."
         )
-
-    # Validate: all_ports only with internet.
     if all_ports and not internet:
         raise ValueError(
             f"{name}: grant_egress all_ports is only valid with internet=True."
@@ -177,3 +164,62 @@ def create_egress_grant(
                 tags={"ManagedBy": "anvil"},
                 opts=pulumi.ResourceOptions(parent=parent),
             )
+
+
+class VpcEndpointTarget(Protocol):
+    """
+    Any Anvil VPC endpoint resource that exposes a security group ID and
+    logical name for grant rule naming.
+
+    Satisfied by VpcEndpoint (endpoint_name() injected by fix-sdk-grants.ts).
+    """
+
+    @property
+    def security_group_id(self) -> pulumi.Output[str]: ...
+
+    def endpoint_name(self) -> str: ...
+
+
+def create_endpoint_access_grant(
+    parent: pulumi.Resource,
+    name: str,
+    compute_sg_id: pulumi.Output[str],
+    endpoints: List,
+) -> None:
+    """
+    Creates the paired SG rules that open the network path between a compute
+    resource and one or more Interface VPC Endpoints.
+
+    For each endpoint:
+      - SecurityGroupEgressRule on the compute SG  — port 443 out to endpoint SG
+      - SecurityGroupIngressRule on the endpoint SG — port 443 in from compute SG
+
+    Both rules are required — the endpoint SG has zero rules by default.
+    """
+    for endpoint in endpoints:
+        ep_name = endpoint.endpoint_name()
+        endpoint_sg_id = endpoint.security_group_id
+
+        # 1. Egress rule on the compute SG — port 443 out to the endpoint SG.
+        aws.vpc.SecurityGroupEgressRule(
+            f"{name}-{ep_name}-endpoint-egress",
+            security_group_id=compute_sg_id,
+            referenced_security_group_id=endpoint_sg_id,
+            from_port=443,
+            to_port=443,
+            ip_protocol="tcp",
+            tags={"ManagedBy": "anvil"},
+            opts=pulumi.ResourceOptions(parent=parent),
+        )
+
+        # 2. Ingress rule on the endpoint SG — port 443 in from the compute SG.
+        aws.vpc.SecurityGroupIngressRule(
+            f"{name}-{ep_name}-endpoint-ingress",
+            security_group_id=endpoint_sg_id,
+            referenced_security_group_id=compute_sg_id,
+            from_port=443,
+            to_port=443,
+            ip_protocol="tcp",
+            tags={"ManagedBy": "anvil"},
+            opts=pulumi.ResourceOptions(parent=parent),
+        )

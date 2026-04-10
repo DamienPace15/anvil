@@ -117,7 +117,7 @@ func targetGenGoSDK() {
 	must(os.MkdirAll(backupDir, 0o755))
 	defer os.RemoveAll(backupDir)
 
-	backupFiles("sdk/go/anvil", backupDir, "go.mod", "go.sum", "app.go", "block.go", "grants.go")
+	backupFiles("sdk/go/anvil", backupDir, "go.mod", "go.sum", "app.go", "block.go", "grants.go", "aws/lambda_grants.go", "aws/vpcendpoint_grants.go")
 
 	run("provider", env("GOWORK", "off"),
 		"pulumi", "package", "gen-sdk", "schema.json", "--language", "go", "--out", "../sdk",
@@ -128,7 +128,9 @@ func targetGenGoSDK() {
 			"go", "mod", "init", "github.com/DamienPace15/anvil/sdk/go/anvil",
 		)
 	}
-	restoreFiles(backupDir, "sdk/go/anvil", "go.sum", "app.go", "block.go", "grants.go")
+
+	restoreFiles(backupDir, "sdk/go/anvil", "go.sum", "app.go", "block.go", "grants.go", "aws/lambda_grants.go", "aws/vpcendpoint_grants.go")
+
 	must(copyFile("docs/go/README.md", "sdk/go/anvil/README.md"))
 
 	run("sdk/go/anvil", env("GOWORK", "off"), "go", "mod", "tidy")

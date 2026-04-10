@@ -425,12 +425,13 @@ class Lambda(pulumi.ComponentResource):
 
     def grant_egress(
         self,
-        internet: bool,
+        internet: bool = False,
         ports: Optional[list] = None,
         all_ports: bool = False,
+        cidrs: Optional[list] = None,
     ) -> None:
         """
-        Grants internet egress from this Lambda's security group.
+        Grants internet or CIDR-scoped egress from this Lambda's security group.
         Opt-in only — a VPC-attached Lambda with no grant_egress
         has zero outbound internet access by default.
 
@@ -438,9 +439,9 @@ class Lambda(pulumi.ComponentResource):
 
         Examples::
 
-            fn.grant_egress(internet=True)                       # 443 only
-            fn.grant_egress(internet=True, ports=[80, 443])      # HTTP + HTTPS
-            fn.grant_egress(internet=True, all_ports=True)       # unrestricted
+            resource.grant_egress(internet=True)                       # 443 only
+            resource.grant_egress(internet=True, ports=[80, 443])      # HTTP + HTTPS
+            resource.grant_egress(internet=True, all_ports=True)       # unrestricted
         """
         from anvil_cloud import grants as _grants
         if not self.security_group_id:
@@ -450,6 +451,37 @@ class Lambda(pulumi.ComponentResource):
             )
         _grants.create_egress_grant(
             self, self.__name, self.security_group_id,
-            internet, ports, all_ports
+            internet, ports, all_ports, cidrs
+        )
+
+    def grant_endpoint_access(
+        self,
+        endpoints: list,
+    ) -> None:
+        """
+        Opens the network path between this Lambda and one or
+        more Interface VPC Endpoints.
+
+        For each endpoint in the list:
+          - Egress rule on the Lambda SG  — port 443 out to endpoint SG
+          - Ingress rule on the endpoint SG — port 443 in from Lambda SG
+
+        Both rules are required — the endpoint SG has zero rules by default.
+        This method is network-only. IAM permissions are managed separately
+        via grant_permissions — both layers are required for full access.
+
+        Examples::
+
+            resource.grant_endpoint_access([ssm_endpoint, ssm_messages_endpoint])
+            resource.grant_endpoint_access([secrets_endpoint])
+        """
+        from anvil_cloud import grants as _grants
+        if not self.security_group_id:
+            raise ValueError(
+                f'Lambda "{self.__name}" has no VPC — '
+                'grant_endpoint_access requires vpc to be set.'
+            )
+        _grants.create_endpoint_access_grant(
+            self, self.__name, self.security_group_id, endpoints
         )
 

@@ -2,6 +2,66 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 
+export const AwsVpcEndpointService = {
+    /**
+     * AWS Systems Manager. Required alongside ssmmessages and ec2messages for full SSM functionality including Session Manager and Run Command.
+     */
+    Ssm: "ssm",
+    /**
+     * SSM Session Manager messaging. Required alongside ssm and ec2messages.
+     */
+    Ssmmessages: "ssmmessages",
+    /**
+     * SSM Run Command messaging. Required alongside ssm and ssmmessages.
+     */
+    Ec2messages: "ec2messages",
+    /**
+     * AWS Secrets Manager. Allows compute resources to call GetSecretValue and other Secrets Manager APIs without traversing the public internet.
+     */
+    Secretsmanager: "secretsmanager",
+    /**
+     * ECR control plane — authentication, image manifests, and repository metadata. Required alongside ecr.dkr for private image pulls.
+     */
+    Ecr_api: "ecr.api",
+    /**
+     * ECR data plane — image layer pulls. Required alongside ecr.api for private image pulls.
+     */
+    Ecr_dkr: "ecr.dkr",
+    /**
+     * Amazon Simple Queue Service. Covers all SQS operations including SendMessage, ReceiveMessage, and DeleteMessage — all are client-initiated HTTPS, one endpoint covers all operations.
+     */
+    Sqs: "sqs",
+    /**
+     * Amazon Simple Notification Service. Allows compute resources to publish to SNS topics without traversing the public internet.
+     */
+    Sns: "sns",
+    /**
+     * AWS Lambda invoke. Allows private invocation of Lambda functions from within the VPC.
+     */
+    Lambda: "lambda",
+    /**
+     * Amazon CloudWatch Logs. Required for compute resources in private subnets to ship logs to CloudWatch without a NAT Gateway.
+     */
+    Logs: "logs",
+    /**
+     * Amazon CloudWatch Metrics. Required for compute resources in private subnets to publish custom metrics without a NAT Gateway.
+     */
+    Monitoring: "monitoring",
+    /**
+     * AWS Key Management Service. Required for compute resources that perform envelope encryption, use KMS-managed secrets, or interact with services that call KMS on their behalf.
+     */
+    Kms: "kms",
+    /**
+     * AWS Security Token Service. Required for IAM role assumption and temporary credential generation within private subnets.
+     */
+    Sts: "sts",
+} as const;
+
+/**
+ * The AWS service to route privately via an Interface VPC Endpoint. Each value maps to the com.amazonaws.{region}.{suffix} endpoint service name.
+ */
+export type AwsVpcEndpointService = (typeof AwsVpcEndpointService)[keyof typeof AwsVpcEndpointService];
+
 export const LambdaArchitecture = {
     /**
      * Graviton — 20% cheaper, better performance. Default.

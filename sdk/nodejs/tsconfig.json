@@ -18,6 +18,7 @@
         "aws/lambda.ts",
         "aws/svelteKitSite.ts",
         "aws/vpc.ts",
+        "aws/vpcEndpoint.ts",
         "gcp/function.ts",
         "gcp/index.ts",
         "gcp/storageBucket.ts",

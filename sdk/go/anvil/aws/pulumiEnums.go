@@ -10,6 +10,207 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+// The AWS service to route privately via an Interface VPC Endpoint. Each value maps to the com.amazonaws.{region}.{suffix} endpoint service name.
+type AwsVpcEndpointService string
+
+const (
+	// AWS Systems Manager. Required alongside ssmmessages and ec2messages for full SSM functionality including Session Manager and Run Command.
+	AwsVpcEndpointServiceSsm = AwsVpcEndpointService("ssm")
+	// SSM Session Manager messaging. Required alongside ssm and ec2messages.
+	AwsVpcEndpointServiceSsmmessages = AwsVpcEndpointService("ssmmessages")
+	// SSM Run Command messaging. Required alongside ssm and ssmmessages.
+	AwsVpcEndpointServiceEc2messages = AwsVpcEndpointService("ec2messages")
+	// AWS Secrets Manager. Allows compute resources to call GetSecretValue and other Secrets Manager APIs without traversing the public internet.
+	AwsVpcEndpointServiceSecretsmanager = AwsVpcEndpointService("secretsmanager")
+	// ECR control plane — authentication, image manifests, and repository metadata. Required alongside ecr.dkr for private image pulls.
+	AwsVpcEndpointService_Ecr_api = AwsVpcEndpointService("ecr.api")
+	// ECR data plane — image layer pulls. Required alongside ecr.api for private image pulls.
+	AwsVpcEndpointService_Ecr_dkr = AwsVpcEndpointService("ecr.dkr")
+	// Amazon Simple Queue Service. Covers all SQS operations including SendMessage, ReceiveMessage, and DeleteMessage — all are client-initiated HTTPS, one endpoint covers all operations.
+	AwsVpcEndpointServiceSqs = AwsVpcEndpointService("sqs")
+	// Amazon Simple Notification Service. Allows compute resources to publish to SNS topics without traversing the public internet.
+	AwsVpcEndpointServiceSns = AwsVpcEndpointService("sns")
+	// AWS Lambda invoke. Allows private invocation of Lambda functions from within the VPC.
+	AwsVpcEndpointServiceLambda = AwsVpcEndpointService("lambda")
+	// Amazon CloudWatch Logs. Required for compute resources in private subnets to ship logs to CloudWatch without a NAT Gateway.
+	AwsVpcEndpointServiceLogs = AwsVpcEndpointService("logs")
+	// Amazon CloudWatch Metrics. Required for compute resources in private subnets to publish custom metrics without a NAT Gateway.
+	AwsVpcEndpointServiceMonitoring = AwsVpcEndpointService("monitoring")
+	// AWS Key Management Service. Required for compute resources that perform envelope encryption, use KMS-managed secrets, or interact with services that call KMS on their behalf.
+	AwsVpcEndpointServiceKms = AwsVpcEndpointService("kms")
+	// AWS Security Token Service. Required for IAM role assumption and temporary credential generation within private subnets.
+	AwsVpcEndpointServiceSts = AwsVpcEndpointService("sts")
+)
+
+func (AwsVpcEndpointService) ElementType() reflect.Type {
+	return reflect.TypeOf((*AwsVpcEndpointService)(nil)).Elem()
+}
+
+func (e AwsVpcEndpointService) ToAwsVpcEndpointServiceOutput() AwsVpcEndpointServiceOutput {
+	return pulumi.ToOutput(e).(AwsVpcEndpointServiceOutput)
+}
+
+func (e AwsVpcEndpointService) ToAwsVpcEndpointServiceOutputWithContext(ctx context.Context) AwsVpcEndpointServiceOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(AwsVpcEndpointServiceOutput)
+}
+
+func (e AwsVpcEndpointService) ToAwsVpcEndpointServicePtrOutput() AwsVpcEndpointServicePtrOutput {
+	return e.ToAwsVpcEndpointServicePtrOutputWithContext(context.Background())
+}
+
+func (e AwsVpcEndpointService) ToAwsVpcEndpointServicePtrOutputWithContext(ctx context.Context) AwsVpcEndpointServicePtrOutput {
+	return AwsVpcEndpointService(e).ToAwsVpcEndpointServiceOutputWithContext(ctx).ToAwsVpcEndpointServicePtrOutputWithContext(ctx)
+}
+
+func (e AwsVpcEndpointService) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e AwsVpcEndpointService) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e AwsVpcEndpointService) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e AwsVpcEndpointService) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type AwsVpcEndpointServiceOutput struct{ *pulumi.OutputState }
+
+func (AwsVpcEndpointServiceOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*AwsVpcEndpointService)(nil)).Elem()
+}
+
+func (o AwsVpcEndpointServiceOutput) ToAwsVpcEndpointServiceOutput() AwsVpcEndpointServiceOutput {
+	return o
+}
+
+func (o AwsVpcEndpointServiceOutput) ToAwsVpcEndpointServiceOutputWithContext(ctx context.Context) AwsVpcEndpointServiceOutput {
+	return o
+}
+
+func (o AwsVpcEndpointServiceOutput) ToAwsVpcEndpointServicePtrOutput() AwsVpcEndpointServicePtrOutput {
+	return o.ToAwsVpcEndpointServicePtrOutputWithContext(context.Background())
+}
+
+func (o AwsVpcEndpointServiceOutput) ToAwsVpcEndpointServicePtrOutputWithContext(ctx context.Context) AwsVpcEndpointServicePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v AwsVpcEndpointService) *AwsVpcEndpointService {
+		return &v
+	}).(AwsVpcEndpointServicePtrOutput)
+}
+
+func (o AwsVpcEndpointServiceOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o AwsVpcEndpointServiceOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e AwsVpcEndpointService) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o AwsVpcEndpointServiceOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o AwsVpcEndpointServiceOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e AwsVpcEndpointService) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type AwsVpcEndpointServicePtrOutput struct{ *pulumi.OutputState }
+
+func (AwsVpcEndpointServicePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**AwsVpcEndpointService)(nil)).Elem()
+}
+
+func (o AwsVpcEndpointServicePtrOutput) ToAwsVpcEndpointServicePtrOutput() AwsVpcEndpointServicePtrOutput {
+	return o
+}
+
+func (o AwsVpcEndpointServicePtrOutput) ToAwsVpcEndpointServicePtrOutputWithContext(ctx context.Context) AwsVpcEndpointServicePtrOutput {
+	return o
+}
+
+func (o AwsVpcEndpointServicePtrOutput) Elem() AwsVpcEndpointServiceOutput {
+	return o.ApplyT(func(v *AwsVpcEndpointService) AwsVpcEndpointService {
+		if v != nil {
+			return *v
+		}
+		var ret AwsVpcEndpointService
+		return ret
+	}).(AwsVpcEndpointServiceOutput)
+}
+
+func (o AwsVpcEndpointServicePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o AwsVpcEndpointServicePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *AwsVpcEndpointService) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// AwsVpcEndpointServiceInput is an input type that accepts values of the AwsVpcEndpointService enum
+// A concrete instance of `AwsVpcEndpointServiceInput` can be one of the following:
+//
+//	AwsVpcEndpointServiceSsm
+//	AwsVpcEndpointServiceSsmmessages
+//	AwsVpcEndpointServiceEc2messages
+//	AwsVpcEndpointServiceSecretsmanager
+//	AwsVpcEndpointService_Ecr_api
+//	AwsVpcEndpointService_Ecr_dkr
+//	AwsVpcEndpointServiceSqs
+//	AwsVpcEndpointServiceSns
+//	AwsVpcEndpointServiceLambda
+//	AwsVpcEndpointServiceLogs
+//	AwsVpcEndpointServiceMonitoring
+//	AwsVpcEndpointServiceKms
+//	AwsVpcEndpointServiceSts
+type AwsVpcEndpointServiceInput interface {
+	pulumi.Input
+
+	ToAwsVpcEndpointServiceOutput() AwsVpcEndpointServiceOutput
+	ToAwsVpcEndpointServiceOutputWithContext(context.Context) AwsVpcEndpointServiceOutput
+}
+
+var awsVpcEndpointServicePtrType = reflect.TypeOf((**AwsVpcEndpointService)(nil)).Elem()
+
+type AwsVpcEndpointServicePtrInput interface {
+	pulumi.Input
+
+	ToAwsVpcEndpointServicePtrOutput() AwsVpcEndpointServicePtrOutput
+	ToAwsVpcEndpointServicePtrOutputWithContext(context.Context) AwsVpcEndpointServicePtrOutput
+}
+
+type awsVpcEndpointServicePtr string
+
+func AwsVpcEndpointServicePtr(v string) AwsVpcEndpointServicePtrInput {
+	return (*awsVpcEndpointServicePtr)(&v)
+}
+
+func (*awsVpcEndpointServicePtr) ElementType() reflect.Type {
+	return awsVpcEndpointServicePtrType
+}
+
+func (in *awsVpcEndpointServicePtr) ToAwsVpcEndpointServicePtrOutput() AwsVpcEndpointServicePtrOutput {
+	return pulumi.ToOutput(in).(AwsVpcEndpointServicePtrOutput)
+}
+
+func (in *awsVpcEndpointServicePtr) ToAwsVpcEndpointServicePtrOutputWithContext(ctx context.Context) AwsVpcEndpointServicePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(AwsVpcEndpointServicePtrOutput)
+}
+
 type LambdaArchitecture string
 
 const (
@@ -858,6 +1059,8 @@ func (in *vpcNatTypePtr) ToVpcNatTypePtrOutputWithContext(ctx context.Context) V
 }
 
 func init() {
+	pulumi.RegisterInputType(reflect.TypeOf((*AwsVpcEndpointServiceInput)(nil)).Elem(), AwsVpcEndpointService("ssm"))
+	pulumi.RegisterInputType(reflect.TypeOf((*AwsVpcEndpointServicePtrInput)(nil)).Elem(), AwsVpcEndpointService("ssm"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaArchitectureInput)(nil)).Elem(), LambdaArchitecture("arm64"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaArchitecturePtrInput)(nil)).Elem(), LambdaArchitecture("arm64"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaLogRetentionInput)(nil)).Elem(), LambdaLogRetention("7d"))
@@ -868,6 +1071,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*S3FlowLogLifecyclePtrInput)(nil)).Elem(), S3FlowLogLifecycle("standard"))
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypeInput)(nil)).Elem(), VpcNatType("gateway"))
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypePtrInput)(nil)).Elem(), VpcNatType("gateway"))
+	pulumi.RegisterOutputType(AwsVpcEndpointServiceOutput{})
+	pulumi.RegisterOutputType(AwsVpcEndpointServicePtrOutput{})
 	pulumi.RegisterOutputType(LambdaArchitectureOutput{})
 	pulumi.RegisterOutputType(LambdaArchitecturePtrOutput{})
 	pulumi.RegisterOutputType(LambdaLogRetentionOutput{})

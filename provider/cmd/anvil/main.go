@@ -11,6 +11,7 @@ import (
 	awslambda "github.com/DamienPace15/anvil/provider/aws/lambda"
 	awssveltekitsite "github.com/DamienPace15/anvil/provider/aws/sveltekitsite"
 	awsvpc "github.com/DamienPace15/anvil/provider/aws/vpc"
+	awsvpcEndpoint "github.com/DamienPace15/anvil/provider/aws/vpcEndpoint"
 	gcpbucket "github.com/DamienPace15/anvil/provider/gcp/bucket"
 	gcpfunction "github.com/DamienPace15/anvil/provider/gcp/function"
 )
@@ -22,6 +23,7 @@ func main() {
 			infer.ComponentF(awslambda.NewLambda),
 			infer.ComponentF(awssveltekitsite.NewSvelteKitSite),
 			infer.ComponentF(awsvpc.NewVpc),
+			infer.ComponentF(awsvpcEndpoint.NewVpcEndpoint),
 			infer.ComponentF(gcpbucket.NewBucket),
 			infer.ComponentF(gcpfunction.NewFunction),
 		).
