@@ -9,6 +9,19 @@
 //   npx ts-node scripts/grants/fix-sdk-grants.ts           # patches both
 //   npx ts-node scripts/grants/fix-sdk-grants.ts --ts      # TypeScript only
 //   npx ts-node scripts/grants/fix-sdk-grants.ts --python  # Python only
+//
+// Adding a new compute resource with SG grants (e.g. ECS):
+//   → Add one entry to scripts/grants/configs/compute-configs.ts
+//   → Done. No changes here.
+//
+// Adding a new SG grant type (e.g. grantDatabaseAccess):
+//   → Add SgGrantMethod constant to compute-configs.ts
+//   → Add to each compute resource's grants array in compute-configs.ts
+//   → Add runtime function to sdk/nodejs/grants.ts + sdk/python/anvil_cloud/grants.py
+//   → Done. No changes here.
+//
+// Adding a new endpoint-like resource (implements VpcEndpointTarget):
+//   → Add a patchEndpointClassTS/Python call in the "Endpoint class patching" section below
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -26,9 +39,9 @@ import {
   toSnakeCase,
 } from './generators';
 import {
-  EGRESS_GRANT_CONFIGS,
-  EgressGrantConfig,
-} from './configs/egress-config';
+  COMPUTE_RESOURCES,
+  ComputeResourceConfig,
+} from './configs/compute-config';
 
 // ── Paths ──────────────────────────────────────────────────
 
@@ -45,10 +58,7 @@ const doPython = !tsOnly;
 
 // ── Grant registries ───────────────────────────────────────
 
-/** Infra resources that CAN give access */
 const GRANT_CONFIGS: GrantConfig[] = [BUCKET_GRANT_CONFIG, LAMBDA_GRANT_CONFIG];
-
-/** Compute resources that CAN receive access */
 const GRANT_TARGET_CONFIGS: GrantTargetConfig[] = [LAMBDA_GRANT_TARGET_CONFIG];
 
 // ── TS file helpers ────────────────────────────────────────
@@ -122,6 +132,11 @@ function ensurePyGrantsImport(content: string): string {
   return lines.join('\n');
 }
 
+function ensurePyOptionalImport(content: string): string {
+  if (content.includes('Optional')) return content;
+  return content.replace('from typing import', 'from typing import Optional,');
+}
+
 // ── IAM grant patching ─────────────────────────────────────
 
 function patchTSFile(
@@ -136,7 +151,6 @@ function patchTSFile(
   }
 
   let content = fs.readFileSync(filePath, 'utf8');
-
   const hasGrantMethods =
     content.includes('grantRead(') || content.includes('grantInvoke(');
   const hasGrantTarget = content.includes('grantName():');
@@ -150,17 +164,14 @@ function patchTSFile(
   content = ensureNameProperty(content);
 
   let methods = '';
-
   if (grantConfig && !hasGrantMethods) {
     methods += grantConfig.grants
       .map((grant) => generateTSGrantMethod(grantConfig, grant))
       .join('\n');
   }
-
   if (grantTargetConfig && !hasGrantTarget) {
     methods += generateTSGrantTargetMethods(grantTargetConfig.roleArnProperty);
   }
-
   if (methods) {
     const classEnd = findClassEnd(content);
     if (classEnd >= 0) {
@@ -174,14 +185,11 @@ function patchTSFile(
   }
 
   fs.writeFileSync(filePath, content);
-
   const patched: string[] = [];
-  if (grantConfig && !hasGrantMethods) {
+  if (grantConfig && !hasGrantMethods)
     patched.push(grantConfig.grants.map((g) => g.method).join(', '));
-  }
-  if (grantTargetConfig && !hasGrantTarget) {
+  if (grantTargetConfig && !hasGrantTarget)
     patched.push('GrantTarget (grantName, grantRoleArn)');
-  }
   console.log(`  ✔ Patched ${file} → ${patched.join(', ')}`);
 }
 
@@ -197,7 +205,6 @@ function patchPyFile(
   }
 
   let content = fs.readFileSync(filePath, 'utf8');
-
   const hasGrantMethods =
     content.includes('grant_read') || content.includes('grant_invoke');
   const hasGrantTarget = content.includes('grant_name');
@@ -206,83 +213,136 @@ function patchPyFile(
     console.log(`  ⏭ ${file} already patched — skipping`);
     return;
   }
-
   if (!hasGrantMethods && !hasGrantTarget) {
     content = ensurePyGrantsImport(content);
   }
 
   let methods = '';
-
   if (grantConfig && !hasGrantMethods) {
     methods += grantConfig.grants
       .map((grant) => generatePyGrantMethod(grantConfig, grant))
       .join('');
   }
-
   if (grantTargetConfig && !hasGrantTarget) {
     methods += generatePyGrantTargetMethods(
       grantTargetConfig.pyRoleArnProperty
     );
   }
-
   if (methods) {
     content = content.trimEnd() + '\n' + methods + '\n';
   }
 
   fs.writeFileSync(filePath, content);
-
   const patched: string[] = [];
-  if (grantConfig && !hasGrantMethods) {
+  if (grantConfig && !hasGrantMethods)
     patched.push(
       grantConfig.grants.map((g) => toSnakeCase(g.method)).join(', ')
     );
-  }
-  if (grantTargetConfig && !hasGrantTarget) {
+  if (grantTargetConfig && !hasGrantTarget)
     patched.push('GrantTarget (grant_name, grant_role_arn)');
-  }
   console.log(`  ✔ Patched ${file} → ${patched.join(', ')}`);
 }
 
-// ── Egress grant patching ──────────────────────────────────
+// ── SG grant patching — generic, config-driven ─────────────
 
-function patchEgressTS(config: EgressGrantConfig): void {
+function patchComputeResourceTS(config: ComputeResourceConfig): void {
   const filePath = path.join(tsDir, config.tsFile);
   if (!fs.existsSync(filePath)) {
-    console.log(`  ⚠ ${config.tsFile} not found — skipping egress patch`);
+    console.log(`  ⚠ ${config.tsFile} not found — skipping`);
     return;
   }
 
   let content = fs.readFileSync(filePath, 'utf8');
+  content = ensureGrantsImport(content);
+  content = ensureNameProperty(content);
 
-  if (content.includes('grantEgress(')) {
-    console.log(`  ⏭ ${config.tsFile} grantEgress already patched — skipping`);
+  let anyPatched = false;
+  for (const grant of config.grants) {
+    if (content.includes(grant.idempotencyCheck)) {
+      console.log(
+        `  ⏭ ${config.tsFile} ${grant.methodName} already patched — skipping`
+      );
+      continue;
+    }
+    const method = grant.tsMethodTemplate(
+      config.className,
+      config.securityGroupIdProperty
+    );
+    const classEnd = findClassEnd(content);
+    if (classEnd < 0) {
+      console.log(
+        `  ⚠ Could not find class end in ${config.tsFile} — skipping ${grant.methodName}`
+      );
+      continue;
+    }
+    content = content.slice(0, classEnd) + method + content.slice(classEnd);
+    anyPatched = true;
+    console.log(
+      `  ✔ Patched ${config.tsFile} → ${grant.methodName} on ${config.className}`
+    );
+  }
+  if (anyPatched) fs.writeFileSync(filePath, content);
+}
+
+function patchComputeResourcePython(config: ComputeResourceConfig): void {
+  const filePath = path.join(pyDir, config.pyFile);
+  if (!fs.existsSync(filePath)) {
+    console.log(`  ⚠ ${config.pyFile} not found — skipping`);
     return;
   }
 
-  // Ensure grants import is present.
-  content = ensureGrantsImport(content);
+  let content = fs.readFileSync(filePath, 'utf8');
+  content = ensurePyOptionalImport(content);
+
+  let anyPatched = false;
+  for (const grant of config.grants) {
+    const pyIdempotencyCheck = `def ${grant.pyMethodName}(`;
+    if (content.includes(pyIdempotencyCheck)) {
+      console.log(
+        `  ⏭ ${config.pyFile} ${grant.pyMethodName} already patched — skipping`
+      );
+      continue;
+    }
+    const method = grant.pyMethodTemplate(
+      config.className,
+      config.pySecurityGroupIdProperty
+    );
+    content = content.trimEnd() + '\n' + method + '\n';
+    anyPatched = true;
+    console.log(
+      `  ✔ Patched ${config.pyFile} → ${grant.pyMethodName} on ${config.className}`
+    );
+  }
+  if (anyPatched) fs.writeFileSync(filePath, content);
+}
+
+// ── Endpoint class patching ────────────────────────────────
+//
+// Injects endpointName() / endpoint_name() onto endpoint resources so they
+// satisfy VpcEndpointTarget. Adding a new endpoint resource = add a call below.
+
+function patchEndpointClassTS(tsFile: string, className: string): void {
+  const filePath = path.join(tsDir, tsFile);
+  if (!fs.existsSync(filePath)) {
+    console.log(`  ⚠ ${tsFile} not found — skipping endpoint class patch`);
+    return;
+  }
+
+  let content = fs.readFileSync(filePath, 'utf8');
+  if (content.includes('endpointName()')) {
+    console.log(`  ⏭ ${tsFile} endpointName already patched — skipping`);
+    return;
+  }
+
   content = ensureNameProperty(content);
 
   const method = `
   /**
-   * Grants internet egress from this ${config.className}'s security group.
-   * Opt-in only — a VPC-attached ${config.className} with no grantEgress has
-   * zero outbound internet access by default.
-   *
-   * Defaults to port 443 (HTTPS) if ports is omitted.
-   *
-   * @example
-   * fn.grantEgress({ internet: true })                        // 443 only (default)
-   * fn.grantEgress({ internet: true, ports: [80, 443] })      // HTTP + HTTPS
-   * fn.grantEgress({ internet: true, allPorts: true })        // unrestricted — code review signal
+   * Returns the logical name of this endpoint.
+   * Implements VpcEndpointTarget — used for SG rule naming in grantEndpointAccess.
    */
-  public grantEgress(args: grants.EgressArgs): void {
-      if (!this.${config.securityGroupIdProperty}) {
-          throw new Error(
-              \`${config.className} "\${this.__name}" has no VPC — grantEgress requires vpc to be set.\`
-          );
-      }
-      grants.createEgressGrant(this, this.__name, this.${config.securityGroupIdProperty} as pulumi.Output<string>, args);
+  public endpointName(): string {
+      return this.__name;
   }
 `;
 
@@ -290,77 +350,41 @@ function patchEgressTS(config: EgressGrantConfig): void {
   if (classEnd >= 0) {
     content = content.slice(0, classEnd) + method + content.slice(classEnd);
     fs.writeFileSync(filePath, content);
-    console.log(
-      `  ✔ Patched ${config.tsFile} → grantEgress on ${config.className}`
-    );
+    console.log(`  ✔ Patched ${tsFile} → endpointName() on ${className}`);
   } else {
     console.log(
-      `  ⚠ Could not find class end in ${config.tsFile} — skipping egress patch`
+      `  ⚠ Could not find class end in ${tsFile} — skipping endpoint class patch`
     );
   }
 }
 
-function patchEgressPython(config: EgressGrantConfig): void {
-  const filePath = path.join(pyDir, config.pyFile);
+function patchEndpointClassPython(pyFile: string, className: string): void {
+  const filePath = path.join(pyDir, pyFile);
   if (!fs.existsSync(filePath)) {
-    console.log(`  ⚠ ${config.pyFile} not found — skipping egress patch`);
+    console.log(`  ⚠ ${pyFile} not found — skipping endpoint class patch`);
     return;
   }
 
   let content = fs.readFileSync(filePath, 'utf8');
-
-  if (content.includes('def grant_egress(')) {
-    console.log(`  ⏭ ${config.pyFile} grant_egress already patched — skipping`);
+  if (content.includes('def endpoint_name(')) {
+    console.log(`  ⏭ ${pyFile} endpoint_name already patched — skipping`);
     return;
-  }
-
-  // Ensure Optional is imported.
-  if (!content.includes('Optional')) {
-    content = content.replace(
-      'from typing import',
-      'from typing import Optional,'
-    );
   }
 
   const method = [
     '',
-    '    def grant_egress(',
-    '        self,',
-    '        internet: bool,',
-    '        ports: Optional[list] = None,',
-    '        all_ports: bool = False,',
-    '    ) -> None:',
-    `        """`,
-    `        Grants internet egress from this ${config.className}'s security group.`,
-    `        Opt-in only — a VPC-attached ${config.className} with no grant_egress`,
-    `        has zero outbound internet access by default.`,
-    ``,
-    `        Defaults to port 443 (HTTPS) if ports is omitted.`,
-    ``,
-    `        Examples::`,
-    ``,
-    `            fn.grant_egress(internet=True)                       # 443 only`,
-    `            fn.grant_egress(internet=True, ports=[80, 443])      # HTTP + HTTPS`,
-    `            fn.grant_egress(internet=True, all_ports=True)       # unrestricted`,
-    `        """`,
-    `        from anvil_cloud import grants as _grants`,
-    `        if not self.${config.pySecurityGroupIdProperty}:`,
-    `            raise ValueError(`,
-    `                f'${config.className} "{self.__name}" has no VPC — '`,
-    `                'grant_egress requires vpc to be set.'`,
-    `            )`,
-    `        _grants.create_egress_grant(`,
-    `            self, self.__name, self.${config.pySecurityGroupIdProperty},`,
-    `            internet, ports, all_ports`,
-    `        )`,
+    '    def endpoint_name(self) -> str:',
+    '        """',
+    '        Returns the logical name of this endpoint.',
+    '        Implements VpcEndpointTarget — used for SG rule naming in grant_endpoint_access.',
+    '        """',
+    '        return self.__name',
     '',
   ].join('\n');
 
   content = content.trimEnd() + '\n' + method + '\n';
   fs.writeFileSync(filePath, content);
-  console.log(
-    `  ✔ Patched ${config.pyFile} → grant_egress on ${config.className}`
-  );
+  console.log(`  ✔ Patched ${pyFile} → endpoint_name() on ${className}`);
 }
 
 // ── Main ───────────────────────────────────────────────────
@@ -395,34 +419,46 @@ for (const config of GRANT_TARGET_CONFIGS) {
   }
 }
 
+// IAM grants
 if (doTS) {
-  console.log('🔐 Patching TypeScript SDK with grant methods...');
+  console.log('🔐 Patching TypeScript SDK with IAM grant methods...');
   for (const [file, configs] of Object.entries(tsFileMap)) {
     patchTSFile(file, configs.grantConfig, configs.grantTargetConfig);
   }
-  console.log('✔ TypeScript grant patching complete\n');
+  console.log('✔ TypeScript IAM grant patching complete\n');
 }
-
 if (doPython) {
-  console.log('🔐 Patching Python SDK with grant methods...');
+  console.log('🔐 Patching Python SDK with IAM grant methods...');
   for (const [file, configs] of Object.entries(pyFileMap)) {
     patchPyFile(file, configs.grantConfig, configs.grantTargetConfig);
   }
-  console.log('✔ Python grant patching complete\n');
+  console.log('✔ Python IAM grant patching complete\n');
 }
 
+// SG grants — generic, config-driven, never changes for new resources/types
 if (doTS) {
-  console.log('🌐 Patching TypeScript SDK with egress grant methods...');
-  for (const config of EGRESS_GRANT_CONFIGS) {
-    patchEgressTS(config);
+  console.log('🌐 Patching TypeScript SDK with SG grant methods...');
+  for (const config of COMPUTE_RESOURCES) {
+    patchComputeResourceTS(config);
   }
-  console.log('✔ TypeScript egress grant patching complete\n');
+  console.log('✔ TypeScript SG grant patching complete\n');
+}
+if (doPython) {
+  console.log('🌐 Patching Python SDK with SG grant methods...');
+  for (const config of COMPUTE_RESOURCES) {
+    patchComputeResourcePython(config);
+  }
+  console.log('✔ Python SG grant patching complete\n');
 }
 
+// Endpoint class patching — injects endpointName() so endpoints satisfy VpcEndpointTarget
+if (doTS) {
+  console.log('🔌 Patching endpoint classes...');
+  patchEndpointClassTS('aws/vpcendpoint.ts', 'VpcEndpoint');
+  console.log('✔ TypeScript endpoint class patching complete\n');
+}
 if (doPython) {
-  console.log('🌐 Patching Python SDK with egress grant methods...');
-  for (const config of EGRESS_GRANT_CONFIGS) {
-    patchEgressPython(config);
-  }
-  console.log('✔ Python egress grant patching complete\n');
+  console.log('🔌 Patching endpoint classes...');
+  patchEndpointClassPython('aws/vpcendpoint.py', 'VpcEndpoint');
+  console.log('✔ Python endpoint class patching complete\n');
 }

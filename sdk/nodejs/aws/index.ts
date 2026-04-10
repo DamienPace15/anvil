@@ -25,6 +25,11 @@ export type Vpc = import("./vpc").Vpc;
 export const Vpc: typeof import("./vpc").Vpc = null as any;
 utilities.lazyLoad(exports, ["Vpc"], () => require("./vpc"));
 
+export { VpcEndpointArgs } from "./vpcEndpoint";
+export type VpcEndpoint = import("./vpcEndpoint").VpcEndpoint;
+export const VpcEndpoint: typeof import("./vpcEndpoint").VpcEndpoint = null as any;
+utilities.lazyLoad(exports, ["VpcEndpoint"], () => require("./vpcEndpoint"));
+
 
 // Export enums:
 export * from "../types/enums/aws";
@@ -41,6 +46,8 @@ const _module = {
                 return new SvelteKitSite(name, <any>undefined, { urn })
             case "anvil:aws:Vpc":
                 return new Vpc(name, <any>undefined, { urn })
+            case "anvil:aws:VpcEndpoint":
+                return new VpcEndpoint(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

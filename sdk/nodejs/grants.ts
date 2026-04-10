@@ -152,7 +152,6 @@ export function createEgressGrant(
   securityGroupId: pulumi.Output<string>,
   args: EgressArgs
 ): void {
-  // Validate: internet or cidrs, not both, not neither.
   if (args.internet && args.cidrs && args.cidrs.length > 0) {
     throw new Error(
       `${name}: grantEgress cannot specify both internet and cidrs — choose one.`
@@ -163,8 +162,6 @@ export function createEgressGrant(
       `${name}: grantEgress requires either internet: true or cidrs.`
     );
   }
-
-  // Validate: allPorts only with internet.
   if (args.allPorts && !args.internet) {
     throw new Error(
       `${name}: grantEgress allPorts is only valid with internet: true.`
@@ -229,5 +226,68 @@ export function createEgressGrant(
         { parent }
       );
     }
+  }
+}
+
+/**
+ * VpcEndpointTarget is any Anvil VPC endpoint resource that exposes a
+ * security group ID and logical name for grant rule naming.
+ *
+ * Satisfied by VpcEndpoint (endpointName() injected by fix-sdk-grants.ts).
+ */
+export interface VpcEndpointTarget {
+  securityGroupId: pulumi.Output<string>;
+  /** Returns the logical name of this endpoint. */
+  endpointName(): string;
+}
+
+/**
+ * Creates the paired SG rules that open the network path between a compute
+ * resource and one or more Interface VPC Endpoints.
+ *
+ * For each endpoint:
+ *   - SecurityGroupEgressRule on the compute SG  — port 443 out to endpoint SG
+ *   - SecurityGroupIngressRule on the endpoint SG — port 443 in from compute SG
+ *
+ * Both rules are required — the endpoint SG has zero rules by default.
+ *
+ * @internal Called by the patched grantEndpointAccess method on compute resources.
+ */
+export function createEndpointAccessGrant(
+  parent: pulumi.Resource,
+  name: string,
+  computeSgId: pulumi.Output<string>,
+  endpoints: VpcEndpointTarget[]
+): void {
+  for (const endpoint of endpoints) {
+    const epName = endpoint.endpointName();
+
+    // 1. Egress rule on the compute SG — port 443 out to the endpoint SG.
+    new aws.vpc.SecurityGroupEgressRule(
+      `${name}-${epName}-endpoint-egress`,
+      {
+        securityGroupId: computeSgId,
+        referencedSecurityGroupId: endpoint.securityGroupId,
+        fromPort: 443,
+        toPort: 443,
+        ipProtocol: 'tcp',
+        tags: { ManagedBy: 'anvil' },
+      },
+      { parent }
+    );
+
+    // 2. Ingress rule on the endpoint SG — port 443 in from the compute SG.
+    new aws.vpc.SecurityGroupIngressRule(
+      `${name}-${epName}-endpoint-ingress`,
+      {
+        securityGroupId: endpoint.securityGroupId,
+        referencedSecurityGroupId: computeSgId,
+        fromPort: 443,
+        toPort: 443,
+        ipProtocol: 'tcp',
+        tags: { ManagedBy: 'anvil' },
+      },
+      { parent }
+    );
   }
 }
