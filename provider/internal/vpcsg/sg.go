@@ -88,6 +88,37 @@ func AddIngressRule(
 	return nil
 }
 
+// AddIngressCIDRRule creates a SecurityGroupIngressRule allowing traffic into
+// the target security group from a specific CIDR range.
+//
+// Used by VpcEndpoint to scope ingress to the VPC CIDR at creation time.
+// This fires once when the endpoint is created — compute resources only
+// add egress rules pointing at the endpoint SG, never touching its ingress.
+func AddIngressCIDRRule(
+	ctx *pulumi.Context,
+	name string,
+	securityGroupId pulumi.StringInput,
+	cidr string,
+	fromPort int,
+	toPort int,
+	parent pulumi.Resource,
+) error {
+	_, err := awsvpc.NewSecurityGroupIngressRule(ctx, name+"-cidr-ingress", &awsvpc.SecurityGroupIngressRuleArgs{
+		SecurityGroupId: securityGroupId,
+		CidrIpv4:        pulumi.String(cidr),
+		FromPort:        pulumi.Int(fromPort),
+		ToPort:          pulumi.Int(toPort),
+		IpProtocol:      pulumi.String("tcp"),
+		Tags: pulumi.StringMap{
+			"ManagedBy": pulumi.String("anvil"),
+		},
+	}, pulumi.Parent(parent))
+	if err != nil {
+		return fmt.Errorf("failed to create CIDR ingress rule %s: %w", name, err)
+	}
+	return nil
+}
+
 // AddEgressRule creates a SecurityGroupEgressRule allowing traffic out of
 // the source security group to the target security group.
 //
@@ -123,7 +154,7 @@ func AddEgressRule(
 // AddInternetEgressRule creates a SecurityGroupEgressRule allowing outbound
 // internet traffic from the compute resource's security group to 0.0.0.0/0.
 //
-// Used by GrantEgress with internet: true. Not used for SG-to-SG grants —
+// Used when hasNat is true. Not used for SG-to-SG grants —
 // use AddEgressRule for those.
 //
 // fromPort and toPort are inclusive. Pass 0 and 65535 for all ports.
@@ -154,7 +185,7 @@ func AddInternetEgressRule(
 // AddCIDREgressRule creates a SecurityGroupEgressRule allowing outbound traffic
 // from the compute resource's security group to a specific CIDR range and port.
 //
-// Used by GrantEgress with cidrs — one rule per { range, port } pair.
+// Used by vpc.cidrs — one rule per { range, port } pair.
 func AddCIDREgressRule(
 	ctx *pulumi.Context,
 	name string,

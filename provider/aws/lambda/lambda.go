@@ -86,7 +86,9 @@ type LambdaVpcCidrArgs struct {
 // nothing is reachable until explicitly declared.
 //
 // Network access patterns:
-//   - vpcEndpoints: AWS services via PrivateLink (port 443, stays on AWS backbone)
+//   - vpcEndpoints: AWS services via PrivateLink (port 443, stays on AWS backbone).
+//     The endpoint SG's ingress is owned by the VpcEndpoint constructor (wired once).
+//     Anvil adds only the egress rule from this Lambda SG → endpoint SG.
 //   - hasNat: internet via NAT Gateway or fck-nat (port 443 to 0.0.0.0/0)
 //   - cidrs: specific CIDR ranges at specific ports (peered VPCs, on-premise)
 type LambdaVpcArgs struct {
@@ -103,7 +105,10 @@ type LambdaVpcArgs struct {
 	HasNat bool `pulumi:"hasNat,optional"`
 
 	// VpcEndpoints are the VPC endpoints this Lambda needs access to.
-	// Anvil wires both sides of the SG rules automatically at construction time.
+	// Anvil wires the egress rule from this Lambda SG → endpoint SG at
+	// construction time. The endpoint SG's ingress is owned by the VpcEndpoint
+	// constructor and is never modified here — this prevents duplicate ingress
+	// rule errors when multiple compute resources share the same endpoint.
 	// Pass ep.securityGroupId and ep.endpointId from each VpcEndpoint.
 	VpcEndpoints []LambdaVpcEndpointArgs `pulumi:"vpcEndpoints,optional"`
 
@@ -468,11 +473,12 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 		}
 		l.SecurityGroupID = sg.ID().ToStringOutput()
 
-		// Wire VPC endpoint access — creates both SG rules per endpoint:
-		//   - Egress port 443 from Lambda SG → endpoint SG
-		//   - Ingress port 443 on endpoint SG ← Lambda SG
+		// Wire egress from this Lambda SG → each endpoint SG on port 443.
+		// The endpoint SG's ingress rule is owned by the VpcEndpoint constructor
+		// and is wired once at creation time using the VPC CIDR. We never touch
+		// the endpoint SG's ingress here — doing so would cause duplicate rule
+		// errors when multiple lambdas reference the same endpoint.
 		for _, ep := range args.Vpc.VpcEndpoints {
-			ep := ep
 			target := &lambdaEndpointTarget{args: ep}
 			if err := vpcsg.GrantEndpointAccess(
 				ctx,

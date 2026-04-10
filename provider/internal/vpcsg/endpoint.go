@@ -12,8 +12,13 @@ type EndpointTarget interface {
 	SecurityGroupOutput() pulumi.StringOutput
 }
 
-// GrantEndpointAccess opens port 443 between a compute SG and one or more
-// endpoint SGs. Called by thin wrappers on each compute resource.
+// GrantEndpointAccess opens egress port 443 from a compute SG to one or more
+// endpoint SGs.
+//
+// The ingress side is owned by the VpcEndpoint constructor — it is wired once
+// at endpoint creation time using the VPC CIDR. Compute resources never touch
+// the endpoint SG's ingress rules, which prevents duplicate rule errors when
+// multiple compute resources reference the same endpoint.
 func GrantEndpointAccess(
 	ctx *pulumi.Context,
 	resourceName string,
@@ -25,11 +30,6 @@ func GrantEndpointAccess(
 		egressRuleName := fmt.Sprintf("%s-%s-endpoint-egress", resourceName, endpoint.Name())
 		if err := AddEgressRule(ctx, egressRuleName, computeSgId, endpoint.SecurityGroupOutput(), 443, 443, "tcp", parent); err != nil {
 			return fmt.Errorf("GrantEndpointAccess: egress to %s: %w", endpoint.Name(), err)
-		}
-
-		ingressRuleName := fmt.Sprintf("%s-%s-endpoint-ingress", endpoint.Name(), resourceName)
-		if err := AddIngressRule(ctx, ingressRuleName, endpoint.SecurityGroupOutput(), computeSgId, 443, 443, "tcp", parent); err != nil {
-			return fmt.Errorf("GrantEndpointAccess: ingress on %s: %w", endpoint.Name(), err)
 		}
 	}
 	return nil
