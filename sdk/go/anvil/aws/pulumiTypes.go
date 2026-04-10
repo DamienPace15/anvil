@@ -4534,8 +4534,14 @@ func (o LambdaTransformArgsPtrOutput) Lambda() LambdaOverridesPtrOutput {
 }
 
 type LambdaVpcArgs struct {
+	// CIDR-scoped egress rules. One SG rule per port per CIDR. Use for peered VPCs or on-premise ranges.
+	Cidrs []LambdaVpcCidrArgs `pulumi:"cidrs"`
+	// Only needed for imported VPCs with NAT. Omit when using an Anvil Vpc component.
+	HasNat *bool `pulumi:"hasNat"`
 	// The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
 	PrivateSubnetIds []string `pulumi:"privateSubnetIds"`
+	// VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
+	VpcEndpoints []LambdaVpcEndpointArgs `pulumi:"vpcEndpoints"`
 	// The ID of the VPC to place the Lambda in.
 	VpcId string `pulumi:"vpcId"`
 }
@@ -4552,8 +4558,14 @@ type LambdaVpcArgsInput interface {
 }
 
 type LambdaVpcArgsArgs struct {
+	// CIDR-scoped egress rules. One SG rule per port per CIDR. Use for peered VPCs or on-premise ranges.
+	Cidrs LambdaVpcCidrArgsArrayInput `pulumi:"cidrs"`
+	// Only needed for imported VPCs with NAT. Omit when using an Anvil Vpc component.
+	HasNat pulumi.BoolPtrInput `pulumi:"hasNat"`
 	// The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
 	PrivateSubnetIds pulumi.StringArrayInput `pulumi:"privateSubnetIds"`
+	// VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
+	VpcEndpoints LambdaVpcEndpointArgsArrayInput `pulumi:"vpcEndpoints"`
 	// The ID of the VPC to place the Lambda in.
 	VpcId pulumi.StringInput `pulumi:"vpcId"`
 }
@@ -4635,9 +4647,24 @@ func (o LambdaVpcArgsOutput) ToLambdaVpcArgsPtrOutputWithContext(ctx context.Con
 	}).(LambdaVpcArgsPtrOutput)
 }
 
+// CIDR-scoped egress rules. One SG rule per port per CIDR. Use for peered VPCs or on-premise ranges.
+func (o LambdaVpcArgsOutput) Cidrs() LambdaVpcCidrArgsArrayOutput {
+	return o.ApplyT(func(v LambdaVpcArgs) []LambdaVpcCidrArgs { return v.Cidrs }).(LambdaVpcCidrArgsArrayOutput)
+}
+
+// Only needed for imported VPCs with NAT. Omit when using an Anvil Vpc component.
+func (o LambdaVpcArgsOutput) HasNat() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v LambdaVpcArgs) *bool { return v.HasNat }).(pulumi.BoolPtrOutput)
+}
+
 // The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
 func (o LambdaVpcArgsOutput) PrivateSubnetIds() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v LambdaVpcArgs) []string { return v.PrivateSubnetIds }).(pulumi.StringArrayOutput)
+}
+
+// VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
+func (o LambdaVpcArgsOutput) VpcEndpoints() LambdaVpcEndpointArgsArrayOutput {
+	return o.ApplyT(func(v LambdaVpcArgs) []LambdaVpcEndpointArgs { return v.VpcEndpoints }).(LambdaVpcEndpointArgsArrayOutput)
 }
 
 // The ID of the VPC to place the Lambda in.
@@ -4669,6 +4696,26 @@ func (o LambdaVpcArgsPtrOutput) Elem() LambdaVpcArgsOutput {
 	}).(LambdaVpcArgsOutput)
 }
 
+// CIDR-scoped egress rules. One SG rule per port per CIDR. Use for peered VPCs or on-premise ranges.
+func (o LambdaVpcArgsPtrOutput) Cidrs() LambdaVpcCidrArgsArrayOutput {
+	return o.ApplyT(func(v *LambdaVpcArgs) []LambdaVpcCidrArgs {
+		if v == nil {
+			return nil
+		}
+		return v.Cidrs
+	}).(LambdaVpcCidrArgsArrayOutput)
+}
+
+// Only needed for imported VPCs with NAT. Omit when using an Anvil Vpc component.
+func (o LambdaVpcArgsPtrOutput) HasNat() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *LambdaVpcArgs) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.HasNat
+	}).(pulumi.BoolPtrOutput)
+}
+
 // The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
 func (o LambdaVpcArgsPtrOutput) PrivateSubnetIds() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *LambdaVpcArgs) []string {
@@ -4679,6 +4726,16 @@ func (o LambdaVpcArgsPtrOutput) PrivateSubnetIds() pulumi.StringArrayOutput {
 	}).(pulumi.StringArrayOutput)
 }
 
+// VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
+func (o LambdaVpcArgsPtrOutput) VpcEndpoints() LambdaVpcEndpointArgsArrayOutput {
+	return o.ApplyT(func(v *LambdaVpcArgs) []LambdaVpcEndpointArgs {
+		if v == nil {
+			return nil
+		}
+		return v.VpcEndpoints
+	}).(LambdaVpcEndpointArgsArrayOutput)
+}
+
 // The ID of the VPC to place the Lambda in.
 func (o LambdaVpcArgsPtrOutput) VpcId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *LambdaVpcArgs) *string {
@@ -4687,6 +4744,221 @@ func (o LambdaVpcArgsPtrOutput) VpcId() pulumi.StringPtrOutput {
 		}
 		return &v.VpcId
 	}).(pulumi.StringPtrOutput)
+}
+
+type LambdaVpcCidrArgs struct {
+	// TCP ports to allow. Required — be explicit.
+	Ports []int `pulumi:"ports"`
+	// IPv4 CIDR block, e.g. 10.0.0.0/8
+	Range string `pulumi:"range"`
+}
+
+// LambdaVpcCidrArgsInput is an input type that accepts LambdaVpcCidrArgsArgs and LambdaVpcCidrArgsOutput values.
+// You can construct a concrete instance of `LambdaVpcCidrArgsInput` via:
+//
+//	LambdaVpcCidrArgsArgs{...}
+type LambdaVpcCidrArgsInput interface {
+	pulumi.Input
+
+	ToLambdaVpcCidrArgsOutput() LambdaVpcCidrArgsOutput
+	ToLambdaVpcCidrArgsOutputWithContext(context.Context) LambdaVpcCidrArgsOutput
+}
+
+type LambdaVpcCidrArgsArgs struct {
+	// TCP ports to allow. Required — be explicit.
+	Ports pulumi.IntArrayInput `pulumi:"ports"`
+	// IPv4 CIDR block, e.g. 10.0.0.0/8
+	Range pulumi.StringInput `pulumi:"range"`
+}
+
+func (LambdaVpcCidrArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LambdaVpcCidrArgs)(nil)).Elem()
+}
+
+func (i LambdaVpcCidrArgsArgs) ToLambdaVpcCidrArgsOutput() LambdaVpcCidrArgsOutput {
+	return i.ToLambdaVpcCidrArgsOutputWithContext(context.Background())
+}
+
+func (i LambdaVpcCidrArgsArgs) ToLambdaVpcCidrArgsOutputWithContext(ctx context.Context) LambdaVpcCidrArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(LambdaVpcCidrArgsOutput)
+}
+
+// LambdaVpcCidrArgsArrayInput is an input type that accepts LambdaVpcCidrArgsArray and LambdaVpcCidrArgsArrayOutput values.
+// You can construct a concrete instance of `LambdaVpcCidrArgsArrayInput` via:
+//
+//	LambdaVpcCidrArgsArray{ LambdaVpcCidrArgsArgs{...} }
+type LambdaVpcCidrArgsArrayInput interface {
+	pulumi.Input
+
+	ToLambdaVpcCidrArgsArrayOutput() LambdaVpcCidrArgsArrayOutput
+	ToLambdaVpcCidrArgsArrayOutputWithContext(context.Context) LambdaVpcCidrArgsArrayOutput
+}
+
+type LambdaVpcCidrArgsArray []LambdaVpcCidrArgsInput
+
+func (LambdaVpcCidrArgsArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]LambdaVpcCidrArgs)(nil)).Elem()
+}
+
+func (i LambdaVpcCidrArgsArray) ToLambdaVpcCidrArgsArrayOutput() LambdaVpcCidrArgsArrayOutput {
+	return i.ToLambdaVpcCidrArgsArrayOutputWithContext(context.Background())
+}
+
+func (i LambdaVpcCidrArgsArray) ToLambdaVpcCidrArgsArrayOutputWithContext(ctx context.Context) LambdaVpcCidrArgsArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(LambdaVpcCidrArgsArrayOutput)
+}
+
+type LambdaVpcCidrArgsOutput struct{ *pulumi.OutputState }
+
+func (LambdaVpcCidrArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LambdaVpcCidrArgs)(nil)).Elem()
+}
+
+func (o LambdaVpcCidrArgsOutput) ToLambdaVpcCidrArgsOutput() LambdaVpcCidrArgsOutput {
+	return o
+}
+
+func (o LambdaVpcCidrArgsOutput) ToLambdaVpcCidrArgsOutputWithContext(ctx context.Context) LambdaVpcCidrArgsOutput {
+	return o
+}
+
+// TCP ports to allow. Required — be explicit.
+func (o LambdaVpcCidrArgsOutput) Ports() pulumi.IntArrayOutput {
+	return o.ApplyT(func(v LambdaVpcCidrArgs) []int { return v.Ports }).(pulumi.IntArrayOutput)
+}
+
+// IPv4 CIDR block, e.g. 10.0.0.0/8
+func (o LambdaVpcCidrArgsOutput) Range() pulumi.StringOutput {
+	return o.ApplyT(func(v LambdaVpcCidrArgs) string { return v.Range }).(pulumi.StringOutput)
+}
+
+type LambdaVpcCidrArgsArrayOutput struct{ *pulumi.OutputState }
+
+func (LambdaVpcCidrArgsArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]LambdaVpcCidrArgs)(nil)).Elem()
+}
+
+func (o LambdaVpcCidrArgsArrayOutput) ToLambdaVpcCidrArgsArrayOutput() LambdaVpcCidrArgsArrayOutput {
+	return o
+}
+
+func (o LambdaVpcCidrArgsArrayOutput) ToLambdaVpcCidrArgsArrayOutputWithContext(ctx context.Context) LambdaVpcCidrArgsArrayOutput {
+	return o
+}
+
+func (o LambdaVpcCidrArgsArrayOutput) Index(i pulumi.IntInput) LambdaVpcCidrArgsOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) LambdaVpcCidrArgs {
+		return vs[0].([]LambdaVpcCidrArgs)[vs[1].(int)]
+	}).(LambdaVpcCidrArgsOutput)
+}
+
+// A VPC endpoint to grant this Lambda access to.
+type LambdaVpcEndpointArgs struct {
+	// The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
+	EndpointId string `pulumi:"endpointId"`
+	// The endpoint's security group ID. Use ep.securityGroupId.
+	SecurityGroupId string `pulumi:"securityGroupId"`
+}
+
+// LambdaVpcEndpointArgsInput is an input type that accepts LambdaVpcEndpointArgsArgs and LambdaVpcEndpointArgsOutput values.
+// You can construct a concrete instance of `LambdaVpcEndpointArgsInput` via:
+//
+//	LambdaVpcEndpointArgsArgs{...}
+type LambdaVpcEndpointArgsInput interface {
+	pulumi.Input
+
+	ToLambdaVpcEndpointArgsOutput() LambdaVpcEndpointArgsOutput
+	ToLambdaVpcEndpointArgsOutputWithContext(context.Context) LambdaVpcEndpointArgsOutput
+}
+
+// A VPC endpoint to grant this Lambda access to.
+type LambdaVpcEndpointArgsArgs struct {
+	// The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
+	EndpointId pulumi.StringInput `pulumi:"endpointId"`
+	// The endpoint's security group ID. Use ep.securityGroupId.
+	SecurityGroupId pulumi.StringInput `pulumi:"securityGroupId"`
+}
+
+func (LambdaVpcEndpointArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*LambdaVpcEndpointArgs)(nil)).Elem()
+}
+
+func (i LambdaVpcEndpointArgsArgs) ToLambdaVpcEndpointArgsOutput() LambdaVpcEndpointArgsOutput {
+	return i.ToLambdaVpcEndpointArgsOutputWithContext(context.Background())
+}
+
+func (i LambdaVpcEndpointArgsArgs) ToLambdaVpcEndpointArgsOutputWithContext(ctx context.Context) LambdaVpcEndpointArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(LambdaVpcEndpointArgsOutput)
+}
+
+// LambdaVpcEndpointArgsArrayInput is an input type that accepts LambdaVpcEndpointArgsArray and LambdaVpcEndpointArgsArrayOutput values.
+// You can construct a concrete instance of `LambdaVpcEndpointArgsArrayInput` via:
+//
+//	LambdaVpcEndpointArgsArray{ LambdaVpcEndpointArgsArgs{...} }
+type LambdaVpcEndpointArgsArrayInput interface {
+	pulumi.Input
+
+	ToLambdaVpcEndpointArgsArrayOutput() LambdaVpcEndpointArgsArrayOutput
+	ToLambdaVpcEndpointArgsArrayOutputWithContext(context.Context) LambdaVpcEndpointArgsArrayOutput
+}
+
+type LambdaVpcEndpointArgsArray []LambdaVpcEndpointArgsInput
+
+func (LambdaVpcEndpointArgsArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]LambdaVpcEndpointArgs)(nil)).Elem()
+}
+
+func (i LambdaVpcEndpointArgsArray) ToLambdaVpcEndpointArgsArrayOutput() LambdaVpcEndpointArgsArrayOutput {
+	return i.ToLambdaVpcEndpointArgsArrayOutputWithContext(context.Background())
+}
+
+func (i LambdaVpcEndpointArgsArray) ToLambdaVpcEndpointArgsArrayOutputWithContext(ctx context.Context) LambdaVpcEndpointArgsArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(LambdaVpcEndpointArgsArrayOutput)
+}
+
+// A VPC endpoint to grant this Lambda access to.
+type LambdaVpcEndpointArgsOutput struct{ *pulumi.OutputState }
+
+func (LambdaVpcEndpointArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*LambdaVpcEndpointArgs)(nil)).Elem()
+}
+
+func (o LambdaVpcEndpointArgsOutput) ToLambdaVpcEndpointArgsOutput() LambdaVpcEndpointArgsOutput {
+	return o
+}
+
+func (o LambdaVpcEndpointArgsOutput) ToLambdaVpcEndpointArgsOutputWithContext(ctx context.Context) LambdaVpcEndpointArgsOutput {
+	return o
+}
+
+// The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
+func (o LambdaVpcEndpointArgsOutput) EndpointId() pulumi.StringOutput {
+	return o.ApplyT(func(v LambdaVpcEndpointArgs) string { return v.EndpointId }).(pulumi.StringOutput)
+}
+
+// The endpoint's security group ID. Use ep.securityGroupId.
+func (o LambdaVpcEndpointArgsOutput) SecurityGroupId() pulumi.StringOutput {
+	return o.ApplyT(func(v LambdaVpcEndpointArgs) string { return v.SecurityGroupId }).(pulumi.StringOutput)
+}
+
+type LambdaVpcEndpointArgsArrayOutput struct{ *pulumi.OutputState }
+
+func (LambdaVpcEndpointArgsArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]LambdaVpcEndpointArgs)(nil)).Elem()
+}
+
+func (o LambdaVpcEndpointArgsArrayOutput) ToLambdaVpcEndpointArgsArrayOutput() LambdaVpcEndpointArgsArrayOutput {
+	return o
+}
+
+func (o LambdaVpcEndpointArgsArrayOutput) ToLambdaVpcEndpointArgsArrayOutputWithContext(ctx context.Context) LambdaVpcEndpointArgsArrayOutput {
+	return o
+}
+
+func (o LambdaVpcEndpointArgsArrayOutput) Index(i pulumi.IntInput) LambdaVpcEndpointArgsOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) LambdaVpcEndpointArgs {
+		return vs[0].([]LambdaVpcEndpointArgs)[vs[1].(int)]
+	}).(LambdaVpcEndpointArgsOutput)
 }
 
 type PABTransform struct {
@@ -5748,6 +6020,10 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaTransformArgsPtrInput)(nil)).Elem(), LambdaTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaVpcArgsInput)(nil)).Elem(), LambdaVpcArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaVpcArgsPtrInput)(nil)).Elem(), LambdaVpcArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*LambdaVpcCidrArgsInput)(nil)).Elem(), LambdaVpcCidrArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*LambdaVpcCidrArgsArrayInput)(nil)).Elem(), LambdaVpcCidrArgsArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*LambdaVpcEndpointArgsInput)(nil)).Elem(), LambdaVpcEndpointArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*LambdaVpcEndpointArgsArrayInput)(nil)).Elem(), LambdaVpcEndpointArgsArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformInput)(nil)).Elem(), PABTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformPtrInput)(nil)).Elem(), PABTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsInput)(nil)).Elem(), VpcBastionArgsArgs{})
@@ -5796,6 +6072,10 @@ func init() {
 	pulumi.RegisterOutputType(LambdaTransformArgsPtrOutput{})
 	pulumi.RegisterOutputType(LambdaVpcArgsOutput{})
 	pulumi.RegisterOutputType(LambdaVpcArgsPtrOutput{})
+	pulumi.RegisterOutputType(LambdaVpcCidrArgsOutput{})
+	pulumi.RegisterOutputType(LambdaVpcCidrArgsArrayOutput{})
+	pulumi.RegisterOutputType(LambdaVpcEndpointArgsOutput{})
+	pulumi.RegisterOutputType(LambdaVpcEndpointArgsArrayOutput{})
 	pulumi.RegisterOutputType(PABTransformOutput{})
 	pulumi.RegisterOutputType(PABTransformPtrOutput{})
 	pulumi.RegisterOutputType(VpcBastionArgsOutput{})

@@ -53,6 +53,10 @@ __all__ = [
     'LambdaTransformArgsArgsDict',
     'LambdaVpcArgsArgs',
     'LambdaVpcArgsArgsDict',
+    'LambdaVpcCidrArgsArgs',
+    'LambdaVpcCidrArgsArgsDict',
+    'LambdaVpcEndpointArgsArgs',
+    'LambdaVpcEndpointArgsArgsDict',
     'PABTransformArgs',
     'PABTransformArgsDict',
     'VpcBastionArgsArgs',
@@ -2694,18 +2698,42 @@ class LambdaVpcArgsArgsDict(TypedDict):
     """
     The ID of the VPC to place the Lambda in.
     """
+    cidrs: NotRequired[pulumi.Input[Sequence[pulumi.Input['LambdaVpcCidrArgsArgsDict']]]]
+    """
+    CIDR-scoped egress rules. One SG rule per port per CIDR. Use for peered VPCs or on-premise ranges.
+    """
+    has_nat: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Only needed for imported VPCs with NAT. Omit when using an Anvil Vpc component.
+    """
+    vpc_endpoints: NotRequired[pulumi.Input[Sequence[pulumi.Input['LambdaVpcEndpointArgsArgsDict']]]]
+    """
+    VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
+    """
 
 @pulumi.input_type
 class LambdaVpcArgsArgs:
     def __init__(__self__, *,
                  private_subnet_ids: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]],
-                 vpc_id: pulumi.Input[_builtins.str]):
+                 vpc_id: pulumi.Input[_builtins.str],
+                 cidrs: Optional[pulumi.Input[Sequence[pulumi.Input['LambdaVpcCidrArgsArgs']]]] = None,
+                 has_nat: Optional[pulumi.Input[_builtins.bool]] = None,
+                 vpc_endpoints: Optional[pulumi.Input[Sequence[pulumi.Input['LambdaVpcEndpointArgsArgs']]]] = None):
         """
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] private_subnet_ids: The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
         :param pulumi.Input[_builtins.str] vpc_id: The ID of the VPC to place the Lambda in.
+        :param pulumi.Input[Sequence[pulumi.Input['LambdaVpcCidrArgsArgs']]] cidrs: CIDR-scoped egress rules. One SG rule per port per CIDR. Use for peered VPCs or on-premise ranges.
+        :param pulumi.Input[_builtins.bool] has_nat: Only needed for imported VPCs with NAT. Omit when using an Anvil Vpc component.
+        :param pulumi.Input[Sequence[pulumi.Input['LambdaVpcEndpointArgsArgs']]] vpc_endpoints: VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
         """
         pulumi.set(__self__, "private_subnet_ids", private_subnet_ids)
         pulumi.set(__self__, "vpc_id", vpc_id)
+        if cidrs is not None:
+            pulumi.set(__self__, "cidrs", cidrs)
+        if has_nat is not None:
+            pulumi.set(__self__, "has_nat", has_nat)
+        if vpc_endpoints is not None:
+            pulumi.set(__self__, "vpc_endpoints", vpc_endpoints)
 
     @_builtins.property
     @pulumi.getter(name="privateSubnetIds")
@@ -2730,6 +2758,141 @@ class LambdaVpcArgsArgs:
     @vpc_id.setter
     def vpc_id(self, value: pulumi.Input[_builtins.str]):
         pulumi.set(self, "vpc_id", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def cidrs(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['LambdaVpcCidrArgsArgs']]]]:
+        """
+        CIDR-scoped egress rules. One SG rule per port per CIDR. Use for peered VPCs or on-premise ranges.
+        """
+        return pulumi.get(self, "cidrs")
+
+    @cidrs.setter
+    def cidrs(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['LambdaVpcCidrArgsArgs']]]]):
+        pulumi.set(self, "cidrs", value)
+
+    @_builtins.property
+    @pulumi.getter(name="hasNat")
+    def has_nat(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Only needed for imported VPCs with NAT. Omit when using an Anvil Vpc component.
+        """
+        return pulumi.get(self, "has_nat")
+
+    @has_nat.setter
+    def has_nat(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "has_nat", value)
+
+    @_builtins.property
+    @pulumi.getter(name="vpcEndpoints")
+    def vpc_endpoints(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['LambdaVpcEndpointArgsArgs']]]]:
+        """
+        VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
+        """
+        return pulumi.get(self, "vpc_endpoints")
+
+    @vpc_endpoints.setter
+    def vpc_endpoints(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['LambdaVpcEndpointArgsArgs']]]]):
+        pulumi.set(self, "vpc_endpoints", value)
+
+
+class LambdaVpcCidrArgsArgsDict(TypedDict):
+    ports: pulumi.Input[Sequence[pulumi.Input[_builtins.int]]]
+    """
+    TCP ports to allow. Required — be explicit.
+    """
+    range: pulumi.Input[_builtins.str]
+    """
+    IPv4 CIDR block, e.g. 10.0.0.0/8
+    """
+
+@pulumi.input_type
+class LambdaVpcCidrArgsArgs:
+    def __init__(__self__, *,
+                 ports: pulumi.Input[Sequence[pulumi.Input[_builtins.int]]],
+                 range: pulumi.Input[_builtins.str]):
+        """
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.int]]] ports: TCP ports to allow. Required — be explicit.
+        :param pulumi.Input[_builtins.str] range: IPv4 CIDR block, e.g. 10.0.0.0/8
+        """
+        pulumi.set(__self__, "ports", ports)
+        pulumi.set(__self__, "range", range)
+
+    @_builtins.property
+    @pulumi.getter
+    def ports(self) -> pulumi.Input[Sequence[pulumi.Input[_builtins.int]]]:
+        """
+        TCP ports to allow. Required — be explicit.
+        """
+        return pulumi.get(self, "ports")
+
+    @ports.setter
+    def ports(self, value: pulumi.Input[Sequence[pulumi.Input[_builtins.int]]]):
+        pulumi.set(self, "ports", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def range(self) -> pulumi.Input[_builtins.str]:
+        """
+        IPv4 CIDR block, e.g. 10.0.0.0/8
+        """
+        return pulumi.get(self, "range")
+
+    @range.setter
+    def range(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "range", value)
+
+
+class LambdaVpcEndpointArgsArgsDict(TypedDict):
+    """
+    A VPC endpoint to grant this Lambda access to.
+    """
+    endpoint_id: pulumi.Input[_builtins.str]
+    """
+    The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
+    """
+    security_group_id: pulumi.Input[_builtins.str]
+    """
+    The endpoint's security group ID. Use ep.securityGroupId.
+    """
+
+@pulumi.input_type
+class LambdaVpcEndpointArgsArgs:
+    def __init__(__self__, *,
+                 endpoint_id: pulumi.Input[_builtins.str],
+                 security_group_id: pulumi.Input[_builtins.str]):
+        """
+        A VPC endpoint to grant this Lambda access to.
+
+        :param pulumi.Input[_builtins.str] endpoint_id: The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
+        :param pulumi.Input[_builtins.str] security_group_id: The endpoint's security group ID. Use ep.securityGroupId.
+        """
+        pulumi.set(__self__, "endpoint_id", endpoint_id)
+        pulumi.set(__self__, "security_group_id", security_group_id)
+
+    @_builtins.property
+    @pulumi.getter(name="endpointId")
+    def endpoint_id(self) -> pulumi.Input[_builtins.str]:
+        """
+        The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
+        """
+        return pulumi.get(self, "endpoint_id")
+
+    @endpoint_id.setter
+    def endpoint_id(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "endpoint_id", value)
+
+    @_builtins.property
+    @pulumi.getter(name="securityGroupId")
+    def security_group_id(self) -> pulumi.Input[_builtins.str]:
+        """
+        The endpoint's security group ID. Use ep.securityGroupId.
+        """
+        return pulumi.get(self, "security_group_id")
+
+    @security_group_id.setter
+    def security_group_id(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "security_group_id", value)
 
 
 class PABTransformArgsDict(TypedDict):
