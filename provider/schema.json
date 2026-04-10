@@ -1438,10 +1438,28 @@
     },
     "anvil:aws:LambdaVpcArgs": {
       "properties": {
+        "cidrs": {
+          "description": "CIDR-scoped egress rules. One SG rule per port per CIDR. Use for peered VPCs or on-premise ranges.",
+          "items": {
+            "$ref": "#/types/anvil:aws:LambdaVpcCidrArgs"
+          },
+          "type": "array"
+        },
+        "hasNat": {
+          "description": "Only needed for imported VPCs with NAT. Omit when using an Anvil Vpc component.",
+          "type": "boolean"
+        },
         "privateSubnetIds": {
           "description": "The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.",
           "items": {
             "type": "string"
+          },
+          "type": "array"
+        },
+        "vpcEndpoints": {
+          "description": "VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.",
+          "items": {
+            "$ref": "#/types/anvil:aws:LambdaVpcEndpointArgs"
           },
           "type": "array"
         },
@@ -1453,6 +1471,44 @@
       "required": [
         "vpcId",
         "privateSubnetIds"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:LambdaVpcCidrArgs": {
+      "properties": {
+        "ports": {
+          "description": "TCP ports to allow. Required — be explicit.",
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        "range": {
+          "description": "IPv4 CIDR block, e.g. 10.0.0.0/8",
+          "type": "string"
+        }
+      },
+      "required": [
+        "range",
+        "ports"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:LambdaVpcEndpointArgs": {
+      "description": "A VPC endpoint to grant this Lambda access to.",
+      "properties": {
+        "endpointId": {
+          "description": "The endpoint's ID. Use ep.endpointId. Used for SG rule naming.",
+          "type": "string"
+        },
+        "securityGroupId": {
+          "description": "The endpoint's security group ID. Use ep.securityGroupId.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "securityGroupId",
+        "endpointId"
       ],
       "type": "object"
     },

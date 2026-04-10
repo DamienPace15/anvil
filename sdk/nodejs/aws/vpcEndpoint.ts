@@ -14,9 +14,6 @@ export class VpcEndpoint extends pulumi.ComponentResource {
     /** @internal */
     public static readonly __pulumiType = 'anvil:aws:VpcEndpoint';
 
-    /** @internal Logical resource name for grant policy naming. */
-    private __name: string;
-
     /**
      * Returns true if the given object is an instance of VpcEndpoint.  This is designed to work even
      * when multiple copies of the Pulumi SDK have been loaded into the same process.
@@ -74,16 +71,7 @@ export class VpcEndpoint extends pulumi.ComponentResource {
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(VpcEndpoint.__pulumiType, name, resourceInputs, opts, true /*remote*/);
-        this.__name = name;
     }
-  /**
-   * Returns the logical name of this endpoint.
-   * Implements VpcEndpointTarget — used for SG rule naming in grantEndpointAccess.
-   */
-  public endpointName(): string {
-      return this.__name;
-  }
-
 }
 
 /**

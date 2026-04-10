@@ -42,6 +42,92 @@ type LambdaPermission struct {
 	Path string `pulumi:"path,optional"`
 }
 
+// LambdaVpcEndpointArgs defines a VPC endpoint to grant this Lambda access to.
+// Pass ep.securityGroupId and ep.endpointId from an Anvil VpcEndpoint.
+//
+// Usage:
+//
+//	vpcEndpoints: [
+//	    { securityGroupId: ssm.securityGroupId, endpointId: ssm.endpointId },
+//	    { securityGroupId: secrets.securityGroupId, endpointId: secrets.endpointId },
+//	]
+type LambdaVpcEndpointArgs struct {
+	// SecurityGroupId is the endpoint's dedicated SG ID.
+	// Use ep.securityGroupId from an Anvil VpcEndpoint.
+	SecurityGroupId string `pulumi:"securityGroupId"`
+
+	// EndpointId is the AWS VPC endpoint ID, e.g. vpce-0abc1234567890abc.
+	// Used for SG rule naming — rules are named ${lambda}-${endpointId}-endpoint-egress.
+	// Use ep.endpointId from an Anvil VpcEndpoint.
+	EndpointId string `pulumi:"endpointId"`
+}
+
+// LambdaVpcCidrArgs defines a CIDR-scoped egress rule.
+// One SecurityGroupEgressRule is created per port per CIDR.
+//
+// Usage:
+//
+//	cidrs: [
+//	    { range: "10.0.0.0/8", ports: [5432] },         // RDS in peered VPC
+//	    { range: "172.16.0.0/12", ports: [6379, 6380] }, // ElastiCache cluster
+//	]
+type LambdaVpcCidrArgs struct {
+	// Range is the IPv4 CIDR block to allow outbound traffic to.
+	// e.g. "10.0.0.0/8", "203.0.113.0/24"
+	Range string `pulumi:"range"`
+
+	// Ports is the list of TCP ports to allow to this CIDR.
+	// Required — be explicit about which ports each range needs.
+	Ports []int `pulumi:"ports"`
+}
+
+// LambdaVpcArgs defines the VPC placement and network access configuration
+// for a Lambda. All network access is declared here at construction time —
+// nothing is reachable until explicitly declared.
+//
+// Network access patterns:
+//   - vpcEndpoints: AWS services via PrivateLink (port 443, stays on AWS backbone)
+//   - hasNat: internet via NAT Gateway or fck-nat (port 443 to 0.0.0.0/0)
+//   - cidrs: specific CIDR ranges at specific ports (peered VPCs, on-premise)
+type LambdaVpcArgs struct {
+	// VpcId is the ID of the VPC to place the Lambda in.
+	VpcId string `pulumi:"vpcId"`
+
+	// PrivateSubnetIds are the IDs of the private subnets to attach the Lambda to.
+	// Always private — Lambda must never be placed in public subnets.
+	PrivateSubnetIds []string `pulumi:"privateSubnetIds"`
+
+	// HasNat indicates whether this VPC has a NAT Gateway or fck-nat instance.
+	// When true, Anvil adds an internet egress rule (port 443) automatically.
+	// Only needed for imported VPCs — omit when using an Anvil Vpc component.
+	HasNat bool `pulumi:"hasNat,optional"`
+
+	// VpcEndpoints are the VPC endpoints this Lambda needs access to.
+	// Anvil wires both sides of the SG rules automatically at construction time.
+	// Pass ep.securityGroupId and ep.endpointId from each VpcEndpoint.
+	VpcEndpoints []LambdaVpcEndpointArgs `pulumi:"vpcEndpoints,optional"`
+
+	// CIDRs defines structured CIDR-scoped egress rules.
+	// Use for peered VPCs, on-premise ranges, or any non-AWS-service destination.
+	// One SecurityGroupEgressRule is created per port per CIDR entry.
+	// Ports are required per entry — be explicit about what each range needs.
+	CIDRs []LambdaVpcCidrArgs `pulumi:"cidrs,optional"`
+}
+
+// lambdaEndpointTarget adapts LambdaVpcEndpointArgs to satisfy vpcsg.EndpointTarget.
+// Normalises the user-supplied endpoint args into what vpcsg.GrantEndpointAccess needs.
+type lambdaEndpointTarget struct {
+	args LambdaVpcEndpointArgs
+}
+
+func (t *lambdaEndpointTarget) Name() string {
+	return t.args.EndpointId
+}
+
+func (t *lambdaEndpointTarget) SecurityGroupOutput() pulumi.StringOutput {
+	return pulumi.String(t.args.SecurityGroupId).ToStringOutput()
+}
+
 // LambdaArgs defines the inputs for an Anvil-managed Lambda function.
 //
 // Tier 1 controls (always on, free):
@@ -86,11 +172,10 @@ type LambdaArgs struct {
 	// Default: false.
 	URL bool `pulumi:"url,optional"`
 
-	// Vpc places the Lambda inside a VPC for access to private resources
-	// such as RDS or ElastiCache. Anvil creates a dedicated security group
-	// with zero inbound and zero outbound rules. Nothing is reachable until
-	// explicitly granted via the grant system.
-	Vpc *vpcsg.VpcPlacementArgs `pulumi:"vpc,optional"`
+	// Vpc places the Lambda inside a VPC for access to private resources.
+	// Declare vpcEndpoints, hasNat, and cidrs to wire network access at
+	// construction time. Nothing is reachable until explicitly declared.
+	Vpc *LambdaVpcArgs `pulumi:"vpc,optional"`
 
 	// Permissions defines inline IAM permissions added to the execution role.
 	// Use this for ad-hoc access not covered by the grant system.
@@ -166,6 +251,21 @@ func resolveDays(preset string) int {
 	default:
 		return 365 // default: 1 year
 	}
+}
+
+// sanitizeCIDR converts a CIDR like "10.0.0.0/8" to "10-0-0-0-8"
+// for use in resource names.
+func sanitizeCIDR(cidr string) string {
+	result := make([]byte, len(cidr))
+	for i := 0; i < len(cidr); i++ {
+		c := cidr[i]
+		if (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') {
+			result[i] = c
+		} else {
+			result[i] = '-'
+		}
+	}
+	return string(result)
 }
 
 // blankHandler is the placeholder deployed when no entry is provided.
@@ -355,9 +455,10 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 		}
 	}
 
-	// ── 5. VPC security group (optional) ──────────────
+	// ── 5. VPC security group + network wiring (optional) ─────────────────
 	// When vpc is set, create a dedicated security group with zero inbound
-	// and zero outbound rules. Nothing is reachable until explicitly granted.
+	// and zero outbound rules. All network access is declared explicitly via
+	// vpcEndpoints, hasNat, and cidrs — nothing is reachable until declared.
 	// AWSLambdaVPCAccessExecutionRole (attached above) gives the Lambda
 	// permission to create and manage its own ENIs in the VPC.
 	if args.Vpc != nil {
@@ -366,6 +467,62 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 			return nil, err
 		}
 		l.SecurityGroupID = sg.ID().ToStringOutput()
+
+		// Wire VPC endpoint access — creates both SG rules per endpoint:
+		//   - Egress port 443 from Lambda SG → endpoint SG
+		//   - Ingress port 443 on endpoint SG ← Lambda SG
+		for _, ep := range args.Vpc.VpcEndpoints {
+			ep := ep
+			target := &lambdaEndpointTarget{args: ep}
+			if err := vpcsg.GrantEndpointAccess(
+				ctx,
+				name,
+				l.SecurityGroupID,
+				[]vpcsg.EndpointTarget{target},
+				l,
+			); err != nil {
+				return nil, fmt.Errorf("vpcEndpoints: failed to wire %s: %w", ep.EndpointId, err)
+			}
+		}
+
+		// Wire internet egress via NAT — port 443 out to 0.0.0.0/0.
+		// Only wired when hasNat is true. For imported VPCs set hasNat
+		// explicitly. For Anvil-managed VPCs this is inferred automatically.
+		if args.Vpc.HasNat {
+			if err := vpcsg.AddInternetEgressRule(
+				ctx,
+				fmt.Sprintf("%s-nat-egress", name),
+				l.SecurityGroupID,
+				443, 443,
+				l,
+			); err != nil {
+				return nil, err
+			}
+		}
+
+		// Wire CIDR-scoped egress rules — one SG rule per port per CIDR.
+		// Use for peered VPCs, on-premise ranges, or any non-AWS-service destination.
+		for _, cidrRule := range args.Vpc.CIDRs {
+			if len(cidrRule.Ports) == 0 {
+				return nil, fmt.Errorf(
+					"vpc.cidrs: range %q requires at least one port — be explicit about which ports this range needs",
+					cidrRule.Range,
+				)
+			}
+			for _, port := range cidrRule.Ports {
+				ruleName := fmt.Sprintf("%s-cidr-%s-%d", name, sanitizeCIDR(cidrRule.Range), port)
+				if err := vpcsg.AddCIDREgressRule(
+					ctx,
+					ruleName,
+					l.SecurityGroupID,
+					cidrRule.Range,
+					port, port,
+					l,
+				); err != nil {
+					return nil, fmt.Errorf("vpc.cidrs: failed to wire %s:%d: %w", cidrRule.Range, port, err)
+				}
+			}
+		}
 	}
 
 	// ── 6. Lambda Function ─────────────────────────────

@@ -119,54 +119,6 @@ export class Lambda extends pulumi.ComponentResource {
         return this.roleArn;
     }
 
-    /**
-     * Grants internet or CIDR-scoped egress from this Lambda's security group.
-     * Opt-in only — a VPC-attached Lambda with no grantEgress has
-     * zero outbound internet access by default.
-     *
-     * Defaults to port 443 (HTTPS) if ports is omitted.
-     *
-     * @example
-     * resource.grantEgress({ internet: true })                        // 443 only (default)
-     * resource.grantEgress({ internet: true, ports: [80, 443] })      // HTTP + HTTPS
-     * resource.grantEgress({ internet: true, allPorts: true })        // unrestricted — code review signal
-     */
-    public grantEgress(args: grants.EgressArgs): void {
-        if (!this.securityGroupId) {
-            throw new Error(
-                `Lambda "${this.__name}" has no VPC — grantEgress requires vpc to be set.`
-            );
-        }
-        grants.createEgressGrant(this, this.__name, this.securityGroupId as pulumi.Output<string>, args);
-    }
-  
-    /**
-     * Opens the network path between this Lambda and one or more
-     * Interface VPC Endpoints.
-     *
-     * For each endpoint in the array:
-     *   - Egress rule on the Lambda SG  — port 443 → endpoint SG
-     *   - Ingress rule on the endpoint SG — port 443 ← Lambda SG
-     *
-     * Both rules are required — the endpoint SG has zero rules by default.
-     * This method is network-only. IAM permissions are managed separately
-     * via grantPermissions — both layers are required for full access.
-     *
-     * Requires this Lambda to be VPC-placed (vpc set in args).
-     *
-     * @example
-     * resource.grantEndpointAccess([ssmEndpoint, ssmMessagesEndpoint, ec2MessagesEndpoint])
-     * resource.grantEndpointAccess([secretsManagerEndpoint])
-     */
-    public grantEndpointAccess(endpoints: grants.VpcEndpointTarget[]): void {
-        if (!this.securityGroupId) {
-            throw new Error(
-                `Lambda "${this.__name}" has no VPC — grantEndpointAccess requires vpc to be set.`
-            );
-        }
-        grants.createEndpointAccessGrant(this, this.__name, this.securityGroupId as pulumi.Output<string>, endpoints);
-    }
-  
 }
 
 /**

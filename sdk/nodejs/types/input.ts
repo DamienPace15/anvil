@@ -544,13 +544,50 @@ export namespace aws {
 
     export interface LambdaVpcArgsArgs {
         /**
+         * CIDR-scoped egress rules. One SG rule per port per CIDR. Use for peered VPCs or on-premise ranges.
+         */
+        cidrs?: pulumi.Input<pulumi.Input<inputs.aws.LambdaVpcCidrArgsArgs>[]>;
+        /**
+         * Only needed for imported VPCs with NAT. Omit when using an Anvil Vpc component.
+         */
+        hasNat?: pulumi.Input<boolean>;
+        /**
          * The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
          */
         privateSubnetIds: pulumi.Input<pulumi.Input<string>[]>;
         /**
+         * VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
+         */
+        vpcEndpoints?: pulumi.Input<pulumi.Input<inputs.aws.LambdaVpcEndpointArgsArgs>[]>;
+        /**
          * The ID of the VPC to place the Lambda in.
          */
         vpcId: pulumi.Input<string>;
+    }
+
+    export interface LambdaVpcCidrArgsArgs {
+        /**
+         * TCP ports to allow. Required — be explicit.
+         */
+        ports: pulumi.Input<pulumi.Input<number>[]>;
+        /**
+         * IPv4 CIDR block, e.g. 10.0.0.0/8
+         */
+        range: pulumi.Input<string>;
+    }
+
+    /**
+     * A VPC endpoint to grant this Lambda access to.
+     */
+    export interface LambdaVpcEndpointArgsArgs {
+        /**
+         * The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
+         */
+        endpointId: pulumi.Input<string>;
+        /**
+         * The endpoint's security group ID. Use ep.securityGroupId.
+         */
+        securityGroupId: pulumi.Input<string>;
     }
 
     export interface PABTransformArgs {
