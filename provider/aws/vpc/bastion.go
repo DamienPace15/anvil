@@ -189,7 +189,7 @@ func createBastion(
 	bastionSGName := provider.PhysicalName(stage, name, "bastion-sg", stageId)
 	bastionSG, err := ec2.NewSecurityGroup(ctx, name+"-bastion-sg", &ec2.SecurityGroupArgs{
 		VpcId:       vpcResource.ID(),
-		Description: pulumi.String("Anvil bastion host — SSM only, zero inbound rules"),
+		Description: pulumi.String("Anvil bastion host SSM only, zero inbound rules"),
 		// No ingress rules -- the bastion never receives inbound connections.
 		Egress: ec2.SecurityGroupEgressArray{
 			&ec2.SecurityGroupEgressArgs{

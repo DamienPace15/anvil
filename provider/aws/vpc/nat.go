@@ -115,7 +115,7 @@ func createNatInstance(
 	natSGName := provider.PhysicalName(stage, name, "nat-sg", stageId)
 	natSG, err := ec2.NewSecurityGroup(ctx, name+"-nat-sg", &ec2.SecurityGroupArgs{
 		VpcId:       publicSubnet.VpcId,
-		Description: pulumi.String("Security group for Anvil fck-nat instance — inbound from private subnets only"),
+		Description: pulumi.String("Security group for Anvil fck-nat instance - inbound from private subnets only"),
 		Ingress:     ingressRules,
 		Egress: ec2.SecurityGroupEgressArray{
 			&ec2.SecurityGroupEgressArgs{
