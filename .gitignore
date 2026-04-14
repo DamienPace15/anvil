@@ -50,5 +50,6 @@ Thumbs.db
 npm-app/
 test-app-*/
 test-app-*/.anvil/
+test-*/
 
 dist/
