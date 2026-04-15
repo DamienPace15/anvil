@@ -49,10 +49,11 @@ type VpcEndpoint struct {
 	DnsName pulumi.StringOutput `pulumi:"dnsName"`
 
 	// SecurityGroupId is the ID of the dedicated security group attached to this
-	// endpoint. A single self-referencing ingress rule on port 443 is wired at
-	// creation time. Any compute resource with explicit egress to this SG satisfies
-	// that rule — nothing else in the VPC can reach it. Compute resources add egress
-	// rules pointing at this SG and never modify its ingress.
+	// endpoint. Inbound port 443 is allowed from the VPC CIDR — any resource in
+	// the VPC can reach the endpoint at the network layer. Access is controlled by
+	// the compute resource's egress rules (only resources with an explicit egress
+	// rule pointing at this SG can initiate a connection) and by IAM (only roles
+	// with the appropriate service permissions can make API calls).
 	SecurityGroupId pulumi.StringOutput `pulumi:"securityGroupId"`
 
 	name string
@@ -60,7 +61,7 @@ type VpcEndpoint struct {
 
 func (v *VpcEndpoint) Annotate(a infer.Annotator) {
 	a.SetToken("aws", "VpcEndpoint")
-	a.Describe(&v, "An Anvil-managed AWS Interface VPC Endpoint. Creates one ENI per private subnet with private DNS enabled. Includes a dedicated security group with a single self-referencing ingress rule on port 443 — only compute resources with explicit egress to this SG can reach the endpoint. Compute resources never modify the endpoint SG ingress, preventing duplicate rule errors when multiple compute resources share the same endpoint.")
+	a.Describe(&v, "An Anvil-managed AWS Interface VPC Endpoint. Creates one ENI per private subnet with private DNS enabled. The endpoint security group allows inbound port 443 from the VPC CIDR. Access is controlled at two layers: compute egress rules (only resources with an explicit egress rule to this SG can initiate connections) and IAM (only roles with the appropriate service permissions can make API calls). This scales to any number of compute resources with a single inbound rule.")
 }
 
 // Name returns the logical name of this endpoint, used for rule naming in grants.
@@ -90,29 +91,43 @@ func NewVpcEndpoint(ctx *pulumi.Context, name string, args VpcEndpointArgs, opts
 		return nil, err
 	}
 
-	// 2. Self-referencing ingress rule on port 443.
+	// 2. Look up the VPC CIDR from the VPC ID so we can wire the ingress rule.
+	//    This works for both Anvil-managed VPCs and imported VPCs — the user
+	//    only needs to pass vpcId and Anvil resolves the CIDR automatically.
+	//    The lookup happens inside ApplyT since vpcId is an Output<string>.
+	vpcCidr := args.VpcId.ToStringOutput().ApplyT(func(vpcId string) (string, error) {
+		vpc, err := ec2.LookupVpc(ctx, &ec2.LookupVpcArgs{
+			Id: &vpcId,
+		}, nil)
+		if err != nil {
+			return "", fmt.Errorf("failed to look up VPC CIDR for %s: %w", vpcId, err)
+		}
+		return vpc.CidrBlock, nil
+	}).(pulumi.StringOutput)
+
+	// 3. CIDR ingress rule on port 443.
 	//
-	// The endpoint SG allows ingress from itself — meaning any compute resource
-	// whose SG has an explicit egress rule pointing at this SG satisfies the rule
-	// and can reach the endpoint. Resources with no such egress rule are blocked.
+	// Allows inbound 443 from the VPC CIDR — any resource in the VPC can reach
+	// the endpoint ENI at the network layer. This scales to any number of compute
+	// resources with a single rule (no per-compute ingress rules needed).
 	//
-	// This is strictly tighter than a VPC CIDR rule (which would allow any resource
-	// in the VPC regardless of whether it was granted access) and requires no
-	// ec2:DescribeVpcs API call. The rule count on the endpoint SG stays at exactly
-	// 1 forever, regardless of how many compute resources reference this endpoint.
-	if err := vpcsg.AddIngressRule(
+	// Access is controlled at two additional layers:
+	//   - Compute egress rules: only resources with an explicit egress rule
+	//     pointing at this SG can initiate a TCP connection to the endpoint.
+	//   - IAM: only roles with the appropriate service permissions can make
+	//     API calls through the endpoint regardless of network access.
+	if err := vpcsg.AddIngressCIDRRule(
 		ctx,
-		fmt.Sprintf("%s-self-ingress", name),
+		fmt.Sprintf("%s-vpc-ingress", name),
 		sg.ID().ToStringOutput(),
-		sg.ID().ToStringOutput(),
+		vpcCidr,
 		443, 443,
-		"tcp",
 		v,
 	); err != nil {
-		return nil, fmt.Errorf("failed to wire self-referencing ingress on endpoint SG: %w", err)
+		return nil, fmt.Errorf("failed to wire VPC CIDR ingress on endpoint SG: %w", err)
 	}
 
-	// 3. Resolve the AWS region synchronously — safe to call outside Apply.
+	// 4. Resolve the AWS region synchronously — safe to call outside Apply.
 	region, err := aws.GetRegion(ctx, &aws.GetRegionArgs{}, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve AWS region: %w", err)
@@ -121,7 +136,7 @@ func NewVpcEndpoint(ctx *pulumi.Context, name string, args VpcEndpointArgs, opts
 
 	endpointName := provider.PhysicalName(stage, name, "vpce", stageId)
 
-	// 4. Lift inputs to Outputs so they can be passed directly to ec2.NewVpcEndpoint.
+	// 5. Lift inputs to Outputs so they can be passed directly to ec2.NewVpcEndpoint.
 	vpcIdOutput := args.VpcId.ToStringOutput()
 	serviceOutput := args.Service.ToStringOutput()
 	subnetIdsOutput := args.PrivateSubnetIds.ToStringArrayOutput()
@@ -131,13 +146,13 @@ func NewVpcEndpoint(ctx *pulumi.Context, name string, args VpcEndpointArgs, opts
 		return fmt.Sprintf("com.amazonaws.%s.%s", awsRegion, svc)
 	}).(pulumi.StringOutput)
 
-	// 5. Interface VPC Endpoint.
+	// 6. Interface VPC Endpoint.
 	// - VpcEndpointType: "Interface" — creates ENIs in each subnet
 	// - PrivateDnsEnabled: true — overrides public service hostnames inside the VPC
-	//   so consumers use standard AWS SDK endpoints (e.g. ssm.ap-southeast-2.amazonaws.com)
+	//   so consumers use standard AWS SDK endpoints (e.g. sqs.ap-southeast-2.amazonaws.com)
 	//   and never reference vpce-xxx hostnames directly
 	// - SubnetIds: one per private subnet, AWS places one ENI per AZ automatically
-	// - SecurityGroupIds: dedicated SG — only reachable by compute with explicit egress to this SG
+	// - SecurityGroupIds: dedicated SG with VPC CIDR ingress on 443
 	endpoint, err := ec2.NewVpcEndpoint(ctx, name+"-vpce", &ec2.VpcEndpointArgs{
 		VpcId:             vpcIdOutput,
 		ServiceName:       serviceNameOutput,
@@ -155,7 +170,7 @@ func NewVpcEndpoint(ctx *pulumi.Context, name string, args VpcEndpointArgs, opts
 		return nil, fmt.Errorf("failed to create VPC endpoint: %w", err)
 	}
 
-	// 6. Extract the first DNS entry for the dnsName output.
+	// 7. Extract the first DNS entry for the dnsName output.
 	// With private DNS enabled, consumers never need this — it's exposed for
 	// debugging and multi-VPC architectures where the private DNS override
 	// does not propagate to peered VPCs.
@@ -169,7 +184,7 @@ func NewVpcEndpoint(ctx *pulumi.Context, name string, args VpcEndpointArgs, opts
 		return *entries[0].DnsName
 	}).(pulumi.StringOutput)
 
-	// 7. Wire outputs.
+	// 8. Wire outputs.
 	v.EndpointId = endpoint.ID().ToStringOutput()
 	v.DnsName = dnsName
 	v.SecurityGroupId = sg.ID().ToStringOutput()

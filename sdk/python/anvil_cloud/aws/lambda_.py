@@ -54,7 +54,7 @@ class LambdaArgs:
         :param pulumi.Input[Sequence[pulumi.Input['LambdaPermissionArgs']]] permissions: Inline IAM permissions added to the execution role. Use for ad-hoc access not covered by the grant system.
         :param pulumi.Input[_builtins.int] timeout: Timeout in seconds. Valid: 1 to 900. Default: 5.
         :param pulumi.Input[_builtins.bool] tracing: Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.
-        :param pulumi.Input[_builtins.bool] url: Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
+        :param pulumi.Input[_builtins.bool] url: Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM - never public. Default: false.
         :param pulumi.Input['LambdaVpcArgsArgs'] vpc: Places the Lambda inside a VPC for access to private resources such as RDS or ElastiCache. Anvil creates a dedicated security group with zero inbound and zero outbound rules. Nothing is reachable until explicitly granted via the grant system.
         """
         pulumi.set(__self__, "handler", handler)
@@ -229,7 +229,7 @@ class LambdaArgs:
     @pulumi.getter
     def url(self) -> Optional[pulumi.Input[_builtins.bool]]:
         """
-        Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
+        Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM - never public. Default: false.
         """
         return pulumi.get(self, "url")
 
@@ -287,7 +287,7 @@ class Lambda(pulumi.ComponentResource):
         :param pulumi.Input['LambdaRuntime'] runtime: The Lambda runtime identifier.
         :param pulumi.Input[_builtins.int] timeout: Timeout in seconds. Valid: 1 to 900. Default: 5.
         :param pulumi.Input[_builtins.bool] tracing: Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.
-        :param pulumi.Input[_builtins.bool] url: Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
+        :param pulumi.Input[_builtins.bool] url: Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM - never public. Default: false.
         :param pulumi.Input[Union['LambdaVpcArgsArgs', 'LambdaVpcArgsArgsDict']] vpc: Places the Lambda inside a VPC for access to private resources such as RDS or ElastiCache. Anvil creates a dedicated security group with zero inbound and zero outbound rules. Nothing is reachable until explicitly granted via the grant system.
         """
         ...

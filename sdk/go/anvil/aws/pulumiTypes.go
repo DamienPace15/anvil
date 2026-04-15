@@ -4316,83 +4316,31 @@ func (o LambdaPermissionArrayOutput) Index(i pulumi.IntInput) LambdaPermissionOu
 }
 
 type LambdaTransform struct {
-	// Instruction set architecture for your Lambda function. Valid values are `[<span pulumi-lang-nodejs=""x8664"" pulumi-lang-dotnet=""X8664"" pulumi-lang-go=""x8664"" pulumi-lang-python=""x86_64"" pulumi-lang-yaml=""x8664"" pulumi-lang-java=""x8664"">"x86_64"</span>]` and `["arm64"]`. Default is `[<span pulumi-lang-nodejs=""x8664"" pulumi-lang-dotnet=""X8664"" pulumi-lang-go=""x8664"" pulumi-lang-python=""x86_64"" pulumi-lang-yaml=""x8664"" pulumi-lang-java=""x8664"">"x86_64"</span>]`. Removing this attribute, function's architecture stays the same.
+	// Instruction set architecture for your Lambda function.
 	Architectures []string `pulumi:"architectures"`
-	// Configuration block for Lambda Capacity Provider. See below.
-	CapacityProviderConfig *lambda.FunctionCapacityProviderConfig `pulumi:"capacityProviderConfig"`
-	// Path to the function's deployment package within the local filesystem. Conflicts with <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span> and <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3_bucket`</span>. One of <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span>, <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span>, or <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3_bucket`</span> must be specified.
+	// Path to the function's deployment package within the local filesystem.
 	Code pulumi.Archive `pulumi:"code"`
-	// Base64-encoded representation the source code package file. Use this argument to trigger updates when the function source code changes. For OCI, this value is relayed directly from the image digest. For zip files, this value is the Base64 encoded SHA-256 hash of the `.zip` file. Layers are not included in the calculation. To trigger updates using a non-standard hashing algorithm, use the <span pulumi-lang-nodejs="`sourceCodeHash`" pulumi-lang-dotnet="`SourceCodeHash`" pulumi-lang-go="`sourceCodeHash`" pulumi-lang-python="`source_code_hash`" pulumi-lang-yaml="`sourceCodeHash`" pulumi-lang-java="`sourceCodeHash`">`source_code_hash`</span> argument instead.
+	// Base64-encoded representation the source code package file.
 	CodeSha256 *string `pulumi:"codeSha256"`
-	// ARN of a code-signing configuration to enable code signing for this function.
-	CodeSigningConfigArn *string `pulumi:"codeSigningConfigArn"`
-	// Configuration block for dead letter queue. See below.
-	DeadLetterConfig *lambda.FunctionDeadLetterConfig `pulumi:"deadLetterConfig"`
-	// Description of what your Lambda Function does.
-	Description *string `pulumi:"description"`
-	// Configuration block for durable function settings. See below. <span pulumi-lang-nodejs="`durableConfig`" pulumi-lang-dotnet="`DurableConfig`" pulumi-lang-go="`durableConfig`" pulumi-lang-python="`durable_config`" pulumi-lang-yaml="`durableConfig`" pulumi-lang-java="`durableConfig`">`durable_config`</span> may only be available in [limited regions](https://builder.aws.com/build/capabilities), including `us-east-2`.
-	DurableConfig *lambda.FunctionDurableConfig `pulumi:"durableConfig"`
-	// Configuration block for environment variables. See below.
-	Environment *lambda.FunctionEnvironment `pulumi:"environment"`
-	// Amount of ephemeral storage (`/tmp`) to allocate for the Lambda Function. See below.
-	EphemeralStorage *lambda.FunctionEphemeralStorage `pulumi:"ephemeralStorage"`
-	// Configuration block for EFS file system. See below.
-	FileSystemConfig *lambda.FunctionFileSystemConfig `pulumi:"fileSystemConfig"`
-	// Function entry point in your code. Required if <span pulumi-lang-nodejs="`packageType`" pulumi-lang-dotnet="`PackageType`" pulumi-lang-go="`packageType`" pulumi-lang-python="`package_type`" pulumi-lang-yaml="`packageType`" pulumi-lang-java="`packageType`">`package_type`</span> is `Zip`.
+	// Function entry point in your code.
 	Handler *string `pulumi:"handler"`
-	// Container image configuration values. See below.
-	ImageConfig *lambda.FunctionImageConfig `pulumi:"imageConfig"`
-	// ECR image URI containing the function's deployment package. Conflicts with <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span> and <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3_bucket`</span>. One of <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span>, <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span>, or <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3_bucket`</span> must be specified.
-	ImageUri *string `pulumi:"imageUri"`
-	// ARN of the AWS Key Management Service key used to encrypt environment variables. If not provided when environment variables are in use, AWS Lambda uses a default service key. If provided when environment variables are not in use, the AWS Lambda API does not save this configuration.
+	// ARN of the AWS Key Management Service key used to encrypt environment variables.
 	KmsKeyArn *string `pulumi:"kmsKeyArn"`
 	// List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function.
 	Layers []string `pulumi:"layers"`
-	// Configuration block for advanced logging settings. See below.
-	LoggingConfig *lambda.FunctionLoggingConfig `pulumi:"loggingConfig"`
-	// Amount of memory in MB your Lambda Function can use at runtime. Valid value between 128 MB to 32,768 MB (32 GB), in 1 MB increments. Defaults to 128.
+	// Amount of memory in MB your Lambda Function can use at runtime.
 	MemorySize *int `pulumi:"memorySize"`
 	// Unique name for your Lambda Function.
 	Name *string `pulumi:"name"`
-	// Lambda deployment package type. Valid values are `Zip` and `Image`. Defaults to `Zip`.
-	PackageType *string `pulumi:"packageType"`
-	// Whether to publish creation/change as new Lambda Function Version. Defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
-	Publish *bool `pulumi:"publish"`
-	// Whether to publish to a alias or version number. Omit for regular version publishing. Option is `LATEST_PUBLISHED`.
-	PublishTo *string `pulumi:"publishTo"`
-	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
-	Region *string `pulumi:"region"`
-	// Whether to replace the security groups on the function's VPC configuration prior to destruction. Default is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
-	ReplaceSecurityGroupsOnDestroy *bool `pulumi:"replaceSecurityGroupsOnDestroy"`
-	// List of security group IDs to assign to the function's VPC configuration prior to destruction. Required if <span pulumi-lang-nodejs="`replaceSecurityGroupsOnDestroy`" pulumi-lang-dotnet="`ReplaceSecurityGroupsOnDestroy`" pulumi-lang-go="`replaceSecurityGroupsOnDestroy`" pulumi-lang-python="`replace_security_groups_on_destroy`" pulumi-lang-yaml="`replaceSecurityGroupsOnDestroy`" pulumi-lang-java="`replaceSecurityGroupsOnDestroy`">`replace_security_groups_on_destroy`</span> is <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span>.
-	ReplacementSecurityGroupIds []string `pulumi:"replacementSecurityGroupIds"`
-	// Amount of reserved concurrent executions for this lambda function. A value of <span pulumi-lang-nodejs="`0`" pulumi-lang-dotnet="`0`" pulumi-lang-go="`0`" pulumi-lang-python="`0`" pulumi-lang-yaml="`0`" pulumi-lang-java="`0`">`0`</span> disables lambda from being triggered and `-1` removes any concurrency limitations. Defaults to Unreserved Concurrency Limits `-1`.
+	// Amount of reserved concurrent executions for this lambda function.
 	ReservedConcurrentExecutions *int `pulumi:"reservedConcurrentExecutions"`
-	// ARN of the function's execution role. The role provides the function's identity and access to AWS services and resources.
-	//
-	// The following arguments are optional:
-	Role *string `pulumi:"role"`
-	// Identifier of the function's runtime. Required if <span pulumi-lang-nodejs="`packageType`" pulumi-lang-dotnet="`PackageType`" pulumi-lang-go="`packageType`" pulumi-lang-python="`package_type`" pulumi-lang-yaml="`packageType`" pulumi-lang-java="`packageType`">`package_type`</span> is `Zip`. See [Runtimes](https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-Runtime) for valid values.
+	// Identifier of the function's runtime.
 	Runtime *string `pulumi:"runtime"`
-	// S3 bucket location containing the function's deployment package. Conflicts with <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span> and <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span>. One of <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span>, <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span>, or <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3_bucket`</span> must be specified.
-	S3Bucket *string `pulumi:"s3Bucket"`
-	// S3 key of an object containing the function's deployment package. Required if <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3_bucket`</span> is set.
-	S3Key *string `pulumi:"s3Key"`
-	// Object version containing the function's deployment package. Conflicts with <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span> and <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span>.
-	S3ObjectVersion *string `pulumi:"s3ObjectVersion"`
-	// Whether to retain the old version of a previously deployed Lambda Layer. Default is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
-	SkipDestroy *bool `pulumi:"skipDestroy"`
-	// Configuration block for snap start settings. See below.
-	SnapStart *lambda.FunctionSnapStart `pulumi:"snapStart"`
-	// User-defined hash of the source code package file. Use this argument to trigger updates when the local function source code changes. This is a synthetic argument tracked only by the AWS provider and does not need to match the hashing algorithm used by Lambda to compute the `CodeSha256` response value. Out-of-band changes to the source code _will not_ be captured by this argument. To include out-of-band source code changes as an update trigger, use the <span pulumi-lang-nodejs="`codeSha256`" pulumi-lang-dotnet="`CodeSha256`" pulumi-lang-go="`codeSha256`" pulumi-lang-python="`code_sha256`" pulumi-lang-yaml="`codeSha256`" pulumi-lang-java="`codeSha256`">`code_sha256`</span> argument instead.
+	// User-defined hash of the source code package file.
 	SourceCodeHash *string `pulumi:"sourceCodeHash"`
-	// ARN of the AWS Key Management Service key used to encrypt the function's `.zip` deployment package. Conflicts with <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span>.
-	SourceKmsKeyArn *string `pulumi:"sourceKmsKeyArn"`
-	// Key-value map of tags for the Lambda function. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+	// Key-value map of tags for the Lambda function.
 	Tags map[string]string `pulumi:"tags"`
-	// Configuration block for Tenancy. See below.
-	TenancyConfig *lambda.FunctionTenancyConfig `pulumi:"tenancyConfig"`
-	// Amount of time your Lambda Function has to run in seconds. Defaults to 3. Valid between 1 and 900.
+	// Amount of time your Lambda Function has to run in seconds.
 	Timeout *int `pulumi:"timeout"`
 	// Configuration block for X-Ray tracing. See below.
 	TracingConfig *lambda.FunctionTracingConfig `pulumi:"tracingConfig"`
@@ -4538,12 +4486,12 @@ type LambdaVpcArgs struct {
 	Cidrs []LambdaVpcCidrArgs `pulumi:"cidrs"`
 	// Only needed for imported VPCs with NAT. Omit when using an Anvil Vpc component.
 	HasNat *bool `pulumi:"hasNat"`
-	// The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
-	PrivateSubnetIds []string `pulumi:"privateSubnetIds"`
+	// The IDs of the private subnets to attach the Lambda to. Always private - Lambda must never be placed in public subnets. Accepts Output<string[]> - pass vpc.privateSubnetIds directly.
+	PrivateSubnetIds interface{} `pulumi:"privateSubnetIds"`
 	// VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
 	VpcEndpoints []LambdaVpcEndpointArgs `pulumi:"vpcEndpoints"`
-	// The ID of the VPC to place the Lambda in.
-	VpcId string `pulumi:"vpcId"`
+	// The ID of the VPC to place the Lambda in. Accepts Output<string> - pass vpc.vpcId directly.
+	VpcId interface{} `pulumi:"vpcId"`
 }
 
 // LambdaVpcArgsInput is an input type that accepts LambdaVpcArgsArgs and LambdaVpcArgsOutput values.
@@ -4562,12 +4510,12 @@ type LambdaVpcArgsArgs struct {
 	Cidrs LambdaVpcCidrArgsArrayInput `pulumi:"cidrs"`
 	// Only needed for imported VPCs with NAT. Omit when using an Anvil Vpc component.
 	HasNat pulumi.BoolPtrInput `pulumi:"hasNat"`
-	// The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
-	PrivateSubnetIds pulumi.StringArrayInput `pulumi:"privateSubnetIds"`
+	// The IDs of the private subnets to attach the Lambda to. Always private - Lambda must never be placed in public subnets. Accepts Output<string[]> - pass vpc.privateSubnetIds directly.
+	PrivateSubnetIds pulumi.Input `pulumi:"privateSubnetIds"`
 	// VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
 	VpcEndpoints LambdaVpcEndpointArgsArrayInput `pulumi:"vpcEndpoints"`
-	// The ID of the VPC to place the Lambda in.
-	VpcId pulumi.StringInput `pulumi:"vpcId"`
+	// The ID of the VPC to place the Lambda in. Accepts Output<string> - pass vpc.vpcId directly.
+	VpcId pulumi.Input `pulumi:"vpcId"`
 }
 
 func (LambdaVpcArgsArgs) ElementType() reflect.Type {
@@ -4657,9 +4605,9 @@ func (o LambdaVpcArgsOutput) HasNat() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v LambdaVpcArgs) *bool { return v.HasNat }).(pulumi.BoolPtrOutput)
 }
 
-// The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
-func (o LambdaVpcArgsOutput) PrivateSubnetIds() pulumi.StringArrayOutput {
-	return o.ApplyT(func(v LambdaVpcArgs) []string { return v.PrivateSubnetIds }).(pulumi.StringArrayOutput)
+// The IDs of the private subnets to attach the Lambda to. Always private - Lambda must never be placed in public subnets. Accepts Output<string[]> - pass vpc.privateSubnetIds directly.
+func (o LambdaVpcArgsOutput) PrivateSubnetIds() pulumi.AnyOutput {
+	return o.ApplyT(func(v LambdaVpcArgs) interface{} { return v.PrivateSubnetIds }).(pulumi.AnyOutput)
 }
 
 // VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
@@ -4667,9 +4615,9 @@ func (o LambdaVpcArgsOutput) VpcEndpoints() LambdaVpcEndpointArgsArrayOutput {
 	return o.ApplyT(func(v LambdaVpcArgs) []LambdaVpcEndpointArgs { return v.VpcEndpoints }).(LambdaVpcEndpointArgsArrayOutput)
 }
 
-// The ID of the VPC to place the Lambda in.
-func (o LambdaVpcArgsOutput) VpcId() pulumi.StringOutput {
-	return o.ApplyT(func(v LambdaVpcArgs) string { return v.VpcId }).(pulumi.StringOutput)
+// The ID of the VPC to place the Lambda in. Accepts Output<string> - pass vpc.vpcId directly.
+func (o LambdaVpcArgsOutput) VpcId() pulumi.AnyOutput {
+	return o.ApplyT(func(v LambdaVpcArgs) interface{} { return v.VpcId }).(pulumi.AnyOutput)
 }
 
 type LambdaVpcArgsPtrOutput struct{ *pulumi.OutputState }
@@ -4716,14 +4664,14 @@ func (o LambdaVpcArgsPtrOutput) HasNat() pulumi.BoolPtrOutput {
 	}).(pulumi.BoolPtrOutput)
 }
 
-// The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
-func (o LambdaVpcArgsPtrOutput) PrivateSubnetIds() pulumi.StringArrayOutput {
-	return o.ApplyT(func(v *LambdaVpcArgs) []string {
+// The IDs of the private subnets to attach the Lambda to. Always private - Lambda must never be placed in public subnets. Accepts Output<string[]> - pass vpc.privateSubnetIds directly.
+func (o LambdaVpcArgsPtrOutput) PrivateSubnetIds() pulumi.AnyOutput {
+	return o.ApplyT(func(v *LambdaVpcArgs) interface{} {
 		if v == nil {
 			return nil
 		}
 		return v.PrivateSubnetIds
-	}).(pulumi.StringArrayOutput)
+	}).(pulumi.AnyOutput)
 }
 
 // VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
@@ -4736,18 +4684,18 @@ func (o LambdaVpcArgsPtrOutput) VpcEndpoints() LambdaVpcEndpointArgsArrayOutput 
 	}).(LambdaVpcEndpointArgsArrayOutput)
 }
 
-// The ID of the VPC to place the Lambda in.
-func (o LambdaVpcArgsPtrOutput) VpcId() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v *LambdaVpcArgs) *string {
+// The ID of the VPC to place the Lambda in. Accepts Output<string> - pass vpc.vpcId directly.
+func (o LambdaVpcArgsPtrOutput) VpcId() pulumi.AnyOutput {
+	return o.ApplyT(func(v *LambdaVpcArgs) interface{} {
 		if v == nil {
 			return nil
 		}
-		return &v.VpcId
-	}).(pulumi.StringPtrOutput)
+		return v.VpcId
+	}).(pulumi.AnyOutput)
 }
 
 type LambdaVpcCidrArgs struct {
-	// TCP ports to allow. Required — be explicit.
+	// TCP ports to allow. Required - be explicit.
 	Ports []int `pulumi:"ports"`
 	// IPv4 CIDR block, e.g. 10.0.0.0/8
 	Range string `pulumi:"range"`
@@ -4765,7 +4713,7 @@ type LambdaVpcCidrArgsInput interface {
 }
 
 type LambdaVpcCidrArgsArgs struct {
-	// TCP ports to allow. Required — be explicit.
+	// TCP ports to allow. Required - be explicit.
 	Ports pulumi.IntArrayInput `pulumi:"ports"`
 	// IPv4 CIDR block, e.g. 10.0.0.0/8
 	Range pulumi.StringInput `pulumi:"range"`
@@ -4822,7 +4770,7 @@ func (o LambdaVpcCidrArgsOutput) ToLambdaVpcCidrArgsOutputWithContext(ctx contex
 	return o
 }
 
-// TCP ports to allow. Required — be explicit.
+// TCP ports to allow. Required - be explicit.
 func (o LambdaVpcCidrArgsOutput) Ports() pulumi.IntArrayOutput {
 	return o.ApplyT(func(v LambdaVpcCidrArgs) []int { return v.Ports }).(pulumi.IntArrayOutput)
 }
@@ -4852,12 +4800,12 @@ func (o LambdaVpcCidrArgsArrayOutput) Index(i pulumi.IntInput) LambdaVpcCidrArgs
 	}).(LambdaVpcCidrArgsOutput)
 }
 
-// A VPC endpoint to grant this Lambda access to.
+// A VPC endpoint to grant this Lambda access to. Both fields accept Output<string> - pass component outputs directly.
 type LambdaVpcEndpointArgs struct {
-	// The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
-	EndpointId string `pulumi:"endpointId"`
-	// The endpoint's security group ID. Use ep.securityGroupId.
-	SecurityGroupId string `pulumi:"securityGroupId"`
+	// The endpoint's ID. Use ep.endpointId. Accepts Output<string>.
+	EndpointId interface{} `pulumi:"endpointId"`
+	// The endpoint's security group ID. Use ep.securityGroupId. Accepts Output<string>.
+	SecurityGroupId interface{} `pulumi:"securityGroupId"`
 }
 
 // LambdaVpcEndpointArgsInput is an input type that accepts LambdaVpcEndpointArgsArgs and LambdaVpcEndpointArgsOutput values.
@@ -4871,12 +4819,12 @@ type LambdaVpcEndpointArgsInput interface {
 	ToLambdaVpcEndpointArgsOutputWithContext(context.Context) LambdaVpcEndpointArgsOutput
 }
 
-// A VPC endpoint to grant this Lambda access to.
+// A VPC endpoint to grant this Lambda access to. Both fields accept Output<string> - pass component outputs directly.
 type LambdaVpcEndpointArgsArgs struct {
-	// The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
-	EndpointId pulumi.StringInput `pulumi:"endpointId"`
-	// The endpoint's security group ID. Use ep.securityGroupId.
-	SecurityGroupId pulumi.StringInput `pulumi:"securityGroupId"`
+	// The endpoint's ID. Use ep.endpointId. Accepts Output<string>.
+	EndpointId pulumi.Input `pulumi:"endpointId"`
+	// The endpoint's security group ID. Use ep.securityGroupId. Accepts Output<string>.
+	SecurityGroupId pulumi.Input `pulumi:"securityGroupId"`
 }
 
 func (LambdaVpcEndpointArgsArgs) ElementType() reflect.Type {
@@ -4916,7 +4864,7 @@ func (i LambdaVpcEndpointArgsArray) ToLambdaVpcEndpointArgsArrayOutputWithContex
 	return pulumi.ToOutputWithContext(ctx, i).(LambdaVpcEndpointArgsArrayOutput)
 }
 
-// A VPC endpoint to grant this Lambda access to.
+// A VPC endpoint to grant this Lambda access to. Both fields accept Output<string> - pass component outputs directly.
 type LambdaVpcEndpointArgsOutput struct{ *pulumi.OutputState }
 
 func (LambdaVpcEndpointArgsOutput) ElementType() reflect.Type {
@@ -4931,14 +4879,14 @@ func (o LambdaVpcEndpointArgsOutput) ToLambdaVpcEndpointArgsOutputWithContext(ct
 	return o
 }
 
-// The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
-func (o LambdaVpcEndpointArgsOutput) EndpointId() pulumi.StringOutput {
-	return o.ApplyT(func(v LambdaVpcEndpointArgs) string { return v.EndpointId }).(pulumi.StringOutput)
+// The endpoint's ID. Use ep.endpointId. Accepts Output<string>.
+func (o LambdaVpcEndpointArgsOutput) EndpointId() pulumi.AnyOutput {
+	return o.ApplyT(func(v LambdaVpcEndpointArgs) interface{} { return v.EndpointId }).(pulumi.AnyOutput)
 }
 
-// The endpoint's security group ID. Use ep.securityGroupId.
-func (o LambdaVpcEndpointArgsOutput) SecurityGroupId() pulumi.StringOutput {
-	return o.ApplyT(func(v LambdaVpcEndpointArgs) string { return v.SecurityGroupId }).(pulumi.StringOutput)
+// The endpoint's security group ID. Use ep.securityGroupId. Accepts Output<string>.
+func (o LambdaVpcEndpointArgsOutput) SecurityGroupId() pulumi.AnyOutput {
+	return o.ApplyT(func(v LambdaVpcEndpointArgs) interface{} { return v.SecurityGroupId }).(pulumi.AnyOutput)
 }
 
 type LambdaVpcEndpointArgsArrayOutput struct{ *pulumi.OutputState }

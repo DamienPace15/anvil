@@ -171,7 +171,7 @@ export interface LambdaArgs {
     tracing?: pulumi.Input<boolean>;
     transform?: pulumi.Input<inputs.aws.LambdaTransformArgsArgs>;
     /**
-     * Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
+     * Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM - never public. Default: false.
      */
     url?: pulumi.Input<boolean>;
     /**

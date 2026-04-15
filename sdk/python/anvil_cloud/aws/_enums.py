@@ -79,11 +79,11 @@ class AwsVpcEndpointService(_builtins.str, Enum):
 class LambdaArchitecture(_builtins.str, Enum):
     ARM64 = "arm64"
     """
-    Graviton — 20% cheaper, better performance. Default.
+    Graviton - 20% cheaper, better performance. Default.
     """
     X86_64 = "x86_64"
     """
-    Intel/AMD — use for x86-specific native dependencies.
+    Intel/AMD - use for x86-specific native dependencies.
     """
 
 
@@ -103,19 +103,19 @@ class LambdaLogRetention(_builtins.str, Enum):
     """
     LAMBDA_LOG_RETENTION_1Y = "1y"
     """
-    1 year (365 days) — SOC 2 / ISO 27001 / PCI-DSS baseline. Default.
+    1 year (365 days) - SOC 2 / ISO 27001 / PCI-DSS baseline. Default.
     """
     LAMBDA_LOG_RETENTION_3Y = "3y"
     """
-    3 years (1095 days) — FedRAMP minimum
+    3 years (1095 days) - FedRAMP minimum
     """
     LAMBDA_LOG_RETENTION_6Y = "6y"
     """
-    6 years (2190 days) — HIPAA minimum
+    6 years (2190 days) - HIPAA minimum
     """
     LAMBDA_LOG_RETENTION_7Y = "7y"
     """
-    7 years (2555 days) — IRAP minimum
+    7 years (2555 days) - IRAP minimum
     """
 
 
@@ -123,7 +123,7 @@ class LambdaLogRetention(_builtins.str, Enum):
 class LambdaRuntime(_builtins.str, Enum):
     NODEJS24_X = "nodejs24.x"
     """
-    Node.js 24 (LTS) — recommended
+    Node.js 24 (LTS) - recommended
     """
     NODEJS22_X = "nodejs22.x"
     """
