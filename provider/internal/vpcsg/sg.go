@@ -33,14 +33,14 @@ type VpcPlacementArgs struct {
 func CreateSecurityGroup(
 	ctx *pulumi.Context,
 	name, stage, stageId string,
-	vpcId string,
+	vpcId pulumi.StringInput,
 	parent pulumi.Resource,
 ) (*ec2.SecurityGroup, error) {
 	sgName := fmt.Sprintf("%s-%s-sg-%s", stage, name, stageId)
 
 	sg, err := ec2.NewSecurityGroup(ctx, name+"-sg", &ec2.SecurityGroupArgs{
-		VpcId:       pulumi.String(vpcId),
-		Description: pulumi.String(fmt.Sprintf("Anvil managed security group for %s — zero inbound, zero outbound by default", name)),
+		VpcId:       vpcId,
+		Description: pulumi.String(fmt.Sprintf("Anvil managed security group for %s - zero inbound, zero outbound by default", name)),
 		// No ingress or egress rules — nothing is reachable until explicitly granted.
 		// Pulumi removes the AWS default allow-all egress rule when no inline
 		// egress rules are specified.

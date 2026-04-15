@@ -93,7 +93,7 @@ type LambdaVpcCidrArgs struct {
 //   - cidrs: specific CIDR ranges at specific ports (peered VPCs, on-premise)
 type LambdaVpcArgs struct {
 	// VpcId is the ID of the VPC to place the Lambda in.
-	VpcId string `pulumi:"vpcId"`
+	VpcId pulumi.StringInput `pulumi:"vpcId"`
 
 	// PrivateSubnetIds are the IDs of the private subnets to attach the Lambda to.
 	// Always private — Lambda must never be placed in public subnets.

@@ -23,17 +23,17 @@ import (
 // meaningful traffic volume or strict private routing requirements.
 type VpcEndpointArgs struct {
 	// VpcId is the ID of the VPC to create the endpoint in.
-	VpcId string `pulumi:"vpcId"`
+	VpcId pulumi.StringInput `pulumi:"vpcId"`
 
 	// PrivateSubnetIds are the IDs of the private subnets to attach the endpoint
 	// to. AWS places one ENI per subnet. Pass all private subnet IDs — typically
 	// one per AZ.
-	PrivateSubnetIds []string `pulumi:"privateSubnetIds"`
+	PrivateSubnetIds pulumi.StringArrayInput `pulumi:"privateSubnetIds"`
 
 	// Service is the AWS service to route privately.
 	// Validated against the AwsVpcEndpointService enum in the schema.
 	// The full com.amazonaws.{region}.{service} name is constructed at deploy time.
-	Service string `pulumi:"service"`
+	Service pulumi.StringInput `pulumi:"service"`
 }
 
 // VpcEndpoint is the Anvil-managed Interface VPC Endpoint component resource.
@@ -68,19 +68,6 @@ func (v *VpcEndpoint) Name() string {
 	return v.name
 }
 
-// resolveServiceName constructs the full AWS endpoint service name from the
-// service string value and the resolved AWS region.
-//
-// Format: com.amazonaws.{region}.{service}
-// Example: com.amazonaws.ap-southeast-2.ssm
-func resolveServiceName(ctx *pulumi.Context, service string) (string, error) {
-	region, err := aws.GetRegion(ctx, &aws.GetRegionArgs{}, nil)
-	if err != nil {
-		return "", fmt.Errorf("failed to resolve AWS region: %w", err)
-	}
-	return fmt.Sprintf("com.amazonaws.%s.%s", region.Region, service), nil
-}
-
 // NewVpcEndpoint creates a new Anvil-managed Interface VPC Endpoint component.
 func NewVpcEndpoint(ctx *pulumi.Context, name string, args VpcEndpointArgs, opts ...pulumi.ResourceOption) (*VpcEndpoint, error) {
 	v := &VpcEndpoint{name: name}
@@ -97,19 +84,13 @@ func NewVpcEndpoint(ctx *pulumi.Context, name string, args VpcEndpointArgs, opts
 		return nil, err
 	}
 
-	// 1. Resolve the full AWS service name from the enum value + region.
-	serviceName, err := resolveServiceName(ctx, args.Service)
-	if err != nil {
-		return nil, err
-	}
-
-	// 2. Dedicated security group — zero inbound, zero outbound by default.
+	// 1. Dedicated security group — accepts pulumi.StringInput directly.
 	sg, err := vpcsg.CreateSecurityGroup(ctx, name, stage, stageId, args.VpcId, v)
 	if err != nil {
 		return nil, err
 	}
 
-	// 2b. Self-referencing ingress rule on port 443.
+	// 2. Self-referencing ingress rule on port 443.
 	//
 	// The endpoint SG allows ingress from itself — meaning any compute resource
 	// whose SG has an explicit egress rule pointing at this SG satisfies the rule
@@ -131,38 +112,50 @@ func NewVpcEndpoint(ctx *pulumi.Context, name string, args VpcEndpointArgs, opts
 		return nil, fmt.Errorf("failed to wire self-referencing ingress on endpoint SG: %w", err)
 	}
 
-	// 3. Interface VPC Endpoint.
+	// 3. Resolve the AWS region synchronously — safe to call outside Apply.
+	region, err := aws.GetRegion(ctx, &aws.GetRegionArgs{}, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve AWS region: %w", err)
+	}
+	awsRegion := region.Region
+
+	endpointName := provider.PhysicalName(stage, name, "vpce", stageId)
+
+	// 4. Lift inputs to Outputs so they can be passed directly to ec2.NewVpcEndpoint.
+	vpcIdOutput := args.VpcId.ToStringOutput()
+	serviceOutput := args.Service.ToStringOutput()
+	subnetIdsOutput := args.PrivateSubnetIds.ToStringArrayOutput()
+
+	// Build the full service name as an Output by applying over the service string.
+	serviceNameOutput := serviceOutput.ApplyT(func(svc string) string {
+		return fmt.Sprintf("com.amazonaws.%s.%s", awsRegion, svc)
+	}).(pulumi.StringOutput)
+
+	// 5. Interface VPC Endpoint.
 	// - VpcEndpointType: "Interface" — creates ENIs in each subnet
 	// - PrivateDnsEnabled: true — overrides public service hostnames inside the VPC
 	//   so consumers use standard AWS SDK endpoints (e.g. ssm.ap-southeast-2.amazonaws.com)
 	//   and never reference vpce-xxx hostnames directly
 	// - SubnetIds: one per private subnet, AWS places one ENI per AZ automatically
 	// - SecurityGroupIds: dedicated SG — only reachable by compute with explicit egress to this SG
-	endpointName := provider.PhysicalName(stage, name, "vpce", stageId)
-
-	subnetIds := make(pulumi.StringArray, len(args.PrivateSubnetIds))
-	for i, id := range args.PrivateSubnetIds {
-		subnetIds[i] = pulumi.String(id)
-	}
-
 	endpoint, err := ec2.NewVpcEndpoint(ctx, name+"-vpce", &ec2.VpcEndpointArgs{
-		VpcId:             pulumi.String(args.VpcId),
-		ServiceName:       pulumi.String(serviceName),
+		VpcId:             vpcIdOutput,
+		ServiceName:       serviceNameOutput,
 		VpcEndpointType:   pulumi.String("Interface"),
 		PrivateDnsEnabled: pulumi.Bool(true),
-		SubnetIds:         subnetIds,
+		SubnetIds:         subnetIdsOutput,
 		SecurityGroupIds:  pulumi.StringArray{sg.ID()},
 		Tags: pulumi.StringMap{
 			"Name":      pulumi.String(endpointName),
 			"ManagedBy": pulumi.String("anvil"),
-			"Service":   pulumi.String(args.Service),
+			"Service":   serviceOutput,
 		},
 	}, pulumi.Parent(v))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create VPC endpoint for service %s: %w", args.Service, err)
+		return nil, fmt.Errorf("failed to create VPC endpoint: %w", err)
 	}
 
-	// 4. Extract the first DNS entry for the dnsName output.
+	// 6. Extract the first DNS entry for the dnsName output.
 	// With private DNS enabled, consumers never need this — it's exposed for
 	// debugging and multi-VPC architectures where the private DNS override
 	// does not propagate to peered VPCs.
@@ -176,7 +169,7 @@ func NewVpcEndpoint(ctx *pulumi.Context, name string, args VpcEndpointArgs, opts
 		return *entries[0].DnsName
 	}).(pulumi.StringOutput)
 
-	// 5. Wire outputs.
+	// 7. Wire outputs.
 	v.EndpointId = endpoint.ID().ToStringOutput()
 	v.DnsName = dnsName
 	v.SecurityGroupId = sg.ID().ToStringOutput()
