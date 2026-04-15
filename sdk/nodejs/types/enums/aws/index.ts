@@ -64,11 +64,11 @@ export type AwsVpcEndpointService = (typeof AwsVpcEndpointService)[keyof typeof 
 
 export const LambdaArchitecture = {
     /**
-     * Graviton — 20% cheaper, better performance. Default.
+     * Graviton - 20% cheaper, better performance. Default.
      */
     Arm64: "arm64",
     /**
-     * Intel/AMD — use for x86-specific native dependencies.
+     * Intel/AMD - use for x86-specific native dependencies.
      */
     X86_64: "x86_64",
 } as const;
@@ -89,19 +89,19 @@ export const LambdaLogRetention = {
      */
     LambdaLogRetention_90d: "90d",
     /**
-     * 1 year (365 days) — SOC 2 / ISO 27001 / PCI-DSS baseline. Default.
+     * 1 year (365 days) - SOC 2 / ISO 27001 / PCI-DSS baseline. Default.
      */
     LambdaLogRetention_1y: "1y",
     /**
-     * 3 years (1095 days) — FedRAMP minimum
+     * 3 years (1095 days) - FedRAMP minimum
      */
     LambdaLogRetention_3y: "3y",
     /**
-     * 6 years (2190 days) — HIPAA minimum
+     * 6 years (2190 days) - HIPAA minimum
      */
     LambdaLogRetention_6y: "6y",
     /**
-     * 7 years (2555 days) — IRAP minimum
+     * 7 years (2555 days) - IRAP minimum
      */
     LambdaLogRetention_7y: "7y",
 } as const;
@@ -110,7 +110,7 @@ export type LambdaLogRetention = (typeof LambdaLogRetention)[keyof typeof Lambda
 
 export const LambdaRuntime = {
     /**
-     * Node.js 24 (LTS) — recommended
+     * Node.js 24 (LTS) - recommended
      */
     Nodejs24_x: "nodejs24.x",
     /**

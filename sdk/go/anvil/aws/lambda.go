@@ -73,7 +73,7 @@ type lambdaArgs struct {
 	// Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.
 	Tracing   *bool                `pulumi:"tracing"`
 	Transform *LambdaTransformArgs `pulumi:"transform"`
-	// Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
+	// Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM - never public. Default: false.
 	Url *bool `pulumi:"url"`
 	// Places the Lambda inside a VPC for access to private resources such as RDS or ElastiCache. Anvil creates a dedicated security group with zero inbound and zero outbound rules. Nothing is reachable until explicitly granted via the grant system.
 	Vpc *LambdaVpcArgs `pulumi:"vpc"`
@@ -104,7 +104,7 @@ type LambdaArgs struct {
 	// Enable AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces). Default: false.
 	Tracing   pulumi.BoolPtrInput
 	Transform LambdaTransformArgsPtrInput
-	// Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM — never public. Default: false.
+	// Enable a direct HTTPS endpoint for the function. Auth mode is AWS_IAM - never public. Default: false.
 	Url pulumi.BoolPtrInput
 	// Places the Lambda inside a VPC for access to private resources such as RDS or ElastiCache. Anvil creates a dedicated security group with zero inbound and zero outbound rules. Nothing is reachable until explicitly granted via the grant system.
 	Vpc LambdaVpcArgsPtrInput

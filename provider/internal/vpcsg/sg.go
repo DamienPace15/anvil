@@ -98,14 +98,14 @@ func AddIngressCIDRRule(
 	ctx *pulumi.Context,
 	name string,
 	securityGroupId pulumi.StringInput,
-	cidr string,
+	cidr pulumi.StringInput,
 	fromPort int,
 	toPort int,
 	parent pulumi.Resource,
 ) error {
 	_, err := awsvpc.NewSecurityGroupIngressRule(ctx, name+"-cidr-ingress", &awsvpc.SecurityGroupIngressRuleArgs{
 		SecurityGroupId: securityGroupId,
-		CidrIpv4:        pulumi.String(cidr),
+		CidrIpv4:        cidr,
 		FromPort:        pulumi.Int(fromPort),
 		ToPort:          pulumi.Int(toPort),
 		IpProtocol:      pulumi.String("tcp"),

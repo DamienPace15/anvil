@@ -552,22 +552,22 @@ export namespace aws {
          */
         hasNat?: pulumi.Input<boolean>;
         /**
-         * The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
+         * The IDs of the private subnets to attach the Lambda to. Always private - Lambda must never be placed in public subnets. Accepts Output<string[]> - pass vpc.privateSubnetIds directly.
          */
-        privateSubnetIds: pulumi.Input<pulumi.Input<string>[]>;
+        privateSubnetIds: any;
         /**
          * VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
          */
         vpcEndpoints?: pulumi.Input<pulumi.Input<inputs.aws.LambdaVpcEndpointArgsArgs>[]>;
         /**
-         * The ID of the VPC to place the Lambda in.
+         * The ID of the VPC to place the Lambda in. Accepts Output<string> - pass vpc.vpcId directly.
          */
-        vpcId: pulumi.Input<string>;
+        vpcId: any;
     }
 
     export interface LambdaVpcCidrArgsArgs {
         /**
-         * TCP ports to allow. Required — be explicit.
+         * TCP ports to allow. Required - be explicit.
          */
         ports: pulumi.Input<pulumi.Input<number>[]>;
         /**
@@ -577,17 +577,17 @@ export namespace aws {
     }
 
     /**
-     * A VPC endpoint to grant this Lambda access to.
+     * A VPC endpoint to grant this Lambda access to. Both fields accept Output<string> - pass component outputs directly.
      */
     export interface LambdaVpcEndpointArgsArgs {
         /**
-         * The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
+         * The endpoint's ID. Use ep.endpointId. Accepts Output<string>.
          */
-        endpointId: pulumi.Input<string>;
+        endpointId: any;
         /**
-         * The endpoint's security group ID. Use ep.securityGroupId.
+         * The endpoint's security group ID. Use ep.securityGroupId. Accepts Output<string>.
          */
-        securityGroupId: pulumi.Input<string>;
+        securityGroupId: any;
     }
 
     export interface PABTransformArgs {

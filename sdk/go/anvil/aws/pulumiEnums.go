@@ -214,9 +214,9 @@ func (in *awsVpcEndpointServicePtr) ToAwsVpcEndpointServicePtrOutputWithContext(
 type LambdaArchitecture string
 
 const (
-	// Graviton — 20% cheaper, better performance. Default.
+	// Graviton - 20% cheaper, better performance. Default.
 	LambdaArchitectureArm64 = LambdaArchitecture("arm64")
-	// Intel/AMD — use for x86-specific native dependencies.
+	// Intel/AMD - use for x86-specific native dependencies.
 	LambdaArchitecture_X86_64 = LambdaArchitecture("x86_64")
 )
 
@@ -387,13 +387,13 @@ const (
 	LambdaLogRetention_30d = LambdaLogRetention("30d")
 	// 90 days (3 months)
 	LambdaLogRetention_90d = LambdaLogRetention("90d")
-	// 1 year (365 days) — SOC 2 / ISO 27001 / PCI-DSS baseline. Default.
+	// 1 year (365 days) - SOC 2 / ISO 27001 / PCI-DSS baseline. Default.
 	LambdaLogRetention_1y = LambdaLogRetention("1y")
-	// 3 years (1095 days) — FedRAMP minimum
+	// 3 years (1095 days) - FedRAMP minimum
 	LambdaLogRetention_3y = LambdaLogRetention("3y")
-	// 6 years (2190 days) — HIPAA minimum
+	// 6 years (2190 days) - HIPAA minimum
 	LambdaLogRetention_6y = LambdaLogRetention("6y")
-	// 7 years (2555 days) — IRAP minimum
+	// 7 years (2555 days) - IRAP minimum
 	LambdaLogRetention_7y = LambdaLogRetention("7y")
 )
 
@@ -563,7 +563,7 @@ func (in *lambdaLogRetentionPtr) ToLambdaLogRetentionPtrOutputWithContext(ctx co
 type LambdaRuntime string
 
 const (
-	// Node.js 24 (LTS) — recommended
+	// Node.js 24 (LTS) - recommended
 	LambdaRuntime_Nodejs24_x = LambdaRuntime("nodejs24.x")
 	// Node.js 22 (LTS)
 	LambdaRuntime_Nodejs22_x = LambdaRuntime("nodejs22.x")

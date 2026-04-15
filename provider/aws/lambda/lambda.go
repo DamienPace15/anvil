@@ -38,28 +38,27 @@ type LambdaPermission struct {
 	Resource interface{} `pulumi:"resource"`
 
 	// Path is an optional path suffix appended to the resource ARN.
-	// e.g. path: "/uploads" → resource ARN + "/uploads/*"
+	// e.g. path: "/uploads" -> resource ARN + "/uploads/*"
 	Path string `pulumi:"path,optional"`
 }
 
 // LambdaVpcEndpointArgs defines a VPC endpoint to grant this Lambda access to.
 // Pass ep.securityGroupId and ep.endpointId from an Anvil VpcEndpoint.
+// Both fields accept Output<string> -- pass the component outputs directly.
 //
 // Usage:
 //
 //	vpcEndpoints: [
-//	    { securityGroupId: ssm.securityGroupId, endpointId: ssm.endpointId },
-//	    { securityGroupId: secrets.securityGroupId, endpointId: secrets.endpointId },
+//	    { securityGroupId: sns.securityGroupId, endpointId: sns.endpointId },
 //	]
 type LambdaVpcEndpointArgs struct {
 	// SecurityGroupId is the endpoint's dedicated SG ID.
 	// Use ep.securityGroupId from an Anvil VpcEndpoint.
-	SecurityGroupId string `pulumi:"securityGroupId"`
+	SecurityGroupId pulumi.StringInput `pulumi:"securityGroupId"`
 
 	// EndpointId is the AWS VPC endpoint ID, e.g. vpce-0abc1234567890abc.
-	// Used for SG rule naming — rules are named ${lambda}-${endpointId}-endpoint-egress.
 	// Use ep.endpointId from an Anvil VpcEndpoint.
-	EndpointId string `pulumi:"endpointId"`
+	EndpointId pulumi.StringInput `pulumi:"endpointId"`
 }
 
 // LambdaVpcCidrArgs defines a CIDR-scoped egress rule.
@@ -73,83 +72,63 @@ type LambdaVpcEndpointArgs struct {
 //	]
 type LambdaVpcCidrArgs struct {
 	// Range is the IPv4 CIDR block to allow outbound traffic to.
-	// e.g. "10.0.0.0/8", "203.0.113.0/24"
 	Range string `pulumi:"range"`
 
 	// Ports is the list of TCP ports to allow to this CIDR.
-	// Required — be explicit about which ports each range needs.
+	// Required -- be explicit about which ports each range needs.
 	Ports []int `pulumi:"ports"`
 }
 
 // LambdaVpcArgs defines the VPC placement and network access configuration
-// for a Lambda. All network access is declared here at construction time —
+// for a Lambda. All network access is declared here at construction time --
 // nothing is reachable until explicitly declared.
-//
-// Network access patterns:
-//   - vpcEndpoints: AWS services via PrivateLink (port 443, stays on AWS backbone).
-//     The endpoint SG's ingress is owned by the VpcEndpoint constructor (wired once).
-//     Anvil adds only the egress rule from this Lambda SG → endpoint SG.
-//   - hasNat: internet via NAT Gateway or fck-nat (port 443 to 0.0.0.0/0)
-//   - cidrs: specific CIDR ranges at specific ports (peered VPCs, on-premise)
 type LambdaVpcArgs struct {
 	// VpcId is the ID of the VPC to place the Lambda in.
+	// Accepts Output<string> -- pass vpc.vpcId directly.
 	VpcId pulumi.StringInput `pulumi:"vpcId"`
 
 	// PrivateSubnetIds are the IDs of the private subnets to attach the Lambda to.
-	// Always private — Lambda must never be placed in public subnets.
-	PrivateSubnetIds []string `pulumi:"privateSubnetIds"`
+	// Always private -- Lambda must never be placed in public subnets.
+	PrivateSubnetIds pulumi.StringArrayInput `pulumi:"privateSubnetIds"`
 
 	// HasNat indicates whether this VPC has a NAT Gateway or fck-nat instance.
 	// When true, Anvil adds an internet egress rule (port 443) automatically.
-	// Only needed for imported VPCs — omit when using an Anvil Vpc component.
+	// Only needed for imported VPCs -- omit when using an Anvil Vpc component.
 	HasNat bool `pulumi:"hasNat,optional"`
 
 	// VpcEndpoints are the VPC endpoints this Lambda needs access to.
-	// Anvil wires the egress rule from this Lambda SG → endpoint SG at
+	// Anvil wires the egress rule from this Lambda SG to each endpoint SG at
 	// construction time. The endpoint SG's ingress is owned by the VpcEndpoint
-	// constructor and is never modified here — this prevents duplicate ingress
+	// constructor and is never modified here -- this prevents duplicate ingress
 	// rule errors when multiple compute resources share the same endpoint.
-	// Pass ep.securityGroupId and ep.endpointId from each VpcEndpoint.
 	VpcEndpoints []LambdaVpcEndpointArgs `pulumi:"vpcEndpoints,optional"`
 
 	// CIDRs defines structured CIDR-scoped egress rules.
 	// Use for peered VPCs, on-premise ranges, or any non-AWS-service destination.
-	// One SecurityGroupEgressRule is created per port per CIDR entry.
-	// Ports are required per entry — be explicit about what each range needs.
 	CIDRs []LambdaVpcCidrArgs `pulumi:"cidrs,optional"`
 }
 
 // lambdaEndpointTarget adapts LambdaVpcEndpointArgs to satisfy vpcsg.EndpointTarget.
-// Normalises the user-supplied endpoint args into what vpcsg.GrantEndpointAccess needs.
 type lambdaEndpointTarget struct {
 	args LambdaVpcEndpointArgs
 }
 
 func (t *lambdaEndpointTarget) Name() string {
-	return t.args.EndpointId
+	return "endpoint"
 }
 
 func (t *lambdaEndpointTarget) SecurityGroupOutput() pulumi.StringOutput {
-	return pulumi.String(t.args.SecurityGroupId).ToStringOutput()
+	return t.args.SecurityGroupId.ToStringOutput()
 }
 
 // LambdaArgs defines the inputs for an Anvil-managed Lambda function.
-//
-// Tier 1 controls (always on, free):
-//   - Least-privilege IAM execution role
-//   - CloudWatch log group with 1y retention default
-//   - arm64 (Graviton) architecture
-//   - No public function URL
-//
-// Tier 2 controls incur cost and must be explicitly opted into.
 type LambdaArgs struct {
-	// Entry is the path to the function's entry point file, relative to the
-	// project root. e.g. "functions/api/index.ts".
+	// Entry is the path to the function's entry point file, relative to
+	// the anvil.config.ts directory. e.g. "backend/index.ts".
 	// Omit to deploy a blank Lambda placeholder.
 	Entry string `pulumi:"entry,optional"`
 
-	// Runtime is the Lambda runtime identifier.
-	// e.g. "nodejs20.x", "nodejs18.x", "go1.x", "python3.12", "provided.al2023"
+	// Runtime is the Lambda runtime identifier. e.g. "nodejs24.x"
 	Runtime string `pulumi:"runtime,optional"`
 
 	// Handler is the exported function name in the entry file.
@@ -157,48 +136,36 @@ type LambdaArgs struct {
 	Handler string `pulumi:"handler,optional"`
 
 	// Memory is the amount of memory in MB. Default: 1024.
-	// Valid values: 128 to 32768 in 1MB increments.
 	Memory int `pulumi:"memory,optional"`
 
 	// Timeout is the function timeout in seconds. Default: 5.
-	// Valid values: 1 to 900.
 	Timeout int `pulumi:"timeout,optional"`
 
 	// Environment variables available to the function at runtime.
-	// Supports plain strings and Pulumi outputs (e.g. database connection strings).
 	Environment map[string]string `pulumi:"environment,optional"`
 
-	// Architecture is the CPU architecture. Default: "arm64" (Graviton — 20% cheaper).
-	// Set to "x86_64" for x86-specific native dependencies.
+	// Architecture is the CPU architecture. Default: "arm64" (Graviton).
 	Architecture string `pulumi:"architecture,optional"`
 
 	// URL enables a direct HTTPS endpoint for the function.
-	// Auth mode is AWS_IAM — the endpoint is never public.
-	// Default: false.
+	// Auth mode is AWS_IAM -- the endpoint is never public.
 	URL bool `pulumi:"url,optional"`
 
 	// Vpc places the Lambda inside a VPC for access to private resources.
-	// Declare vpcEndpoints, hasNat, and cidrs to wire network access at
-	// construction time. Nothing is reachable until explicitly declared.
 	Vpc *LambdaVpcArgs `pulumi:"vpc,optional"`
 
 	// Permissions defines inline IAM permissions added to the execution role.
-	// Use this for ad-hoc access not covered by the grant system.
 	Permissions []LambdaPermission `pulumi:"permissions,optional"`
 
 	// LogRetention sets the CloudWatch log group retention period.
-	// Presets: "7d" | "30d" | "90d" | "1y" | "3y" | "6y" | "7y"
-	// Default: "1y" (satisfies SOC 2, ISO 27001, PCI-DSS baseline)
+	// Presets: "7d" | "30d" | "90d" | "1y" | "3y" | "6y" | "7y". Default: "1y"
 	LogRetention string `pulumi:"logRetention,optional"`
 
-	// Tracing enables AWS X-Ray tracing. Incurs per-trace cost (~$5/million traces).
-	// Default: false.
+	// Tracing enables AWS X-Ray tracing. Default: false.
 	Tracing bool `pulumi:"tracing,optional"`
 
-	// Encryption upgrades environment variable encryption from the default
-	// AWS managed key to a customer-managed KMS key. Incurs KMS API call cost.
-	// Set to "kms" to enable. Required by HIPAA, PCI-DSS, FedRAMP.
-	// Supply kmsKeyArn via transform["lambda"].
+	// Encryption upgrades environment variable encryption to KMS.
+	// Set to "kms" to enable.
 	Encryption string `pulumi:"encryption,optional"`
 
 	Transform map[string]map[string]interface{} `pulumi:"transform,optional"`
@@ -215,18 +182,14 @@ type Lambda struct {
 	name            string
 }
 
-// Name implements provider.GrantTarget.
 func (l *Lambda) Name() string {
 	return l.name
 }
 
-// RoleARN implements provider.GrantTarget.
 func (l *Lambda) RoleARN() pulumi.StringOutput {
 	return l.RoleArn
 }
 
-// SecurityGroupId implements provider.GrantTarget.
-// Returns an empty StringOutput if the Lambda is not VPC-attached.
 func (l *Lambda) SecurityGroupId() pulumi.StringOutput {
 	return l.SecurityGroupID
 }
@@ -236,7 +199,6 @@ func (l *Lambda) Annotate(a infer.Annotator) {
 	a.Describe(&l, "An Anvil-managed Lambda function. Tier 1 controls (least-privilege role, CloudWatch logs with 1y retention, arm64 architecture) are enforced automatically at no cost, satisfying the technical baseline of CIS Benchmarks, ISO 27017, SOC 2, NIST 800-53, and ISO 27001.")
 }
 
-// resolveDays converts a log retention preset to CloudWatch retention days.
 func resolveDays(preset string) int {
 	switch preset {
 	case "7d":
@@ -254,12 +216,10 @@ func resolveDays(preset string) int {
 	case "7y":
 		return 2555
 	default:
-		return 365 // default: 1 year
+		return 365
 	}
 }
 
-// sanitizeCIDR converts a CIDR like "10.0.0.0/8" to "10-0-0-0-8"
-// for use in resource names.
 func sanitizeCIDR(cidr string) string {
 	result := make([]byte, len(cidr))
 	for i := 0; i < len(cidr); i++ {
@@ -273,7 +233,6 @@ func sanitizeCIDR(cidr string) string {
 	return string(result)
 }
 
-// blankHandler is the placeholder deployed when no entry is provided.
 const blankHandler = `exports.handler = async () => ({
   statusCode: 200,
   body: JSON.stringify({
@@ -284,11 +243,6 @@ const blankHandler = `exports.handler = async () => ({
 `
 
 func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi.ResourceOption) (*Lambda, error) {
-	// ── Build mode intercept ───────────────────────────
-	// When ANVIL_BUILD_MODE=true, write this function's metadata to the
-	// build manifest instead of registering Pulumi resources. The CLI
-	// reads the manifest to discover functions that need bundling before
-	// running the real deploy. See ANVIL-L002.
 	if os.Getenv("ANVIL_BUILD_MODE") == "true" {
 		if args.Entry != "" {
 			if err := appendToManifest(name, args); err != nil {
@@ -309,7 +263,6 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 
 	physicalName := provider.PhysicalName(stage, name, "lambda", stageId)
 
-	// ── Defaults ───────────────────────────────────────
 	memory := args.Memory
 	if memory == 0 {
 		memory = 1024
@@ -347,9 +300,6 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 	}
 
 	// ── 1. CloudWatch Log Group ────────────────────────
-	// Tier 1: always created before the function so logs are captured
-	// from the very first invocation. Retention defaults to 1y which
-	// satisfies SOC 2, ISO 27001, and PCI-DSS baseline requirements.
 	logGroupName := fmt.Sprintf("/aws/lambda/%s", physicalName)
 	logGroupProps := transform.MergeTransform(args.Transform["logGroup"], pulumi.Map{
 		"name":            pulumi.String(logGroupName),
@@ -365,9 +315,6 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 	}
 
 	// ── 2. IAM Execution Role ──────────────────────────
-	// Tier 1: least-privilege role. Only CloudWatch Logs access is
-	// attached by default. Additional permissions come via the grant
-	// system (bucket.GrantRead etc.) or the permissions field.
 	assumeRolePolicy := `{
 		"Version": "2012-10-17",
 		"Statement": [{
@@ -391,9 +338,9 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 	}
 
 	// ── 3. Basic execution policy ──────────────────────
-	// Grants CloudWatch Logs write access. Required for any Lambda.
-	// When VPC-attached, AWSLambdaVPCAccessExecutionRole is used instead
-	// as it is a superset — it includes CloudWatch Logs + ENI management.
+	// Captured as a variable so the Lambda function can DependsOn it,
+	// ensuring IAM has fully propagated before the function is created.
+	// This prevents InsufficientRolePermissions on VPC-attached Lambdas.
 	var basicExecPolicyArn string
 	if args.Vpc != nil {
 		basicExecPolicyArn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
@@ -401,18 +348,16 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 		basicExecPolicyArn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 	}
 
+	basicExec := &iam.RolePolicyAttachment{}
 	err = ctx.RegisterResource("aws:iam/rolePolicyAttachment:RolePolicyAttachment", name+"-basic-exec", pulumi.Map{
 		"role":      role.Name,
 		"policyArn": pulumi.String(basicExecPolicyArn),
-	}, &iam.RolePolicyAttachment{}, pulumi.Parent(l))
+	}, basicExec, pulumi.Parent(l))
 	if err != nil {
 		return nil, err
 	}
 
 	// ── 4. Inline permissions ──────────────────────────
-	// Additional IAM permissions from the permissions field.
-	// Each permission becomes a separate inline role policy for a
-	// clear audit trail and easy revocation.
 	for i, perm := range args.Permissions {
 		i, perm := i, perm
 
@@ -460,12 +405,7 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 		}
 	}
 
-	// ── 5. VPC security group + network wiring (optional) ─────────────────
-	// When vpc is set, create a dedicated security group with zero inbound
-	// and zero outbound rules. All network access is declared explicitly via
-	// vpcEndpoints, hasNat, and cidrs — nothing is reachable until declared.
-	// AWSLambdaVPCAccessExecutionRole (attached above) gives the Lambda
-	// permission to create and manage its own ENIs in the VPC.
+	// ── 5. VPC security group + network wiring ─────────────────
 	if args.Vpc != nil {
 		sg, err := vpcsg.CreateSecurityGroup(ctx, name, stage, stageId, args.Vpc.VpcId, l)
 		if err != nil {
@@ -473,27 +413,20 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 		}
 		l.SecurityGroupID = sg.ID().ToStringOutput()
 
-		// Wire egress from this Lambda SG → each endpoint SG on port 443.
-		// The endpoint SG's ingress rule is owned by the VpcEndpoint constructor
-		// and is wired once at creation time using the VPC CIDR. We never touch
-		// the endpoint SG's ingress here — doing so would cause duplicate rule
-		// errors when multiple lambdas reference the same endpoint.
-		for _, ep := range args.Vpc.VpcEndpoints {
-			target := &lambdaEndpointTarget{args: ep}
-			if err := vpcsg.GrantEndpointAccess(
-				ctx,
-				name,
-				l.SecurityGroupID,
-				[]vpcsg.EndpointTarget{target},
-				l,
-			); err != nil {
-				return nil, fmt.Errorf("vpcEndpoints: failed to wire %s: %w", ep.EndpointId, err)
-			}
+		targets := make([]vpcsg.EndpointTarget, len(args.Vpc.VpcEndpoints))
+		for i, ep := range args.Vpc.VpcEndpoints {
+			targets[i] = &lambdaEndpointTarget{args: ep}
+		}
+		if err := vpcsg.GrantEndpointAccess(
+			ctx,
+			name,
+			l.SecurityGroupID,
+			targets,
+			l,
+		); err != nil {
+			return nil, fmt.Errorf("failed to wire endpoint egress: %w", err)
 		}
 
-		// Wire internet egress via NAT — port 443 out to 0.0.0.0/0.
-		// Only wired when hasNat is true. For imported VPCs set hasNat
-		// explicitly. For Anvil-managed VPCs this is inferred automatically.
 		if args.Vpc.HasNat {
 			if err := vpcsg.AddInternetEgressRule(
 				ctx,
@@ -506,12 +439,10 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 			}
 		}
 
-		// Wire CIDR-scoped egress rules — one SG rule per port per CIDR.
-		// Use for peered VPCs, on-premise ranges, or any non-AWS-service destination.
 		for _, cidrRule := range args.Vpc.CIDRs {
 			if len(cidrRule.Ports) == 0 {
 				return nil, fmt.Errorf(
-					"vpc.cidrs: range %q requires at least one port — be explicit about which ports this range needs",
+					"vpc.cidrs: range %q requires at least one port",
 					cidrRule.Range,
 				)
 			}
@@ -558,19 +489,13 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 		},
 	}
 
-	// VPC config — attach to private subnets with dedicated SG.
 	if args.Vpc != nil {
-		subnetIds := make(pulumi.StringArray, len(args.Vpc.PrivateSubnetIds))
-		for i, id := range args.Vpc.PrivateSubnetIds {
-			subnetIds[i] = pulumi.String(id)
-		}
 		lambdaMap["vpcConfig"] = pulumi.Map{
-			"subnetIds":        subnetIds,
+			"subnetIds":        args.Vpc.PrivateSubnetIds.ToStringArrayOutput(),
 			"securityGroupIds": pulumi.StringArray{l.SecurityGroupID},
 		}
 	}
 
-	// Environment variables.
 	if len(args.Environment) > 0 {
 		envVars := pulumi.StringMap{}
 		for k, v := range args.Environment {
@@ -582,15 +507,19 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 	}
 
 	if args.Encryption == "kms" {
-		ctx.Log.Info("ℹ KMS encryption enabled for environment variables. Supply kmsKeyArn via transform[\"lambda\"].", nil)
+		ctx.Log.Info("KMS encryption enabled for environment variables. Supply kmsKeyArn via transform[\"lambda\"].", nil)
 	}
 
 	lambdaProps := transform.MergeTransform(args.Transform["lambda"], lambdaMap)
 
+	// DependsOn basicExec ensures IAM has fully propagated before Lambda is
+	// created. Without this, AWS may reject the function with
+	// InsufficientRolePermissions, especially for VPC-attached Lambdas which
+	// need ENI management permissions from AWSLambdaVPCAccessExecutionRole.
 	res := &lambda.Function{}
 	err = ctx.RegisterResource("aws:lambda/function:Function", name, lambdaProps, res,
 		pulumi.Parent(l),
-		pulumi.DependsOn([]pulumi.Resource{logGroup}),
+		pulumi.DependsOn([]pulumi.Resource{logGroup, basicExec}),
 	)
 	if err != nil {
 		return nil, err

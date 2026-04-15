@@ -2690,13 +2690,13 @@ class LambdaTransformArgsArgs:
 
 
 class LambdaVpcArgsArgsDict(TypedDict):
-    private_subnet_ids: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]
+    private_subnet_ids: Any
     """
-    The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
+    The IDs of the private subnets to attach the Lambda to. Always private - Lambda must never be placed in public subnets. Accepts Output<string[]> - pass vpc.privateSubnetIds directly.
     """
-    vpc_id: pulumi.Input[_builtins.str]
+    vpc_id: Any
     """
-    The ID of the VPC to place the Lambda in.
+    The ID of the VPC to place the Lambda in. Accepts Output<string> - pass vpc.vpcId directly.
     """
     cidrs: NotRequired[pulumi.Input[Sequence[pulumi.Input['LambdaVpcCidrArgsArgsDict']]]]
     """
@@ -2714,14 +2714,14 @@ class LambdaVpcArgsArgsDict(TypedDict):
 @pulumi.input_type
 class LambdaVpcArgsArgs:
     def __init__(__self__, *,
-                 private_subnet_ids: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]],
-                 vpc_id: pulumi.Input[_builtins.str],
+                 private_subnet_ids: Any,
+                 vpc_id: Any,
                  cidrs: Optional[pulumi.Input[Sequence[pulumi.Input['LambdaVpcCidrArgsArgs']]]] = None,
                  has_nat: Optional[pulumi.Input[_builtins.bool]] = None,
                  vpc_endpoints: Optional[pulumi.Input[Sequence[pulumi.Input['LambdaVpcEndpointArgsArgs']]]] = None):
         """
-        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] private_subnet_ids: The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
-        :param pulumi.Input[_builtins.str] vpc_id: The ID of the VPC to place the Lambda in.
+        :param Any private_subnet_ids: The IDs of the private subnets to attach the Lambda to. Always private - Lambda must never be placed in public subnets. Accepts Output<string[]> - pass vpc.privateSubnetIds directly.
+        :param Any vpc_id: The ID of the VPC to place the Lambda in. Accepts Output<string> - pass vpc.vpcId directly.
         :param pulumi.Input[Sequence[pulumi.Input['LambdaVpcCidrArgsArgs']]] cidrs: CIDR-scoped egress rules. One SG rule per port per CIDR. Use for peered VPCs or on-premise ranges.
         :param pulumi.Input[_builtins.bool] has_nat: Only needed for imported VPCs with NAT. Omit when using an Anvil Vpc component.
         :param pulumi.Input[Sequence[pulumi.Input['LambdaVpcEndpointArgsArgs']]] vpc_endpoints: VPC endpoints this Lambda needs access to. Anvil wires both SG rules automatically.
@@ -2737,26 +2737,26 @@ class LambdaVpcArgsArgs:
 
     @_builtins.property
     @pulumi.getter(name="privateSubnetIds")
-    def private_subnet_ids(self) -> pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]:
+    def private_subnet_ids(self) -> Any:
         """
-        The IDs of the private subnets to attach the Lambda to. Always private — Lambda must never be placed in public subnets.
+        The IDs of the private subnets to attach the Lambda to. Always private - Lambda must never be placed in public subnets. Accepts Output<string[]> - pass vpc.privateSubnetIds directly.
         """
         return pulumi.get(self, "private_subnet_ids")
 
     @private_subnet_ids.setter
-    def private_subnet_ids(self, value: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]):
+    def private_subnet_ids(self, value: Any):
         pulumi.set(self, "private_subnet_ids", value)
 
     @_builtins.property
     @pulumi.getter(name="vpcId")
-    def vpc_id(self) -> pulumi.Input[_builtins.str]:
+    def vpc_id(self) -> Any:
         """
-        The ID of the VPC to place the Lambda in.
+        The ID of the VPC to place the Lambda in. Accepts Output<string> - pass vpc.vpcId directly.
         """
         return pulumi.get(self, "vpc_id")
 
     @vpc_id.setter
-    def vpc_id(self, value: pulumi.Input[_builtins.str]):
+    def vpc_id(self, value: Any):
         pulumi.set(self, "vpc_id", value)
 
     @_builtins.property
@@ -2799,7 +2799,7 @@ class LambdaVpcArgsArgs:
 class LambdaVpcCidrArgsArgsDict(TypedDict):
     ports: pulumi.Input[Sequence[pulumi.Input[_builtins.int]]]
     """
-    TCP ports to allow. Required — be explicit.
+    TCP ports to allow. Required - be explicit.
     """
     range: pulumi.Input[_builtins.str]
     """
@@ -2812,7 +2812,7 @@ class LambdaVpcCidrArgsArgs:
                  ports: pulumi.Input[Sequence[pulumi.Input[_builtins.int]]],
                  range: pulumi.Input[_builtins.str]):
         """
-        :param pulumi.Input[Sequence[pulumi.Input[_builtins.int]]] ports: TCP ports to allow. Required — be explicit.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.int]]] ports: TCP ports to allow. Required - be explicit.
         :param pulumi.Input[_builtins.str] range: IPv4 CIDR block, e.g. 10.0.0.0/8
         """
         pulumi.set(__self__, "ports", ports)
@@ -2822,7 +2822,7 @@ class LambdaVpcCidrArgsArgs:
     @pulumi.getter
     def ports(self) -> pulumi.Input[Sequence[pulumi.Input[_builtins.int]]]:
         """
-        TCP ports to allow. Required — be explicit.
+        TCP ports to allow. Required - be explicit.
         """
         return pulumi.get(self, "ports")
 
@@ -2845,53 +2845,53 @@ class LambdaVpcCidrArgsArgs:
 
 class LambdaVpcEndpointArgsArgsDict(TypedDict):
     """
-    A VPC endpoint to grant this Lambda access to.
+    A VPC endpoint to grant this Lambda access to. Both fields accept Output<string> - pass component outputs directly.
     """
-    endpoint_id: pulumi.Input[_builtins.str]
+    endpoint_id: Any
     """
-    The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
+    The endpoint's ID. Use ep.endpointId. Accepts Output<string>.
     """
-    security_group_id: pulumi.Input[_builtins.str]
+    security_group_id: Any
     """
-    The endpoint's security group ID. Use ep.securityGroupId.
+    The endpoint's security group ID. Use ep.securityGroupId. Accepts Output<string>.
     """
 
 @pulumi.input_type
 class LambdaVpcEndpointArgsArgs:
     def __init__(__self__, *,
-                 endpoint_id: pulumi.Input[_builtins.str],
-                 security_group_id: pulumi.Input[_builtins.str]):
+                 endpoint_id: Any,
+                 security_group_id: Any):
         """
-        A VPC endpoint to grant this Lambda access to.
+        A VPC endpoint to grant this Lambda access to. Both fields accept Output<string> - pass component outputs directly.
 
-        :param pulumi.Input[_builtins.str] endpoint_id: The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
-        :param pulumi.Input[_builtins.str] security_group_id: The endpoint's security group ID. Use ep.securityGroupId.
+        :param Any endpoint_id: The endpoint's ID. Use ep.endpointId. Accepts Output<string>.
+        :param Any security_group_id: The endpoint's security group ID. Use ep.securityGroupId. Accepts Output<string>.
         """
         pulumi.set(__self__, "endpoint_id", endpoint_id)
         pulumi.set(__self__, "security_group_id", security_group_id)
 
     @_builtins.property
     @pulumi.getter(name="endpointId")
-    def endpoint_id(self) -> pulumi.Input[_builtins.str]:
+    def endpoint_id(self) -> Any:
         """
-        The endpoint's ID. Use ep.endpointId. Used for SG rule naming.
+        The endpoint's ID. Use ep.endpointId. Accepts Output<string>.
         """
         return pulumi.get(self, "endpoint_id")
 
     @endpoint_id.setter
-    def endpoint_id(self, value: pulumi.Input[_builtins.str]):
+    def endpoint_id(self, value: Any):
         pulumi.set(self, "endpoint_id", value)
 
     @_builtins.property
     @pulumi.getter(name="securityGroupId")
-    def security_group_id(self) -> pulumi.Input[_builtins.str]:
+    def security_group_id(self) -> Any:
         """
-        The endpoint's security group ID. Use ep.securityGroupId.
+        The endpoint's security group ID. Use ep.securityGroupId. Accepts Output<string>.
         """
         return pulumi.get(self, "security_group_id")
 
     @security_group_id.setter
-    def security_group_id(self, value: pulumi.Input[_builtins.str]):
+    def security_group_id(self, value: Any):
         pulumi.set(self, "security_group_id", value)
 
 

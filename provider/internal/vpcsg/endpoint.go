@@ -16,9 +16,9 @@ type EndpointTarget interface {
 // endpoint SGs.
 //
 // The ingress side is owned by the VpcEndpoint constructor — it is wired once
-// at endpoint creation time using the VPC CIDR. Compute resources never touch
-// the endpoint SG's ingress rules, which prevents duplicate rule errors when
-// multiple compute resources reference the same endpoint.
+// at endpoint creation time. Compute resources never touch the endpoint SG's
+// ingress rules, which prevents duplicate rule errors when multiple compute
+// resources reference the same endpoint.
 func GrantEndpointAccess(
 	ctx *pulumi.Context,
 	resourceName string,
@@ -26,10 +26,10 @@ func GrantEndpointAccess(
 	endpoints []EndpointTarget,
 	parent pulumi.Resource,
 ) error {
-	for _, endpoint := range endpoints {
-		egressRuleName := fmt.Sprintf("%s-%s-endpoint-egress", resourceName, endpoint.Name())
+	for i, endpoint := range endpoints {
+		egressRuleName := fmt.Sprintf("%s-%d-endpoint-egress", resourceName, i)
 		if err := AddEgressRule(ctx, egressRuleName, computeSgId, endpoint.SecurityGroupOutput(), 443, 443, "tcp", parent); err != nil {
-			return fmt.Errorf("GrantEndpointAccess: egress to %s: %w", endpoint.Name(), err)
+			return fmt.Errorf("GrantEndpointAccess: egress to %s: %w", resourceName, err)
 		}
 	}
 	return nil
