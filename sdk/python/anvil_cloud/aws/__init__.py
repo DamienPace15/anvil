@@ -8,6 +8,7 @@ import typing
 # Export this package's modules as members:
 from ._enums import *
 from .bucket import *
+from .http_api import *
 from .lambda_ import *
 from .svelte_kit_site import *
 from .vpc import *

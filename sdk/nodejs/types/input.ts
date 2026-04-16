@@ -364,6 +364,174 @@ export namespace aws {
         routingRules?: pulumi.Input<pulumi.Input<pulumiAws.types.input.s3.BucketWebsiteConfigurationRoutingRule>[]>;
     }
 
+    /**
+     * Cross-Origin Resource Sharing configuration. Opt-in — omit to disable CORS. Security rules: allowOrigins '*' is blocked, allowCredentials requires explicit origins, allowMethods is inferred from routes when omitted.
+     */
+    export interface HttpApiCorsArgs {
+        /**
+         * Allow cookies and auth headers in cross-origin requests. Default: false. When true, allowOrigins must not contain '*' — browsers reject this combination per the CORS specification.
+         */
+        allowCredentials?: pulumi.Input<boolean>;
+        /**
+         * Allowed request headers. Default: ['Content-Type', 'Authorization', 'X-Request-ID'].
+         */
+        allowHeaders?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Allowed HTTP methods. Default: inferred automatically from the routes declared on this API.
+         */
+        allowMethods?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Allowed origins. Required when CORS is enabled. Wildcard '*' is blocked — specify explicit origins. e.g. ['https://app.mysite.com'].
+         */
+        allowOrigins: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Preflight cache duration in seconds. Default: 86400 (24 hours) — reduces preflight requests significantly.
+         */
+        maxAge?: pulumi.Input<number>;
+    }
+
+    /**
+     * Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.
+     */
+    export interface HttpApiDomainArgs {
+        /**
+         * Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping.
+         */
+        basePath?: pulumi.Input<string>;
+        /**
+         * BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+         */
+        certificateArn?: pulumi.Input<string>;
+        /**
+         * The fully qualified domain name. e.g. 'api.mysite.com'.
+         */
+        name: pulumi.Input<string>;
+        /**
+         * Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+         */
+        zoneId?: pulumi.Input<string>;
+    }
+
+    /**
+     * Routes requests directly to an EventBridge bus. API Gateway puts the request body as an event — no Lambda required. Anvil creates a least-privilege IAM role granting events:PutEvents on this bus only.
+     */
+    export interface HttpApiEventBridgeConsumerArgs {
+        /**
+         * The EventBridge bus name. Pass bus.name directly. Accepts Output<string>.
+         */
+        name: any;
+    }
+
+    /**
+     * Proxies requests to an external HTTP URL. Useful for gradual migration from legacy APIs or third-party integrations. No IAM configuration required.
+     */
+    export interface HttpApiHttpConsumerArgs {
+        /**
+         * The external HTTP URL to proxy to. e.g. 'https://legacy-api.mycompany.com'.
+         */
+        url: pulumi.Input<string>;
+    }
+
+    /**
+     * Routes requests to a Lambda function via AWS_PROXY integration. API Gateway invokes the Lambda synchronously and returns its response directly.
+     */
+    export interface HttpApiLambdaConsumerArgs {
+        /**
+         * The Lambda function ARN. Pass lambda.arn directly. Accepts Output<string>.
+         */
+        arn: any;
+    }
+
+    /**
+     * A single route on the HTTP API mapping a method and path to a consumer target.
+     */
+    export interface HttpApiRouteArgs {
+        /**
+         * The target that handles this route. Exactly one consumer type must be set.
+         */
+        consumer: pulumi.Input<inputs.aws.HttpApiRouteConsumerArgs>;
+        /**
+         * The HTTP method for this route.
+         */
+        method: pulumi.Input<enums.aws.HttpApiMethod>;
+        /**
+         * The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.
+         */
+        path: pulumi.Input<string>;
+        /**
+         * Optional per-route throttling override. Inherits API-level throttling when omitted.
+         */
+        throttling?: pulumi.Input<inputs.aws.HttpApiThrottlingArgs>;
+    }
+
+    /**
+     * The target that handles a route. Exactly one field must be set — Anvil validates this at deploy time and returns a clear error if zero or multiple are set.
+     */
+    export interface HttpApiRouteConsumerArgs {
+        /**
+         * Route directly to an EventBridge bus. No Lambda required. Must use POST, PUT, or PATCH.
+         */
+        eventBridge?: pulumi.Input<inputs.aws.HttpApiEventBridgeConsumerArgs>;
+        /**
+         * Proxy to an external HTTP URL. Useful for gradual migration from legacy APIs.
+         */
+        http?: pulumi.Input<inputs.aws.HttpApiHttpConsumerArgs>;
+        /**
+         * Route to a Lambda function. Pass lambda.arn directly.
+         */
+        lambda?: pulumi.Input<inputs.aws.HttpApiLambdaConsumerArgs>;
+        /**
+         * Route directly to an SQS queue. No Lambda required. Returns 202 Accepted immediately — message is processed asynchronously. Must use POST, PUT, or PATCH.
+         */
+        sqs?: pulumi.Input<inputs.aws.HttpApiSqsConsumerArgs>;
+        /**
+         * Route to a Step Functions state machine. Async by default. Must use POST, PUT, or PATCH.
+         */
+        stepFunctions?: pulumi.Input<inputs.aws.HttpApiStepFunctionsConsumerArgs>;
+    }
+
+    /**
+     * Routes requests directly to an SQS queue. API Gateway sends the request body as a message — no Lambda required. Returns 202 Accepted immediately. Anvil creates a least-privilege IAM role granting sqs:SendMessage on this queue only.
+     */
+    export interface HttpApiSqsConsumerArgs {
+        /**
+         * The SQS queue ARN. Pass queue.arn directly. Accepts Output<string>.
+         */
+        arn: any;
+        /**
+         * The SQS queue URL. Pass queue.url directly. Accepts Output<string>.
+         */
+        url: any;
+    }
+
+    /**
+     * Routes requests to a Step Functions state machine. Async by default (StartExecution). Set sync: true for StartSyncExecution — note the 29s API Gateway timeout applies. Anvil creates a least-privilege IAM role granting the appropriate Start action on this state machine only.
+     */
+    export interface HttpApiStepFunctionsConsumerArgs {
+        /**
+         * The state machine ARN. Pass stateMachine.arn directly. Accepts Output<string>.
+         */
+        arn: any;
+        /**
+         * Wait for execution to complete before responding. Default: false (async). Only use for fast state machines — subject to the 29s API Gateway timeout.
+         */
+        sync?: pulumi.Input<boolean>;
+    }
+
+    /**
+     * Rate and burst throttling limits. Applied at the API level by default — individual routes can override. Defaults: rateLimit 1000 rps, burstLimit 500 concurrent. Without throttling a single route can exhaust the account-level limit (10,000 rps) shared across all APIs in the account.
+     */
+    export interface HttpApiThrottlingArgs {
+        /**
+         * Maximum concurrent requests (token bucket capacity). Default: 500.
+         */
+        burstLimit?: pulumi.Input<number>;
+        /**
+         * Maximum sustained requests per second. Default: 1000.
+         */
+        rateLimit?: pulumi.Input<number>;
+    }
+
     export interface LambdaOverridesArgs {
         /**
          * Instruction set architecture for your Lambda function. Valid values are `[<span pulumi-lang-nodejs=""x8664"" pulumi-lang-dotnet=""X8664"" pulumi-lang-go=""x8664"" pulumi-lang-python=""x86_64"" pulumi-lang-yaml=""x8664"" pulumi-lang-java=""x8664"">"x86_64"</span>]` and `["arm64"]`. Default is `[<span pulumi-lang-nodejs=""x8664"" pulumi-lang-dotnet=""X8664"" pulumi-lang-go=""x8664"" pulumi-lang-python=""x86_64"" pulumi-lang-yaml=""x8664"" pulumi-lang-java=""x8664"">"x86_64"</span>]`. Removing this attribute, function's architecture stays the same.

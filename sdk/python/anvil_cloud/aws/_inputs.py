@@ -45,6 +45,26 @@ __all__ = [
     'BucketVersioningTransformArgsDict',
     'BucketWebsiteConfigurationTransformArgs',
     'BucketWebsiteConfigurationTransformArgsDict',
+    'HttpApiCorsArgs',
+    'HttpApiCorsArgsDict',
+    'HttpApiDomainArgs',
+    'HttpApiDomainArgsDict',
+    'HttpApiEventBridgeConsumerArgs',
+    'HttpApiEventBridgeConsumerArgsDict',
+    'HttpApiHttpConsumerArgs',
+    'HttpApiHttpConsumerArgsDict',
+    'HttpApiLambdaConsumerArgs',
+    'HttpApiLambdaConsumerArgsDict',
+    'HttpApiRouteConsumerArgs',
+    'HttpApiRouteConsumerArgsDict',
+    'HttpApiRouteArgs',
+    'HttpApiRouteArgsDict',
+    'HttpApiSqsConsumerArgs',
+    'HttpApiSqsConsumerArgsDict',
+    'HttpApiStepFunctionsConsumerArgs',
+    'HttpApiStepFunctionsConsumerArgsDict',
+    'HttpApiThrottlingArgs',
+    'HttpApiThrottlingArgsDict',
     'LambdaOverridesArgs',
     'LambdaOverridesArgsDict',
     'LambdaPermissionArgs',
@@ -1799,6 +1819,675 @@ class BucketWebsiteConfigurationTransformArgs:
     @routing_rules.setter
     def routing_rules(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.s3.BucketWebsiteConfigurationRoutingRuleArgs']]]]):
         pulumi.set(self, "routing_rules", value)
+
+
+class HttpApiCorsArgsDict(TypedDict):
+    """
+    Cross-Origin Resource Sharing configuration. Opt-in — omit to disable CORS. Security rules: allowOrigins '*' is blocked, allowCredentials requires explicit origins, allowMethods is inferred from routes when omitted.
+    """
+    allow_origins: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]
+    """
+    Allowed origins. Required when CORS is enabled. Wildcard '*' is blocked — specify explicit origins. e.g. ['https://app.mysite.com'].
+    """
+    allow_credentials: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Allow cookies and auth headers in cross-origin requests. Default: false. When true, allowOrigins must not contain '*' — browsers reject this combination per the CORS specification.
+    """
+    allow_headers: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Allowed request headers. Default: ['Content-Type', 'Authorization', 'X-Request-ID'].
+    """
+    allow_methods: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Allowed HTTP methods. Default: inferred automatically from the routes declared on this API.
+    """
+    max_age: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Preflight cache duration in seconds. Default: 86400 (24 hours) — reduces preflight requests significantly.
+    """
+
+@pulumi.input_type
+class HttpApiCorsArgs:
+    def __init__(__self__, *,
+                 allow_origins: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]],
+                 allow_credentials: Optional[pulumi.Input[_builtins.bool]] = None,
+                 allow_headers: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 allow_methods: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 max_age: Optional[pulumi.Input[_builtins.int]] = None):
+        """
+        Cross-Origin Resource Sharing configuration. Opt-in — omit to disable CORS. Security rules: allowOrigins '*' is blocked, allowCredentials requires explicit origins, allowMethods is inferred from routes when omitted.
+
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] allow_origins: Allowed origins. Required when CORS is enabled. Wildcard '*' is blocked — specify explicit origins. e.g. ['https://app.mysite.com'].
+        :param pulumi.Input[_builtins.bool] allow_credentials: Allow cookies and auth headers in cross-origin requests. Default: false. When true, allowOrigins must not contain '*' — browsers reject this combination per the CORS specification.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] allow_headers: Allowed request headers. Default: ['Content-Type', 'Authorization', 'X-Request-ID'].
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] allow_methods: Allowed HTTP methods. Default: inferred automatically from the routes declared on this API.
+        :param pulumi.Input[_builtins.int] max_age: Preflight cache duration in seconds. Default: 86400 (24 hours) — reduces preflight requests significantly.
+        """
+        pulumi.set(__self__, "allow_origins", allow_origins)
+        if allow_credentials is not None:
+            pulumi.set(__self__, "allow_credentials", allow_credentials)
+        if allow_headers is not None:
+            pulumi.set(__self__, "allow_headers", allow_headers)
+        if allow_methods is not None:
+            pulumi.set(__self__, "allow_methods", allow_methods)
+        if max_age is not None:
+            pulumi.set(__self__, "max_age", max_age)
+
+    @_builtins.property
+    @pulumi.getter(name="allowOrigins")
+    def allow_origins(self) -> pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]:
+        """
+        Allowed origins. Required when CORS is enabled. Wildcard '*' is blocked — specify explicit origins. e.g. ['https://app.mysite.com'].
+        """
+        return pulumi.get(self, "allow_origins")
+
+    @allow_origins.setter
+    def allow_origins(self, value: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]):
+        pulumi.set(self, "allow_origins", value)
+
+    @_builtins.property
+    @pulumi.getter(name="allowCredentials")
+    def allow_credentials(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Allow cookies and auth headers in cross-origin requests. Default: false. When true, allowOrigins must not contain '*' — browsers reject this combination per the CORS specification.
+        """
+        return pulumi.get(self, "allow_credentials")
+
+    @allow_credentials.setter
+    def allow_credentials(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "allow_credentials", value)
+
+    @_builtins.property
+    @pulumi.getter(name="allowHeaders")
+    def allow_headers(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Allowed request headers. Default: ['Content-Type', 'Authorization', 'X-Request-ID'].
+        """
+        return pulumi.get(self, "allow_headers")
+
+    @allow_headers.setter
+    def allow_headers(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "allow_headers", value)
+
+    @_builtins.property
+    @pulumi.getter(name="allowMethods")
+    def allow_methods(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Allowed HTTP methods. Default: inferred automatically from the routes declared on this API.
+        """
+        return pulumi.get(self, "allow_methods")
+
+    @allow_methods.setter
+    def allow_methods(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "allow_methods", value)
+
+    @_builtins.property
+    @pulumi.getter(name="maxAge")
+    def max_age(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Preflight cache duration in seconds. Default: 86400 (24 hours) — reduces preflight requests significantly.
+        """
+        return pulumi.get(self, "max_age")
+
+    @max_age.setter
+    def max_age(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "max_age", value)
+
+
+class HttpApiDomainArgsDict(TypedDict):
+    """
+    Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.
+    """
+    name: pulumi.Input[_builtins.str]
+    """
+    The fully qualified domain name. e.g. 'api.mysite.com'.
+    """
+    base_path: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping.
+    """
+    certificate_arn: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+    """
+    zone_id: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+    """
+
+@pulumi.input_type
+class HttpApiDomainArgs:
+    def __init__(__self__, *,
+                 name: pulumi.Input[_builtins.str],
+                 base_path: Optional[pulumi.Input[_builtins.str]] = None,
+                 certificate_arn: Optional[pulumi.Input[_builtins.str]] = None,
+                 zone_id: Optional[pulumi.Input[_builtins.str]] = None):
+        """
+        Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.
+
+        :param pulumi.Input[_builtins.str] name: The fully qualified domain name. e.g. 'api.mysite.com'.
+        :param pulumi.Input[_builtins.str] base_path: Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping.
+        :param pulumi.Input[_builtins.str] certificate_arn: BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+        :param pulumi.Input[_builtins.str] zone_id: Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+        """
+        pulumi.set(__self__, "name", name)
+        if base_path is not None:
+            pulumi.set(__self__, "base_path", base_path)
+        if certificate_arn is not None:
+            pulumi.set(__self__, "certificate_arn", certificate_arn)
+        if zone_id is not None:
+            pulumi.set(__self__, "zone_id", zone_id)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> pulumi.Input[_builtins.str]:
+        """
+        The fully qualified domain name. e.g. 'api.mysite.com'.
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter(name="basePath")
+    def base_path(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping.
+        """
+        return pulumi.get(self, "base_path")
+
+    @base_path.setter
+    def base_path(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "base_path", value)
+
+    @_builtins.property
+    @pulumi.getter(name="certificateArn")
+    def certificate_arn(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+        """
+        return pulumi.get(self, "certificate_arn")
+
+    @certificate_arn.setter
+    def certificate_arn(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "certificate_arn", value)
+
+    @_builtins.property
+    @pulumi.getter(name="zoneId")
+    def zone_id(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+        """
+        return pulumi.get(self, "zone_id")
+
+    @zone_id.setter
+    def zone_id(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "zone_id", value)
+
+
+class HttpApiEventBridgeConsumerArgsDict(TypedDict):
+    """
+    Routes requests directly to an EventBridge bus. API Gateway puts the request body as an event — no Lambda required. Anvil creates a least-privilege IAM role granting events:PutEvents on this bus only.
+    """
+    name: Any
+    """
+    The EventBridge bus name. Pass bus.name directly. Accepts Output<string>.
+    """
+
+@pulumi.input_type
+class HttpApiEventBridgeConsumerArgs:
+    def __init__(__self__, *,
+                 name: Any):
+        """
+        Routes requests directly to an EventBridge bus. API Gateway puts the request body as an event — no Lambda required. Anvil creates a least-privilege IAM role granting events:PutEvents on this bus only.
+
+        :param Any name: The EventBridge bus name. Pass bus.name directly. Accepts Output<string>.
+        """
+        pulumi.set(__self__, "name", name)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> Any:
+        """
+        The EventBridge bus name. Pass bus.name directly. Accepts Output<string>.
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: Any):
+        pulumi.set(self, "name", value)
+
+
+class HttpApiHttpConsumerArgsDict(TypedDict):
+    """
+    Proxies requests to an external HTTP URL. Useful for gradual migration from legacy APIs or third-party integrations. No IAM configuration required.
+    """
+    url: pulumi.Input[_builtins.str]
+    """
+    The external HTTP URL to proxy to. e.g. 'https://legacy-api.mycompany.com'.
+    """
+
+@pulumi.input_type
+class HttpApiHttpConsumerArgs:
+    def __init__(__self__, *,
+                 url: pulumi.Input[_builtins.str]):
+        """
+        Proxies requests to an external HTTP URL. Useful for gradual migration from legacy APIs or third-party integrations. No IAM configuration required.
+
+        :param pulumi.Input[_builtins.str] url: The external HTTP URL to proxy to. e.g. 'https://legacy-api.mycompany.com'.
+        """
+        pulumi.set(__self__, "url", url)
+
+    @_builtins.property
+    @pulumi.getter
+    def url(self) -> pulumi.Input[_builtins.str]:
+        """
+        The external HTTP URL to proxy to. e.g. 'https://legacy-api.mycompany.com'.
+        """
+        return pulumi.get(self, "url")
+
+    @url.setter
+    def url(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "url", value)
+
+
+class HttpApiLambdaConsumerArgsDict(TypedDict):
+    """
+    Routes requests to a Lambda function via AWS_PROXY integration. API Gateway invokes the Lambda synchronously and returns its response directly.
+    """
+    arn: Any
+    """
+    The Lambda function ARN. Pass lambda.arn directly. Accepts Output<string>.
+    """
+
+@pulumi.input_type
+class HttpApiLambdaConsumerArgs:
+    def __init__(__self__, *,
+                 arn: Any):
+        """
+        Routes requests to a Lambda function via AWS_PROXY integration. API Gateway invokes the Lambda synchronously and returns its response directly.
+
+        :param Any arn: The Lambda function ARN. Pass lambda.arn directly. Accepts Output<string>.
+        """
+        pulumi.set(__self__, "arn", arn)
+
+    @_builtins.property
+    @pulumi.getter
+    def arn(self) -> Any:
+        """
+        The Lambda function ARN. Pass lambda.arn directly. Accepts Output<string>.
+        """
+        return pulumi.get(self, "arn")
+
+    @arn.setter
+    def arn(self, value: Any):
+        pulumi.set(self, "arn", value)
+
+
+class HttpApiRouteConsumerArgsDict(TypedDict):
+    """
+    The target that handles a route. Exactly one field must be set — Anvil validates this at deploy time and returns a clear error if zero or multiple are set.
+    """
+    event_bridge: NotRequired[pulumi.Input['HttpApiEventBridgeConsumerArgsDict']]
+    """
+    Route directly to an EventBridge bus. No Lambda required. Must use POST, PUT, or PATCH.
+    """
+    http: NotRequired[pulumi.Input['HttpApiHttpConsumerArgsDict']]
+    """
+    Proxy to an external HTTP URL. Useful for gradual migration from legacy APIs.
+    """
+    lambda_: NotRequired[pulumi.Input['HttpApiLambdaConsumerArgsDict']]
+    """
+    Route to a Lambda function. Pass lambda.arn directly.
+    """
+    sqs: NotRequired[pulumi.Input['HttpApiSqsConsumerArgsDict']]
+    """
+    Route directly to an SQS queue. No Lambda required. Returns 202 Accepted immediately — message is processed asynchronously. Must use POST, PUT, or PATCH.
+    """
+    step_functions: NotRequired[pulumi.Input['HttpApiStepFunctionsConsumerArgsDict']]
+    """
+    Route to a Step Functions state machine. Async by default. Must use POST, PUT, or PATCH.
+    """
+
+@pulumi.input_type
+class HttpApiRouteConsumerArgs:
+    def __init__(__self__, *,
+                 event_bridge: Optional[pulumi.Input['HttpApiEventBridgeConsumerArgs']] = None,
+                 http: Optional[pulumi.Input['HttpApiHttpConsumerArgs']] = None,
+                 lambda_: Optional[pulumi.Input['HttpApiLambdaConsumerArgs']] = None,
+                 sqs: Optional[pulumi.Input['HttpApiSqsConsumerArgs']] = None,
+                 step_functions: Optional[pulumi.Input['HttpApiStepFunctionsConsumerArgs']] = None):
+        """
+        The target that handles a route. Exactly one field must be set — Anvil validates this at deploy time and returns a clear error if zero or multiple are set.
+
+        :param pulumi.Input['HttpApiEventBridgeConsumerArgs'] event_bridge: Route directly to an EventBridge bus. No Lambda required. Must use POST, PUT, or PATCH.
+        :param pulumi.Input['HttpApiHttpConsumerArgs'] http: Proxy to an external HTTP URL. Useful for gradual migration from legacy APIs.
+        :param pulumi.Input['HttpApiLambdaConsumerArgs'] lambda_: Route to a Lambda function. Pass lambda.arn directly.
+        :param pulumi.Input['HttpApiSqsConsumerArgs'] sqs: Route directly to an SQS queue. No Lambda required. Returns 202 Accepted immediately — message is processed asynchronously. Must use POST, PUT, or PATCH.
+        :param pulumi.Input['HttpApiStepFunctionsConsumerArgs'] step_functions: Route to a Step Functions state machine. Async by default. Must use POST, PUT, or PATCH.
+        """
+        if event_bridge is not None:
+            pulumi.set(__self__, "event_bridge", event_bridge)
+        if http is not None:
+            pulumi.set(__self__, "http", http)
+        if lambda_ is not None:
+            pulumi.set(__self__, "lambda_", lambda_)
+        if sqs is not None:
+            pulumi.set(__self__, "sqs", sqs)
+        if step_functions is not None:
+            pulumi.set(__self__, "step_functions", step_functions)
+
+    @_builtins.property
+    @pulumi.getter(name="eventBridge")
+    def event_bridge(self) -> Optional[pulumi.Input['HttpApiEventBridgeConsumerArgs']]:
+        """
+        Route directly to an EventBridge bus. No Lambda required. Must use POST, PUT, or PATCH.
+        """
+        return pulumi.get(self, "event_bridge")
+
+    @event_bridge.setter
+    def event_bridge(self, value: Optional[pulumi.Input['HttpApiEventBridgeConsumerArgs']]):
+        pulumi.set(self, "event_bridge", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def http(self) -> Optional[pulumi.Input['HttpApiHttpConsumerArgs']]:
+        """
+        Proxy to an external HTTP URL. Useful for gradual migration from legacy APIs.
+        """
+        return pulumi.get(self, "http")
+
+    @http.setter
+    def http(self, value: Optional[pulumi.Input['HttpApiHttpConsumerArgs']]):
+        pulumi.set(self, "http", value)
+
+    @_builtins.property
+    @pulumi.getter(name="lambda")
+    def lambda_(self) -> Optional[pulumi.Input['HttpApiLambdaConsumerArgs']]:
+        """
+        Route to a Lambda function. Pass lambda.arn directly.
+        """
+        return pulumi.get(self, "lambda_")
+
+    @lambda_.setter
+    def lambda_(self, value: Optional[pulumi.Input['HttpApiLambdaConsumerArgs']]):
+        pulumi.set(self, "lambda_", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def sqs(self) -> Optional[pulumi.Input['HttpApiSqsConsumerArgs']]:
+        """
+        Route directly to an SQS queue. No Lambda required. Returns 202 Accepted immediately — message is processed asynchronously. Must use POST, PUT, or PATCH.
+        """
+        return pulumi.get(self, "sqs")
+
+    @sqs.setter
+    def sqs(self, value: Optional[pulumi.Input['HttpApiSqsConsumerArgs']]):
+        pulumi.set(self, "sqs", value)
+
+    @_builtins.property
+    @pulumi.getter(name="stepFunctions")
+    def step_functions(self) -> Optional[pulumi.Input['HttpApiStepFunctionsConsumerArgs']]:
+        """
+        Route to a Step Functions state machine. Async by default. Must use POST, PUT, or PATCH.
+        """
+        return pulumi.get(self, "step_functions")
+
+    @step_functions.setter
+    def step_functions(self, value: Optional[pulumi.Input['HttpApiStepFunctionsConsumerArgs']]):
+        pulumi.set(self, "step_functions", value)
+
+
+class HttpApiRouteArgsDict(TypedDict):
+    """
+    A single route on the HTTP API mapping a method and path to a consumer target.
+    """
+    consumer: pulumi.Input['HttpApiRouteConsumerArgsDict']
+    """
+    The target that handles this route. Exactly one consumer type must be set.
+    """
+    method: pulumi.Input['HttpApiMethod']
+    """
+    The HTTP method for this route.
+    """
+    path: pulumi.Input[_builtins.str]
+    """
+    The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.
+    """
+    throttling: NotRequired[pulumi.Input['HttpApiThrottlingArgsDict']]
+    """
+    Optional per-route throttling override. Inherits API-level throttling when omitted.
+    """
+
+@pulumi.input_type
+class HttpApiRouteArgs:
+    def __init__(__self__, *,
+                 consumer: pulumi.Input['HttpApiRouteConsumerArgs'],
+                 method: pulumi.Input['HttpApiMethod'],
+                 path: pulumi.Input[_builtins.str],
+                 throttling: Optional[pulumi.Input['HttpApiThrottlingArgs']] = None):
+        """
+        A single route on the HTTP API mapping a method and path to a consumer target.
+
+        :param pulumi.Input['HttpApiRouteConsumerArgs'] consumer: The target that handles this route. Exactly one consumer type must be set.
+        :param pulumi.Input['HttpApiMethod'] method: The HTTP method for this route.
+        :param pulumi.Input[_builtins.str] path: The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.
+        :param pulumi.Input['HttpApiThrottlingArgs'] throttling: Optional per-route throttling override. Inherits API-level throttling when omitted.
+        """
+        pulumi.set(__self__, "consumer", consumer)
+        pulumi.set(__self__, "method", method)
+        pulumi.set(__self__, "path", path)
+        if throttling is not None:
+            pulumi.set(__self__, "throttling", throttling)
+
+    @_builtins.property
+    @pulumi.getter
+    def consumer(self) -> pulumi.Input['HttpApiRouteConsumerArgs']:
+        """
+        The target that handles this route. Exactly one consumer type must be set.
+        """
+        return pulumi.get(self, "consumer")
+
+    @consumer.setter
+    def consumer(self, value: pulumi.Input['HttpApiRouteConsumerArgs']):
+        pulumi.set(self, "consumer", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def method(self) -> pulumi.Input['HttpApiMethod']:
+        """
+        The HTTP method for this route.
+        """
+        return pulumi.get(self, "method")
+
+    @method.setter
+    def method(self, value: pulumi.Input['HttpApiMethod']):
+        pulumi.set(self, "method", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def path(self) -> pulumi.Input[_builtins.str]:
+        """
+        The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.
+        """
+        return pulumi.get(self, "path")
+
+    @path.setter
+    def path(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "path", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def throttling(self) -> Optional[pulumi.Input['HttpApiThrottlingArgs']]:
+        """
+        Optional per-route throttling override. Inherits API-level throttling when omitted.
+        """
+        return pulumi.get(self, "throttling")
+
+    @throttling.setter
+    def throttling(self, value: Optional[pulumi.Input['HttpApiThrottlingArgs']]):
+        pulumi.set(self, "throttling", value)
+
+
+class HttpApiSqsConsumerArgsDict(TypedDict):
+    """
+    Routes requests directly to an SQS queue. API Gateway sends the request body as a message — no Lambda required. Returns 202 Accepted immediately. Anvil creates a least-privilege IAM role granting sqs:SendMessage on this queue only.
+    """
+    arn: Any
+    """
+    The SQS queue ARN. Pass queue.arn directly. Accepts Output<string>.
+    """
+    url: Any
+    """
+    The SQS queue URL. Pass queue.url directly. Accepts Output<string>.
+    """
+
+@pulumi.input_type
+class HttpApiSqsConsumerArgs:
+    def __init__(__self__, *,
+                 arn: Any,
+                 url: Any):
+        """
+        Routes requests directly to an SQS queue. API Gateway sends the request body as a message — no Lambda required. Returns 202 Accepted immediately. Anvil creates a least-privilege IAM role granting sqs:SendMessage on this queue only.
+
+        :param Any arn: The SQS queue ARN. Pass queue.arn directly. Accepts Output<string>.
+        :param Any url: The SQS queue URL. Pass queue.url directly. Accepts Output<string>.
+        """
+        pulumi.set(__self__, "arn", arn)
+        pulumi.set(__self__, "url", url)
+
+    @_builtins.property
+    @pulumi.getter
+    def arn(self) -> Any:
+        """
+        The SQS queue ARN. Pass queue.arn directly. Accepts Output<string>.
+        """
+        return pulumi.get(self, "arn")
+
+    @arn.setter
+    def arn(self, value: Any):
+        pulumi.set(self, "arn", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def url(self) -> Any:
+        """
+        The SQS queue URL. Pass queue.url directly. Accepts Output<string>.
+        """
+        return pulumi.get(self, "url")
+
+    @url.setter
+    def url(self, value: Any):
+        pulumi.set(self, "url", value)
+
+
+class HttpApiStepFunctionsConsumerArgsDict(TypedDict):
+    """
+    Routes requests to a Step Functions state machine. Async by default (StartExecution). Set sync: true for StartSyncExecution — note the 29s API Gateway timeout applies. Anvil creates a least-privilege IAM role granting the appropriate Start action on this state machine only.
+    """
+    arn: Any
+    """
+    The state machine ARN. Pass stateMachine.arn directly. Accepts Output<string>.
+    """
+    sync: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Wait for execution to complete before responding. Default: false (async). Only use for fast state machines — subject to the 29s API Gateway timeout.
+    """
+
+@pulumi.input_type
+class HttpApiStepFunctionsConsumerArgs:
+    def __init__(__self__, *,
+                 arn: Any,
+                 sync: Optional[pulumi.Input[_builtins.bool]] = None):
+        """
+        Routes requests to a Step Functions state machine. Async by default (StartExecution). Set sync: true for StartSyncExecution — note the 29s API Gateway timeout applies. Anvil creates a least-privilege IAM role granting the appropriate Start action on this state machine only.
+
+        :param Any arn: The state machine ARN. Pass stateMachine.arn directly. Accepts Output<string>.
+        :param pulumi.Input[_builtins.bool] sync: Wait for execution to complete before responding. Default: false (async). Only use for fast state machines — subject to the 29s API Gateway timeout.
+        """
+        pulumi.set(__self__, "arn", arn)
+        if sync is not None:
+            pulumi.set(__self__, "sync", sync)
+
+    @_builtins.property
+    @pulumi.getter
+    def arn(self) -> Any:
+        """
+        The state machine ARN. Pass stateMachine.arn directly. Accepts Output<string>.
+        """
+        return pulumi.get(self, "arn")
+
+    @arn.setter
+    def arn(self, value: Any):
+        pulumi.set(self, "arn", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def sync(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Wait for execution to complete before responding. Default: false (async). Only use for fast state machines — subject to the 29s API Gateway timeout.
+        """
+        return pulumi.get(self, "sync")
+
+    @sync.setter
+    def sync(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "sync", value)
+
+
+class HttpApiThrottlingArgsDict(TypedDict):
+    """
+    Rate and burst throttling limits. Applied at the API level by default — individual routes can override. Defaults: rateLimit 1000 rps, burstLimit 500 concurrent. Without throttling a single route can exhaust the account-level limit (10,000 rps) shared across all APIs in the account.
+    """
+    burst_limit: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Maximum concurrent requests (token bucket capacity). Default: 500.
+    """
+    rate_limit: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Maximum sustained requests per second. Default: 1000.
+    """
+
+@pulumi.input_type
+class HttpApiThrottlingArgs:
+    def __init__(__self__, *,
+                 burst_limit: Optional[pulumi.Input[_builtins.int]] = None,
+                 rate_limit: Optional[pulumi.Input[_builtins.int]] = None):
+        """
+        Rate and burst throttling limits. Applied at the API level by default — individual routes can override. Defaults: rateLimit 1000 rps, burstLimit 500 concurrent. Without throttling a single route can exhaust the account-level limit (10,000 rps) shared across all APIs in the account.
+
+        :param pulumi.Input[_builtins.int] burst_limit: Maximum concurrent requests (token bucket capacity). Default: 500.
+        :param pulumi.Input[_builtins.int] rate_limit: Maximum sustained requests per second. Default: 1000.
+        """
+        if burst_limit is not None:
+            pulumi.set(__self__, "burst_limit", burst_limit)
+        if rate_limit is not None:
+            pulumi.set(__self__, "rate_limit", rate_limit)
+
+    @_builtins.property
+    @pulumi.getter(name="burstLimit")
+    def burst_limit(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Maximum concurrent requests (token bucket capacity). Default: 500.
+        """
+        return pulumi.get(self, "burst_limit")
+
+    @burst_limit.setter
+    def burst_limit(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "burst_limit", value)
+
+    @_builtins.property
+    @pulumi.getter(name="rateLimit")
+    def rate_limit(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Maximum sustained requests per second. Default: 1000.
+        """
+        return pulumi.get(self, "rate_limit")
+
+    @rate_limit.setter
+    def rate_limit(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "rate_limit", value)
 
 
 class LambdaOverridesArgsDict(TypedDict):

@@ -1,0 +1,254 @@
+{
+  "resources": {
+    "anvil:aws:HttpApi": {
+      "isComponent": true,
+      "description": "An Anvil-managed AWS HTTP API Gateway (API Gateway v2). Route-level consumers support Lambda, SQS, EventBridge, Step Functions, and HTTP proxy integrations. Secure by default: TLS 1.2 minimum enforced on custom domains, execute-api endpoint disabled when a custom domain is set, conservative throttling defaults (1000 rps / 500 burst), CORS opt-in with wildcard origin blocked, per-consumer least-privilege IAM roles, access logs on by default.",
+      "inputProperties": {
+        "routes": {
+          "type": "array",
+          "items": { "$ref": "#/types/anvil:aws:HttpApiRoute" },
+          "description": "The API routes. Each route maps a method and path to a consumer. At least one route is required."
+        },
+        "domain": {
+          "$ref": "#/types/anvil:aws:HttpApiDomain",
+          "description": "Optional custom domain for the API. When set, Anvil provisions the ACM certificate, API Gateway domain name, and Route 53 DNS record automatically. The raw execute-api endpoint is disabled — all traffic must flow through the custom domain."
+        },
+        "cors": {
+          "$ref": "#/types/anvil:aws:HttpApiCors",
+          "description": "Optional CORS configuration. Opt-in — omit to disable CORS entirely. When enabled, allowOrigins is required and wildcard '*' is blocked as a security measure."
+        },
+        "throttling": {
+          "$ref": "#/types/anvil:aws:HttpApiThrottling",
+          "description": "Optional throttling configuration. Defaults to rateLimit: 1000 rps and burstLimit: 500 concurrent requests when omitted. Without throttling a single route can exhaust the account-level limit shared across all APIs."
+        },
+        "logRetention": {
+          "type": "string",
+          "description": "CloudWatch access log retention period. Presets: '7d' | '30d' | '90d' | '1y' | '3y' | '6y' | '7y'. Default: '1y' — satisfies SOC 2, ISO 27001, and PCI DSS baseline retention requirements."
+        }
+      },
+      "requiredInputs": ["routes"],
+      "properties": {
+        "apiId": {
+          "type": "string",
+          "description": "The API Gateway HTTP API ID."
+        },
+        "apiEndpoint": {
+          "type": "string",
+          "description": "The default execute-api endpoint URL. Empty string when a custom domain is set and the execute-api endpoint is disabled."
+        },
+        "url": {
+          "type": "string",
+          "description": "The primary URL for the API. When a custom domain is configured this is the custom domain URL. Otherwise it is the execute-api endpoint URL."
+        }
+      },
+      "required": ["apiId", "apiEndpoint", "url"]
+    }
+  },
+  "types": {
+    "anvil:aws:HttpApiRoute": {
+      "type": "object",
+      "description": "A single route on the HTTP API mapping a method and path to a consumer target.",
+      "properties": {
+        "method": {
+          "$ref": "#/types/anvil:aws:HttpApiMethod",
+          "description": "The HTTP method for this route."
+        },
+        "path": {
+          "type": "string",
+          "description": "The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths."
+        },
+        "consumer": {
+          "$ref": "#/types/anvil:aws:HttpApiRouteConsumer",
+          "description": "The target that handles this route. Exactly one consumer type must be set."
+        },
+        "throttling": {
+          "$ref": "#/types/anvil:aws:HttpApiThrottling",
+          "description": "Optional per-route throttling override. Inherits API-level throttling when omitted."
+        }
+      },
+      "required": ["method", "path", "consumer"]
+    },
+    "anvil:aws:HttpApiRouteConsumer": {
+      "type": "object",
+      "description": "The target that handles a route. Exactly one field must be set — Anvil validates this at deploy time and returns a clear error if zero or multiple are set.",
+      "properties": {
+        "lambda": {
+          "$ref": "#/types/anvil:aws:HttpApiLambdaConsumer",
+          "description": "Route to a Lambda function. Pass lambda.arn directly."
+        },
+        "sqs": {
+          "$ref": "#/types/anvil:aws:HttpApiSqsConsumer",
+          "description": "Route directly to an SQS queue. No Lambda required. Returns 202 Accepted immediately — message is processed asynchronously. Must use POST, PUT, or PATCH."
+        },
+        "eventBridge": {
+          "$ref": "#/types/anvil:aws:HttpApiEventBridgeConsumer",
+          "description": "Route directly to an EventBridge bus. No Lambda required. Must use POST, PUT, or PATCH."
+        },
+        "stepFunctions": {
+          "$ref": "#/types/anvil:aws:HttpApiStepFunctionsConsumer",
+          "description": "Route to a Step Functions state machine. Async by default. Must use POST, PUT, or PATCH."
+        },
+        "http": {
+          "$ref": "#/types/anvil:aws:HttpApiHttpConsumer",
+          "description": "Proxy to an external HTTP URL. Useful for gradual migration from legacy APIs."
+        }
+      }
+    },
+    "anvil:aws:HttpApiLambdaConsumer": {
+      "type": "object",
+      "description": "Routes requests to a Lambda function via AWS_PROXY integration. API Gateway invokes the Lambda synchronously and returns its response directly.",
+      "properties": {
+        "arn": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The Lambda function ARN. Pass lambda.arn directly. Accepts Output<string>."
+        }
+      },
+      "required": ["arn"]
+    },
+    "anvil:aws:HttpApiSqsConsumer": {
+      "type": "object",
+      "description": "Routes requests directly to an SQS queue. API Gateway sends the request body as a message — no Lambda required. Returns 202 Accepted immediately. Anvil creates a least-privilege IAM role granting sqs:SendMessage on this queue only.",
+      "properties": {
+        "url": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The SQS queue URL. Pass queue.url directly. Accepts Output<string>."
+        },
+        "arn": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The SQS queue ARN. Pass queue.arn directly. Accepts Output<string>."
+        }
+      },
+      "required": ["url", "arn"]
+    },
+    "anvil:aws:HttpApiEventBridgeConsumer": {
+      "type": "object",
+      "description": "Routes requests directly to an EventBridge bus. API Gateway puts the request body as an event — no Lambda required. Anvil creates a least-privilege IAM role granting events:PutEvents on this bus only.",
+      "properties": {
+        "name": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The EventBridge bus name. Pass bus.name directly. Accepts Output<string>."
+        }
+      },
+      "required": ["name"]
+    },
+    "anvil:aws:HttpApiStepFunctionsConsumer": {
+      "type": "object",
+      "description": "Routes requests to a Step Functions state machine. Async by default (StartExecution). Set sync: true for StartSyncExecution — note the 29s API Gateway timeout applies. Anvil creates a least-privilege IAM role granting the appropriate Start action on this state machine only.",
+      "properties": {
+        "arn": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The state machine ARN. Pass stateMachine.arn directly. Accepts Output<string>."
+        },
+        "sync": {
+          "type": "boolean",
+          "description": "Wait for execution to complete before responding. Default: false (async). Only use for fast state machines — subject to the 29s API Gateway timeout."
+        }
+      },
+      "required": ["arn"]
+    },
+    "anvil:aws:HttpApiHttpConsumer": {
+      "type": "object",
+      "description": "Proxies requests to an external HTTP URL. Useful for gradual migration from legacy APIs or third-party integrations. No IAM configuration required.",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "The external HTTP URL to proxy to. e.g. 'https://legacy-api.mycompany.com'."
+        }
+      },
+      "required": ["url"]
+    },
+    "anvil:aws:HttpApiThrottling": {
+      "type": "object",
+      "description": "Rate and burst throttling limits. Applied at the API level by default — individual routes can override. Defaults: rateLimit 1000 rps, burstLimit 500 concurrent. Without throttling a single route can exhaust the account-level limit (10,000 rps) shared across all APIs in the account.",
+      "properties": {
+        "rateLimit": {
+          "type": "integer",
+          "description": "Maximum sustained requests per second. Default: 1000."
+        },
+        "burstLimit": {
+          "type": "integer",
+          "description": "Maximum concurrent requests (token bucket capacity). Default: 500."
+        }
+      }
+    },
+    "anvil:aws:HttpApiCors": {
+      "type": "object",
+      "description": "Cross-Origin Resource Sharing configuration. Opt-in — omit to disable CORS. Security rules: allowOrigins '*' is blocked, allowCredentials requires explicit origins, allowMethods is inferred from routes when omitted.",
+      "properties": {
+        "allowOrigins": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Allowed origins. Required when CORS is enabled. Wildcard '*' is blocked — specify explicit origins. e.g. ['https://app.mysite.com']."
+        },
+        "allowHeaders": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Allowed request headers. Default: ['Content-Type', 'Authorization', 'X-Request-ID']."
+        },
+        "allowMethods": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Allowed HTTP methods. Default: inferred automatically from the routes declared on this API."
+        },
+        "allowCredentials": {
+          "type": "boolean",
+          "description": "Allow cookies and auth headers in cross-origin requests. Default: false. When true, allowOrigins must not contain '*' — browsers reject this combination per the CORS specification."
+        },
+        "maxAge": {
+          "type": "integer",
+          "description": "Preflight cache duration in seconds. Default: 86400 (24 hours) — reduces preflight requests significantly."
+        }
+      },
+      "required": ["allowOrigins"]
+    },
+    "anvil:aws:HttpApiDomain": {
+      "type": "object",
+      "description": "Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The fully qualified domain name. e.g. 'api.mysite.com'."
+        },
+        "basePath": {
+          "type": "string",
+          "description": "Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping."
+        },
+        "certificateArn": {
+          "type": "string",
+          "description": "BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation."
+        },
+        "zoneId": {
+          "type": "string",
+          "description": "Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically."
+        }
+      },
+      "required": ["name"]
+    },
+    "anvil:aws:HttpApiMethod": {
+      "type": "string",
+      "description": "HTTP method for an API route.",
+      "enum": [
+        { "value": "GET", "description": "HTTP GET — read operations." },
+        {
+          "value": "POST",
+          "description": "HTTP POST — create operations and async consumers (SQS, EventBridge, Step Functions)."
+        },
+        { "value": "PUT", "description": "HTTP PUT — replace operations." },
+        {
+          "value": "PATCH",
+          "description": "HTTP PATCH — partial update operations."
+        },
+        {
+          "value": "DELETE",
+          "description": "HTTP DELETE — delete operations."
+        },
+        {
+          "value": "ANY",
+          "description": "Matches all HTTP methods. Maps to the $default route key."
+        }
+      ]
+    }
+  },
+  "x-upstream-provider": "aws",
+  "x-upstream-version": "v7.23.0"
+}

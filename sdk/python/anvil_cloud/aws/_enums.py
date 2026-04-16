@@ -8,6 +8,7 @@ from enum import Enum
 
 __all__ = [
     'AwsVpcEndpointService',
+    'HttpApiMethod',
     'LambdaArchitecture',
     'LambdaLogRetention',
     'LambdaRuntime',
@@ -72,6 +73,37 @@ class AwsVpcEndpointService(_builtins.str, Enum):
     STS = "sts"
     """
     AWS Security Token Service. Required for IAM role assumption and temporary credential generation within private subnets.
+    """
+
+
+@pulumi.type_token("anvil:aws:HttpApiMethod")
+class HttpApiMethod(_builtins.str, Enum):
+    """
+    HTTP method for an API route.
+    """
+    GET = "GET"
+    """
+    HTTP GET — read operations.
+    """
+    POST = "POST"
+    """
+    HTTP POST — create operations and async consumers (SQS, EventBridge, Step Functions).
+    """
+    PUT = "PUT"
+    """
+    HTTP PUT — replace operations.
+    """
+    PATCH = "PATCH"
+    """
+    HTTP PATCH — partial update operations.
+    """
+    DELETE = "DELETE"
+    """
+    HTTP DELETE — delete operations.
+    """
+    ANY = "ANY"
+    """
+    Matches all HTTP methods. Maps to the $default route key.
     """
 
 

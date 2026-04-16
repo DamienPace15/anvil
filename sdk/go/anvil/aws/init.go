@@ -23,6 +23,8 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 	switch typ {
 	case "anvil:aws:Bucket":
 		r = &Bucket{}
+	case "anvil:aws:HttpApi":
+		r = &HttpApi{}
 	case "anvil:aws:Lambda":
 		r = &Lambda{}
 	case "anvil:aws:SvelteKitSite":

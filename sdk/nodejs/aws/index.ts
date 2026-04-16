@@ -10,6 +10,11 @@ export type Bucket = import("./bucket").Bucket;
 export const Bucket: typeof import("./bucket").Bucket = null as any;
 utilities.lazyLoad(exports, ["Bucket"], () => require("./bucket"));
 
+export { HttpApiArgs } from "./httpApi";
+export type HttpApi = import("./httpApi").HttpApi;
+export const HttpApi: typeof import("./httpApi").HttpApi = null as any;
+utilities.lazyLoad(exports, ["HttpApi"], () => require("./httpApi"));
+
 export { LambdaArgs } from "./lambda";
 export type Lambda = import("./lambda").Lambda;
 export const Lambda: typeof import("./lambda").Lambda = null as any;
@@ -40,6 +45,8 @@ const _module = {
         switch (type) {
             case "anvil:aws:Bucket":
                 return new Bucket(name, <any>undefined, { urn })
+            case "anvil:aws:HttpApi":
+                return new HttpApi(name, <any>undefined, { urn })
             case "anvil:aws:Lambda":
                 return new Lambda(name, <any>undefined, { urn })
             case "anvil:aws:SvelteKitSite":

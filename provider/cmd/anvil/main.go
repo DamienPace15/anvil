@@ -8,6 +8,7 @@ import (
 
 	"github.com/pulumi/pulumi-go-provider/infer"
 	awsbucket "github.com/DamienPace15/anvil/provider/aws/bucket"
+	awshttpapi "github.com/DamienPace15/anvil/provider/aws/httpapi"
 	awslambda "github.com/DamienPace15/anvil/provider/aws/lambda"
 	awssveltekitsite "github.com/DamienPace15/anvil/provider/aws/sveltekitsite"
 	awsvpc "github.com/DamienPace15/anvil/provider/aws/vpc"
@@ -20,6 +21,7 @@ func main() {
 	p, err := infer.NewProviderBuilder().
 		WithComponents(
 			infer.ComponentF(awsbucket.NewBucket),
+			infer.ComponentF(awshttpapi.NewHttpApi),
 			infer.ComponentF(awslambda.NewLambda),
 			infer.ComponentF(awssveltekitsite.NewSvelteKitSite),
 			infer.ComponentF(awsvpc.NewVpc),
