@@ -5473,6 +5473,124 @@ func (o VpcCloudWatchFlowLogArgsPtrOutput) Retention() pulumi.IntPtrOutput {
 	}).(pulumi.IntPtrOutput)
 }
 
+// A single permission statement in the VPC endpoint policy. Effect must be Allow or Deny. Action is an IAM action string. Resource defaults to * if omitted.
+type VpcEndpointPermission struct {
+	// The IAM action string, e.g. "sqs:SendMessage", "secretsmanager:GetSecretValue".
+	Action string `pulumi:"action"`
+	// The IAM effect — "Allow" or "Deny".
+	Effect string `pulumi:"effect"`
+	// The ARN to scope this permission to. Defaults to "*" if omitted — applies to all resources of this service. Accepts Output<string> — pass resource ARNs directly, e.g. queue.arn, secret.arn.
+	Resource *string `pulumi:"resource"`
+}
+
+// VpcEndpointPermissionInput is an input type that accepts VpcEndpointPermissionArgs and VpcEndpointPermissionOutput values.
+// You can construct a concrete instance of `VpcEndpointPermissionInput` via:
+//
+//	VpcEndpointPermissionArgs{...}
+type VpcEndpointPermissionInput interface {
+	pulumi.Input
+
+	ToVpcEndpointPermissionOutput() VpcEndpointPermissionOutput
+	ToVpcEndpointPermissionOutputWithContext(context.Context) VpcEndpointPermissionOutput
+}
+
+// A single permission statement in the VPC endpoint policy. Effect must be Allow or Deny. Action is an IAM action string. Resource defaults to * if omitted.
+type VpcEndpointPermissionArgs struct {
+	// The IAM action string, e.g. "sqs:SendMessage", "secretsmanager:GetSecretValue".
+	Action pulumi.StringInput `pulumi:"action"`
+	// The IAM effect — "Allow" or "Deny".
+	Effect pulumi.StringInput `pulumi:"effect"`
+	// The ARN to scope this permission to. Defaults to "*" if omitted — applies to all resources of this service. Accepts Output<string> — pass resource ARNs directly, e.g. queue.arn, secret.arn.
+	Resource pulumi.StringPtrInput `pulumi:"resource"`
+}
+
+func (VpcEndpointPermissionArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcEndpointPermission)(nil)).Elem()
+}
+
+func (i VpcEndpointPermissionArgs) ToVpcEndpointPermissionOutput() VpcEndpointPermissionOutput {
+	return i.ToVpcEndpointPermissionOutputWithContext(context.Background())
+}
+
+func (i VpcEndpointPermissionArgs) ToVpcEndpointPermissionOutputWithContext(ctx context.Context) VpcEndpointPermissionOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcEndpointPermissionOutput)
+}
+
+// VpcEndpointPermissionArrayInput is an input type that accepts VpcEndpointPermissionArray and VpcEndpointPermissionArrayOutput values.
+// You can construct a concrete instance of `VpcEndpointPermissionArrayInput` via:
+//
+//	VpcEndpointPermissionArray{ VpcEndpointPermissionArgs{...} }
+type VpcEndpointPermissionArrayInput interface {
+	pulumi.Input
+
+	ToVpcEndpointPermissionArrayOutput() VpcEndpointPermissionArrayOutput
+	ToVpcEndpointPermissionArrayOutputWithContext(context.Context) VpcEndpointPermissionArrayOutput
+}
+
+type VpcEndpointPermissionArray []VpcEndpointPermissionInput
+
+func (VpcEndpointPermissionArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]VpcEndpointPermission)(nil)).Elem()
+}
+
+func (i VpcEndpointPermissionArray) ToVpcEndpointPermissionArrayOutput() VpcEndpointPermissionArrayOutput {
+	return i.ToVpcEndpointPermissionArrayOutputWithContext(context.Background())
+}
+
+func (i VpcEndpointPermissionArray) ToVpcEndpointPermissionArrayOutputWithContext(ctx context.Context) VpcEndpointPermissionArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(VpcEndpointPermissionArrayOutput)
+}
+
+// A single permission statement in the VPC endpoint policy. Effect must be Allow or Deny. Action is an IAM action string. Resource defaults to * if omitted.
+type VpcEndpointPermissionOutput struct{ *pulumi.OutputState }
+
+func (VpcEndpointPermissionOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*VpcEndpointPermission)(nil)).Elem()
+}
+
+func (o VpcEndpointPermissionOutput) ToVpcEndpointPermissionOutput() VpcEndpointPermissionOutput {
+	return o
+}
+
+func (o VpcEndpointPermissionOutput) ToVpcEndpointPermissionOutputWithContext(ctx context.Context) VpcEndpointPermissionOutput {
+	return o
+}
+
+// The IAM action string, e.g. "sqs:SendMessage", "secretsmanager:GetSecretValue".
+func (o VpcEndpointPermissionOutput) Action() pulumi.StringOutput {
+	return o.ApplyT(func(v VpcEndpointPermission) string { return v.Action }).(pulumi.StringOutput)
+}
+
+// The IAM effect — "Allow" or "Deny".
+func (o VpcEndpointPermissionOutput) Effect() pulumi.StringOutput {
+	return o.ApplyT(func(v VpcEndpointPermission) string { return v.Effect }).(pulumi.StringOutput)
+}
+
+// The ARN to scope this permission to. Defaults to "*" if omitted — applies to all resources of this service. Accepts Output<string> — pass resource ARNs directly, e.g. queue.arn, secret.arn.
+func (o VpcEndpointPermissionOutput) Resource() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v VpcEndpointPermission) *string { return v.Resource }).(pulumi.StringPtrOutput)
+}
+
+type VpcEndpointPermissionArrayOutput struct{ *pulumi.OutputState }
+
+func (VpcEndpointPermissionArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]VpcEndpointPermission)(nil)).Elem()
+}
+
+func (o VpcEndpointPermissionArrayOutput) ToVpcEndpointPermissionArrayOutput() VpcEndpointPermissionArrayOutput {
+	return o
+}
+
+func (o VpcEndpointPermissionArrayOutput) ToVpcEndpointPermissionArrayOutputWithContext(ctx context.Context) VpcEndpointPermissionArrayOutput {
+	return o
+}
+
+func (o VpcEndpointPermissionArrayOutput) Index(i pulumi.IntInput) VpcEndpointPermissionOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) VpcEndpointPermission {
+		return vs[0].([]VpcEndpointPermission)[vs[1].(int)]
+	}).(VpcEndpointPermissionOutput)
+}
+
 type VpcFlowLogsArgs struct {
 	// Enable flow log delivery to a CloudWatch Log Group. Use for fast querying with CloudWatch Logs Insights and active debugging of connection issues.
 	Cloudwatch *VpcCloudWatchFlowLogArgs `pulumi:"cloudwatch"`
@@ -5978,6 +6096,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsPtrInput)(nil)).Elem(), VpcBastionArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcCloudWatchFlowLogArgsInput)(nil)).Elem(), VpcCloudWatchFlowLogArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcCloudWatchFlowLogArgsPtrInput)(nil)).Elem(), VpcCloudWatchFlowLogArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcEndpointPermissionInput)(nil)).Elem(), VpcEndpointPermissionArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*VpcEndpointPermissionArrayInput)(nil)).Elem(), VpcEndpointPermissionArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcFlowLogsArgsInput)(nil)).Elem(), VpcFlowLogsArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcFlowLogsArgsPtrInput)(nil)).Elem(), VpcFlowLogsArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatArgsInput)(nil)).Elem(), VpcNatArgsArgs{})
@@ -6030,6 +6150,8 @@ func init() {
 	pulumi.RegisterOutputType(VpcBastionArgsPtrOutput{})
 	pulumi.RegisterOutputType(VpcCloudWatchFlowLogArgsOutput{})
 	pulumi.RegisterOutputType(VpcCloudWatchFlowLogArgsPtrOutput{})
+	pulumi.RegisterOutputType(VpcEndpointPermissionOutput{})
+	pulumi.RegisterOutputType(VpcEndpointPermissionArrayOutput{})
 	pulumi.RegisterOutputType(VpcFlowLogsArgsOutput{})
 	pulumi.RegisterOutputType(VpcFlowLogsArgsPtrOutput{})
 	pulumi.RegisterOutputType(VpcNatArgsOutput{})

@@ -2,7 +2,7 @@
   "resources": {
     "anvil:aws:VpcEndpoint": {
       "isComponent": true,
-      "description": "An Anvil-managed AWS Interface VPC Endpoint. Creates one ENI per private subnet with private DNS enabled — standard AWS service hostnames resolve to ENI IPs inside the VPC automatically. Includes a dedicated security group with zero rules by default. Use grantEndpointAccess on compute resources to open the network path. IAM permissions are managed separately via grantPermissions.",
+      "description": "An Anvil-managed AWS Interface VPC Endpoint. Creates one ENI per private subnet with private DNS enabled. The endpoint security group uses a self-referencing ingress rule on port 443 — only compute resources that have been explicitly granted access can reach the endpoint at the network layer. Access is enforced at three layers: network (self-referencing SG), IAM role policy (scoped per compute resource), and endpoint policy (blanket ceiling on allowed actions for all compute principals — Lambda, ECS, EC2).",
       "inputProperties": {
         "vpcId": {
           "type": "string",
@@ -16,6 +16,11 @@
         "service": {
           "$ref": "#/types/anvil:aws:AwsVpcEndpointService",
           "description": "The AWS service to route privately. The full com.amazonaws.{region}.{service} name is constructed at deploy time from the resolved region — you never write it manually."
+        },
+        "overridePermissions": {
+          "type": "array",
+          "items": { "$ref": "#/types/anvil:aws:VpcEndpointPermission" },
+          "description": "Explicit Allow and Deny permission statements for the endpoint policy. When omitted, the endpoint policy allows all actions (*) for all Anvil compute principals (Lambda, ECS, EC2). When set, only the declared actions are permitted — the caller is responsible for declaring every action their compute resources need. Supports both Allow and Deny effects. Resource defaults to \"*\" if omitted on a permission entry."
         }
       },
       "requiredInputs": ["vpcId", "privateSubnetIds", "service"],
@@ -26,17 +31,36 @@
         },
         "dnsName": {
           "type": "string",
-          "description": "The first DNS name assigned to the endpoint, e.g. vpce-xxx.ssm.ap-southeast-2.vpce.amazonaws.com. With private DNS enabled, normal consumers use the standard AWS SDK hostname — this is exposed for debugging and multi-VPC architectures only."
+          "description": "The first DNS name assigned to the endpoint, e.g. vpce-xxx.sqs.ap-southeast-2.vpce.amazonaws.com. With private DNS enabled, normal consumers use the standard AWS SDK hostname — this is exposed for debugging and multi-VPC architectures only."
         },
         "securityGroupId": {
           "type": "string",
-          "description": "The ID of the dedicated security group attached to this endpoint. Zero rules by default. Ingress rules are added when compute resources call grantEndpointAccess."
+          "description": "The ID of the dedicated security group attached to this endpoint. Uses a self-referencing ingress rule on port 443 — only compute resources with this SG explicitly attached can reach the endpoint at the network layer."
         }
       },
       "required": ["endpointId", "dnsName", "securityGroupId"]
     }
   },
   "types": {
+    "anvil:aws:VpcEndpointPermission": {
+      "type": "object",
+      "description": "A single permission statement in the VPC endpoint policy. Effect must be Allow or Deny. Action is an IAM action string. Resource defaults to * if omitted.",
+      "properties": {
+        "effect": {
+          "type": "string",
+          "description": "The IAM effect — \"Allow\" or \"Deny\"."
+        },
+        "action": {
+          "type": "string",
+          "description": "The IAM action string, e.g. \"sqs:SendMessage\", \"secretsmanager:GetSecretValue\"."
+        },
+        "resource": {
+          "type": "string",
+          "description": "The ARN to scope this permission to. Defaults to \"*\" if omitted — applies to all resources of this service. Accepts Output<string> — pass resource ARNs directly, e.g. queue.arn, secret.arn."
+        }
+      },
+      "required": ["effect", "action"]
+    },
     "anvil:aws:AwsVpcEndpointService": {
       "type": "string",
       "description": "The AWS service to route privately via an Interface VPC Endpoint. Each value maps to the com.amazonaws.{region}.{suffix} endpoint service name.",
