@@ -211,6 +211,186 @@ func (in *awsVpcEndpointServicePtr) ToAwsVpcEndpointServicePtrOutputWithContext(
 	return pulumi.ToOutputWithContext(ctx, in).(AwsVpcEndpointServicePtrOutput)
 }
 
+// HTTP method for an API route.
+type HttpApiMethod string
+
+const (
+	// HTTP GET — read operations.
+	HttpApiMethodGET = HttpApiMethod("GET")
+	// HTTP POST — create operations and async consumers (SQS, EventBridge, Step Functions).
+	HttpApiMethodPOST = HttpApiMethod("POST")
+	// HTTP PUT — replace operations.
+	HttpApiMethodPUT = HttpApiMethod("PUT")
+	// HTTP PATCH — partial update operations.
+	HttpApiMethodPATCH = HttpApiMethod("PATCH")
+	// HTTP DELETE — delete operations.
+	HttpApiMethodDELETE = HttpApiMethod("DELETE")
+	// Matches all HTTP methods. Maps to the $default route key.
+	HttpApiMethodANY = HttpApiMethod("ANY")
+)
+
+func (HttpApiMethod) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiMethod)(nil)).Elem()
+}
+
+func (e HttpApiMethod) ToHttpApiMethodOutput() HttpApiMethodOutput {
+	return pulumi.ToOutput(e).(HttpApiMethodOutput)
+}
+
+func (e HttpApiMethod) ToHttpApiMethodOutputWithContext(ctx context.Context) HttpApiMethodOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(HttpApiMethodOutput)
+}
+
+func (e HttpApiMethod) ToHttpApiMethodPtrOutput() HttpApiMethodPtrOutput {
+	return e.ToHttpApiMethodPtrOutputWithContext(context.Background())
+}
+
+func (e HttpApiMethod) ToHttpApiMethodPtrOutputWithContext(ctx context.Context) HttpApiMethodPtrOutput {
+	return HttpApiMethod(e).ToHttpApiMethodOutputWithContext(ctx).ToHttpApiMethodPtrOutputWithContext(ctx)
+}
+
+func (e HttpApiMethod) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e HttpApiMethod) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e HttpApiMethod) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e HttpApiMethod) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type HttpApiMethodOutput struct{ *pulumi.OutputState }
+
+func (HttpApiMethodOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiMethod)(nil)).Elem()
+}
+
+func (o HttpApiMethodOutput) ToHttpApiMethodOutput() HttpApiMethodOutput {
+	return o
+}
+
+func (o HttpApiMethodOutput) ToHttpApiMethodOutputWithContext(ctx context.Context) HttpApiMethodOutput {
+	return o
+}
+
+func (o HttpApiMethodOutput) ToHttpApiMethodPtrOutput() HttpApiMethodPtrOutput {
+	return o.ToHttpApiMethodPtrOutputWithContext(context.Background())
+}
+
+func (o HttpApiMethodOutput) ToHttpApiMethodPtrOutputWithContext(ctx context.Context) HttpApiMethodPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v HttpApiMethod) *HttpApiMethod {
+		return &v
+	}).(HttpApiMethodPtrOutput)
+}
+
+func (o HttpApiMethodOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o HttpApiMethodOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e HttpApiMethod) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o HttpApiMethodOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o HttpApiMethodOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e HttpApiMethod) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type HttpApiMethodPtrOutput struct{ *pulumi.OutputState }
+
+func (HttpApiMethodPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiMethod)(nil)).Elem()
+}
+
+func (o HttpApiMethodPtrOutput) ToHttpApiMethodPtrOutput() HttpApiMethodPtrOutput {
+	return o
+}
+
+func (o HttpApiMethodPtrOutput) ToHttpApiMethodPtrOutputWithContext(ctx context.Context) HttpApiMethodPtrOutput {
+	return o
+}
+
+func (o HttpApiMethodPtrOutput) Elem() HttpApiMethodOutput {
+	return o.ApplyT(func(v *HttpApiMethod) HttpApiMethod {
+		if v != nil {
+			return *v
+		}
+		var ret HttpApiMethod
+		return ret
+	}).(HttpApiMethodOutput)
+}
+
+func (o HttpApiMethodPtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o HttpApiMethodPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *HttpApiMethod) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// HttpApiMethodInput is an input type that accepts values of the HttpApiMethod enum
+// A concrete instance of `HttpApiMethodInput` can be one of the following:
+//
+//	HttpApiMethodGET
+//	HttpApiMethodPOST
+//	HttpApiMethodPUT
+//	HttpApiMethodPATCH
+//	HttpApiMethodDELETE
+//	HttpApiMethodANY
+type HttpApiMethodInput interface {
+	pulumi.Input
+
+	ToHttpApiMethodOutput() HttpApiMethodOutput
+	ToHttpApiMethodOutputWithContext(context.Context) HttpApiMethodOutput
+}
+
+var httpApiMethodPtrType = reflect.TypeOf((**HttpApiMethod)(nil)).Elem()
+
+type HttpApiMethodPtrInput interface {
+	pulumi.Input
+
+	ToHttpApiMethodPtrOutput() HttpApiMethodPtrOutput
+	ToHttpApiMethodPtrOutputWithContext(context.Context) HttpApiMethodPtrOutput
+}
+
+type httpApiMethodPtr string
+
+func HttpApiMethodPtr(v string) HttpApiMethodPtrInput {
+	return (*httpApiMethodPtr)(&v)
+}
+
+func (*httpApiMethodPtr) ElementType() reflect.Type {
+	return httpApiMethodPtrType
+}
+
+func (in *httpApiMethodPtr) ToHttpApiMethodPtrOutput() HttpApiMethodPtrOutput {
+	return pulumi.ToOutput(in).(HttpApiMethodPtrOutput)
+}
+
+func (in *httpApiMethodPtr) ToHttpApiMethodPtrOutputWithContext(ctx context.Context) HttpApiMethodPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(HttpApiMethodPtrOutput)
+}
+
 type LambdaArchitecture string
 
 const (
@@ -1061,6 +1241,8 @@ func (in *vpcNatTypePtr) ToVpcNatTypePtrOutputWithContext(ctx context.Context) V
 func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*AwsVpcEndpointServiceInput)(nil)).Elem(), AwsVpcEndpointService("ssm"))
 	pulumi.RegisterInputType(reflect.TypeOf((*AwsVpcEndpointServicePtrInput)(nil)).Elem(), AwsVpcEndpointService("ssm"))
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiMethodInput)(nil)).Elem(), HttpApiMethod("GET"))
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiMethodPtrInput)(nil)).Elem(), HttpApiMethod("GET"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaArchitectureInput)(nil)).Elem(), LambdaArchitecture("arm64"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaArchitecturePtrInput)(nil)).Elem(), LambdaArchitecture("arm64"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaLogRetentionInput)(nil)).Elem(), LambdaLogRetention("7d"))
@@ -1073,6 +1255,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypePtrInput)(nil)).Elem(), VpcNatType("gateway"))
 	pulumi.RegisterOutputType(AwsVpcEndpointServiceOutput{})
 	pulumi.RegisterOutputType(AwsVpcEndpointServicePtrOutput{})
+	pulumi.RegisterOutputType(HttpApiMethodOutput{})
+	pulumi.RegisterOutputType(HttpApiMethodPtrOutput{})
 	pulumi.RegisterOutputType(LambdaArchitectureOutput{})
 	pulumi.RegisterOutputType(LambdaArchitecturePtrOutput{})
 	pulumi.RegisterOutputType(LambdaLogRetentionOutput{})

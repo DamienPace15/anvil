@@ -62,6 +62,38 @@ export const AwsVpcEndpointService = {
  */
 export type AwsVpcEndpointService = (typeof AwsVpcEndpointService)[keyof typeof AwsVpcEndpointService];
 
+export const HttpApiMethod = {
+    /**
+     * HTTP GET — read operations.
+     */
+    GET: "GET",
+    /**
+     * HTTP POST — create operations and async consumers (SQS, EventBridge, Step Functions).
+     */
+    POST: "POST",
+    /**
+     * HTTP PUT — replace operations.
+     */
+    PUT: "PUT",
+    /**
+     * HTTP PATCH — partial update operations.
+     */
+    PATCH: "PATCH",
+    /**
+     * HTTP DELETE — delete operations.
+     */
+    DELETE: "DELETE",
+    /**
+     * Matches all HTTP methods. Maps to the $default route key.
+     */
+    ANY: "ANY",
+} as const;
+
+/**
+ * HTTP method for an API route.
+ */
+export type HttpApiMethod = (typeof HttpApiMethod)[keyof typeof HttpApiMethod];
+
 export const LambdaArchitecture = {
     /**
      * Graviton - 20% cheaper, better performance. Default.

@@ -3320,6 +3320,1534 @@ func (o BucketWebsiteConfigurationTransformPtrOutput) RoutingRules() s3.BucketWe
 	}).(s3.BucketWebsiteConfigurationRoutingRuleArrayOutput)
 }
 
+// Cross-Origin Resource Sharing configuration. Opt-in — omit to disable CORS. Security rules: allowOrigins '*' is blocked, allowCredentials requires explicit origins, allowMethods is inferred from routes when omitted.
+type HttpApiCors struct {
+	// Allow cookies and auth headers in cross-origin requests. Default: false. When true, allowOrigins must not contain '*' — browsers reject this combination per the CORS specification.
+	AllowCredentials *bool `pulumi:"allowCredentials"`
+	// Allowed request headers. Default: ['Content-Type', 'Authorization', 'X-Request-ID'].
+	AllowHeaders []string `pulumi:"allowHeaders"`
+	// Allowed HTTP methods. Default: inferred automatically from the routes declared on this API.
+	AllowMethods []string `pulumi:"allowMethods"`
+	// Allowed origins. Required when CORS is enabled. Wildcard '*' is blocked — specify explicit origins. e.g. ['https://app.mysite.com'].
+	AllowOrigins []string `pulumi:"allowOrigins"`
+	// Preflight cache duration in seconds. Default: 86400 (24 hours) — reduces preflight requests significantly.
+	MaxAge *int `pulumi:"maxAge"`
+}
+
+// HttpApiCorsInput is an input type that accepts HttpApiCorsArgs and HttpApiCorsOutput values.
+// You can construct a concrete instance of `HttpApiCorsInput` via:
+//
+//	HttpApiCorsArgs{...}
+type HttpApiCorsInput interface {
+	pulumi.Input
+
+	ToHttpApiCorsOutput() HttpApiCorsOutput
+	ToHttpApiCorsOutputWithContext(context.Context) HttpApiCorsOutput
+}
+
+// Cross-Origin Resource Sharing configuration. Opt-in — omit to disable CORS. Security rules: allowOrigins '*' is blocked, allowCredentials requires explicit origins, allowMethods is inferred from routes when omitted.
+type HttpApiCorsArgs struct {
+	// Allow cookies and auth headers in cross-origin requests. Default: false. When true, allowOrigins must not contain '*' — browsers reject this combination per the CORS specification.
+	AllowCredentials pulumi.BoolPtrInput `pulumi:"allowCredentials"`
+	// Allowed request headers. Default: ['Content-Type', 'Authorization', 'X-Request-ID'].
+	AllowHeaders pulumi.StringArrayInput `pulumi:"allowHeaders"`
+	// Allowed HTTP methods. Default: inferred automatically from the routes declared on this API.
+	AllowMethods pulumi.StringArrayInput `pulumi:"allowMethods"`
+	// Allowed origins. Required when CORS is enabled. Wildcard '*' is blocked — specify explicit origins. e.g. ['https://app.mysite.com'].
+	AllowOrigins pulumi.StringArrayInput `pulumi:"allowOrigins"`
+	// Preflight cache duration in seconds. Default: 86400 (24 hours) — reduces preflight requests significantly.
+	MaxAge pulumi.IntPtrInput `pulumi:"maxAge"`
+}
+
+func (HttpApiCorsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiCors)(nil)).Elem()
+}
+
+func (i HttpApiCorsArgs) ToHttpApiCorsOutput() HttpApiCorsOutput {
+	return i.ToHttpApiCorsOutputWithContext(context.Background())
+}
+
+func (i HttpApiCorsArgs) ToHttpApiCorsOutputWithContext(ctx context.Context) HttpApiCorsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiCorsOutput)
+}
+
+func (i HttpApiCorsArgs) ToHttpApiCorsPtrOutput() HttpApiCorsPtrOutput {
+	return i.ToHttpApiCorsPtrOutputWithContext(context.Background())
+}
+
+func (i HttpApiCorsArgs) ToHttpApiCorsPtrOutputWithContext(ctx context.Context) HttpApiCorsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiCorsOutput).ToHttpApiCorsPtrOutputWithContext(ctx)
+}
+
+// HttpApiCorsPtrInput is an input type that accepts HttpApiCorsArgs, HttpApiCorsPtr and HttpApiCorsPtrOutput values.
+// You can construct a concrete instance of `HttpApiCorsPtrInput` via:
+//
+//	        HttpApiCorsArgs{...}
+//
+//	or:
+//
+//	        nil
+type HttpApiCorsPtrInput interface {
+	pulumi.Input
+
+	ToHttpApiCorsPtrOutput() HttpApiCorsPtrOutput
+	ToHttpApiCorsPtrOutputWithContext(context.Context) HttpApiCorsPtrOutput
+}
+
+type httpApiCorsPtrType HttpApiCorsArgs
+
+func HttpApiCorsPtr(v *HttpApiCorsArgs) HttpApiCorsPtrInput {
+	return (*httpApiCorsPtrType)(v)
+}
+
+func (*httpApiCorsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiCors)(nil)).Elem()
+}
+
+func (i *httpApiCorsPtrType) ToHttpApiCorsPtrOutput() HttpApiCorsPtrOutput {
+	return i.ToHttpApiCorsPtrOutputWithContext(context.Background())
+}
+
+func (i *httpApiCorsPtrType) ToHttpApiCorsPtrOutputWithContext(ctx context.Context) HttpApiCorsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiCorsPtrOutput)
+}
+
+// Cross-Origin Resource Sharing configuration. Opt-in — omit to disable CORS. Security rules: allowOrigins '*' is blocked, allowCredentials requires explicit origins, allowMethods is inferred from routes when omitted.
+type HttpApiCorsOutput struct{ *pulumi.OutputState }
+
+func (HttpApiCorsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiCors)(nil)).Elem()
+}
+
+func (o HttpApiCorsOutput) ToHttpApiCorsOutput() HttpApiCorsOutput {
+	return o
+}
+
+func (o HttpApiCorsOutput) ToHttpApiCorsOutputWithContext(ctx context.Context) HttpApiCorsOutput {
+	return o
+}
+
+func (o HttpApiCorsOutput) ToHttpApiCorsPtrOutput() HttpApiCorsPtrOutput {
+	return o.ToHttpApiCorsPtrOutputWithContext(context.Background())
+}
+
+func (o HttpApiCorsOutput) ToHttpApiCorsPtrOutputWithContext(ctx context.Context) HttpApiCorsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v HttpApiCors) *HttpApiCors {
+		return &v
+	}).(HttpApiCorsPtrOutput)
+}
+
+// Allow cookies and auth headers in cross-origin requests. Default: false. When true, allowOrigins must not contain '*' — browsers reject this combination per the CORS specification.
+func (o HttpApiCorsOutput) AllowCredentials() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v HttpApiCors) *bool { return v.AllowCredentials }).(pulumi.BoolPtrOutput)
+}
+
+// Allowed request headers. Default: ['Content-Type', 'Authorization', 'X-Request-ID'].
+func (o HttpApiCorsOutput) AllowHeaders() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v HttpApiCors) []string { return v.AllowHeaders }).(pulumi.StringArrayOutput)
+}
+
+// Allowed HTTP methods. Default: inferred automatically from the routes declared on this API.
+func (o HttpApiCorsOutput) AllowMethods() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v HttpApiCors) []string { return v.AllowMethods }).(pulumi.StringArrayOutput)
+}
+
+// Allowed origins. Required when CORS is enabled. Wildcard '*' is blocked — specify explicit origins. e.g. ['https://app.mysite.com'].
+func (o HttpApiCorsOutput) AllowOrigins() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v HttpApiCors) []string { return v.AllowOrigins }).(pulumi.StringArrayOutput)
+}
+
+// Preflight cache duration in seconds. Default: 86400 (24 hours) — reduces preflight requests significantly.
+func (o HttpApiCorsOutput) MaxAge() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v HttpApiCors) *int { return v.MaxAge }).(pulumi.IntPtrOutput)
+}
+
+type HttpApiCorsPtrOutput struct{ *pulumi.OutputState }
+
+func (HttpApiCorsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiCors)(nil)).Elem()
+}
+
+func (o HttpApiCorsPtrOutput) ToHttpApiCorsPtrOutput() HttpApiCorsPtrOutput {
+	return o
+}
+
+func (o HttpApiCorsPtrOutput) ToHttpApiCorsPtrOutputWithContext(ctx context.Context) HttpApiCorsPtrOutput {
+	return o
+}
+
+func (o HttpApiCorsPtrOutput) Elem() HttpApiCorsOutput {
+	return o.ApplyT(func(v *HttpApiCors) HttpApiCors {
+		if v != nil {
+			return *v
+		}
+		var ret HttpApiCors
+		return ret
+	}).(HttpApiCorsOutput)
+}
+
+// Allow cookies and auth headers in cross-origin requests. Default: false. When true, allowOrigins must not contain '*' — browsers reject this combination per the CORS specification.
+func (o HttpApiCorsPtrOutput) AllowCredentials() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *HttpApiCors) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.AllowCredentials
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Allowed request headers. Default: ['Content-Type', 'Authorization', 'X-Request-ID'].
+func (o HttpApiCorsPtrOutput) AllowHeaders() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *HttpApiCors) []string {
+		if v == nil {
+			return nil
+		}
+		return v.AllowHeaders
+	}).(pulumi.StringArrayOutput)
+}
+
+// Allowed HTTP methods. Default: inferred automatically from the routes declared on this API.
+func (o HttpApiCorsPtrOutput) AllowMethods() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *HttpApiCors) []string {
+		if v == nil {
+			return nil
+		}
+		return v.AllowMethods
+	}).(pulumi.StringArrayOutput)
+}
+
+// Allowed origins. Required when CORS is enabled. Wildcard '*' is blocked — specify explicit origins. e.g. ['https://app.mysite.com'].
+func (o HttpApiCorsPtrOutput) AllowOrigins() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *HttpApiCors) []string {
+		if v == nil {
+			return nil
+		}
+		return v.AllowOrigins
+	}).(pulumi.StringArrayOutput)
+}
+
+// Preflight cache duration in seconds. Default: 86400 (24 hours) — reduces preflight requests significantly.
+func (o HttpApiCorsPtrOutput) MaxAge() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *HttpApiCors) *int {
+		if v == nil {
+			return nil
+		}
+		return v.MaxAge
+	}).(pulumi.IntPtrOutput)
+}
+
+// Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.
+type HttpApiDomain struct {
+	// Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping.
+	BasePath *string `pulumi:"basePath"`
+	// BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+	CertificateArn *string `pulumi:"certificateArn"`
+	// The fully qualified domain name. e.g. 'api.mysite.com'.
+	Name string `pulumi:"name"`
+	// Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+	ZoneId *string `pulumi:"zoneId"`
+}
+
+// HttpApiDomainInput is an input type that accepts HttpApiDomainArgs and HttpApiDomainOutput values.
+// You can construct a concrete instance of `HttpApiDomainInput` via:
+//
+//	HttpApiDomainArgs{...}
+type HttpApiDomainInput interface {
+	pulumi.Input
+
+	ToHttpApiDomainOutput() HttpApiDomainOutput
+	ToHttpApiDomainOutputWithContext(context.Context) HttpApiDomainOutput
+}
+
+// Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.
+type HttpApiDomainArgs struct {
+	// Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping.
+	BasePath pulumi.StringPtrInput `pulumi:"basePath"`
+	// BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+	CertificateArn pulumi.StringPtrInput `pulumi:"certificateArn"`
+	// The fully qualified domain name. e.g. 'api.mysite.com'.
+	Name pulumi.StringInput `pulumi:"name"`
+	// Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+	ZoneId pulumi.StringPtrInput `pulumi:"zoneId"`
+}
+
+func (HttpApiDomainArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiDomain)(nil)).Elem()
+}
+
+func (i HttpApiDomainArgs) ToHttpApiDomainOutput() HttpApiDomainOutput {
+	return i.ToHttpApiDomainOutputWithContext(context.Background())
+}
+
+func (i HttpApiDomainArgs) ToHttpApiDomainOutputWithContext(ctx context.Context) HttpApiDomainOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiDomainOutput)
+}
+
+func (i HttpApiDomainArgs) ToHttpApiDomainPtrOutput() HttpApiDomainPtrOutput {
+	return i.ToHttpApiDomainPtrOutputWithContext(context.Background())
+}
+
+func (i HttpApiDomainArgs) ToHttpApiDomainPtrOutputWithContext(ctx context.Context) HttpApiDomainPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiDomainOutput).ToHttpApiDomainPtrOutputWithContext(ctx)
+}
+
+// HttpApiDomainPtrInput is an input type that accepts HttpApiDomainArgs, HttpApiDomainPtr and HttpApiDomainPtrOutput values.
+// You can construct a concrete instance of `HttpApiDomainPtrInput` via:
+//
+//	        HttpApiDomainArgs{...}
+//
+//	or:
+//
+//	        nil
+type HttpApiDomainPtrInput interface {
+	pulumi.Input
+
+	ToHttpApiDomainPtrOutput() HttpApiDomainPtrOutput
+	ToHttpApiDomainPtrOutputWithContext(context.Context) HttpApiDomainPtrOutput
+}
+
+type httpApiDomainPtrType HttpApiDomainArgs
+
+func HttpApiDomainPtr(v *HttpApiDomainArgs) HttpApiDomainPtrInput {
+	return (*httpApiDomainPtrType)(v)
+}
+
+func (*httpApiDomainPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiDomain)(nil)).Elem()
+}
+
+func (i *httpApiDomainPtrType) ToHttpApiDomainPtrOutput() HttpApiDomainPtrOutput {
+	return i.ToHttpApiDomainPtrOutputWithContext(context.Background())
+}
+
+func (i *httpApiDomainPtrType) ToHttpApiDomainPtrOutputWithContext(ctx context.Context) HttpApiDomainPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiDomainPtrOutput)
+}
+
+// Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.
+type HttpApiDomainOutput struct{ *pulumi.OutputState }
+
+func (HttpApiDomainOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiDomain)(nil)).Elem()
+}
+
+func (o HttpApiDomainOutput) ToHttpApiDomainOutput() HttpApiDomainOutput {
+	return o
+}
+
+func (o HttpApiDomainOutput) ToHttpApiDomainOutputWithContext(ctx context.Context) HttpApiDomainOutput {
+	return o
+}
+
+func (o HttpApiDomainOutput) ToHttpApiDomainPtrOutput() HttpApiDomainPtrOutput {
+	return o.ToHttpApiDomainPtrOutputWithContext(context.Background())
+}
+
+func (o HttpApiDomainOutput) ToHttpApiDomainPtrOutputWithContext(ctx context.Context) HttpApiDomainPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v HttpApiDomain) *HttpApiDomain {
+		return &v
+	}).(HttpApiDomainPtrOutput)
+}
+
+// Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping.
+func (o HttpApiDomainOutput) BasePath() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v HttpApiDomain) *string { return v.BasePath }).(pulumi.StringPtrOutput)
+}
+
+// BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+func (o HttpApiDomainOutput) CertificateArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v HttpApiDomain) *string { return v.CertificateArn }).(pulumi.StringPtrOutput)
+}
+
+// The fully qualified domain name. e.g. 'api.mysite.com'.
+func (o HttpApiDomainOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v HttpApiDomain) string { return v.Name }).(pulumi.StringOutput)
+}
+
+// Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+func (o HttpApiDomainOutput) ZoneId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v HttpApiDomain) *string { return v.ZoneId }).(pulumi.StringPtrOutput)
+}
+
+type HttpApiDomainPtrOutput struct{ *pulumi.OutputState }
+
+func (HttpApiDomainPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiDomain)(nil)).Elem()
+}
+
+func (o HttpApiDomainPtrOutput) ToHttpApiDomainPtrOutput() HttpApiDomainPtrOutput {
+	return o
+}
+
+func (o HttpApiDomainPtrOutput) ToHttpApiDomainPtrOutputWithContext(ctx context.Context) HttpApiDomainPtrOutput {
+	return o
+}
+
+func (o HttpApiDomainPtrOutput) Elem() HttpApiDomainOutput {
+	return o.ApplyT(func(v *HttpApiDomain) HttpApiDomain {
+		if v != nil {
+			return *v
+		}
+		var ret HttpApiDomain
+		return ret
+	}).(HttpApiDomainOutput)
+}
+
+// Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping.
+func (o HttpApiDomainPtrOutput) BasePath() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *HttpApiDomain) *string {
+		if v == nil {
+			return nil
+		}
+		return v.BasePath
+	}).(pulumi.StringPtrOutput)
+}
+
+// BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+func (o HttpApiDomainPtrOutput) CertificateArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *HttpApiDomain) *string {
+		if v == nil {
+			return nil
+		}
+		return v.CertificateArn
+	}).(pulumi.StringPtrOutput)
+}
+
+// The fully qualified domain name. e.g. 'api.mysite.com'.
+func (o HttpApiDomainPtrOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *HttpApiDomain) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Name
+	}).(pulumi.StringPtrOutput)
+}
+
+// Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+func (o HttpApiDomainPtrOutput) ZoneId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *HttpApiDomain) *string {
+		if v == nil {
+			return nil
+		}
+		return v.ZoneId
+	}).(pulumi.StringPtrOutput)
+}
+
+// Routes requests directly to an EventBridge bus. API Gateway puts the request body as an event — no Lambda required. Anvil creates a least-privilege IAM role granting events:PutEvents on this bus only.
+type HttpApiEventBridgeConsumer struct {
+	// The EventBridge bus name. Pass bus.name directly. Accepts Output<string>.
+	Name interface{} `pulumi:"name"`
+}
+
+// HttpApiEventBridgeConsumerInput is an input type that accepts HttpApiEventBridgeConsumerArgs and HttpApiEventBridgeConsumerOutput values.
+// You can construct a concrete instance of `HttpApiEventBridgeConsumerInput` via:
+//
+//	HttpApiEventBridgeConsumerArgs{...}
+type HttpApiEventBridgeConsumerInput interface {
+	pulumi.Input
+
+	ToHttpApiEventBridgeConsumerOutput() HttpApiEventBridgeConsumerOutput
+	ToHttpApiEventBridgeConsumerOutputWithContext(context.Context) HttpApiEventBridgeConsumerOutput
+}
+
+// Routes requests directly to an EventBridge bus. API Gateway puts the request body as an event — no Lambda required. Anvil creates a least-privilege IAM role granting events:PutEvents on this bus only.
+type HttpApiEventBridgeConsumerArgs struct {
+	// The EventBridge bus name. Pass bus.name directly. Accepts Output<string>.
+	Name pulumi.Input `pulumi:"name"`
+}
+
+func (HttpApiEventBridgeConsumerArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiEventBridgeConsumer)(nil)).Elem()
+}
+
+func (i HttpApiEventBridgeConsumerArgs) ToHttpApiEventBridgeConsumerOutput() HttpApiEventBridgeConsumerOutput {
+	return i.ToHttpApiEventBridgeConsumerOutputWithContext(context.Background())
+}
+
+func (i HttpApiEventBridgeConsumerArgs) ToHttpApiEventBridgeConsumerOutputWithContext(ctx context.Context) HttpApiEventBridgeConsumerOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiEventBridgeConsumerOutput)
+}
+
+func (i HttpApiEventBridgeConsumerArgs) ToHttpApiEventBridgeConsumerPtrOutput() HttpApiEventBridgeConsumerPtrOutput {
+	return i.ToHttpApiEventBridgeConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i HttpApiEventBridgeConsumerArgs) ToHttpApiEventBridgeConsumerPtrOutputWithContext(ctx context.Context) HttpApiEventBridgeConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiEventBridgeConsumerOutput).ToHttpApiEventBridgeConsumerPtrOutputWithContext(ctx)
+}
+
+// HttpApiEventBridgeConsumerPtrInput is an input type that accepts HttpApiEventBridgeConsumerArgs, HttpApiEventBridgeConsumerPtr and HttpApiEventBridgeConsumerPtrOutput values.
+// You can construct a concrete instance of `HttpApiEventBridgeConsumerPtrInput` via:
+//
+//	        HttpApiEventBridgeConsumerArgs{...}
+//
+//	or:
+//
+//	        nil
+type HttpApiEventBridgeConsumerPtrInput interface {
+	pulumi.Input
+
+	ToHttpApiEventBridgeConsumerPtrOutput() HttpApiEventBridgeConsumerPtrOutput
+	ToHttpApiEventBridgeConsumerPtrOutputWithContext(context.Context) HttpApiEventBridgeConsumerPtrOutput
+}
+
+type httpApiEventBridgeConsumerPtrType HttpApiEventBridgeConsumerArgs
+
+func HttpApiEventBridgeConsumerPtr(v *HttpApiEventBridgeConsumerArgs) HttpApiEventBridgeConsumerPtrInput {
+	return (*httpApiEventBridgeConsumerPtrType)(v)
+}
+
+func (*httpApiEventBridgeConsumerPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiEventBridgeConsumer)(nil)).Elem()
+}
+
+func (i *httpApiEventBridgeConsumerPtrType) ToHttpApiEventBridgeConsumerPtrOutput() HttpApiEventBridgeConsumerPtrOutput {
+	return i.ToHttpApiEventBridgeConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i *httpApiEventBridgeConsumerPtrType) ToHttpApiEventBridgeConsumerPtrOutputWithContext(ctx context.Context) HttpApiEventBridgeConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiEventBridgeConsumerPtrOutput)
+}
+
+// Routes requests directly to an EventBridge bus. API Gateway puts the request body as an event — no Lambda required. Anvil creates a least-privilege IAM role granting events:PutEvents on this bus only.
+type HttpApiEventBridgeConsumerOutput struct{ *pulumi.OutputState }
+
+func (HttpApiEventBridgeConsumerOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiEventBridgeConsumer)(nil)).Elem()
+}
+
+func (o HttpApiEventBridgeConsumerOutput) ToHttpApiEventBridgeConsumerOutput() HttpApiEventBridgeConsumerOutput {
+	return o
+}
+
+func (o HttpApiEventBridgeConsumerOutput) ToHttpApiEventBridgeConsumerOutputWithContext(ctx context.Context) HttpApiEventBridgeConsumerOutput {
+	return o
+}
+
+func (o HttpApiEventBridgeConsumerOutput) ToHttpApiEventBridgeConsumerPtrOutput() HttpApiEventBridgeConsumerPtrOutput {
+	return o.ToHttpApiEventBridgeConsumerPtrOutputWithContext(context.Background())
+}
+
+func (o HttpApiEventBridgeConsumerOutput) ToHttpApiEventBridgeConsumerPtrOutputWithContext(ctx context.Context) HttpApiEventBridgeConsumerPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v HttpApiEventBridgeConsumer) *HttpApiEventBridgeConsumer {
+		return &v
+	}).(HttpApiEventBridgeConsumerPtrOutput)
+}
+
+// The EventBridge bus name. Pass bus.name directly. Accepts Output<string>.
+func (o HttpApiEventBridgeConsumerOutput) Name() pulumi.AnyOutput {
+	return o.ApplyT(func(v HttpApiEventBridgeConsumer) interface{} { return v.Name }).(pulumi.AnyOutput)
+}
+
+type HttpApiEventBridgeConsumerPtrOutput struct{ *pulumi.OutputState }
+
+func (HttpApiEventBridgeConsumerPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiEventBridgeConsumer)(nil)).Elem()
+}
+
+func (o HttpApiEventBridgeConsumerPtrOutput) ToHttpApiEventBridgeConsumerPtrOutput() HttpApiEventBridgeConsumerPtrOutput {
+	return o
+}
+
+func (o HttpApiEventBridgeConsumerPtrOutput) ToHttpApiEventBridgeConsumerPtrOutputWithContext(ctx context.Context) HttpApiEventBridgeConsumerPtrOutput {
+	return o
+}
+
+func (o HttpApiEventBridgeConsumerPtrOutput) Elem() HttpApiEventBridgeConsumerOutput {
+	return o.ApplyT(func(v *HttpApiEventBridgeConsumer) HttpApiEventBridgeConsumer {
+		if v != nil {
+			return *v
+		}
+		var ret HttpApiEventBridgeConsumer
+		return ret
+	}).(HttpApiEventBridgeConsumerOutput)
+}
+
+// The EventBridge bus name. Pass bus.name directly. Accepts Output<string>.
+func (o HttpApiEventBridgeConsumerPtrOutput) Name() pulumi.AnyOutput {
+	return o.ApplyT(func(v *HttpApiEventBridgeConsumer) interface{} {
+		if v == nil {
+			return nil
+		}
+		return v.Name
+	}).(pulumi.AnyOutput)
+}
+
+// Proxies requests to an external HTTP URL. Useful for gradual migration from legacy APIs or third-party integrations. No IAM configuration required.
+type HttpApiHttpConsumer struct {
+	// The external HTTP URL to proxy to. e.g. 'https://legacy-api.mycompany.com'.
+	Url string `pulumi:"url"`
+}
+
+// HttpApiHttpConsumerInput is an input type that accepts HttpApiHttpConsumerArgs and HttpApiHttpConsumerOutput values.
+// You can construct a concrete instance of `HttpApiHttpConsumerInput` via:
+//
+//	HttpApiHttpConsumerArgs{...}
+type HttpApiHttpConsumerInput interface {
+	pulumi.Input
+
+	ToHttpApiHttpConsumerOutput() HttpApiHttpConsumerOutput
+	ToHttpApiHttpConsumerOutputWithContext(context.Context) HttpApiHttpConsumerOutput
+}
+
+// Proxies requests to an external HTTP URL. Useful for gradual migration from legacy APIs or third-party integrations. No IAM configuration required.
+type HttpApiHttpConsumerArgs struct {
+	// The external HTTP URL to proxy to. e.g. 'https://legacy-api.mycompany.com'.
+	Url pulumi.StringInput `pulumi:"url"`
+}
+
+func (HttpApiHttpConsumerArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiHttpConsumer)(nil)).Elem()
+}
+
+func (i HttpApiHttpConsumerArgs) ToHttpApiHttpConsumerOutput() HttpApiHttpConsumerOutput {
+	return i.ToHttpApiHttpConsumerOutputWithContext(context.Background())
+}
+
+func (i HttpApiHttpConsumerArgs) ToHttpApiHttpConsumerOutputWithContext(ctx context.Context) HttpApiHttpConsumerOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiHttpConsumerOutput)
+}
+
+func (i HttpApiHttpConsumerArgs) ToHttpApiHttpConsumerPtrOutput() HttpApiHttpConsumerPtrOutput {
+	return i.ToHttpApiHttpConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i HttpApiHttpConsumerArgs) ToHttpApiHttpConsumerPtrOutputWithContext(ctx context.Context) HttpApiHttpConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiHttpConsumerOutput).ToHttpApiHttpConsumerPtrOutputWithContext(ctx)
+}
+
+// HttpApiHttpConsumerPtrInput is an input type that accepts HttpApiHttpConsumerArgs, HttpApiHttpConsumerPtr and HttpApiHttpConsumerPtrOutput values.
+// You can construct a concrete instance of `HttpApiHttpConsumerPtrInput` via:
+//
+//	        HttpApiHttpConsumerArgs{...}
+//
+//	or:
+//
+//	        nil
+type HttpApiHttpConsumerPtrInput interface {
+	pulumi.Input
+
+	ToHttpApiHttpConsumerPtrOutput() HttpApiHttpConsumerPtrOutput
+	ToHttpApiHttpConsumerPtrOutputWithContext(context.Context) HttpApiHttpConsumerPtrOutput
+}
+
+type httpApiHttpConsumerPtrType HttpApiHttpConsumerArgs
+
+func HttpApiHttpConsumerPtr(v *HttpApiHttpConsumerArgs) HttpApiHttpConsumerPtrInput {
+	return (*httpApiHttpConsumerPtrType)(v)
+}
+
+func (*httpApiHttpConsumerPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiHttpConsumer)(nil)).Elem()
+}
+
+func (i *httpApiHttpConsumerPtrType) ToHttpApiHttpConsumerPtrOutput() HttpApiHttpConsumerPtrOutput {
+	return i.ToHttpApiHttpConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i *httpApiHttpConsumerPtrType) ToHttpApiHttpConsumerPtrOutputWithContext(ctx context.Context) HttpApiHttpConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiHttpConsumerPtrOutput)
+}
+
+// Proxies requests to an external HTTP URL. Useful for gradual migration from legacy APIs or third-party integrations. No IAM configuration required.
+type HttpApiHttpConsumerOutput struct{ *pulumi.OutputState }
+
+func (HttpApiHttpConsumerOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiHttpConsumer)(nil)).Elem()
+}
+
+func (o HttpApiHttpConsumerOutput) ToHttpApiHttpConsumerOutput() HttpApiHttpConsumerOutput {
+	return o
+}
+
+func (o HttpApiHttpConsumerOutput) ToHttpApiHttpConsumerOutputWithContext(ctx context.Context) HttpApiHttpConsumerOutput {
+	return o
+}
+
+func (o HttpApiHttpConsumerOutput) ToHttpApiHttpConsumerPtrOutput() HttpApiHttpConsumerPtrOutput {
+	return o.ToHttpApiHttpConsumerPtrOutputWithContext(context.Background())
+}
+
+func (o HttpApiHttpConsumerOutput) ToHttpApiHttpConsumerPtrOutputWithContext(ctx context.Context) HttpApiHttpConsumerPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v HttpApiHttpConsumer) *HttpApiHttpConsumer {
+		return &v
+	}).(HttpApiHttpConsumerPtrOutput)
+}
+
+// The external HTTP URL to proxy to. e.g. 'https://legacy-api.mycompany.com'.
+func (o HttpApiHttpConsumerOutput) Url() pulumi.StringOutput {
+	return o.ApplyT(func(v HttpApiHttpConsumer) string { return v.Url }).(pulumi.StringOutput)
+}
+
+type HttpApiHttpConsumerPtrOutput struct{ *pulumi.OutputState }
+
+func (HttpApiHttpConsumerPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiHttpConsumer)(nil)).Elem()
+}
+
+func (o HttpApiHttpConsumerPtrOutput) ToHttpApiHttpConsumerPtrOutput() HttpApiHttpConsumerPtrOutput {
+	return o
+}
+
+func (o HttpApiHttpConsumerPtrOutput) ToHttpApiHttpConsumerPtrOutputWithContext(ctx context.Context) HttpApiHttpConsumerPtrOutput {
+	return o
+}
+
+func (o HttpApiHttpConsumerPtrOutput) Elem() HttpApiHttpConsumerOutput {
+	return o.ApplyT(func(v *HttpApiHttpConsumer) HttpApiHttpConsumer {
+		if v != nil {
+			return *v
+		}
+		var ret HttpApiHttpConsumer
+		return ret
+	}).(HttpApiHttpConsumerOutput)
+}
+
+// The external HTTP URL to proxy to. e.g. 'https://legacy-api.mycompany.com'.
+func (o HttpApiHttpConsumerPtrOutput) Url() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *HttpApiHttpConsumer) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Url
+	}).(pulumi.StringPtrOutput)
+}
+
+// Routes requests to a Lambda function via AWS_PROXY integration. API Gateway invokes the Lambda synchronously and returns its response directly.
+type HttpApiLambdaConsumer struct {
+	// The Lambda function ARN. Pass lambda.arn directly. Accepts Output<string>.
+	Arn interface{} `pulumi:"arn"`
+}
+
+// HttpApiLambdaConsumerInput is an input type that accepts HttpApiLambdaConsumerArgs and HttpApiLambdaConsumerOutput values.
+// You can construct a concrete instance of `HttpApiLambdaConsumerInput` via:
+//
+//	HttpApiLambdaConsumerArgs{...}
+type HttpApiLambdaConsumerInput interface {
+	pulumi.Input
+
+	ToHttpApiLambdaConsumerOutput() HttpApiLambdaConsumerOutput
+	ToHttpApiLambdaConsumerOutputWithContext(context.Context) HttpApiLambdaConsumerOutput
+}
+
+// Routes requests to a Lambda function via AWS_PROXY integration. API Gateway invokes the Lambda synchronously and returns its response directly.
+type HttpApiLambdaConsumerArgs struct {
+	// The Lambda function ARN. Pass lambda.arn directly. Accepts Output<string>.
+	Arn pulumi.Input `pulumi:"arn"`
+}
+
+func (HttpApiLambdaConsumerArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiLambdaConsumer)(nil)).Elem()
+}
+
+func (i HttpApiLambdaConsumerArgs) ToHttpApiLambdaConsumerOutput() HttpApiLambdaConsumerOutput {
+	return i.ToHttpApiLambdaConsumerOutputWithContext(context.Background())
+}
+
+func (i HttpApiLambdaConsumerArgs) ToHttpApiLambdaConsumerOutputWithContext(ctx context.Context) HttpApiLambdaConsumerOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiLambdaConsumerOutput)
+}
+
+func (i HttpApiLambdaConsumerArgs) ToHttpApiLambdaConsumerPtrOutput() HttpApiLambdaConsumerPtrOutput {
+	return i.ToHttpApiLambdaConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i HttpApiLambdaConsumerArgs) ToHttpApiLambdaConsumerPtrOutputWithContext(ctx context.Context) HttpApiLambdaConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiLambdaConsumerOutput).ToHttpApiLambdaConsumerPtrOutputWithContext(ctx)
+}
+
+// HttpApiLambdaConsumerPtrInput is an input type that accepts HttpApiLambdaConsumerArgs, HttpApiLambdaConsumerPtr and HttpApiLambdaConsumerPtrOutput values.
+// You can construct a concrete instance of `HttpApiLambdaConsumerPtrInput` via:
+//
+//	        HttpApiLambdaConsumerArgs{...}
+//
+//	or:
+//
+//	        nil
+type HttpApiLambdaConsumerPtrInput interface {
+	pulumi.Input
+
+	ToHttpApiLambdaConsumerPtrOutput() HttpApiLambdaConsumerPtrOutput
+	ToHttpApiLambdaConsumerPtrOutputWithContext(context.Context) HttpApiLambdaConsumerPtrOutput
+}
+
+type httpApiLambdaConsumerPtrType HttpApiLambdaConsumerArgs
+
+func HttpApiLambdaConsumerPtr(v *HttpApiLambdaConsumerArgs) HttpApiLambdaConsumerPtrInput {
+	return (*httpApiLambdaConsumerPtrType)(v)
+}
+
+func (*httpApiLambdaConsumerPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiLambdaConsumer)(nil)).Elem()
+}
+
+func (i *httpApiLambdaConsumerPtrType) ToHttpApiLambdaConsumerPtrOutput() HttpApiLambdaConsumerPtrOutput {
+	return i.ToHttpApiLambdaConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i *httpApiLambdaConsumerPtrType) ToHttpApiLambdaConsumerPtrOutputWithContext(ctx context.Context) HttpApiLambdaConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiLambdaConsumerPtrOutput)
+}
+
+// Routes requests to a Lambda function via AWS_PROXY integration. API Gateway invokes the Lambda synchronously and returns its response directly.
+type HttpApiLambdaConsumerOutput struct{ *pulumi.OutputState }
+
+func (HttpApiLambdaConsumerOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiLambdaConsumer)(nil)).Elem()
+}
+
+func (o HttpApiLambdaConsumerOutput) ToHttpApiLambdaConsumerOutput() HttpApiLambdaConsumerOutput {
+	return o
+}
+
+func (o HttpApiLambdaConsumerOutput) ToHttpApiLambdaConsumerOutputWithContext(ctx context.Context) HttpApiLambdaConsumerOutput {
+	return o
+}
+
+func (o HttpApiLambdaConsumerOutput) ToHttpApiLambdaConsumerPtrOutput() HttpApiLambdaConsumerPtrOutput {
+	return o.ToHttpApiLambdaConsumerPtrOutputWithContext(context.Background())
+}
+
+func (o HttpApiLambdaConsumerOutput) ToHttpApiLambdaConsumerPtrOutputWithContext(ctx context.Context) HttpApiLambdaConsumerPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v HttpApiLambdaConsumer) *HttpApiLambdaConsumer {
+		return &v
+	}).(HttpApiLambdaConsumerPtrOutput)
+}
+
+// The Lambda function ARN. Pass lambda.arn directly. Accepts Output<string>.
+func (o HttpApiLambdaConsumerOutput) Arn() pulumi.AnyOutput {
+	return o.ApplyT(func(v HttpApiLambdaConsumer) interface{} { return v.Arn }).(pulumi.AnyOutput)
+}
+
+type HttpApiLambdaConsumerPtrOutput struct{ *pulumi.OutputState }
+
+func (HttpApiLambdaConsumerPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiLambdaConsumer)(nil)).Elem()
+}
+
+func (o HttpApiLambdaConsumerPtrOutput) ToHttpApiLambdaConsumerPtrOutput() HttpApiLambdaConsumerPtrOutput {
+	return o
+}
+
+func (o HttpApiLambdaConsumerPtrOutput) ToHttpApiLambdaConsumerPtrOutputWithContext(ctx context.Context) HttpApiLambdaConsumerPtrOutput {
+	return o
+}
+
+func (o HttpApiLambdaConsumerPtrOutput) Elem() HttpApiLambdaConsumerOutput {
+	return o.ApplyT(func(v *HttpApiLambdaConsumer) HttpApiLambdaConsumer {
+		if v != nil {
+			return *v
+		}
+		var ret HttpApiLambdaConsumer
+		return ret
+	}).(HttpApiLambdaConsumerOutput)
+}
+
+// The Lambda function ARN. Pass lambda.arn directly. Accepts Output<string>.
+func (o HttpApiLambdaConsumerPtrOutput) Arn() pulumi.AnyOutput {
+	return o.ApplyT(func(v *HttpApiLambdaConsumer) interface{} {
+		if v == nil {
+			return nil
+		}
+		return v.Arn
+	}).(pulumi.AnyOutput)
+}
+
+// A single route on the HTTP API mapping a method and path to a consumer target.
+type HttpApiRoute struct {
+	// The target that handles this route. Exactly one consumer type must be set.
+	Consumer HttpApiRouteConsumer `pulumi:"consumer"`
+	// The HTTP method for this route.
+	Method HttpApiMethod `pulumi:"method"`
+	// The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.
+	Path string `pulumi:"path"`
+	// Optional per-route throttling override. Inherits API-level throttling when omitted.
+	Throttling *HttpApiThrottling `pulumi:"throttling"`
+}
+
+// HttpApiRouteInput is an input type that accepts HttpApiRouteArgs and HttpApiRouteOutput values.
+// You can construct a concrete instance of `HttpApiRouteInput` via:
+//
+//	HttpApiRouteArgs{...}
+type HttpApiRouteInput interface {
+	pulumi.Input
+
+	ToHttpApiRouteOutput() HttpApiRouteOutput
+	ToHttpApiRouteOutputWithContext(context.Context) HttpApiRouteOutput
+}
+
+// A single route on the HTTP API mapping a method and path to a consumer target.
+type HttpApiRouteArgs struct {
+	// The target that handles this route. Exactly one consumer type must be set.
+	Consumer HttpApiRouteConsumerInput `pulumi:"consumer"`
+	// The HTTP method for this route.
+	Method HttpApiMethodInput `pulumi:"method"`
+	// The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.
+	Path pulumi.StringInput `pulumi:"path"`
+	// Optional per-route throttling override. Inherits API-level throttling when omitted.
+	Throttling HttpApiThrottlingPtrInput `pulumi:"throttling"`
+}
+
+func (HttpApiRouteArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiRoute)(nil)).Elem()
+}
+
+func (i HttpApiRouteArgs) ToHttpApiRouteOutput() HttpApiRouteOutput {
+	return i.ToHttpApiRouteOutputWithContext(context.Background())
+}
+
+func (i HttpApiRouteArgs) ToHttpApiRouteOutputWithContext(ctx context.Context) HttpApiRouteOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiRouteOutput)
+}
+
+// HttpApiRouteArrayInput is an input type that accepts HttpApiRouteArray and HttpApiRouteArrayOutput values.
+// You can construct a concrete instance of `HttpApiRouteArrayInput` via:
+//
+//	HttpApiRouteArray{ HttpApiRouteArgs{...} }
+type HttpApiRouteArrayInput interface {
+	pulumi.Input
+
+	ToHttpApiRouteArrayOutput() HttpApiRouteArrayOutput
+	ToHttpApiRouteArrayOutputWithContext(context.Context) HttpApiRouteArrayOutput
+}
+
+type HttpApiRouteArray []HttpApiRouteInput
+
+func (HttpApiRouteArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]HttpApiRoute)(nil)).Elem()
+}
+
+func (i HttpApiRouteArray) ToHttpApiRouteArrayOutput() HttpApiRouteArrayOutput {
+	return i.ToHttpApiRouteArrayOutputWithContext(context.Background())
+}
+
+func (i HttpApiRouteArray) ToHttpApiRouteArrayOutputWithContext(ctx context.Context) HttpApiRouteArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiRouteArrayOutput)
+}
+
+// A single route on the HTTP API mapping a method and path to a consumer target.
+type HttpApiRouteOutput struct{ *pulumi.OutputState }
+
+func (HttpApiRouteOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiRoute)(nil)).Elem()
+}
+
+func (o HttpApiRouteOutput) ToHttpApiRouteOutput() HttpApiRouteOutput {
+	return o
+}
+
+func (o HttpApiRouteOutput) ToHttpApiRouteOutputWithContext(ctx context.Context) HttpApiRouteOutput {
+	return o
+}
+
+// The target that handles this route. Exactly one consumer type must be set.
+func (o HttpApiRouteOutput) Consumer() HttpApiRouteConsumerOutput {
+	return o.ApplyT(func(v HttpApiRoute) HttpApiRouteConsumer { return v.Consumer }).(HttpApiRouteConsumerOutput)
+}
+
+// The HTTP method for this route.
+func (o HttpApiRouteOutput) Method() HttpApiMethodOutput {
+	return o.ApplyT(func(v HttpApiRoute) HttpApiMethod { return v.Method }).(HttpApiMethodOutput)
+}
+
+// The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.
+func (o HttpApiRouteOutput) Path() pulumi.StringOutput {
+	return o.ApplyT(func(v HttpApiRoute) string { return v.Path }).(pulumi.StringOutput)
+}
+
+// Optional per-route throttling override. Inherits API-level throttling when omitted.
+func (o HttpApiRouteOutput) Throttling() HttpApiThrottlingPtrOutput {
+	return o.ApplyT(func(v HttpApiRoute) *HttpApiThrottling { return v.Throttling }).(HttpApiThrottlingPtrOutput)
+}
+
+type HttpApiRouteArrayOutput struct{ *pulumi.OutputState }
+
+func (HttpApiRouteArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]HttpApiRoute)(nil)).Elem()
+}
+
+func (o HttpApiRouteArrayOutput) ToHttpApiRouteArrayOutput() HttpApiRouteArrayOutput {
+	return o
+}
+
+func (o HttpApiRouteArrayOutput) ToHttpApiRouteArrayOutputWithContext(ctx context.Context) HttpApiRouteArrayOutput {
+	return o
+}
+
+func (o HttpApiRouteArrayOutput) Index(i pulumi.IntInput) HttpApiRouteOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) HttpApiRoute {
+		return vs[0].([]HttpApiRoute)[vs[1].(int)]
+	}).(HttpApiRouteOutput)
+}
+
+// The target that handles a route. Exactly one field must be set — Anvil validates this at deploy time and returns a clear error if zero or multiple are set.
+type HttpApiRouteConsumer struct {
+	// Route directly to an EventBridge bus. No Lambda required. Must use POST, PUT, or PATCH.
+	EventBridge *HttpApiEventBridgeConsumer `pulumi:"eventBridge"`
+	// Proxy to an external HTTP URL. Useful for gradual migration from legacy APIs.
+	Http *HttpApiHttpConsumer `pulumi:"http"`
+	// Route to a Lambda function. Pass lambda.arn directly.
+	Lambda *HttpApiLambdaConsumer `pulumi:"lambda"`
+	// Route directly to an SQS queue. No Lambda required. Returns 202 Accepted immediately — message is processed asynchronously. Must use POST, PUT, or PATCH.
+	Sqs *HttpApiSqsConsumer `pulumi:"sqs"`
+	// Route to a Step Functions state machine. Async by default. Must use POST, PUT, or PATCH.
+	StepFunctions *HttpApiStepFunctionsConsumer `pulumi:"stepFunctions"`
+}
+
+// HttpApiRouteConsumerInput is an input type that accepts HttpApiRouteConsumerArgs and HttpApiRouteConsumerOutput values.
+// You can construct a concrete instance of `HttpApiRouteConsumerInput` via:
+//
+//	HttpApiRouteConsumerArgs{...}
+type HttpApiRouteConsumerInput interface {
+	pulumi.Input
+
+	ToHttpApiRouteConsumerOutput() HttpApiRouteConsumerOutput
+	ToHttpApiRouteConsumerOutputWithContext(context.Context) HttpApiRouteConsumerOutput
+}
+
+// The target that handles a route. Exactly one field must be set — Anvil validates this at deploy time and returns a clear error if zero or multiple are set.
+type HttpApiRouteConsumerArgs struct {
+	// Route directly to an EventBridge bus. No Lambda required. Must use POST, PUT, or PATCH.
+	EventBridge HttpApiEventBridgeConsumerPtrInput `pulumi:"eventBridge"`
+	// Proxy to an external HTTP URL. Useful for gradual migration from legacy APIs.
+	Http HttpApiHttpConsumerPtrInput `pulumi:"http"`
+	// Route to a Lambda function. Pass lambda.arn directly.
+	Lambda HttpApiLambdaConsumerPtrInput `pulumi:"lambda"`
+	// Route directly to an SQS queue. No Lambda required. Returns 202 Accepted immediately — message is processed asynchronously. Must use POST, PUT, or PATCH.
+	Sqs HttpApiSqsConsumerPtrInput `pulumi:"sqs"`
+	// Route to a Step Functions state machine. Async by default. Must use POST, PUT, or PATCH.
+	StepFunctions HttpApiStepFunctionsConsumerPtrInput `pulumi:"stepFunctions"`
+}
+
+func (HttpApiRouteConsumerArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiRouteConsumer)(nil)).Elem()
+}
+
+func (i HttpApiRouteConsumerArgs) ToHttpApiRouteConsumerOutput() HttpApiRouteConsumerOutput {
+	return i.ToHttpApiRouteConsumerOutputWithContext(context.Background())
+}
+
+func (i HttpApiRouteConsumerArgs) ToHttpApiRouteConsumerOutputWithContext(ctx context.Context) HttpApiRouteConsumerOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiRouteConsumerOutput)
+}
+
+// The target that handles a route. Exactly one field must be set — Anvil validates this at deploy time and returns a clear error if zero or multiple are set.
+type HttpApiRouteConsumerOutput struct{ *pulumi.OutputState }
+
+func (HttpApiRouteConsumerOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiRouteConsumer)(nil)).Elem()
+}
+
+func (o HttpApiRouteConsumerOutput) ToHttpApiRouteConsumerOutput() HttpApiRouteConsumerOutput {
+	return o
+}
+
+func (o HttpApiRouteConsumerOutput) ToHttpApiRouteConsumerOutputWithContext(ctx context.Context) HttpApiRouteConsumerOutput {
+	return o
+}
+
+// Route directly to an EventBridge bus. No Lambda required. Must use POST, PUT, or PATCH.
+func (o HttpApiRouteConsumerOutput) EventBridge() HttpApiEventBridgeConsumerPtrOutput {
+	return o.ApplyT(func(v HttpApiRouteConsumer) *HttpApiEventBridgeConsumer { return v.EventBridge }).(HttpApiEventBridgeConsumerPtrOutput)
+}
+
+// Proxy to an external HTTP URL. Useful for gradual migration from legacy APIs.
+func (o HttpApiRouteConsumerOutput) Http() HttpApiHttpConsumerPtrOutput {
+	return o.ApplyT(func(v HttpApiRouteConsumer) *HttpApiHttpConsumer { return v.Http }).(HttpApiHttpConsumerPtrOutput)
+}
+
+// Route to a Lambda function. Pass lambda.arn directly.
+func (o HttpApiRouteConsumerOutput) Lambda() HttpApiLambdaConsumerPtrOutput {
+	return o.ApplyT(func(v HttpApiRouteConsumer) *HttpApiLambdaConsumer { return v.Lambda }).(HttpApiLambdaConsumerPtrOutput)
+}
+
+// Route directly to an SQS queue. No Lambda required. Returns 202 Accepted immediately — message is processed asynchronously. Must use POST, PUT, or PATCH.
+func (o HttpApiRouteConsumerOutput) Sqs() HttpApiSqsConsumerPtrOutput {
+	return o.ApplyT(func(v HttpApiRouteConsumer) *HttpApiSqsConsumer { return v.Sqs }).(HttpApiSqsConsumerPtrOutput)
+}
+
+// Route to a Step Functions state machine. Async by default. Must use POST, PUT, or PATCH.
+func (o HttpApiRouteConsumerOutput) StepFunctions() HttpApiStepFunctionsConsumerPtrOutput {
+	return o.ApplyT(func(v HttpApiRouteConsumer) *HttpApiStepFunctionsConsumer { return v.StepFunctions }).(HttpApiStepFunctionsConsumerPtrOutput)
+}
+
+// Routes requests directly to an SQS queue. API Gateway sends the request body as a message — no Lambda required. Returns 202 Accepted immediately. Anvil creates a least-privilege IAM role granting sqs:SendMessage on this queue only.
+type HttpApiSqsConsumer struct {
+	// The SQS queue ARN. Pass queue.arn directly. Accepts Output<string>.
+	Arn interface{} `pulumi:"arn"`
+	// The SQS queue URL. Pass queue.url directly. Accepts Output<string>.
+	Url interface{} `pulumi:"url"`
+}
+
+// HttpApiSqsConsumerInput is an input type that accepts HttpApiSqsConsumerArgs and HttpApiSqsConsumerOutput values.
+// You can construct a concrete instance of `HttpApiSqsConsumerInput` via:
+//
+//	HttpApiSqsConsumerArgs{...}
+type HttpApiSqsConsumerInput interface {
+	pulumi.Input
+
+	ToHttpApiSqsConsumerOutput() HttpApiSqsConsumerOutput
+	ToHttpApiSqsConsumerOutputWithContext(context.Context) HttpApiSqsConsumerOutput
+}
+
+// Routes requests directly to an SQS queue. API Gateway sends the request body as a message — no Lambda required. Returns 202 Accepted immediately. Anvil creates a least-privilege IAM role granting sqs:SendMessage on this queue only.
+type HttpApiSqsConsumerArgs struct {
+	// The SQS queue ARN. Pass queue.arn directly. Accepts Output<string>.
+	Arn pulumi.Input `pulumi:"arn"`
+	// The SQS queue URL. Pass queue.url directly. Accepts Output<string>.
+	Url pulumi.Input `pulumi:"url"`
+}
+
+func (HttpApiSqsConsumerArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiSqsConsumer)(nil)).Elem()
+}
+
+func (i HttpApiSqsConsumerArgs) ToHttpApiSqsConsumerOutput() HttpApiSqsConsumerOutput {
+	return i.ToHttpApiSqsConsumerOutputWithContext(context.Background())
+}
+
+func (i HttpApiSqsConsumerArgs) ToHttpApiSqsConsumerOutputWithContext(ctx context.Context) HttpApiSqsConsumerOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiSqsConsumerOutput)
+}
+
+func (i HttpApiSqsConsumerArgs) ToHttpApiSqsConsumerPtrOutput() HttpApiSqsConsumerPtrOutput {
+	return i.ToHttpApiSqsConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i HttpApiSqsConsumerArgs) ToHttpApiSqsConsumerPtrOutputWithContext(ctx context.Context) HttpApiSqsConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiSqsConsumerOutput).ToHttpApiSqsConsumerPtrOutputWithContext(ctx)
+}
+
+// HttpApiSqsConsumerPtrInput is an input type that accepts HttpApiSqsConsumerArgs, HttpApiSqsConsumerPtr and HttpApiSqsConsumerPtrOutput values.
+// You can construct a concrete instance of `HttpApiSqsConsumerPtrInput` via:
+//
+//	        HttpApiSqsConsumerArgs{...}
+//
+//	or:
+//
+//	        nil
+type HttpApiSqsConsumerPtrInput interface {
+	pulumi.Input
+
+	ToHttpApiSqsConsumerPtrOutput() HttpApiSqsConsumerPtrOutput
+	ToHttpApiSqsConsumerPtrOutputWithContext(context.Context) HttpApiSqsConsumerPtrOutput
+}
+
+type httpApiSqsConsumerPtrType HttpApiSqsConsumerArgs
+
+func HttpApiSqsConsumerPtr(v *HttpApiSqsConsumerArgs) HttpApiSqsConsumerPtrInput {
+	return (*httpApiSqsConsumerPtrType)(v)
+}
+
+func (*httpApiSqsConsumerPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiSqsConsumer)(nil)).Elem()
+}
+
+func (i *httpApiSqsConsumerPtrType) ToHttpApiSqsConsumerPtrOutput() HttpApiSqsConsumerPtrOutput {
+	return i.ToHttpApiSqsConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i *httpApiSqsConsumerPtrType) ToHttpApiSqsConsumerPtrOutputWithContext(ctx context.Context) HttpApiSqsConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiSqsConsumerPtrOutput)
+}
+
+// Routes requests directly to an SQS queue. API Gateway sends the request body as a message — no Lambda required. Returns 202 Accepted immediately. Anvil creates a least-privilege IAM role granting sqs:SendMessage on this queue only.
+type HttpApiSqsConsumerOutput struct{ *pulumi.OutputState }
+
+func (HttpApiSqsConsumerOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiSqsConsumer)(nil)).Elem()
+}
+
+func (o HttpApiSqsConsumerOutput) ToHttpApiSqsConsumerOutput() HttpApiSqsConsumerOutput {
+	return o
+}
+
+func (o HttpApiSqsConsumerOutput) ToHttpApiSqsConsumerOutputWithContext(ctx context.Context) HttpApiSqsConsumerOutput {
+	return o
+}
+
+func (o HttpApiSqsConsumerOutput) ToHttpApiSqsConsumerPtrOutput() HttpApiSqsConsumerPtrOutput {
+	return o.ToHttpApiSqsConsumerPtrOutputWithContext(context.Background())
+}
+
+func (o HttpApiSqsConsumerOutput) ToHttpApiSqsConsumerPtrOutputWithContext(ctx context.Context) HttpApiSqsConsumerPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v HttpApiSqsConsumer) *HttpApiSqsConsumer {
+		return &v
+	}).(HttpApiSqsConsumerPtrOutput)
+}
+
+// The SQS queue ARN. Pass queue.arn directly. Accepts Output<string>.
+func (o HttpApiSqsConsumerOutput) Arn() pulumi.AnyOutput {
+	return o.ApplyT(func(v HttpApiSqsConsumer) interface{} { return v.Arn }).(pulumi.AnyOutput)
+}
+
+// The SQS queue URL. Pass queue.url directly. Accepts Output<string>.
+func (o HttpApiSqsConsumerOutput) Url() pulumi.AnyOutput {
+	return o.ApplyT(func(v HttpApiSqsConsumer) interface{} { return v.Url }).(pulumi.AnyOutput)
+}
+
+type HttpApiSqsConsumerPtrOutput struct{ *pulumi.OutputState }
+
+func (HttpApiSqsConsumerPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiSqsConsumer)(nil)).Elem()
+}
+
+func (o HttpApiSqsConsumerPtrOutput) ToHttpApiSqsConsumerPtrOutput() HttpApiSqsConsumerPtrOutput {
+	return o
+}
+
+func (o HttpApiSqsConsumerPtrOutput) ToHttpApiSqsConsumerPtrOutputWithContext(ctx context.Context) HttpApiSqsConsumerPtrOutput {
+	return o
+}
+
+func (o HttpApiSqsConsumerPtrOutput) Elem() HttpApiSqsConsumerOutput {
+	return o.ApplyT(func(v *HttpApiSqsConsumer) HttpApiSqsConsumer {
+		if v != nil {
+			return *v
+		}
+		var ret HttpApiSqsConsumer
+		return ret
+	}).(HttpApiSqsConsumerOutput)
+}
+
+// The SQS queue ARN. Pass queue.arn directly. Accepts Output<string>.
+func (o HttpApiSqsConsumerPtrOutput) Arn() pulumi.AnyOutput {
+	return o.ApplyT(func(v *HttpApiSqsConsumer) interface{} {
+		if v == nil {
+			return nil
+		}
+		return v.Arn
+	}).(pulumi.AnyOutput)
+}
+
+// The SQS queue URL. Pass queue.url directly. Accepts Output<string>.
+func (o HttpApiSqsConsumerPtrOutput) Url() pulumi.AnyOutput {
+	return o.ApplyT(func(v *HttpApiSqsConsumer) interface{} {
+		if v == nil {
+			return nil
+		}
+		return v.Url
+	}).(pulumi.AnyOutput)
+}
+
+// Routes requests to a Step Functions state machine. Async by default (StartExecution). Set sync: true for StartSyncExecution — note the 29s API Gateway timeout applies. Anvil creates a least-privilege IAM role granting the appropriate Start action on this state machine only.
+type HttpApiStepFunctionsConsumer struct {
+	// The state machine ARN. Pass stateMachine.arn directly. Accepts Output<string>.
+	Arn interface{} `pulumi:"arn"`
+	// Wait for execution to complete before responding. Default: false (async). Only use for fast state machines — subject to the 29s API Gateway timeout.
+	Sync *bool `pulumi:"sync"`
+}
+
+// HttpApiStepFunctionsConsumerInput is an input type that accepts HttpApiStepFunctionsConsumerArgs and HttpApiStepFunctionsConsumerOutput values.
+// You can construct a concrete instance of `HttpApiStepFunctionsConsumerInput` via:
+//
+//	HttpApiStepFunctionsConsumerArgs{...}
+type HttpApiStepFunctionsConsumerInput interface {
+	pulumi.Input
+
+	ToHttpApiStepFunctionsConsumerOutput() HttpApiStepFunctionsConsumerOutput
+	ToHttpApiStepFunctionsConsumerOutputWithContext(context.Context) HttpApiStepFunctionsConsumerOutput
+}
+
+// Routes requests to a Step Functions state machine. Async by default (StartExecution). Set sync: true for StartSyncExecution — note the 29s API Gateway timeout applies. Anvil creates a least-privilege IAM role granting the appropriate Start action on this state machine only.
+type HttpApiStepFunctionsConsumerArgs struct {
+	// The state machine ARN. Pass stateMachine.arn directly. Accepts Output<string>.
+	Arn pulumi.Input `pulumi:"arn"`
+	// Wait for execution to complete before responding. Default: false (async). Only use for fast state machines — subject to the 29s API Gateway timeout.
+	Sync pulumi.BoolPtrInput `pulumi:"sync"`
+}
+
+func (HttpApiStepFunctionsConsumerArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiStepFunctionsConsumer)(nil)).Elem()
+}
+
+func (i HttpApiStepFunctionsConsumerArgs) ToHttpApiStepFunctionsConsumerOutput() HttpApiStepFunctionsConsumerOutput {
+	return i.ToHttpApiStepFunctionsConsumerOutputWithContext(context.Background())
+}
+
+func (i HttpApiStepFunctionsConsumerArgs) ToHttpApiStepFunctionsConsumerOutputWithContext(ctx context.Context) HttpApiStepFunctionsConsumerOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiStepFunctionsConsumerOutput)
+}
+
+func (i HttpApiStepFunctionsConsumerArgs) ToHttpApiStepFunctionsConsumerPtrOutput() HttpApiStepFunctionsConsumerPtrOutput {
+	return i.ToHttpApiStepFunctionsConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i HttpApiStepFunctionsConsumerArgs) ToHttpApiStepFunctionsConsumerPtrOutputWithContext(ctx context.Context) HttpApiStepFunctionsConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiStepFunctionsConsumerOutput).ToHttpApiStepFunctionsConsumerPtrOutputWithContext(ctx)
+}
+
+// HttpApiStepFunctionsConsumerPtrInput is an input type that accepts HttpApiStepFunctionsConsumerArgs, HttpApiStepFunctionsConsumerPtr and HttpApiStepFunctionsConsumerPtrOutput values.
+// You can construct a concrete instance of `HttpApiStepFunctionsConsumerPtrInput` via:
+//
+//	        HttpApiStepFunctionsConsumerArgs{...}
+//
+//	or:
+//
+//	        nil
+type HttpApiStepFunctionsConsumerPtrInput interface {
+	pulumi.Input
+
+	ToHttpApiStepFunctionsConsumerPtrOutput() HttpApiStepFunctionsConsumerPtrOutput
+	ToHttpApiStepFunctionsConsumerPtrOutputWithContext(context.Context) HttpApiStepFunctionsConsumerPtrOutput
+}
+
+type httpApiStepFunctionsConsumerPtrType HttpApiStepFunctionsConsumerArgs
+
+func HttpApiStepFunctionsConsumerPtr(v *HttpApiStepFunctionsConsumerArgs) HttpApiStepFunctionsConsumerPtrInput {
+	return (*httpApiStepFunctionsConsumerPtrType)(v)
+}
+
+func (*httpApiStepFunctionsConsumerPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiStepFunctionsConsumer)(nil)).Elem()
+}
+
+func (i *httpApiStepFunctionsConsumerPtrType) ToHttpApiStepFunctionsConsumerPtrOutput() HttpApiStepFunctionsConsumerPtrOutput {
+	return i.ToHttpApiStepFunctionsConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i *httpApiStepFunctionsConsumerPtrType) ToHttpApiStepFunctionsConsumerPtrOutputWithContext(ctx context.Context) HttpApiStepFunctionsConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiStepFunctionsConsumerPtrOutput)
+}
+
+// Routes requests to a Step Functions state machine. Async by default (StartExecution). Set sync: true for StartSyncExecution — note the 29s API Gateway timeout applies. Anvil creates a least-privilege IAM role granting the appropriate Start action on this state machine only.
+type HttpApiStepFunctionsConsumerOutput struct{ *pulumi.OutputState }
+
+func (HttpApiStepFunctionsConsumerOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiStepFunctionsConsumer)(nil)).Elem()
+}
+
+func (o HttpApiStepFunctionsConsumerOutput) ToHttpApiStepFunctionsConsumerOutput() HttpApiStepFunctionsConsumerOutput {
+	return o
+}
+
+func (o HttpApiStepFunctionsConsumerOutput) ToHttpApiStepFunctionsConsumerOutputWithContext(ctx context.Context) HttpApiStepFunctionsConsumerOutput {
+	return o
+}
+
+func (o HttpApiStepFunctionsConsumerOutput) ToHttpApiStepFunctionsConsumerPtrOutput() HttpApiStepFunctionsConsumerPtrOutput {
+	return o.ToHttpApiStepFunctionsConsumerPtrOutputWithContext(context.Background())
+}
+
+func (o HttpApiStepFunctionsConsumerOutput) ToHttpApiStepFunctionsConsumerPtrOutputWithContext(ctx context.Context) HttpApiStepFunctionsConsumerPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v HttpApiStepFunctionsConsumer) *HttpApiStepFunctionsConsumer {
+		return &v
+	}).(HttpApiStepFunctionsConsumerPtrOutput)
+}
+
+// The state machine ARN. Pass stateMachine.arn directly. Accepts Output<string>.
+func (o HttpApiStepFunctionsConsumerOutput) Arn() pulumi.AnyOutput {
+	return o.ApplyT(func(v HttpApiStepFunctionsConsumer) interface{} { return v.Arn }).(pulumi.AnyOutput)
+}
+
+// Wait for execution to complete before responding. Default: false (async). Only use for fast state machines — subject to the 29s API Gateway timeout.
+func (o HttpApiStepFunctionsConsumerOutput) Sync() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v HttpApiStepFunctionsConsumer) *bool { return v.Sync }).(pulumi.BoolPtrOutput)
+}
+
+type HttpApiStepFunctionsConsumerPtrOutput struct{ *pulumi.OutputState }
+
+func (HttpApiStepFunctionsConsumerPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiStepFunctionsConsumer)(nil)).Elem()
+}
+
+func (o HttpApiStepFunctionsConsumerPtrOutput) ToHttpApiStepFunctionsConsumerPtrOutput() HttpApiStepFunctionsConsumerPtrOutput {
+	return o
+}
+
+func (o HttpApiStepFunctionsConsumerPtrOutput) ToHttpApiStepFunctionsConsumerPtrOutputWithContext(ctx context.Context) HttpApiStepFunctionsConsumerPtrOutput {
+	return o
+}
+
+func (o HttpApiStepFunctionsConsumerPtrOutput) Elem() HttpApiStepFunctionsConsumerOutput {
+	return o.ApplyT(func(v *HttpApiStepFunctionsConsumer) HttpApiStepFunctionsConsumer {
+		if v != nil {
+			return *v
+		}
+		var ret HttpApiStepFunctionsConsumer
+		return ret
+	}).(HttpApiStepFunctionsConsumerOutput)
+}
+
+// The state machine ARN. Pass stateMachine.arn directly. Accepts Output<string>.
+func (o HttpApiStepFunctionsConsumerPtrOutput) Arn() pulumi.AnyOutput {
+	return o.ApplyT(func(v *HttpApiStepFunctionsConsumer) interface{} {
+		if v == nil {
+			return nil
+		}
+		return v.Arn
+	}).(pulumi.AnyOutput)
+}
+
+// Wait for execution to complete before responding. Default: false (async). Only use for fast state machines — subject to the 29s API Gateway timeout.
+func (o HttpApiStepFunctionsConsumerPtrOutput) Sync() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *HttpApiStepFunctionsConsumer) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.Sync
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Rate and burst throttling limits. Applied at the API level by default — individual routes can override. Defaults: rateLimit 1000 rps, burstLimit 500 concurrent. Without throttling a single route can exhaust the account-level limit (10,000 rps) shared across all APIs in the account.
+type HttpApiThrottling struct {
+	// Maximum concurrent requests (token bucket capacity). Default: 500.
+	BurstLimit *int `pulumi:"burstLimit"`
+	// Maximum sustained requests per second. Default: 1000.
+	RateLimit *int `pulumi:"rateLimit"`
+}
+
+// HttpApiThrottlingInput is an input type that accepts HttpApiThrottlingArgs and HttpApiThrottlingOutput values.
+// You can construct a concrete instance of `HttpApiThrottlingInput` via:
+//
+//	HttpApiThrottlingArgs{...}
+type HttpApiThrottlingInput interface {
+	pulumi.Input
+
+	ToHttpApiThrottlingOutput() HttpApiThrottlingOutput
+	ToHttpApiThrottlingOutputWithContext(context.Context) HttpApiThrottlingOutput
+}
+
+// Rate and burst throttling limits. Applied at the API level by default — individual routes can override. Defaults: rateLimit 1000 rps, burstLimit 500 concurrent. Without throttling a single route can exhaust the account-level limit (10,000 rps) shared across all APIs in the account.
+type HttpApiThrottlingArgs struct {
+	// Maximum concurrent requests (token bucket capacity). Default: 500.
+	BurstLimit pulumi.IntPtrInput `pulumi:"burstLimit"`
+	// Maximum sustained requests per second. Default: 1000.
+	RateLimit pulumi.IntPtrInput `pulumi:"rateLimit"`
+}
+
+func (HttpApiThrottlingArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiThrottling)(nil)).Elem()
+}
+
+func (i HttpApiThrottlingArgs) ToHttpApiThrottlingOutput() HttpApiThrottlingOutput {
+	return i.ToHttpApiThrottlingOutputWithContext(context.Background())
+}
+
+func (i HttpApiThrottlingArgs) ToHttpApiThrottlingOutputWithContext(ctx context.Context) HttpApiThrottlingOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiThrottlingOutput)
+}
+
+func (i HttpApiThrottlingArgs) ToHttpApiThrottlingPtrOutput() HttpApiThrottlingPtrOutput {
+	return i.ToHttpApiThrottlingPtrOutputWithContext(context.Background())
+}
+
+func (i HttpApiThrottlingArgs) ToHttpApiThrottlingPtrOutputWithContext(ctx context.Context) HttpApiThrottlingPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiThrottlingOutput).ToHttpApiThrottlingPtrOutputWithContext(ctx)
+}
+
+// HttpApiThrottlingPtrInput is an input type that accepts HttpApiThrottlingArgs, HttpApiThrottlingPtr and HttpApiThrottlingPtrOutput values.
+// You can construct a concrete instance of `HttpApiThrottlingPtrInput` via:
+//
+//	        HttpApiThrottlingArgs{...}
+//
+//	or:
+//
+//	        nil
+type HttpApiThrottlingPtrInput interface {
+	pulumi.Input
+
+	ToHttpApiThrottlingPtrOutput() HttpApiThrottlingPtrOutput
+	ToHttpApiThrottlingPtrOutputWithContext(context.Context) HttpApiThrottlingPtrOutput
+}
+
+type httpApiThrottlingPtrType HttpApiThrottlingArgs
+
+func HttpApiThrottlingPtr(v *HttpApiThrottlingArgs) HttpApiThrottlingPtrInput {
+	return (*httpApiThrottlingPtrType)(v)
+}
+
+func (*httpApiThrottlingPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiThrottling)(nil)).Elem()
+}
+
+func (i *httpApiThrottlingPtrType) ToHttpApiThrottlingPtrOutput() HttpApiThrottlingPtrOutput {
+	return i.ToHttpApiThrottlingPtrOutputWithContext(context.Background())
+}
+
+func (i *httpApiThrottlingPtrType) ToHttpApiThrottlingPtrOutputWithContext(ctx context.Context) HttpApiThrottlingPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(HttpApiThrottlingPtrOutput)
+}
+
+// Rate and burst throttling limits. Applied at the API level by default — individual routes can override. Defaults: rateLimit 1000 rps, burstLimit 500 concurrent. Without throttling a single route can exhaust the account-level limit (10,000 rps) shared across all APIs in the account.
+type HttpApiThrottlingOutput struct{ *pulumi.OutputState }
+
+func (HttpApiThrottlingOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiThrottling)(nil)).Elem()
+}
+
+func (o HttpApiThrottlingOutput) ToHttpApiThrottlingOutput() HttpApiThrottlingOutput {
+	return o
+}
+
+func (o HttpApiThrottlingOutput) ToHttpApiThrottlingOutputWithContext(ctx context.Context) HttpApiThrottlingOutput {
+	return o
+}
+
+func (o HttpApiThrottlingOutput) ToHttpApiThrottlingPtrOutput() HttpApiThrottlingPtrOutput {
+	return o.ToHttpApiThrottlingPtrOutputWithContext(context.Background())
+}
+
+func (o HttpApiThrottlingOutput) ToHttpApiThrottlingPtrOutputWithContext(ctx context.Context) HttpApiThrottlingPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v HttpApiThrottling) *HttpApiThrottling {
+		return &v
+	}).(HttpApiThrottlingPtrOutput)
+}
+
+// Maximum concurrent requests (token bucket capacity). Default: 500.
+func (o HttpApiThrottlingOutput) BurstLimit() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v HttpApiThrottling) *int { return v.BurstLimit }).(pulumi.IntPtrOutput)
+}
+
+// Maximum sustained requests per second. Default: 1000.
+func (o HttpApiThrottlingOutput) RateLimit() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v HttpApiThrottling) *int { return v.RateLimit }).(pulumi.IntPtrOutput)
+}
+
+type HttpApiThrottlingPtrOutput struct{ *pulumi.OutputState }
+
+func (HttpApiThrottlingPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**HttpApiThrottling)(nil)).Elem()
+}
+
+func (o HttpApiThrottlingPtrOutput) ToHttpApiThrottlingPtrOutput() HttpApiThrottlingPtrOutput {
+	return o
+}
+
+func (o HttpApiThrottlingPtrOutput) ToHttpApiThrottlingPtrOutputWithContext(ctx context.Context) HttpApiThrottlingPtrOutput {
+	return o
+}
+
+func (o HttpApiThrottlingPtrOutput) Elem() HttpApiThrottlingOutput {
+	return o.ApplyT(func(v *HttpApiThrottling) HttpApiThrottling {
+		if v != nil {
+			return *v
+		}
+		var ret HttpApiThrottling
+		return ret
+	}).(HttpApiThrottlingOutput)
+}
+
+// Maximum concurrent requests (token bucket capacity). Default: 500.
+func (o HttpApiThrottlingPtrOutput) BurstLimit() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *HttpApiThrottling) *int {
+		if v == nil {
+			return nil
+		}
+		return v.BurstLimit
+	}).(pulumi.IntPtrOutput)
+}
+
+// Maximum sustained requests per second. Default: 1000.
+func (o HttpApiThrottlingPtrOutput) RateLimit() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *HttpApiThrottling) *int {
+		if v == nil {
+			return nil
+		}
+		return v.RateLimit
+	}).(pulumi.IntPtrOutput)
+}
+
 type LambdaOverrides struct {
 	// Instruction set architecture for your Lambda function. Valid values are `[<span pulumi-lang-nodejs=""x8664"" pulumi-lang-dotnet=""X8664"" pulumi-lang-go=""x8664"" pulumi-lang-python=""x86_64"" pulumi-lang-yaml=""x8664"" pulumi-lang-java=""x8664"">"x86_64"</span>]` and `["arm64"]`. Default is `[<span pulumi-lang-nodejs=""x8664"" pulumi-lang-dotnet=""X8664"" pulumi-lang-go=""x8664"" pulumi-lang-python=""x86_64"" pulumi-lang-yaml=""x8664"" pulumi-lang-java=""x8664"">"x86_64"</span>]`. Removing this attribute, function's architecture stays the same.
 	Architectures []string `pulumi:"architectures"`
@@ -6078,6 +7606,25 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketVersioningTransformPtrInput)(nil)).Elem(), BucketVersioningTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketWebsiteConfigurationTransformInput)(nil)).Elem(), BucketWebsiteConfigurationTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketWebsiteConfigurationTransformPtrInput)(nil)).Elem(), BucketWebsiteConfigurationTransformArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiCorsInput)(nil)).Elem(), HttpApiCorsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiCorsPtrInput)(nil)).Elem(), HttpApiCorsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiDomainInput)(nil)).Elem(), HttpApiDomainArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiDomainPtrInput)(nil)).Elem(), HttpApiDomainArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiEventBridgeConsumerInput)(nil)).Elem(), HttpApiEventBridgeConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiEventBridgeConsumerPtrInput)(nil)).Elem(), HttpApiEventBridgeConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiHttpConsumerInput)(nil)).Elem(), HttpApiHttpConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiHttpConsumerPtrInput)(nil)).Elem(), HttpApiHttpConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiLambdaConsumerInput)(nil)).Elem(), HttpApiLambdaConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiLambdaConsumerPtrInput)(nil)).Elem(), HttpApiLambdaConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiRouteInput)(nil)).Elem(), HttpApiRouteArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiRouteArrayInput)(nil)).Elem(), HttpApiRouteArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiRouteConsumerInput)(nil)).Elem(), HttpApiRouteConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiSqsConsumerInput)(nil)).Elem(), HttpApiSqsConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiSqsConsumerPtrInput)(nil)).Elem(), HttpApiSqsConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiStepFunctionsConsumerInput)(nil)).Elem(), HttpApiStepFunctionsConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiStepFunctionsConsumerPtrInput)(nil)).Elem(), HttpApiStepFunctionsConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiThrottlingInput)(nil)).Elem(), HttpApiThrottlingArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiThrottlingPtrInput)(nil)).Elem(), HttpApiThrottlingArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaOverridesInput)(nil)).Elem(), LambdaOverridesArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaOverridesPtrInput)(nil)).Elem(), LambdaOverridesArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaPermissionInput)(nil)).Elem(), LambdaPermissionArgs{})
@@ -6132,6 +7679,25 @@ func init() {
 	pulumi.RegisterOutputType(BucketVersioningTransformPtrOutput{})
 	pulumi.RegisterOutputType(BucketWebsiteConfigurationTransformOutput{})
 	pulumi.RegisterOutputType(BucketWebsiteConfigurationTransformPtrOutput{})
+	pulumi.RegisterOutputType(HttpApiCorsOutput{})
+	pulumi.RegisterOutputType(HttpApiCorsPtrOutput{})
+	pulumi.RegisterOutputType(HttpApiDomainOutput{})
+	pulumi.RegisterOutputType(HttpApiDomainPtrOutput{})
+	pulumi.RegisterOutputType(HttpApiEventBridgeConsumerOutput{})
+	pulumi.RegisterOutputType(HttpApiEventBridgeConsumerPtrOutput{})
+	pulumi.RegisterOutputType(HttpApiHttpConsumerOutput{})
+	pulumi.RegisterOutputType(HttpApiHttpConsumerPtrOutput{})
+	pulumi.RegisterOutputType(HttpApiLambdaConsumerOutput{})
+	pulumi.RegisterOutputType(HttpApiLambdaConsumerPtrOutput{})
+	pulumi.RegisterOutputType(HttpApiRouteOutput{})
+	pulumi.RegisterOutputType(HttpApiRouteArrayOutput{})
+	pulumi.RegisterOutputType(HttpApiRouteConsumerOutput{})
+	pulumi.RegisterOutputType(HttpApiSqsConsumerOutput{})
+	pulumi.RegisterOutputType(HttpApiSqsConsumerPtrOutput{})
+	pulumi.RegisterOutputType(HttpApiStepFunctionsConsumerOutput{})
+	pulumi.RegisterOutputType(HttpApiStepFunctionsConsumerPtrOutput{})
+	pulumi.RegisterOutputType(HttpApiThrottlingOutput{})
+	pulumi.RegisterOutputType(HttpApiThrottlingPtrOutput{})
 	pulumi.RegisterOutputType(LambdaOverridesOutput{})
 	pulumi.RegisterOutputType(LambdaOverridesPtrOutput{})
 	pulumi.RegisterOutputType(LambdaPermissionOutput{})
