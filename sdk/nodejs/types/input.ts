@@ -644,6 +644,24 @@ export namespace aws {
         retention: pulumi.Input<number>;
     }
 
+    /**
+     * A single permission statement in the VPC endpoint policy. Effect must be Allow or Deny. Action is an IAM action string. Resource defaults to * if omitted.
+     */
+    export interface VpcEndpointPermissionArgs {
+        /**
+         * The IAM action string, e.g. "sqs:SendMessage", "secretsmanager:GetSecretValue".
+         */
+        action: pulumi.Input<string>;
+        /**
+         * The IAM effect — "Allow" or "Deny".
+         */
+        effect: pulumi.Input<string>;
+        /**
+         * The ARN to scope this permission to. Defaults to "*" if omitted — applies to all resources of this service. Accepts Output<string> — pass resource ARNs directly, e.g. queue.arn, secret.arn.
+         */
+        resource?: pulumi.Input<string>;
+    }
+
     export interface VpcFlowLogsArgsArgs {
         /**
          * Enable flow log delivery to a CloudWatch Log Group. Use for fast querying with CloudWatch Logs Insights and active debugging of connection issues.

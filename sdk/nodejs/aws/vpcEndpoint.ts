@@ -8,7 +8,7 @@ import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 /**
- * An Anvil-managed AWS Interface VPC Endpoint. Creates one ENI per private subnet with private DNS enabled — standard AWS service hostnames resolve to ENI IPs inside the VPC automatically. Includes a dedicated security group with zero rules by default. Use grantEndpointAccess on compute resources to open the network path. IAM permissions are managed separately via grantPermissions.
+ * An Anvil-managed AWS Interface VPC Endpoint. Creates one ENI per private subnet with private DNS enabled. The endpoint security group uses a self-referencing ingress rule on port 443 — only compute resources that have been explicitly granted access can reach the endpoint at the network layer. Access is enforced at three layers: network (self-referencing SG), IAM role policy (scoped per compute resource), and endpoint policy (blanket ceiling on allowed actions for all compute principals — Lambda, ECS, EC2).
  */
 export class VpcEndpoint extends pulumi.ComponentResource {
     /** @internal */
@@ -26,7 +26,7 @@ export class VpcEndpoint extends pulumi.ComponentResource {
     }
 
     /**
-     * The first DNS name assigned to the endpoint, e.g. vpce-xxx.ssm.ap-southeast-2.vpce.amazonaws.com. With private DNS enabled, normal consumers use the standard AWS SDK hostname — this is exposed for debugging and multi-VPC architectures only.
+     * The first DNS name assigned to the endpoint, e.g. vpce-xxx.sqs.ap-southeast-2.vpce.amazonaws.com. With private DNS enabled, normal consumers use the standard AWS SDK hostname — this is exposed for debugging and multi-VPC architectures only.
      */
     declare public /*out*/ readonly dnsName: pulumi.Output<string>;
     /**
@@ -34,7 +34,7 @@ export class VpcEndpoint extends pulumi.ComponentResource {
      */
     declare public /*out*/ readonly endpointId: pulumi.Output<string>;
     /**
-     * The ID of the dedicated security group attached to this endpoint. Zero rules by default. Ingress rules are added when compute resources call grantEndpointAccess.
+     * The ID of the dedicated security group attached to this endpoint. Uses a self-referencing ingress rule on port 443 — only compute resources with this SG explicitly attached can reach the endpoint at the network layer.
      */
     declare public /*out*/ readonly securityGroupId: pulumi.Output<string>;
 
@@ -58,6 +58,7 @@ export class VpcEndpoint extends pulumi.ComponentResource {
             if (args?.vpcId === undefined && !opts.urn) {
                 throw new Error("Missing required property 'vpcId'");
             }
+            resourceInputs["overridePermissions"] = args?.overridePermissions;
             resourceInputs["privateSubnetIds"] = args?.privateSubnetIds;
             resourceInputs["service"] = args?.service;
             resourceInputs["vpcId"] = args?.vpcId;
@@ -78,6 +79,10 @@ export class VpcEndpoint extends pulumi.ComponentResource {
  * The set of arguments for constructing a VpcEndpoint resource.
  */
 export interface VpcEndpointArgs {
+    /**
+     * Explicit Allow and Deny permission statements for the endpoint policy. When omitted, the endpoint policy allows all actions (*) for all Anvil compute principals (Lambda, ECS, EC2). When set, only the declared actions are permitted — the caller is responsible for declaring every action their compute resources need. Supports both Allow and Deny effects. Resource defaults to "*" if omitted on a permission entry.
+     */
+    overridePermissions?: pulumi.Input<pulumi.Input<inputs.aws.VpcEndpointPermissionArgs>[]>;
     /**
      * The IDs of the private subnets to attach the endpoint to. AWS places one ENI per subnet. Pass all private subnet IDs from your VPC — typically one per AZ.
      */

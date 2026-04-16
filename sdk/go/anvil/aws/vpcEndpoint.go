@@ -12,15 +12,15 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// An Anvil-managed AWS Interface VPC Endpoint. Creates one ENI per private subnet with private DNS enabled — standard AWS service hostnames resolve to ENI IPs inside the VPC automatically. Includes a dedicated security group with zero rules by default. Use grantEndpointAccess on compute resources to open the network path. IAM permissions are managed separately via grantPermissions.
+// An Anvil-managed AWS Interface VPC Endpoint. Creates one ENI per private subnet with private DNS enabled. The endpoint security group uses a self-referencing ingress rule on port 443 — only compute resources that have been explicitly granted access can reach the endpoint at the network layer. Access is enforced at three layers: network (self-referencing SG), IAM role policy (scoped per compute resource), and endpoint policy (blanket ceiling on allowed actions for all compute principals — Lambda, ECS, EC2).
 type VpcEndpoint struct {
 	pulumi.ResourceState
 
-	// The first DNS name assigned to the endpoint, e.g. vpce-xxx.ssm.ap-southeast-2.vpce.amazonaws.com. With private DNS enabled, normal consumers use the standard AWS SDK hostname — this is exposed for debugging and multi-VPC architectures only.
+	// The first DNS name assigned to the endpoint, e.g. vpce-xxx.sqs.ap-southeast-2.vpce.amazonaws.com. With private DNS enabled, normal consumers use the standard AWS SDK hostname — this is exposed for debugging and multi-VPC architectures only.
 	DnsName pulumi.StringOutput `pulumi:"dnsName"`
 	// The ID of the VPC endpoint, e.g. vpce-0abc1234567890abc. Use this to reference the endpoint in IAM condition keys such as aws:SourceVpce.
 	EndpointId pulumi.StringOutput `pulumi:"endpointId"`
-	// The ID of the dedicated security group attached to this endpoint. Zero rules by default. Ingress rules are added when compute resources call grantEndpointAccess.
+	// The ID of the dedicated security group attached to this endpoint. Uses a self-referencing ingress rule on port 443 — only compute resources with this SG explicitly attached can reach the endpoint at the network layer.
 	SecurityGroupId pulumi.StringOutput `pulumi:"securityGroupId"`
 }
 
@@ -50,6 +50,8 @@ func NewVpcEndpoint(ctx *pulumi.Context,
 }
 
 type vpcEndpointArgs struct {
+	// Explicit Allow and Deny permission statements for the endpoint policy. When omitted, the endpoint policy allows all actions (*) for all Anvil compute principals (Lambda, ECS, EC2). When set, only the declared actions are permitted — the caller is responsible for declaring every action their compute resources need. Supports both Allow and Deny effects. Resource defaults to "*" if omitted on a permission entry.
+	OverridePermissions []VpcEndpointPermission `pulumi:"overridePermissions"`
 	// The IDs of the private subnets to attach the endpoint to. AWS places one ENI per subnet. Pass all private subnet IDs from your VPC — typically one per AZ.
 	PrivateSubnetIds []string `pulumi:"privateSubnetIds"`
 	// The AWS service to route privately. The full com.amazonaws.{region}.{service} name is constructed at deploy time from the resolved region — you never write it manually.
@@ -60,6 +62,8 @@ type vpcEndpointArgs struct {
 
 // The set of arguments for constructing a VpcEndpoint resource.
 type VpcEndpointArgs struct {
+	// Explicit Allow and Deny permission statements for the endpoint policy. When omitted, the endpoint policy allows all actions (*) for all Anvil compute principals (Lambda, ECS, EC2). When set, only the declared actions are permitted — the caller is responsible for declaring every action their compute resources need. Supports both Allow and Deny effects. Resource defaults to "*" if omitted on a permission entry.
+	OverridePermissions VpcEndpointPermissionArrayInput
 	// The IDs of the private subnets to attach the endpoint to. AWS places one ENI per subnet. Pass all private subnet IDs from your VPC — typically one per AZ.
 	PrivateSubnetIds pulumi.StringArrayInput
 	// The AWS service to route privately. The full com.amazonaws.{region}.{service} name is constructed at deploy time from the resolved region — you never write it manually.
@@ -155,7 +159,7 @@ func (o VpcEndpointOutput) ToVpcEndpointOutputWithContext(ctx context.Context) V
 	return o
 }
 
-// The first DNS name assigned to the endpoint, e.g. vpce-xxx.ssm.ap-southeast-2.vpce.amazonaws.com. With private DNS enabled, normal consumers use the standard AWS SDK hostname — this is exposed for debugging and multi-VPC architectures only.
+// The first DNS name assigned to the endpoint, e.g. vpce-xxx.sqs.ap-southeast-2.vpce.amazonaws.com. With private DNS enabled, normal consumers use the standard AWS SDK hostname — this is exposed for debugging and multi-VPC architectures only.
 func (o VpcEndpointOutput) DnsName() pulumi.StringOutput {
 	return o.ApplyT(func(v *VpcEndpoint) pulumi.StringOutput { return v.DnsName }).(pulumi.StringOutput)
 }
@@ -165,7 +169,7 @@ func (o VpcEndpointOutput) EndpointId() pulumi.StringOutput {
 	return o.ApplyT(func(v *VpcEndpoint) pulumi.StringOutput { return v.EndpointId }).(pulumi.StringOutput)
 }
 
-// The ID of the dedicated security group attached to this endpoint. Zero rules by default. Ingress rules are added when compute resources call grantEndpointAccess.
+// The ID of the dedicated security group attached to this endpoint. Uses a self-referencing ingress rule on port 443 — only compute resources with this SG explicitly attached can reach the endpoint at the network layer.
 func (o VpcEndpointOutput) SecurityGroupId() pulumi.StringOutput {
 	return o.ApplyT(func(v *VpcEndpoint) pulumi.StringOutput { return v.SecurityGroupId }).(pulumi.StringOutput)
 }

@@ -490,9 +490,13 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 	}
 
 	if args.Vpc != nil {
+		sgIds := pulumi.StringArray{l.SecurityGroupID}
+		for _, ep := range args.Vpc.VpcEndpoints {
+			sgIds = append(sgIds, ep.SecurityGroupId.ToStringOutput())
+		}
 		lambdaMap["vpcConfig"] = pulumi.Map{
 			"subnetIds":        args.Vpc.PrivateSubnetIds.ToStringArrayOutput(),
-			"securityGroupIds": pulumi.StringArray{l.SecurityGroupID},
+			"securityGroupIds": sgIds,
 		}
 	}
 

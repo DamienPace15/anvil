@@ -63,6 +63,8 @@ __all__ = [
     'VpcBastionArgsArgsDict',
     'VpcCloudWatchFlowLogArgsArgs',
     'VpcCloudWatchFlowLogArgsArgsDict',
+    'VpcEndpointPermissionArgs',
+    'VpcEndpointPermissionArgsDict',
     'VpcFlowLogsArgsArgs',
     'VpcFlowLogsArgsArgsDict',
     'VpcNatArgsArgs',
@@ -3134,6 +3136,78 @@ class VpcCloudWatchFlowLogArgsArgs:
     @retention.setter
     def retention(self, value: pulumi.Input[_builtins.int]):
         pulumi.set(self, "retention", value)
+
+
+class VpcEndpointPermissionArgsDict(TypedDict):
+    """
+    A single permission statement in the VPC endpoint policy. Effect must be Allow or Deny. Action is an IAM action string. Resource defaults to * if omitted.
+    """
+    action: pulumi.Input[_builtins.str]
+    """
+    The IAM action string, e.g. "sqs:SendMessage", "secretsmanager:GetSecretValue".
+    """
+    effect: pulumi.Input[_builtins.str]
+    """
+    The IAM effect — "Allow" or "Deny".
+    """
+    resource: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    The ARN to scope this permission to. Defaults to "*" if omitted — applies to all resources of this service. Accepts Output<string> — pass resource ARNs directly, e.g. queue.arn, secret.arn.
+    """
+
+@pulumi.input_type
+class VpcEndpointPermissionArgs:
+    def __init__(__self__, *,
+                 action: pulumi.Input[_builtins.str],
+                 effect: pulumi.Input[_builtins.str],
+                 resource: Optional[pulumi.Input[_builtins.str]] = None):
+        """
+        A single permission statement in the VPC endpoint policy. Effect must be Allow or Deny. Action is an IAM action string. Resource defaults to * if omitted.
+
+        :param pulumi.Input[_builtins.str] action: The IAM action string, e.g. "sqs:SendMessage", "secretsmanager:GetSecretValue".
+        :param pulumi.Input[_builtins.str] effect: The IAM effect — "Allow" or "Deny".
+        :param pulumi.Input[_builtins.str] resource: The ARN to scope this permission to. Defaults to "*" if omitted — applies to all resources of this service. Accepts Output<string> — pass resource ARNs directly, e.g. queue.arn, secret.arn.
+        """
+        pulumi.set(__self__, "action", action)
+        pulumi.set(__self__, "effect", effect)
+        if resource is not None:
+            pulumi.set(__self__, "resource", resource)
+
+    @_builtins.property
+    @pulumi.getter
+    def action(self) -> pulumi.Input[_builtins.str]:
+        """
+        The IAM action string, e.g. "sqs:SendMessage", "secretsmanager:GetSecretValue".
+        """
+        return pulumi.get(self, "action")
+
+    @action.setter
+    def action(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "action", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def effect(self) -> pulumi.Input[_builtins.str]:
+        """
+        The IAM effect — "Allow" or "Deny".
+        """
+        return pulumi.get(self, "effect")
+
+    @effect.setter
+    def effect(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "effect", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def resource(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        The ARN to scope this permission to. Defaults to "*" if omitted — applies to all resources of this service. Accepts Output<string> — pass resource ARNs directly, e.g. queue.arn, secret.arn.
+        """
+        return pulumi.get(self, "resource")
+
+    @resource.setter
+    def resource(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "resource", value)
 
 
 class VpcFlowLogsArgsArgsDict(TypedDict):
