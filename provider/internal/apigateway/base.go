@@ -29,6 +29,13 @@ type DomainConfig struct {
 	// ZoneId is the Route 53 hosted zone ID for DNS record creation.
 	// When empty, Anvil looks up the zone by domain name automatically.
 	ZoneId string
+
+	// Dns controls whether Anvil creates Route 53 DNS and cert validation records.
+	// When nil or true, Route 53 records are created automatically.
+	// When explicitly false, all Route 53 calls are skipped — use for Cloudflare
+	// or other non-Route 53 DNS providers. CertValidationCname will be populated
+	// when dns: false and no certificateArn is provided.
+	Dns *bool
 }
 
 // LogConfig holds the resolved CloudWatch log configuration for an API Gateway component.
@@ -59,6 +66,14 @@ type BaseOutputs struct {
 	// HostedZoneId is the Route 53 hosted zone ID used for the DNS record.
 	// Empty string output when no domain is configured.
 	HostedZoneId pulumi.StringOutput
+
+	// CertValidationCname is the ACM DNS validation CNAME record details.
+	// Only populated when dns: false and certificateArn is omitted — Anvil creates
+	// the cert but cannot add the validation record automatically.
+	// Add this CNAME in Cloudflare (or your DNS provider) then re-run deploy.
+	// Nil when dns: true (Route 53 handles validation automatically) or when
+	// a BYO certificateArn is provided.
+	CertValidationCname pulumi.AnyOutput
 }
 
 // SetupBase provisions the shared infrastructure used by all API Gateway types:
@@ -117,11 +132,14 @@ func SetupBase(
 	// When no domain is set all domain outputs are empty strings and the
 	// execute-api endpoint remains enabled for direct access.
 	if domain != nil && domain.Name != "" {
-		certArn, err := setupCertificate(ctx, name, domain, parent)
+		skipDns := domain.Dns != nil && !*domain.Dns
+
+		certArn, validationCname, err := setupCertificate(ctx, name, domain, skipDns, parent)
 		if err != nil {
 			return nil, err
 		}
 		out.CertificateArn = certArn
+		out.CertValidationCname = validationCname
 
 		domainNameId, apiGwTarget, hostedZoneId, err := setupDomainName(ctx, name, domain, certArn, parent)
 		if err != nil {
@@ -131,8 +149,10 @@ func SetupBase(
 		out.ApiGatewayDomainTarget = apiGwTarget
 		out.HostedZoneId = hostedZoneId
 
-		if err := setupDnsRecord(ctx, name, domain, apiGwTarget, hostedZoneId, parent); err != nil {
-			return nil, err
+		if !skipDns {
+			if err := setupDnsRecord(ctx, name, domain, apiGwTarget, hostedZoneId, parent); err != nil {
+				return nil, err
+			}
 		}
 	} else {
 		// No domain — emit empty outputs so callers don't need nil checks.
@@ -140,9 +160,15 @@ func SetupBase(
 		out.DomainNameId = pulumi.String("").ToStringOutput()
 		out.ApiGatewayDomainTarget = pulumi.String("").ToStringOutput()
 		out.HostedZoneId = pulumi.String("").ToStringOutput()
+		out.CertValidationCname = pulumi.Any(nil)
 	}
 
 	return out, nil
+}
+
+type CertValidationCname struct {
+	Name  string
+	Value string
 }
 
 // setupCertificate creates or reuses an ACM certificate for the given domain.
@@ -152,10 +178,12 @@ func setupCertificate(
 	ctx *pulumi.Context,
 	name string,
 	domain *DomainConfig,
+	skipDns bool,
 	parent pulumi.Resource,
-) (pulumi.StringOutput, error) {
+) (pulumi.StringOutput, pulumi.AnyOutput, error) {
+	// BYO cert — use the provided ARN directly, no validation needed.
 	if domain.CertificateArn != "" {
-		return pulumi.String(domain.CertificateArn).ToStringOutput(), nil
+		return pulumi.String(domain.CertificateArn).ToStringOutput(), pulumi.Any(nil), nil
 	}
 
 	cert, err := acm.NewCertificate(ctx, name+"-cert", &acm.CertificateArgs{
@@ -166,12 +194,37 @@ func setupCertificate(
 		},
 	}, pulumi.Parent(parent))
 	if err != nil {
-		return pulumi.StringOutput{}, fmt.Errorf("failed to create ACM certificate for %s: %w", domain.Name, err)
+		return pulumi.StringOutput{}, pulumi.AnyOutput{}, fmt.Errorf("failed to create ACM certificate for %s: %w", domain.Name, err)
 	}
 
-	// DNS validation record — written to Route 53 automatically.
 	validationOption := cert.DomainValidationOptions.Index(pulumi.Int(0))
 
+	validationCname := pulumi.All(
+		validationOption.ResourceRecordName(),
+		validationOption.ResourceRecordValue(),
+	).ApplyT(func(args []interface{}) interface{} {
+		name, _ := args[0].(*string)
+		value, _ := args[1].(*string)
+		if name == nil || value == nil {
+			return nil
+		}
+		return CertValidationCname{Name: *name, Value: *value}
+	}).(pulumi.AnyOutput)
+
+	if skipDns {
+		// dns: false — user must add the validation CNAME in Cloudflare manually.
+		// Block the deploy on CertificateValidation with no ValidationRecordFqdns —
+		// ACM will validate once the user adds the record.
+		validation, err := acm.NewCertificateValidation(ctx, name+"-cert-validated", &acm.CertificateValidationArgs{
+			CertificateArn: cert.Arn,
+		}, pulumi.Parent(parent))
+		if err != nil {
+			return pulumi.StringOutput{}, pulumi.AnyOutput{}, fmt.Errorf("failed to create certificate validation: %w", err)
+		}
+		return validation.CertificateArn, validationCname, nil
+	}
+
+	// Route 53 flow — create validation record automatically.
 	validationRecord, err := route53.NewRecord(ctx, name+"-cert-validation", &route53.RecordArgs{
 		ZoneId: lookupZoneId(ctx, name, domain),
 		Name: validationOption.ResourceRecordName().ApplyT(func(v interface{}) string {
@@ -197,7 +250,7 @@ func setupCertificate(
 		Ttl: pulumi.Int(60),
 	}, pulumi.Parent(parent))
 	if err != nil {
-		return pulumi.StringOutput{}, fmt.Errorf("failed to create certificate validation record: %w", err)
+		return pulumi.StringOutput{}, pulumi.AnyOutput{}, fmt.Errorf("failed to create certificate validation record: %w", err)
 	}
 
 	validation, err := acm.NewCertificateValidation(ctx, name+"-cert-validated", &acm.CertificateValidationArgs{
@@ -207,10 +260,10 @@ func setupCertificate(
 		},
 	}, pulumi.Parent(parent))
 	if err != nil {
-		return pulumi.StringOutput{}, fmt.Errorf("failed to validate certificate: %w", err)
+		return pulumi.StringOutput{}, pulumi.AnyOutput{}, fmt.Errorf("failed to validate certificate: %w", err)
 	}
 
-	return validation.CertificateArn, nil
+	return validation.CertificateArn, pulumi.Any(nil), nil
 }
 
 // setupDomainName creates the API Gateway v2 domain name resource.

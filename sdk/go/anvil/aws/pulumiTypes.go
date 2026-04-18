@@ -3320,6 +3320,39 @@ func (o BucketWebsiteConfigurationTransformPtrOutput) RoutingRules() s3.BucketWe
 	}).(s3.BucketWebsiteConfigurationRoutingRuleArrayOutput)
 }
 
+// ACM certificate DNS validation CNAME record. Only populated when domain.dns: false and domain.certificateArn is omitted. Add this record in your DNS provider (e.g. Cloudflare) then re-run deploy — Anvil blocks until ACM confirms validation.
+type HttpApiCertValidationCname struct {
+	// The CNAME record name to add in your DNS provider.
+	Name string `pulumi:"name"`
+	// The CNAME record value to point to.
+	Value string `pulumi:"value"`
+}
+
+// ACM certificate DNS validation CNAME record. Only populated when domain.dns: false and domain.certificateArn is omitted. Add this record in your DNS provider (e.g. Cloudflare) then re-run deploy — Anvil blocks until ACM confirms validation.
+type HttpApiCertValidationCnameOutput struct{ *pulumi.OutputState }
+
+func (HttpApiCertValidationCnameOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*HttpApiCertValidationCname)(nil)).Elem()
+}
+
+func (o HttpApiCertValidationCnameOutput) ToHttpApiCertValidationCnameOutput() HttpApiCertValidationCnameOutput {
+	return o
+}
+
+func (o HttpApiCertValidationCnameOutput) ToHttpApiCertValidationCnameOutputWithContext(ctx context.Context) HttpApiCertValidationCnameOutput {
+	return o
+}
+
+// The CNAME record name to add in your DNS provider.
+func (o HttpApiCertValidationCnameOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v HttpApiCertValidationCname) string { return v.Name }).(pulumi.StringOutput)
+}
+
+// The CNAME record value to point to.
+func (o HttpApiCertValidationCnameOutput) Value() pulumi.StringOutput {
+	return o.ApplyT(func(v HttpApiCertValidationCname) string { return v.Value }).(pulumi.StringOutput)
+}
+
 // Cross-Origin Resource Sharing configuration. Opt-in — omit to disable CORS. Security rules: allowOrigins '*' is blocked, allowCredentials requires explicit origins, allowMethods is inferred from routes when omitted.
 type HttpApiCors struct {
 	// Allow cookies and auth headers in cross-origin requests. Default: false. When true, allowOrigins must not contain '*' — browsers reject this combination per the CORS specification.
@@ -3536,15 +3569,17 @@ func (o HttpApiCorsPtrOutput) MaxAge() pulumi.IntPtrOutput {
 	}).(pulumi.IntPtrOutput)
 }
 
-// Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.
+// Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set. Set dns: false for Cloudflare or other non-Route 53 providers.
 type HttpApiDomain struct {
 	// Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping.
 	BasePath *string `pulumi:"basePath"`
-	// BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+	// BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation. Required when dns: false to skip Route 53 cert validation entirely.
 	CertificateArn *string `pulumi:"certificateArn"`
+	// Create Route 53 DNS and cert validation records automatically. Default: true. Set to false for Cloudflare or other non-Route 53 DNS providers — Anvil will output the API Gateway target domain and (when certificateArn is omitted) the ACM validation CNAME for manual configuration.
+	Dns *bool `pulumi:"dns"`
 	// The fully qualified domain name. e.g. 'api.mysite.com'.
 	Name string `pulumi:"name"`
-	// Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+	// Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically. Ignored when dns: false.
 	ZoneId *string `pulumi:"zoneId"`
 }
 
@@ -3559,15 +3594,17 @@ type HttpApiDomainInput interface {
 	ToHttpApiDomainOutputWithContext(context.Context) HttpApiDomainOutput
 }
 
-// Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.
+// Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set. Set dns: false for Cloudflare or other non-Route 53 providers.
 type HttpApiDomainArgs struct {
 	// Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping.
 	BasePath pulumi.StringPtrInput `pulumi:"basePath"`
-	// BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+	// BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation. Required when dns: false to skip Route 53 cert validation entirely.
 	CertificateArn pulumi.StringPtrInput `pulumi:"certificateArn"`
+	// Create Route 53 DNS and cert validation records automatically. Default: true. Set to false for Cloudflare or other non-Route 53 DNS providers — Anvil will output the API Gateway target domain and (when certificateArn is omitted) the ACM validation CNAME for manual configuration.
+	Dns pulumi.BoolPtrInput `pulumi:"dns"`
 	// The fully qualified domain name. e.g. 'api.mysite.com'.
 	Name pulumi.StringInput `pulumi:"name"`
-	// Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+	// Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically. Ignored when dns: false.
 	ZoneId pulumi.StringPtrInput `pulumi:"zoneId"`
 }
 
@@ -3624,7 +3661,7 @@ func (i *httpApiDomainPtrType) ToHttpApiDomainPtrOutputWithContext(ctx context.C
 	return pulumi.ToOutputWithContext(ctx, i).(HttpApiDomainPtrOutput)
 }
 
-// Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.
+// Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set. Set dns: false for Cloudflare or other non-Route 53 providers.
 type HttpApiDomainOutput struct{ *pulumi.OutputState }
 
 func (HttpApiDomainOutput) ElementType() reflect.Type {
@@ -3654,9 +3691,14 @@ func (o HttpApiDomainOutput) BasePath() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v HttpApiDomain) *string { return v.BasePath }).(pulumi.StringPtrOutput)
 }
 
-// BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+// BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation. Required when dns: false to skip Route 53 cert validation entirely.
 func (o HttpApiDomainOutput) CertificateArn() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v HttpApiDomain) *string { return v.CertificateArn }).(pulumi.StringPtrOutput)
+}
+
+// Create Route 53 DNS and cert validation records automatically. Default: true. Set to false for Cloudflare or other non-Route 53 DNS providers — Anvil will output the API Gateway target domain and (when certificateArn is omitted) the ACM validation CNAME for manual configuration.
+func (o HttpApiDomainOutput) Dns() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v HttpApiDomain) *bool { return v.Dns }).(pulumi.BoolPtrOutput)
 }
 
 // The fully qualified domain name. e.g. 'api.mysite.com'.
@@ -3664,7 +3706,7 @@ func (o HttpApiDomainOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v HttpApiDomain) string { return v.Name }).(pulumi.StringOutput)
 }
 
-// Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+// Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically. Ignored when dns: false.
 func (o HttpApiDomainOutput) ZoneId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v HttpApiDomain) *string { return v.ZoneId }).(pulumi.StringPtrOutput)
 }
@@ -3703,7 +3745,7 @@ func (o HttpApiDomainPtrOutput) BasePath() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+// BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation. Required when dns: false to skip Route 53 cert validation entirely.
 func (o HttpApiDomainPtrOutput) CertificateArn() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *HttpApiDomain) *string {
 		if v == nil {
@@ -3711,6 +3753,16 @@ func (o HttpApiDomainPtrOutput) CertificateArn() pulumi.StringPtrOutput {
 		}
 		return v.CertificateArn
 	}).(pulumi.StringPtrOutput)
+}
+
+// Create Route 53 DNS and cert validation records automatically. Default: true. Set to false for Cloudflare or other non-Route 53 DNS providers — Anvil will output the API Gateway target domain and (when certificateArn is omitted) the ACM validation CNAME for manual configuration.
+func (o HttpApiDomainPtrOutput) Dns() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *HttpApiDomain) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.Dns
+	}).(pulumi.BoolPtrOutput)
 }
 
 // The fully qualified domain name. e.g. 'api.mysite.com'.
@@ -3723,7 +3775,7 @@ func (o HttpApiDomainPtrOutput) Name() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
-// Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+// Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically. Ignored when dns: false.
 func (o HttpApiDomainPtrOutput) ZoneId() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *HttpApiDomain) *string {
 		if v == nil {
@@ -7679,6 +7731,7 @@ func init() {
 	pulumi.RegisterOutputType(BucketVersioningTransformPtrOutput{})
 	pulumi.RegisterOutputType(BucketWebsiteConfigurationTransformOutput{})
 	pulumi.RegisterOutputType(BucketWebsiteConfigurationTransformPtrOutput{})
+	pulumi.RegisterOutputType(HttpApiCertValidationCnameOutput{})
 	pulumi.RegisterOutputType(HttpApiCorsOutput{})
 	pulumi.RegisterOutputType(HttpApiCorsPtrOutput{})
 	pulumi.RegisterOutputType(HttpApiDomainOutput{})
