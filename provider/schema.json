@@ -162,6 +162,10 @@
           "description": "The API Gateway HTTP API ID.",
           "type": "string"
         },
+        "certValidationCname": {
+          "$ref": "#/types/anvil:aws:HttpApiCertValidationCname",
+          "description": "ACM cert validation CNAME. Only populated when domain.dns: false and domain.certificateArn is omitted. Add this record in Cloudflare (or your DNS provider) then re-run deploy — Anvil blocks until ACM confirms validation."
+        },
         "url": {
           "description": "The primary URL for the API. When a custom domain is configured this is the custom domain URL. Otherwise it is the execute-api endpoint URL.",
           "type": "string"
@@ -170,7 +174,8 @@
       "required": [
         "apiId",
         "apiEndpoint",
-        "url"
+        "url",
+        "certValidationCname"
       ],
       "requiredInputs": [
         "routes"
@@ -1031,6 +1036,24 @@
       },
       "type": "object"
     },
+    "anvil:aws:HttpApiCertValidationCname": {
+      "description": "ACM certificate DNS validation CNAME record. Only populated when domain.dns: false and domain.certificateArn is omitted. Add this record in your DNS provider (e.g. Cloudflare) then re-run deploy — Anvil blocks until ACM confirms validation.",
+      "properties": {
+        "name": {
+          "description": "The CNAME record name to add in your DNS provider.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The CNAME record value to point to.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "type": "object"
+    },
     "anvil:aws:HttpApiCors": {
       "description": "Cross-Origin Resource Sharing configuration. Opt-in — omit to disable CORS. Security rules: allowOrigins '*' is blocked, allowCredentials requires explicit origins, allowMethods is inferred from routes when omitted.",
       "properties": {
@@ -1070,22 +1093,26 @@
       "type": "object"
     },
     "anvil:aws:HttpApiDomain": {
-      "description": "Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.",
+      "description": "Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set. Set dns: false for Cloudflare or other non-Route 53 providers.",
       "properties": {
         "basePath": {
           "description": "Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping.",
           "type": "string"
         },
         "certificateArn": {
-          "description": "BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.",
+          "description": "BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation. Required when dns: false to skip Route 53 cert validation entirely.",
           "type": "string"
+        },
+        "dns": {
+          "description": "Create Route 53 DNS and cert validation records automatically. Default: true. Set to false for Cloudflare or other non-Route 53 DNS providers — Anvil will output the API Gateway target domain and (when certificateArn is omitted) the ACM validation CNAME for manual configuration.",
+          "type": "boolean"
         },
         "name": {
           "description": "The fully qualified domain name. e.g. 'api.mysite.com'.",
           "type": "string"
         },
         "zoneId": {
-          "description": "Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.",
+          "description": "Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically. Ignored when dns: false.",
           "type": "string"
         }
       },

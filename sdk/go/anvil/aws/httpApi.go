@@ -20,6 +20,8 @@ type HttpApi struct {
 	ApiEndpoint pulumi.StringOutput `pulumi:"apiEndpoint"`
 	// The API Gateway HTTP API ID.
 	ApiId pulumi.StringOutput `pulumi:"apiId"`
+	// ACM cert validation CNAME. Only populated when domain.dns: false and domain.certificateArn is omitted. Add this record in Cloudflare (or your DNS provider) then re-run deploy — Anvil blocks until ACM confirms validation.
+	CertValidationCname HttpApiCertValidationCnameOutput `pulumi:"certValidationCname"`
 	// The primary URL for the API. When a custom domain is configured this is the custom domain URL. Otherwise it is the execute-api endpoint URL.
 	Url pulumi.StringOutput `pulumi:"url"`
 }
@@ -165,6 +167,11 @@ func (o HttpApiOutput) ApiEndpoint() pulumi.StringOutput {
 // The API Gateway HTTP API ID.
 func (o HttpApiOutput) ApiId() pulumi.StringOutput {
 	return o.ApplyT(func(v *HttpApi) pulumi.StringOutput { return v.ApiId }).(pulumi.StringOutput)
+}
+
+// ACM cert validation CNAME. Only populated when domain.dns: false and domain.certificateArn is omitted. Add this record in Cloudflare (or your DNS provider) then re-run deploy — Anvil blocks until ACM confirms validation.
+func (o HttpApiOutput) CertValidationCname() HttpApiCertValidationCnameOutput {
+	return o.ApplyT(func(v *HttpApi) HttpApiCertValidationCnameOutput { return v.CertValidationCname }).(HttpApiCertValidationCnameOutput)
 }
 
 // The primary URL for the API. When a custom domain is configured this is the custom domain URL. Otherwise it is the execute-api endpoint URL.

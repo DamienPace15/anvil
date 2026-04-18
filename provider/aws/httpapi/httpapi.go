@@ -196,6 +196,12 @@ type HttpApiDomain struct {
 	// ZoneId is the Route 53 hosted zone ID.
 	// When omitted Anvil discovers the zone by name automatically.
 	ZoneId string `pulumi:"zoneId,optional"`
+
+	// Dns controls whether Anvil creates Route 53 DNS and cert validation records.
+	// Default: true. Set to false for Cloudflare or other non-Route 53 providers.
+	// When false, Anvil outputs ApiGatewayDomainTarget and (if no certificateArn
+	// is provided) CertValidationCname for manual configuration in your DNS provider.
+	Dns *bool `pulumi:"dns,optional"`
 }
 
 // ── Args ───────────────────────────────────────────────────────────────────
@@ -244,6 +250,11 @@ type HttpApi struct {
 	// When a custom domain is configured this is the custom domain URL.
 	// Otherwise it is the execute-api endpoint URL.
 	Url pulumi.StringOutput `pulumi:"url"`
+
+	// CertValidationCname is the ACM cert validation CNAME record.
+	// Only populated when dns: false and certificateArn is omitted.
+	// Add this record in Cloudflare then re-run deploy.
+	CertValidationCname pulumi.AnyOutput `pulumi:"certValidationCname"`
 
 	name string
 }
@@ -329,6 +340,18 @@ func NewHttpApi(ctx *pulumi.Context, name string, args HttpApiArgs, opts ...pulu
 		}
 	}
 
+	// Validate domain DNS configuration.
+	if args.Domain != nil {
+		skipDns := args.Domain.Dns != nil && !*args.Domain.Dns
+		if skipDns && args.Domain.ZoneId != "" {
+			return nil, fmt.Errorf(
+				"HttpApi %q: domain.zoneId has no effect when domain.dns is false — "+
+					"remove zoneId or set dns: true",
+				name,
+			)
+		}
+	}
+
 	// ── Throttling defaults ────────────────────────────────────────────────
 
 	throttleRate := 1000
@@ -351,6 +374,7 @@ func NewHttpApi(ctx *pulumi.Context, name string, args HttpApiArgs, opts ...pulu
 			BasePath:       args.Domain.BasePath,
 			CertificateArn: args.Domain.CertificateArn,
 			ZoneId:         args.Domain.ZoneId,
+			Dns:            args.Domain.Dns,
 		}
 	}
 
@@ -533,10 +557,13 @@ func NewHttpApi(ctx *pulumi.Context, name string, args HttpApiArgs, opts ...pulu
 		h.Url = api.ApiEndpoint
 	}
 
+	h.CertValidationCname = base.CertValidationCname
+
 	ctx.RegisterResourceOutputs(h, pulumi.Map{
-		"apiId":       api.ID(),
-		"apiEndpoint": api.ApiEndpoint,
-		"url":         h.Url,
+		"apiId":               api.ID(),
+		"apiEndpoint":         api.ApiEndpoint,
+		"url":                 h.Url,
+		"certValidationCname": base.CertValidationCname,
 	})
 
 	return h, nil
