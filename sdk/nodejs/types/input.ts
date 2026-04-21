@@ -391,7 +391,7 @@ export namespace aws {
     }
 
     /**
-     * Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.
+     * Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set. Set dns: false for Cloudflare or other non-Route 53 providers.
      */
     export interface HttpApiDomainArgs {
         /**
@@ -399,15 +399,19 @@ export namespace aws {
          */
         basePath?: pulumi.Input<string>;
         /**
-         * BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+         * BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation. Required when dns: false to skip Route 53 cert validation entirely.
          */
         certificateArn?: pulumi.Input<string>;
+        /**
+         * Create Route 53 DNS and cert validation records automatically. Default: true. Set to false for Cloudflare or other non-Route 53 DNS providers — Anvil will output the API Gateway target domain and (when certificateArn is omitted) the ACM validation CNAME for manual configuration.
+         */
+        dns?: pulumi.Input<boolean>;
         /**
          * The fully qualified domain name. e.g. 'api.mysite.com'.
          */
         name: pulumi.Input<string>;
         /**
-         * Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+         * Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically. Ignored when dns: false.
          */
         zoneId?: pulumi.Input<string>;
     }
@@ -792,6 +796,16 @@ export namespace aws {
          * Whether to retain the public access block upon destruction. If set to <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span>, the resource is simply removed from state instead. This may be desirable in certain scenarios to prevent the removal of a public access block before deletion of the associated bucket.
          */
         skipDestroy?: pulumi.Input<boolean>;
+    }
+
+    /**
+     * SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
+     */
+    export interface SiteOriginProtectionArgs {
+        /**
+         * Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
+         */
+        provider?: pulumi.Input<enums.aws.SiteOriginProtectionProvider>;
     }
 
     export interface VpcBastionArgsArgs {

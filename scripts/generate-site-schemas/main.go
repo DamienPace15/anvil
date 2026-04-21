@@ -4,15 +4,20 @@
 // extracts doc comments as descriptions, and emits Pulumi schema.json files.
 //
 // This generator handles embedded structs (shared inputs from internal/sites/)
-// so that schemas are written once and reused across providers.
+// so that schemas are written once and reused across components.
+//
+// Adding a new site component:
+//  1. Add a componentConfig entry to the components slice in main().
+//  2. If any string fields should be enums, add entries to enumFieldOverrides
+//     and manualTypes below.
 //
 // Usage:
 //
 //	cd provider && go run ../scripts/generate-site-schemas/main.go
 //
-// Or via Makefile:
+// Or via build.go:
 //
-//	make gen-site-schemas
+//	go run build.go gen-site-schemas
 package main
 
 import (
@@ -27,6 +32,40 @@ import (
 	"strings"
 	"time"
 )
+
+// ── Enum overrides ────────────────────────────────────────────────────────────
+//
+// The AST generator cannot distinguish a plain string field from one that
+// should reference a named enum type. Add entries here for any string fields
+// that should emit a $ref instead of "type": "string".
+//
+// Key format: "GoStructName.pulumiFieldName"
+// Value: the full schema token the field should reference.
+//
+// The referenced token must also have an entry in manualTypes below.
+
+var enumFieldOverrides = map[string]string{
+	"SiteOriginProtectionArgs.provider": "anvil:aws:SiteOriginProtectionProvider",
+	"SiteOriginProtectionArgs.mode":     "anvil:aws:SiteOriginProtectionMode",
+}
+
+// manualTypes holds hand-authored type definitions that are injected into the
+// schema types block alongside auto-generated nested object types.
+// Use for enum types and any other types the AST generator cannot produce.
+var manualTypes = map[string]interface{}{
+	"anvil:aws:SiteOriginProtectionProvider": map[string]interface{}{
+		"type":        "string",
+		"description": "The CDN/proxy provider sitting in front of CloudFront.",
+		"enum": []map[string]string{
+			{
+				"value":       "cloudflare",
+				"description": "Cloudflare — inject x-origin-secret via a Cloudflare Transform Rule.",
+			},
+		},
+	},
+}
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 // schemaProperty represents a single property in a Pulumi schema.
 type schemaProperty struct {
@@ -54,12 +93,13 @@ type resourceDef struct {
 
 // parsedField holds extracted field info from Go AST.
 type parsedField struct {
-	PulumiName  string
-	GoType      string
-	Description string
-	Required    bool
-	Optional    bool
-	IsOutput    bool // true if the Go type is pulumi.*Output
+	PulumiName   string
+	GoType       string
+	GoStructName string // name of the struct this field belongs to, for enum lookup
+	Description  string
+	Required     bool
+	Optional     bool
+	IsOutput     bool // true if the Go type is pulumi.*Output
 }
 
 // componentConfig describes a component to generate a schema for.
@@ -77,6 +117,25 @@ type componentConfig struct {
 	// Name of the component struct in the component file.
 	ComponentStruct string
 }
+
+// structInfo holds parsed struct data.
+type structInfo struct {
+	Doc    string
+	Fields []parsedField
+	// EmbeddedTypes lists the short names of embedded struct types
+	// (e.g. "SvelteKitSiteInputs" from sites.SvelteKitSiteInputs).
+	EmbeddedTypes []string
+}
+
+// nestedTypeDef is the schema representation of a nested object type.
+type nestedTypeDef struct {
+	Type        string                    `json:"type"`
+	Description string                    `json:"description,omitempty"`
+	Properties  map[string]schemaProperty `json:"properties,omitempty"`
+	Required    []string                  `json:"required,omitempty"`
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 func main() {
 	fmt.Println("🔧 Starting Site Schema Generator...")
@@ -131,11 +190,15 @@ func main() {
 			log.Fatalf("❌ Failed to resolve outputs for %s: %v", comp.Token, err)
 		}
 
-		// Build schema.
+		// Collect nested object types referenced via $ref so we can emit them
+		// into the types block. Key = short Go struct name, Value = token name.
+		nestedTypes := make(map[string]string) // e.g. "SiteOriginProtectionArgs" → "anvil:aws:SiteOriginProtection"
+
 		inputProps := make(map[string]schemaProperty)
 		var requiredInputs []string
 		for _, f := range inputFields {
-			inputProps[f.PulumiName] = goTypeToSchemaProperty(f)
+			prop := goTypeToSchemaProperty(f, comp.Cloud, nestedTypes)
+			inputProps[f.PulumiName] = prop
 			if f.Required {
 				requiredInputs = append(requiredInputs, f.PulumiName)
 			}
@@ -147,7 +210,7 @@ func main() {
 			if !f.IsOutput {
 				continue // Skip non-output fields (ResourceState, etc.)
 			}
-			outputProps[f.PulumiName] = goTypeToSchemaProperty(f)
+			outputProps[f.PulumiName] = goTypeToSchemaProperty(f, comp.Cloud, nestedTypes)
 			if !f.Optional {
 				requiredOutputs = append(requiredOutputs, f.PulumiName)
 			}
@@ -168,11 +231,48 @@ func main() {
 			Required:        requiredOutputs,
 		}
 
+		// Build types block — emit object definitions for any nested structs
+		// referenced via $ref in the input/output properties.
+		//
+		// BFS loop: processing a nested struct may discover further nested structs.
+		// We iterate until no new types are found. A visited set prevents infinite
+		// loops on circular references.
+		typesBlock := make(map[string]interface{})
+		visited := make(map[string]bool) // keyed by goStructName
+		pending := nestedTypes           // map[goStructName]tokenName
+
+		for len(pending) > 0 {
+			nextPending := make(map[string]string)
+			for goStructName, tokenName := range pending {
+				if visited[goStructName] {
+					continue
+				}
+				visited[goStructName] = true
+
+				typeDef := buildNestedTypeDef(goStructName, tokenName, componentStructs, sharedStructs, comp.Cloud, nextPending)
+				if typeDef != nil {
+					typesBlock[tokenName] = typeDef
+				}
+			}
+			// Remove already-visited structs from nextPending before next iteration.
+			for goStructName := range visited {
+				delete(nextPending, goStructName)
+			}
+			pending = nextPending
+		}
+
+		// Inject manual types (enums and other hand-authored definitions).
+		// These are merged in after BFS so they always take precedence over
+		// any auto-generated entry with the same token name.
+		for token, def := range manualTypes {
+			typesBlock[token] = def
+		}
+
 		schema := componentSchema{
 			Resources: map[string]resourceDef{
 				comp.Token: resDef,
 			},
-			Types: map[string]interface{}{},
+			Types: typesBlock,
 		}
 
 		// Write schema.json.
@@ -185,14 +285,127 @@ func main() {
 	fmt.Printf("✅ Generated %d site schemas in %v\n", len(components), time.Since(start))
 }
 
-// structInfo holds parsed struct data.
-type structInfo struct {
-	Doc    string
-	Fields []parsedField
-	// EmbeddedTypes lists the short names of embedded struct types
-	// (e.g. "SvelteKitSiteInputs" from sites.SvelteKitSiteInputs).
-	EmbeddedTypes []string
+// ── Schema building ───────────────────────────────────────────────────────────
+
+// structNameToToken converts a Go struct name to an Anvil schema token.
+// Strips the "Args" suffix so SiteOriginProtectionArgs → anvil:aws:SiteOriginProtection.
+func structNameToToken(goName, cloud string) string {
+	typeName := strings.TrimSuffix(goName, "Args")
+	return fmt.Sprintf("anvil:%s:%s", cloud, typeName)
 }
+
+// buildNestedTypeDef constructs the types block entry for a nested struct.
+//
+// Any pointer-to-struct fields discovered while processing this struct are
+// added to nestedTypes so the BFS loop in main can process them next,
+// enabling arbitrary nesting depth without recursion limits.
+func buildNestedTypeDef(goStructName, tokenName string, componentStructs, sharedStructs map[string]*structInfo, cloud string, nestedTypes map[string]string) *nestedTypeDef {
+	// Find the struct — look in component file first, then shared.
+	info, ok := componentStructs[goStructName]
+	if !ok {
+		info, ok = sharedStructs[goStructName]
+		if !ok {
+			return nil
+		}
+	}
+
+	props := make(map[string]schemaProperty)
+	var required []string
+
+	// Pass nestedTypes through so any pointer-to-struct fields inside this
+	// struct are collected for the next BFS iteration.
+	for _, f := range info.Fields {
+		props[f.PulumiName] = goTypeToSchemaProperty(f, cloud, nestedTypes)
+		if !f.Optional {
+			required = append(required, f.PulumiName)
+		}
+	}
+
+	return &nestedTypeDef{
+		Type:        "object",
+		Description: info.Doc,
+		Properties:  props,
+		Required:    required,
+	}
+}
+
+// goTypeToSchemaProperty maps a Go type to a Pulumi schema property.
+//
+// Resolution order:
+//  1. enumFieldOverrides — "StructName.fieldName" → $ref to a named enum token
+//  2. Pointer-to-struct  — *SomeArgs → $ref to an auto-generated object token
+//  3. Primitive types    — string, int, bool, map, slice
+func goTypeToSchemaProperty(f parsedField, cloud string, nestedTypes map[string]string) schemaProperty {
+	prop := schemaProperty{
+		Description: f.Description,
+	}
+
+	// 1. Check enum overrides first.
+	// Key is "GoStructName.pulumiFieldName" — matches entries in enumFieldOverrides.
+	overrideKey := f.GoStructName + "." + f.PulumiName
+	if token, ok := enumFieldOverrides[overrideKey]; ok {
+		prop.Ref = fmt.Sprintf("#/types/%s", token)
+		return prop
+	}
+
+	goType := f.GoType
+
+	// 2. Pointer-to-struct: *SomeArgs → $ref to a named object type.
+	if strings.HasPrefix(goType, "*") {
+		innerName := strings.TrimPrefix(goType, "*")
+		// Only treat as a nested object if it's a local struct (no package qualifier).
+		if !strings.Contains(innerName, ".") {
+			token := structNameToToken(innerName, cloud)
+			nestedTypes[innerName] = token
+			prop.Ref = fmt.Sprintf("#/types/%s", token)
+			return prop
+		}
+	}
+
+	// 3. Primitive and collection types.
+	goType = strings.TrimPrefix(goType, "pulumi.")
+	goType = strings.TrimSuffix(goType, "Output")
+
+	switch {
+	case goType == "string" || goType == "String":
+		prop.Type = "string"
+	case goType == "int" || goType == "Int" || goType == "int64":
+		prop.Type = "integer"
+	case goType == "float64" || goType == "Float64":
+		prop.Type = "number"
+	case goType == "bool" || goType == "Bool":
+		prop.Type = "boolean"
+	case strings.HasPrefix(goType, "map[string]string") || strings.HasPrefix(goType, "Map"):
+		prop.Type = "object"
+		prop.AdditionalProperties = &schemaProperty{Type: "string"}
+	case strings.HasPrefix(goType, "[]"):
+		prop.Type = "array"
+		elemType := strings.TrimPrefix(goType, "[]")
+		prop.Items = &schemaProperty{Type: goTypeToSchemaType(elemType)}
+	default:
+		prop.Type = "string"
+	}
+
+	return prop
+}
+
+// goTypeToSchemaType maps a simple Go type name to a Pulumi schema type string.
+func goTypeToSchemaType(goType string) string {
+	switch goType {
+	case "string":
+		return "string"
+	case "int", "int64":
+		return "integer"
+	case "float64":
+		return "number"
+	case "bool":
+		return "boolean"
+	default:
+		return "string"
+	}
+}
+
+// ── Go AST parsing ────────────────────────────────────────────────────────────
 
 // parseGoFile parses a Go source file and extracts all struct definitions
 // with their fields, tags, and doc comments.
@@ -223,6 +436,7 @@ func parseGoFile(path string) (map[string]*structInfo, error) {
 			}
 
 			info := &structInfo{}
+			structName := typeSpec.Name.Name
 
 			// Extract doc comment from the type declaration.
 			if genDecl.Doc != nil {
@@ -254,7 +468,9 @@ func parseGoFile(path string) (map[string]*structInfo, error) {
 					continue
 				}
 
-				pf := parsedField{}
+				pf := parsedField{
+					GoStructName: structName,
+				}
 
 				// Parse pulumi tag: "name,optional" or just "name".
 				parts := strings.SplitN(pulumiTag, ",", 2)
@@ -269,8 +485,7 @@ func parseGoFile(path string) (map[string]*structInfo, error) {
 					pf.Required = true
 					pf.Optional = false
 				} else if !pf.Optional {
-					// If not explicitly optional and not explicitly required,
-					// default to optional (safe default).
+					// Default to optional — safe assumption.
 					pf.Optional = true
 				}
 
@@ -288,7 +503,7 @@ func parseGoFile(path string) (map[string]*structInfo, error) {
 				info.Fields = append(info.Fields, pf)
 			}
 
-			structs[typeSpec.Name.Name] = info
+			structs[structName] = info
 		}
 	}
 
@@ -308,9 +523,7 @@ func resolveFields(structName string, componentStructs, sharedStructs map[string
 
 	// First, resolve embedded types.
 	for _, embeddedName := range info.EmbeddedTypes {
-		// Look in shared structs first, then component structs.
 		if shared, ok := sharedStructs[embeddedName]; ok {
-			// Recursively resolve (in case shared struct also embeds).
 			embedded, err := resolveFieldsFromInfo(shared, sharedStructs)
 			if err != nil {
 				return nil, fmt.Errorf("resolving embedded %s: %w", embeddedName, err)
@@ -323,7 +536,7 @@ func resolveFields(structName string, componentStructs, sharedStructs map[string
 			}
 			allFields = append(allFields, embedded...)
 		}
-		// Skip unresolvable embeds (like pulumi.ResourceState) — they're not schema fields.
+		// Skip unresolvable embeds (like pulumi.ResourceState) — not schema fields.
 	}
 
 	// Then add the struct's own fields.
@@ -350,57 +563,7 @@ func resolveFieldsFromInfo(info *structInfo, available map[string]*structInfo) (
 	return allFields, nil
 }
 
-// goTypeToSchemaProperty maps a Go type to a Pulumi schema property.
-func goTypeToSchemaProperty(f parsedField) schemaProperty {
-	prop := schemaProperty{
-		Description: f.Description,
-	}
-
-	// Strip pulumi. wrapper types for output detection.
-	goType := f.GoType
-	goType = strings.TrimPrefix(goType, "pulumi.")
-	goType = strings.TrimSuffix(goType, "Output")
-
-	switch {
-	case goType == "string" || goType == "String":
-		prop.Type = "string"
-	case goType == "int" || goType == "Int" || goType == "int64":
-		prop.Type = "integer"
-	case goType == "float64" || goType == "Float64":
-		prop.Type = "number"
-	case goType == "bool" || goType == "Bool":
-		prop.Type = "boolean"
-	case strings.HasPrefix(goType, "map[string]string") || strings.HasPrefix(goType, "Map"):
-		prop.Type = "object"
-		prop.AdditionalProperties = &schemaProperty{Type: "string"}
-	case strings.HasPrefix(goType, "[]"):
-		prop.Type = "array"
-		elemType := strings.TrimPrefix(goType, "[]")
-		prop.Items = &schemaProperty{Type: goTypeToSchemaType(elemType)}
-	default:
-		// Fallback — treat unknown types as string.
-		// This handles cases like custom types we haven't mapped.
-		prop.Type = "string"
-	}
-
-	return prop
-}
-
-// goTypeToSchemaType maps a simple Go type name to a Pulumi schema type string.
-func goTypeToSchemaType(goType string) string {
-	switch goType {
-	case "string":
-		return "string"
-	case "int", "int64":
-		return "integer"
-	case "float64":
-		return "number"
-	case "bool":
-		return "boolean"
-	default:
-		return "string"
-	}
-}
+// ── AST helpers ───────────────────────────────────────────────────────────────
 
 // typeToString converts an ast.Expr type to a readable string.
 func typeToString(expr ast.Expr) string {
@@ -438,9 +601,8 @@ func resolveTypeName(expr ast.Expr) string {
 }
 
 // extractTag pulls a specific tag value from a raw Go struct tag string.
-// e.g. extractTag(`\x60pulumi:"path" schema:"required"\x60`, "pulumi") → "path"
+// e.g. extractTag(`pulumi:"path" schema:"required"`, "pulumi") → "path"
 func extractTag(raw string, key string) string {
-	// Strip backticks.
 	raw = strings.Trim(raw, "`")
 
 	search := key + `:"`
@@ -461,7 +623,6 @@ func extractTag(raw string, key string) string {
 // cleanDocComment trims and normalises a Go doc comment string.
 func cleanDocComment(s string) string {
 	s = strings.TrimSpace(s)
-	// Collapse multiple whitespace/newlines into single spaces.
 	lines := strings.Split(s, "\n")
 	var cleaned []string
 	for _, line := range lines {
@@ -472,6 +633,8 @@ func cleanDocComment(s string) string {
 	}
 	return strings.Join(cleaned, " ")
 }
+
+// ── Output ────────────────────────────────────────────────────────────────────
 
 // writeSchemaJSON writes a componentSchema to disk as indented JSON.
 func writeSchemaJSON(path string, schema componentSchema) error {

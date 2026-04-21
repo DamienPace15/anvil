@@ -1071,6 +1071,171 @@ func (in *s3flowLogLifecyclePtr) ToS3FlowLogLifecyclePtrOutputWithContext(ctx co
 	return pulumi.ToOutputWithContext(ctx, in).(S3FlowLogLifecyclePtrOutput)
 }
 
+// The CDN/proxy provider sitting in front of CloudFront.
+type SiteOriginProtectionProvider string
+
+const (
+	// Cloudflare — inject x-origin-secret via a Cloudflare Transform Rule.
+	SiteOriginProtectionProviderCloudflare = SiteOriginProtectionProvider("cloudflare")
+)
+
+func (SiteOriginProtectionProvider) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteOriginProtectionProvider)(nil)).Elem()
+}
+
+func (e SiteOriginProtectionProvider) ToSiteOriginProtectionProviderOutput() SiteOriginProtectionProviderOutput {
+	return pulumi.ToOutput(e).(SiteOriginProtectionProviderOutput)
+}
+
+func (e SiteOriginProtectionProvider) ToSiteOriginProtectionProviderOutputWithContext(ctx context.Context) SiteOriginProtectionProviderOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(SiteOriginProtectionProviderOutput)
+}
+
+func (e SiteOriginProtectionProvider) ToSiteOriginProtectionProviderPtrOutput() SiteOriginProtectionProviderPtrOutput {
+	return e.ToSiteOriginProtectionProviderPtrOutputWithContext(context.Background())
+}
+
+func (e SiteOriginProtectionProvider) ToSiteOriginProtectionProviderPtrOutputWithContext(ctx context.Context) SiteOriginProtectionProviderPtrOutput {
+	return SiteOriginProtectionProvider(e).ToSiteOriginProtectionProviderOutputWithContext(ctx).ToSiteOriginProtectionProviderPtrOutputWithContext(ctx)
+}
+
+func (e SiteOriginProtectionProvider) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e SiteOriginProtectionProvider) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e SiteOriginProtectionProvider) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e SiteOriginProtectionProvider) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type SiteOriginProtectionProviderOutput struct{ *pulumi.OutputState }
+
+func (SiteOriginProtectionProviderOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteOriginProtectionProvider)(nil)).Elem()
+}
+
+func (o SiteOriginProtectionProviderOutput) ToSiteOriginProtectionProviderOutput() SiteOriginProtectionProviderOutput {
+	return o
+}
+
+func (o SiteOriginProtectionProviderOutput) ToSiteOriginProtectionProviderOutputWithContext(ctx context.Context) SiteOriginProtectionProviderOutput {
+	return o
+}
+
+func (o SiteOriginProtectionProviderOutput) ToSiteOriginProtectionProviderPtrOutput() SiteOriginProtectionProviderPtrOutput {
+	return o.ToSiteOriginProtectionProviderPtrOutputWithContext(context.Background())
+}
+
+func (o SiteOriginProtectionProviderOutput) ToSiteOriginProtectionProviderPtrOutputWithContext(ctx context.Context) SiteOriginProtectionProviderPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v SiteOriginProtectionProvider) *SiteOriginProtectionProvider {
+		return &v
+	}).(SiteOriginProtectionProviderPtrOutput)
+}
+
+func (o SiteOriginProtectionProviderOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o SiteOriginProtectionProviderOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e SiteOriginProtectionProvider) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o SiteOriginProtectionProviderOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o SiteOriginProtectionProviderOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e SiteOriginProtectionProvider) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type SiteOriginProtectionProviderPtrOutput struct{ *pulumi.OutputState }
+
+func (SiteOriginProtectionProviderPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**SiteOriginProtectionProvider)(nil)).Elem()
+}
+
+func (o SiteOriginProtectionProviderPtrOutput) ToSiteOriginProtectionProviderPtrOutput() SiteOriginProtectionProviderPtrOutput {
+	return o
+}
+
+func (o SiteOriginProtectionProviderPtrOutput) ToSiteOriginProtectionProviderPtrOutputWithContext(ctx context.Context) SiteOriginProtectionProviderPtrOutput {
+	return o
+}
+
+func (o SiteOriginProtectionProviderPtrOutput) Elem() SiteOriginProtectionProviderOutput {
+	return o.ApplyT(func(v *SiteOriginProtectionProvider) SiteOriginProtectionProvider {
+		if v != nil {
+			return *v
+		}
+		var ret SiteOriginProtectionProvider
+		return ret
+	}).(SiteOriginProtectionProviderOutput)
+}
+
+func (o SiteOriginProtectionProviderPtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o SiteOriginProtectionProviderPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *SiteOriginProtectionProvider) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// SiteOriginProtectionProviderInput is an input type that accepts values of the SiteOriginProtectionProvider enum
+// A concrete instance of `SiteOriginProtectionProviderInput` can be one of the following:
+//
+//	SiteOriginProtectionProviderCloudflare
+type SiteOriginProtectionProviderInput interface {
+	pulumi.Input
+
+	ToSiteOriginProtectionProviderOutput() SiteOriginProtectionProviderOutput
+	ToSiteOriginProtectionProviderOutputWithContext(context.Context) SiteOriginProtectionProviderOutput
+}
+
+var siteOriginProtectionProviderPtrType = reflect.TypeOf((**SiteOriginProtectionProvider)(nil)).Elem()
+
+type SiteOriginProtectionProviderPtrInput interface {
+	pulumi.Input
+
+	ToSiteOriginProtectionProviderPtrOutput() SiteOriginProtectionProviderPtrOutput
+	ToSiteOriginProtectionProviderPtrOutputWithContext(context.Context) SiteOriginProtectionProviderPtrOutput
+}
+
+type siteOriginProtectionProviderPtr string
+
+func SiteOriginProtectionProviderPtr(v string) SiteOriginProtectionProviderPtrInput {
+	return (*siteOriginProtectionProviderPtr)(&v)
+}
+
+func (*siteOriginProtectionProviderPtr) ElementType() reflect.Type {
+	return siteOriginProtectionProviderPtrType
+}
+
+func (in *siteOriginProtectionProviderPtr) ToSiteOriginProtectionProviderPtrOutput() SiteOriginProtectionProviderPtrOutput {
+	return pulumi.ToOutput(in).(SiteOriginProtectionProviderPtrOutput)
+}
+
+func (in *siteOriginProtectionProviderPtr) ToSiteOriginProtectionProviderPtrOutputWithContext(ctx context.Context) SiteOriginProtectionProviderPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(SiteOriginProtectionProviderPtrOutput)
+}
+
 type VpcNatType string
 
 const (
@@ -1251,6 +1416,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaRuntimePtrInput)(nil)).Elem(), LambdaRuntime("nodejs24.x"))
 	pulumi.RegisterInputType(reflect.TypeOf((*S3FlowLogLifecycleInput)(nil)).Elem(), S3FlowLogLifecycle("standard"))
 	pulumi.RegisterInputType(reflect.TypeOf((*S3FlowLogLifecyclePtrInput)(nil)).Elem(), S3FlowLogLifecycle("standard"))
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteOriginProtectionProviderInput)(nil)).Elem(), SiteOriginProtectionProvider("cloudflare"))
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteOriginProtectionProviderPtrInput)(nil)).Elem(), SiteOriginProtectionProvider("cloudflare"))
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypeInput)(nil)).Elem(), VpcNatType("gateway"))
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypePtrInput)(nil)).Elem(), VpcNatType("gateway"))
 	pulumi.RegisterOutputType(AwsVpcEndpointServiceOutput{})
@@ -1265,6 +1432,8 @@ func init() {
 	pulumi.RegisterOutputType(LambdaRuntimePtrOutput{})
 	pulumi.RegisterOutputType(S3FlowLogLifecycleOutput{})
 	pulumi.RegisterOutputType(S3FlowLogLifecyclePtrOutput{})
+	pulumi.RegisterOutputType(SiteOriginProtectionProviderOutput{})
+	pulumi.RegisterOutputType(SiteOriginProtectionProviderPtrOutput{})
 	pulumi.RegisterOutputType(VpcNatTypeOutput{})
 	pulumi.RegisterOutputType(VpcNatTypePtrOutput{})
 }

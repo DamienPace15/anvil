@@ -18,7 +18,9 @@ type SvelteKitSite struct {
 	CloudFrontDistributionId pulumi.StringPtrOutput `pulumi:"cloudFrontDistributionId"`
 	DnsRecords               pulumi.StringPtrOutput `pulumi:"dnsRecords"`
 	FunctionName             pulumi.StringPtrOutput `pulumi:"functionName"`
-	Url                      pulumi.StringPtrOutput `pulumi:"url"`
+	// OriginSecret is the x-origin-secret header value to configure in Cloudflare Transform Rules. Only populated when originProtection is set.
+	OriginSecret pulumi.StringPtrOutput `pulumi:"originSecret"`
+	Url          pulumi.StringPtrOutput `pulumi:"url"`
 }
 
 // NewSvelteKitSite registers a new resource with the given unique name, arguments, and options.
@@ -41,7 +43,9 @@ type svelteKitSiteArgs struct {
 	Domain *string `pulumi:"domain"`
 	// Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
 	Environment map[string]string `pulumi:"environment"`
-	Path        *string           `pulumi:"path"`
+	// OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set.
+	OriginProtection *SiteOriginProtection `pulumi:"originProtection"`
+	Path             *string               `pulumi:"path"`
 	// Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
 	RuntimeEnvironment *string `pulumi:"runtimeEnvironment"`
 	Transform          *string `pulumi:"transform"`
@@ -52,7 +56,9 @@ type SvelteKitSiteArgs struct {
 	Domain pulumi.StringPtrInput
 	// Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
 	Environment pulumi.StringMapInput
-	Path        pulumi.StringPtrInput
+	// OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set.
+	OriginProtection SiteOriginProtectionPtrInput
+	Path             pulumi.StringPtrInput
 	// Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
 	RuntimeEnvironment pulumi.StringPtrInput
 	Transform          pulumi.StringPtrInput
@@ -159,6 +165,11 @@ func (o SvelteKitSiteOutput) DnsRecords() pulumi.StringPtrOutput {
 
 func (o SvelteKitSiteOutput) FunctionName() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *SvelteKitSite) pulumi.StringPtrOutput { return v.FunctionName }).(pulumi.StringPtrOutput)
+}
+
+// OriginSecret is the x-origin-secret header value to configure in Cloudflare Transform Rules. Only populated when originProtection is set.
+func (o SvelteKitSiteOutput) OriginSecret() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *SvelteKitSite) pulumi.StringPtrOutput { return v.OriginSecret }).(pulumi.StringPtrOutput)
 }
 
 func (o SvelteKitSiteOutput) Url() pulumi.StringPtrOutput {

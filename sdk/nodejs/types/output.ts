@@ -10,6 +10,20 @@ import * as pulumiAws from "@pulumi/aws";
 import * as pulumiGcp from "@pulumi/gcp";
 
 export namespace aws {
+    /**
+     * ACM certificate DNS validation CNAME record. Only populated when domain.dns: false and domain.certificateArn is omitted. Add this record in your DNS provider (e.g. Cloudflare) then re-run deploy — Anvil blocks until ACM confirms validation.
+     */
+    export interface HttpApiCertValidationCname {
+        /**
+         * The CNAME record name to add in your DNS provider.
+         */
+        name: string;
+        /**
+         * The CNAME record value to point to.
+         */
+        value: string;
+    }
+
 }
 
 export namespace gcp {

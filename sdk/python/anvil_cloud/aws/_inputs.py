@@ -79,6 +79,8 @@ __all__ = [
     'LambdaVpcEndpointArgsArgsDict',
     'PABTransformArgs',
     'PABTransformArgsDict',
+    'SiteOriginProtectionArgs',
+    'SiteOriginProtectionArgsDict',
     'VpcBastionArgsArgs',
     'VpcBastionArgsArgsDict',
     'VpcCloudWatchFlowLogArgsArgs',
@@ -1936,7 +1938,7 @@ class HttpApiCorsArgs:
 
 class HttpApiDomainArgsDict(TypedDict):
     """
-    Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.
+    Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set. Set dns: false for Cloudflare or other non-Route 53 providers.
     """
     name: pulumi.Input[_builtins.str]
     """
@@ -1948,11 +1950,15 @@ class HttpApiDomainArgsDict(TypedDict):
     """
     certificate_arn: NotRequired[pulumi.Input[_builtins.str]]
     """
-    BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+    BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation. Required when dns: false to skip Route 53 cert validation entirely.
+    """
+    dns: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Create Route 53 DNS and cert validation records automatically. Default: true. Set to false for Cloudflare or other non-Route 53 DNS providers — Anvil will output the API Gateway target domain and (when certificateArn is omitted) the ACM validation CNAME for manual configuration.
     """
     zone_id: NotRequired[pulumi.Input[_builtins.str]]
     """
-    Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+    Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically. Ignored when dns: false.
     """
 
 @pulumi.input_type
@@ -1961,20 +1967,24 @@ class HttpApiDomainArgs:
                  name: pulumi.Input[_builtins.str],
                  base_path: Optional[pulumi.Input[_builtins.str]] = None,
                  certificate_arn: Optional[pulumi.Input[_builtins.str]] = None,
+                 dns: Optional[pulumi.Input[_builtins.bool]] = None,
                  zone_id: Optional[pulumi.Input[_builtins.str]] = None):
         """
-        Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set.
+        Custom domain configuration. When set, Anvil provisions the ACM certificate (with DNS validation), API Gateway domain name resource, and Route 53 A alias record. TLS 1.2 minimum is always enforced. The execute-api endpoint is disabled when a domain is set. Set dns: false for Cloudflare or other non-Route 53 providers.
 
         :param pulumi.Input[_builtins.str] name: The fully qualified domain name. e.g. 'api.mysite.com'.
         :param pulumi.Input[_builtins.str] base_path: Optional API mapping base path. e.g. 'v1' makes the API accessible at https://name/v1. Omit for root path mapping.
-        :param pulumi.Input[_builtins.str] certificate_arn: BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
-        :param pulumi.Input[_builtins.str] zone_id: Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+        :param pulumi.Input[_builtins.str] certificate_arn: BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation. Required when dns: false to skip Route 53 cert validation entirely.
+        :param pulumi.Input[_builtins.bool] dns: Create Route 53 DNS and cert validation records automatically. Default: true. Set to false for Cloudflare or other non-Route 53 DNS providers — Anvil will output the API Gateway target domain and (when certificateArn is omitted) the ACM validation CNAME for manual configuration.
+        :param pulumi.Input[_builtins.str] zone_id: Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically. Ignored when dns: false.
         """
         pulumi.set(__self__, "name", name)
         if base_path is not None:
             pulumi.set(__self__, "base_path", base_path)
         if certificate_arn is not None:
             pulumi.set(__self__, "certificate_arn", certificate_arn)
+        if dns is not None:
+            pulumi.set(__self__, "dns", dns)
         if zone_id is not None:
             pulumi.set(__self__, "zone_id", zone_id)
 
@@ -2006,7 +2016,7 @@ class HttpApiDomainArgs:
     @pulumi.getter(name="certificateArn")
     def certificate_arn(self) -> Optional[pulumi.Input[_builtins.str]]:
         """
-        BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation.
+        BYO ACM certificate ARN. When omitted Anvil creates and validates the certificate automatically via DNS validation. Required when dns: false to skip Route 53 cert validation entirely.
         """
         return pulumi.get(self, "certificate_arn")
 
@@ -2015,10 +2025,22 @@ class HttpApiDomainArgs:
         pulumi.set(self, "certificate_arn", value)
 
     @_builtins.property
+    @pulumi.getter
+    def dns(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Create Route 53 DNS and cert validation records automatically. Default: true. Set to false for Cloudflare or other non-Route 53 DNS providers — Anvil will output the API Gateway target domain and (when certificateArn is omitted) the ACM validation CNAME for manual configuration.
+        """
+        return pulumi.get(self, "dns")
+
+    @dns.setter
+    def dns(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "dns", value)
+
+    @_builtins.property
     @pulumi.getter(name="zoneId")
     def zone_id(self) -> Optional[pulumi.Input[_builtins.str]]:
         """
-        Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically.
+        Route 53 hosted zone ID. When omitted Anvil discovers the zone by domain name automatically. Ignored when dns: false.
         """
         return pulumi.get(self, "zone_id")
 
@@ -3748,6 +3770,40 @@ class PABTransformArgs:
     @skip_destroy.setter
     def skip_destroy(self, value: Optional[pulumi.Input[_builtins.bool]]):
         pulumi.set(self, "skip_destroy", value)
+
+
+class SiteOriginProtectionArgsDict(TypedDict):
+    """
+    SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
+    """
+    provider: NotRequired[pulumi.Input['SiteOriginProtectionProvider']]
+    """
+    Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
+    """
+
+@pulumi.input_type
+class SiteOriginProtectionArgs:
+    def __init__(__self__, *,
+                 provider: Optional[pulumi.Input['SiteOriginProtectionProvider']] = None):
+        """
+        SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
+
+        :param pulumi.Input['SiteOriginProtectionProvider'] provider: Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
+        """
+        if provider is not None:
+            pulumi.set(__self__, "provider", provider)
+
+    @_builtins.property
+    @pulumi.getter
+    def provider(self) -> Optional[pulumi.Input['SiteOriginProtectionProvider']]:
+        """
+        Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
+        """
+        return pulumi.get(self, "provider")
+
+    @provider.setter
+    def provider(self, value: Optional[pulumi.Input['SiteOriginProtectionProvider']]):
+        pulumi.set(self, "provider", value)
 
 
 class VpcBastionArgsArgsDict(TypedDict):

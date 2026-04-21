@@ -33,6 +33,10 @@ type CloudFrontArgs struct {
 	// Astro will pass /_astro/*.
 	// The default cache behavior (all other paths) always routes to Lambda.
 	OrderedCacheBehaviors pulumi.Array
+
+	// WebACLArn is the ARN of the WAF WebACL to associate with the distribution.
+	// Only set when originProtection is configured. Empty string means no WAF.
+	WebACLArn pulumi.StringOutput
 }
 
 // BuildCloudFrontArgs constructs the full CloudFront distribution argument map.
@@ -99,6 +103,11 @@ func BuildCloudFrontArgs(args CloudFrontArgs) pulumi.Map {
 
 	if args.Domain != "" {
 		cfArgs["aliases"] = pulumi.StringArray{pulumi.String(args.Domain)}
+	}
+
+	// Attach WAF WebACL if origin protection is enabled.
+	if args.WebACLArn != (pulumi.StringOutput{}) {
+		cfArgs["webAclId"] = args.WebACLArn
 	}
 
 	return cfArgs

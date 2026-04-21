@@ -34,6 +34,10 @@ export class HttpApi extends pulumi.ComponentResource {
      */
     declare public /*out*/ readonly apiId: pulumi.Output<string>;
     /**
+     * ACM cert validation CNAME. Only populated when domain.dns: false and domain.certificateArn is omitted. Add this record in Cloudflare (or your DNS provider) then re-run deploy — Anvil blocks until ACM confirms validation.
+     */
+    declare public /*out*/ readonly certValidationCname: pulumi.Output<outputs.aws.HttpApiCertValidationCname>;
+    /**
      * The primary URL for the API. When a custom domain is configured this is the custom domain URL. Otherwise it is the execute-api endpoint URL.
      */
     declare public /*out*/ readonly url: pulumi.Output<string>;
@@ -59,10 +63,12 @@ export class HttpApi extends pulumi.ComponentResource {
             resourceInputs["throttling"] = args?.throttling;
             resourceInputs["apiEndpoint"] = undefined /*out*/;
             resourceInputs["apiId"] = undefined /*out*/;
+            resourceInputs["certValidationCname"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         } else {
             resourceInputs["apiEndpoint"] = undefined /*out*/;
             resourceInputs["apiId"] = undefined /*out*/;
+            resourceInputs["certValidationCname"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);

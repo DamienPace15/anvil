@@ -6760,6 +6760,146 @@ func (o PABTransformPtrOutput) SkipDestroy() pulumi.BoolPtrOutput {
 	}).(pulumi.BoolPtrOutput)
 }
 
+// SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
+type SiteOriginProtection struct {
+	// Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
+	Provider *SiteOriginProtectionProvider `pulumi:"provider"`
+}
+
+// SiteOriginProtectionInput is an input type that accepts SiteOriginProtectionArgs and SiteOriginProtectionOutput values.
+// You can construct a concrete instance of `SiteOriginProtectionInput` via:
+//
+//	SiteOriginProtectionArgs{...}
+type SiteOriginProtectionInput interface {
+	pulumi.Input
+
+	ToSiteOriginProtectionOutput() SiteOriginProtectionOutput
+	ToSiteOriginProtectionOutputWithContext(context.Context) SiteOriginProtectionOutput
+}
+
+// SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
+type SiteOriginProtectionArgs struct {
+	// Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
+	Provider SiteOriginProtectionProviderPtrInput `pulumi:"provider"`
+}
+
+func (SiteOriginProtectionArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteOriginProtection)(nil)).Elem()
+}
+
+func (i SiteOriginProtectionArgs) ToSiteOriginProtectionOutput() SiteOriginProtectionOutput {
+	return i.ToSiteOriginProtectionOutputWithContext(context.Background())
+}
+
+func (i SiteOriginProtectionArgs) ToSiteOriginProtectionOutputWithContext(ctx context.Context) SiteOriginProtectionOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SiteOriginProtectionOutput)
+}
+
+func (i SiteOriginProtectionArgs) ToSiteOriginProtectionPtrOutput() SiteOriginProtectionPtrOutput {
+	return i.ToSiteOriginProtectionPtrOutputWithContext(context.Background())
+}
+
+func (i SiteOriginProtectionArgs) ToSiteOriginProtectionPtrOutputWithContext(ctx context.Context) SiteOriginProtectionPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SiteOriginProtectionOutput).ToSiteOriginProtectionPtrOutputWithContext(ctx)
+}
+
+// SiteOriginProtectionPtrInput is an input type that accepts SiteOriginProtectionArgs, SiteOriginProtectionPtr and SiteOriginProtectionPtrOutput values.
+// You can construct a concrete instance of `SiteOriginProtectionPtrInput` via:
+//
+//	        SiteOriginProtectionArgs{...}
+//
+//	or:
+//
+//	        nil
+type SiteOriginProtectionPtrInput interface {
+	pulumi.Input
+
+	ToSiteOriginProtectionPtrOutput() SiteOriginProtectionPtrOutput
+	ToSiteOriginProtectionPtrOutputWithContext(context.Context) SiteOriginProtectionPtrOutput
+}
+
+type siteOriginProtectionPtrType SiteOriginProtectionArgs
+
+func SiteOriginProtectionPtr(v *SiteOriginProtectionArgs) SiteOriginProtectionPtrInput {
+	return (*siteOriginProtectionPtrType)(v)
+}
+
+func (*siteOriginProtectionPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**SiteOriginProtection)(nil)).Elem()
+}
+
+func (i *siteOriginProtectionPtrType) ToSiteOriginProtectionPtrOutput() SiteOriginProtectionPtrOutput {
+	return i.ToSiteOriginProtectionPtrOutputWithContext(context.Background())
+}
+
+func (i *siteOriginProtectionPtrType) ToSiteOriginProtectionPtrOutputWithContext(ctx context.Context) SiteOriginProtectionPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SiteOriginProtectionPtrOutput)
+}
+
+// SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
+type SiteOriginProtectionOutput struct{ *pulumi.OutputState }
+
+func (SiteOriginProtectionOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteOriginProtection)(nil)).Elem()
+}
+
+func (o SiteOriginProtectionOutput) ToSiteOriginProtectionOutput() SiteOriginProtectionOutput {
+	return o
+}
+
+func (o SiteOriginProtectionOutput) ToSiteOriginProtectionOutputWithContext(ctx context.Context) SiteOriginProtectionOutput {
+	return o
+}
+
+func (o SiteOriginProtectionOutput) ToSiteOriginProtectionPtrOutput() SiteOriginProtectionPtrOutput {
+	return o.ToSiteOriginProtectionPtrOutputWithContext(context.Background())
+}
+
+func (o SiteOriginProtectionOutput) ToSiteOriginProtectionPtrOutputWithContext(ctx context.Context) SiteOriginProtectionPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v SiteOriginProtection) *SiteOriginProtection {
+		return &v
+	}).(SiteOriginProtectionPtrOutput)
+}
+
+// Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
+func (o SiteOriginProtectionOutput) Provider() SiteOriginProtectionProviderPtrOutput {
+	return o.ApplyT(func(v SiteOriginProtection) *SiteOriginProtectionProvider { return v.Provider }).(SiteOriginProtectionProviderPtrOutput)
+}
+
+type SiteOriginProtectionPtrOutput struct{ *pulumi.OutputState }
+
+func (SiteOriginProtectionPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**SiteOriginProtection)(nil)).Elem()
+}
+
+func (o SiteOriginProtectionPtrOutput) ToSiteOriginProtectionPtrOutput() SiteOriginProtectionPtrOutput {
+	return o
+}
+
+func (o SiteOriginProtectionPtrOutput) ToSiteOriginProtectionPtrOutputWithContext(ctx context.Context) SiteOriginProtectionPtrOutput {
+	return o
+}
+
+func (o SiteOriginProtectionPtrOutput) Elem() SiteOriginProtectionOutput {
+	return o.ApplyT(func(v *SiteOriginProtection) SiteOriginProtection {
+		if v != nil {
+			return *v
+		}
+		var ret SiteOriginProtection
+		return ret
+	}).(SiteOriginProtectionOutput)
+}
+
+// Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
+func (o SiteOriginProtectionPtrOutput) Provider() SiteOriginProtectionProviderPtrOutput {
+	return o.ApplyT(func(v *SiteOriginProtection) *SiteOriginProtectionProvider {
+		if v == nil {
+			return nil
+		}
+		return v.Provider
+	}).(SiteOriginProtectionProviderPtrOutput)
+}
+
 type VpcBastionArgs struct {
 	// Source IP CIDRs allowed to initiate SSM sessions via IAM policy condition. Omit to allow any authenticated IAM principal. Example: ['203.0.113.0/32'] to restrict to your office IP.
 	AllowedCidrs []string `pulumi:"allowedCidrs"`
@@ -7691,6 +7831,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaVpcEndpointArgsArrayInput)(nil)).Elem(), LambdaVpcEndpointArgsArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformInput)(nil)).Elem(), PABTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformPtrInput)(nil)).Elem(), PABTransformArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteOriginProtectionInput)(nil)).Elem(), SiteOriginProtectionArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteOriginProtectionPtrInput)(nil)).Elem(), SiteOriginProtectionArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsInput)(nil)).Elem(), VpcBastionArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsPtrInput)(nil)).Elem(), VpcBastionArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcCloudWatchFlowLogArgsInput)(nil)).Elem(), VpcCloudWatchFlowLogArgsArgs{})
@@ -7765,6 +7907,8 @@ func init() {
 	pulumi.RegisterOutputType(LambdaVpcEndpointArgsArrayOutput{})
 	pulumi.RegisterOutputType(PABTransformOutput{})
 	pulumi.RegisterOutputType(PABTransformPtrOutput{})
+	pulumi.RegisterOutputType(SiteOriginProtectionOutput{})
+	pulumi.RegisterOutputType(SiteOriginProtectionPtrOutput{})
 	pulumi.RegisterOutputType(VpcBastionArgsOutput{})
 	pulumi.RegisterOutputType(VpcBastionArgsPtrOutput{})
 	pulumi.RegisterOutputType(VpcCloudWatchFlowLogArgsOutput{})

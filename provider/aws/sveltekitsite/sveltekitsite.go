@@ -17,6 +17,20 @@ import (
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/s3"
 )
 
+// SiteOriginProtectionArgs configures CloudFront origin protection via WAF.
+// When set, Anvil provisions a WAF WebACL that blocks any request missing the
+// correct x-origin-secret header. Configure Cloudflare Transform Rules to inject
+// this header on every proxied request using the outputted originSecret value.
+type SiteOriginProtectionArgs struct {
+	// Provider is the CDN/proxy in front of CloudFront.
+	// Only "cloudflare" is supported.
+	Provider string `pulumi:"provider"`
+}
+
+// SiteIpAllowlistArgs configures IP-based origin protection.
+// Reserved for future configuration — pass {} to enable with Cloudflare IP defaults.
+type SiteIpAllowlistArgs struct{}
+
 type SvelteKitSiteArgs struct {
 	Path string `pulumi:"path"`
 
@@ -31,6 +45,12 @@ type SvelteKitSiteArgs struct {
 
 	Domain    string                            `pulumi:"domain,optional"`
 	Transform map[string]map[string]interface{} `pulumi:"transform,optional"`
+
+	// OriginProtection enables WAF-based origin protection.
+	// When set, a WAF WebACL is created that blocks requests missing the
+	// x-origin-secret header. The secret value is output as originSecret.
+	// Requires domain to be set.
+	OriginProtection *SiteOriginProtectionArgs `pulumi:"originProtection,optional"`
 }
 
 type SvelteKitSite struct {
@@ -40,6 +60,9 @@ type SvelteKitSite struct {
 	BucketName               pulumi.StringOutput `pulumi:"bucketName"`
 	FunctionName             pulumi.StringOutput `pulumi:"functionName"`
 	DNSRecords               pulumi.StringOutput `pulumi:"dnsRecords"`
+	// OriginSecret is the x-origin-secret header value to configure in Cloudflare
+	// Transform Rules. Only populated when originProtection is set.
+	OriginSecret pulumi.StringOutput `pulumi:"originSecret"`
 }
 
 func (s *SvelteKitSiteArgs) Annotate(a infer.Annotator) {
@@ -152,7 +175,6 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 	}
 
 	// ── Upload static assets ─────────────────────────────────────
-	// SvelteKit immutable paths: content-hashed, safe for long-term caching.
 	err = awssite.UploadSiteAssets(ctx, site, name, bucket, buildResult.StaticDir, []string{
 		"_app/immutable/",
 	})
@@ -175,12 +197,37 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 		cfDependencies = append(cfDependencies, dr.Validation)
 	}
 
+	// ── Origin protection (opt-in) ───────────────────────────────
+	var webACLArn pulumi.StringOutput
+	originSecretOutput := pulumi.String("").ToStringOutput()
+
+	if args.OriginProtection != nil {
+		stage, _ := ctx.GetConfig("anvil:stage")
+		if stage == "" {
+			stage = "dev"
+		}
+
+		pr, err := awssite.SetupOriginProtection(ctx, site, name, stage, awssite.OriginProtectionArgs{
+			Provider: args.OriginProtection.Provider,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("origin protection setup failed: %w", err)
+		}
+		webACLArn = pr.WebACLArn
+		originSecretOutput = pr.OriginSecret
+
+		ctx.Log.Info(
+			"Origin protection enabled. Configure Cloudflare Transform Rules to add the header:\n"+
+				"  Header name:  x-origin-secret\n"+
+				"  Header value: (see originSecret output after deploy)",
+			nil,
+		)
+	}
+
 	// ── CloudFront ───────────────────────────────────────────────
 	s3OriginID := name + "-s3"
 	lambdaOriginDomain := awssite.LambdaOriginDomainFromURL(fnURL.FunctionUrl)
 
-	// SvelteKit-specific cache behaviors: immutable hashed assets and
-	// general _app assets both route to S3.
 	sveltekitCacheBehaviors := pulumi.Array{
 		awssite.S3CacheBehavior("/_app/immutable/*", s3OriginID),
 		awssite.S3CacheBehavior("/_app/*", s3OriginID),
@@ -201,6 +248,7 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 			Domain:                args.Domain,
 			CertARN:               certARN,
 			OrderedCacheBehaviors: sveltekitCacheBehaviors,
+			WebACLArn:             webACLArn,
 		}),
 		distribution, cfOpts...)
 	if err != nil {
@@ -238,6 +286,7 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 	site.BucketName = bucket.Bucket
 	site.FunctionName = lambdaFn.Name
 	site.DNSRecords = dnsRecordsOutput
+	site.OriginSecret = originSecretOutput
 
 	ctx.RegisterResourceOutputs(site, pulumi.Map{
 		"url":                      siteURL,
@@ -245,6 +294,7 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 		"bucketName":               bucket.Bucket,
 		"functionName":             lambdaFn.Name,
 		"dnsRecords":               dnsRecordsOutput,
+		"originSecret":             originSecretOutput,
 	})
 
 	return site, nil
@@ -252,27 +302,16 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 
 // createSvelteKitServerArchive packages the adapter-node build output into a
 // temp directory ready for Lambda deployment.
-//
-// adapter-node output layout:
-//
-//	build/
-//	├── client/   ← uploaded to S3, not included here
-//	└── server/   ← Node.js bundle
-//	    └── index.js
-//
-// Lambda Web Adapter requires a run.sh entry point that execs the server.
 func createSvelteKitServerArchive(serverDir string) (string, error) {
 	tmpDir, err := os.MkdirTemp("", "anvil-sveltekit-lambda-*")
 	if err != nil {
 		return "", fmt.Errorf("cannot create temp dir: %w", err)
 	}
 
-	// LWA entry point: exec the Node.js server process.
 	if err := os.WriteFile(filepath.Join(tmpDir, "run.sh"), []byte("#!/bin/bash\nexec node /var/task/index.js\n"), 0755); err != nil {
 		return "", fmt.Errorf("cannot write run.sh: %w", err)
 	}
 
-	// Copy everything from the build dir except client/ (handled by S3 upload).
 	buildDir := filepath.Dir(serverDir)
 	entries, err := os.ReadDir(buildDir)
 	if err != nil {

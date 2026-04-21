@@ -13,6 +13,10 @@
             "type": "string"
           }
         },
+        "originProtection": {
+          "description": "OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set.",
+          "$ref": "#/types/anvil:aws:SiteOriginProtection"
+        },
         "path": {
           "type": "string"
         },
@@ -37,11 +41,36 @@
         "functionName": {
           "type": "string"
         },
+        "originSecret": {
+          "type": "string",
+          "description": "OriginSecret is the x-origin-secret header value to configure in Cloudflare Transform Rules. Only populated when originProtection is set."
+        },
         "url": {
           "type": "string"
         }
       }
     }
   },
-  "types": {}
+  "types": {
+    "anvil:aws:SiteOriginProtection": {
+      "type": "object",
+      "description": "SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.",
+      "properties": {
+        "provider": {
+          "description": "Provider is the CDN/proxy in front of CloudFront. Only \"cloudflare\" is supported.",
+          "$ref": "#/types/anvil:aws:SiteOriginProtectionProvider"
+        }
+      }
+    },
+    "anvil:aws:SiteOriginProtectionProvider": {
+      "description": "The CDN/proxy provider sitting in front of CloudFront.",
+      "enum": [
+        {
+          "description": "Cloudflare — inject x-origin-secret via a Cloudflare Transform Rule.",
+          "value": "cloudflare"
+        }
+      ],
+      "type": "string"
+    }
+  }
 }
