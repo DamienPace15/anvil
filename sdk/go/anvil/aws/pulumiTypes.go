@@ -6760,6 +6760,1076 @@ func (o PABTransformPtrOutput) SkipDestroy() pulumi.BoolPtrOutput {
 	}).(pulumi.BoolPtrOutput)
 }
 
+// Consumer configuration for this queue.
+type QueueConsumerArgs struct {
+	// Wire an Anvil Lambda function as the SQS consumer. Creates the event source mapping and grants sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes to the Lambda's execution role.
+	Lambda *QueueLambdaConsumerArgs `pulumi:"lambda"`
+}
+
+// QueueConsumerArgsInput is an input type that accepts QueueConsumerArgsArgs and QueueConsumerArgsOutput values.
+// You can construct a concrete instance of `QueueConsumerArgsInput` via:
+//
+//	QueueConsumerArgsArgs{...}
+type QueueConsumerArgsInput interface {
+	pulumi.Input
+
+	ToQueueConsumerArgsOutput() QueueConsumerArgsOutput
+	ToQueueConsumerArgsOutputWithContext(context.Context) QueueConsumerArgsOutput
+}
+
+// Consumer configuration for this queue.
+type QueueConsumerArgsArgs struct {
+	// Wire an Anvil Lambda function as the SQS consumer. Creates the event source mapping and grants sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes to the Lambda's execution role.
+	Lambda QueueLambdaConsumerArgsPtrInput `pulumi:"lambda"`
+}
+
+func (QueueConsumerArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*QueueConsumerArgs)(nil)).Elem()
+}
+
+func (i QueueConsumerArgsArgs) ToQueueConsumerArgsOutput() QueueConsumerArgsOutput {
+	return i.ToQueueConsumerArgsOutputWithContext(context.Background())
+}
+
+func (i QueueConsumerArgsArgs) ToQueueConsumerArgsOutputWithContext(ctx context.Context) QueueConsumerArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueConsumerArgsOutput)
+}
+
+func (i QueueConsumerArgsArgs) ToQueueConsumerArgsPtrOutput() QueueConsumerArgsPtrOutput {
+	return i.ToQueueConsumerArgsPtrOutputWithContext(context.Background())
+}
+
+func (i QueueConsumerArgsArgs) ToQueueConsumerArgsPtrOutputWithContext(ctx context.Context) QueueConsumerArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueConsumerArgsOutput).ToQueueConsumerArgsPtrOutputWithContext(ctx)
+}
+
+// QueueConsumerArgsPtrInput is an input type that accepts QueueConsumerArgsArgs, QueueConsumerArgsPtr and QueueConsumerArgsPtrOutput values.
+// You can construct a concrete instance of `QueueConsumerArgsPtrInput` via:
+//
+//	        QueueConsumerArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type QueueConsumerArgsPtrInput interface {
+	pulumi.Input
+
+	ToQueueConsumerArgsPtrOutput() QueueConsumerArgsPtrOutput
+	ToQueueConsumerArgsPtrOutputWithContext(context.Context) QueueConsumerArgsPtrOutput
+}
+
+type queueConsumerArgsPtrType QueueConsumerArgsArgs
+
+func QueueConsumerArgsPtr(v *QueueConsumerArgsArgs) QueueConsumerArgsPtrInput {
+	return (*queueConsumerArgsPtrType)(v)
+}
+
+func (*queueConsumerArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**QueueConsumerArgs)(nil)).Elem()
+}
+
+func (i *queueConsumerArgsPtrType) ToQueueConsumerArgsPtrOutput() QueueConsumerArgsPtrOutput {
+	return i.ToQueueConsumerArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *queueConsumerArgsPtrType) ToQueueConsumerArgsPtrOutputWithContext(ctx context.Context) QueueConsumerArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueConsumerArgsPtrOutput)
+}
+
+// Consumer configuration for this queue.
+type QueueConsumerArgsOutput struct{ *pulumi.OutputState }
+
+func (QueueConsumerArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*QueueConsumerArgs)(nil)).Elem()
+}
+
+func (o QueueConsumerArgsOutput) ToQueueConsumerArgsOutput() QueueConsumerArgsOutput {
+	return o
+}
+
+func (o QueueConsumerArgsOutput) ToQueueConsumerArgsOutputWithContext(ctx context.Context) QueueConsumerArgsOutput {
+	return o
+}
+
+func (o QueueConsumerArgsOutput) ToQueueConsumerArgsPtrOutput() QueueConsumerArgsPtrOutput {
+	return o.ToQueueConsumerArgsPtrOutputWithContext(context.Background())
+}
+
+func (o QueueConsumerArgsOutput) ToQueueConsumerArgsPtrOutputWithContext(ctx context.Context) QueueConsumerArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v QueueConsumerArgs) *QueueConsumerArgs {
+		return &v
+	}).(QueueConsumerArgsPtrOutput)
+}
+
+// Wire an Anvil Lambda function as the SQS consumer. Creates the event source mapping and grants sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes to the Lambda's execution role.
+func (o QueueConsumerArgsOutput) Lambda() QueueLambdaConsumerArgsPtrOutput {
+	return o.ApplyT(func(v QueueConsumerArgs) *QueueLambdaConsumerArgs { return v.Lambda }).(QueueLambdaConsumerArgsPtrOutput)
+}
+
+type QueueConsumerArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (QueueConsumerArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**QueueConsumerArgs)(nil)).Elem()
+}
+
+func (o QueueConsumerArgsPtrOutput) ToQueueConsumerArgsPtrOutput() QueueConsumerArgsPtrOutput {
+	return o
+}
+
+func (o QueueConsumerArgsPtrOutput) ToQueueConsumerArgsPtrOutputWithContext(ctx context.Context) QueueConsumerArgsPtrOutput {
+	return o
+}
+
+func (o QueueConsumerArgsPtrOutput) Elem() QueueConsumerArgsOutput {
+	return o.ApplyT(func(v *QueueConsumerArgs) QueueConsumerArgs {
+		if v != nil {
+			return *v
+		}
+		var ret QueueConsumerArgs
+		return ret
+	}).(QueueConsumerArgsOutput)
+}
+
+// Wire an Anvil Lambda function as the SQS consumer. Creates the event source mapping and grants sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes to the Lambda's execution role.
+func (o QueueConsumerArgsPtrOutput) Lambda() QueueLambdaConsumerArgsPtrOutput {
+	return o.ApplyT(func(v *QueueConsumerArgs) *QueueLambdaConsumerArgs {
+		if v == nil {
+			return nil
+		}
+		return v.Lambda
+	}).(QueueLambdaConsumerArgsPtrOutput)
+}
+
+// Dead letter queue configuration. Set arn to reuse an existing queue. Omit arn to create a managed DLQ.
+type QueueDlqArgs struct {
+	// ARN of an existing queue to use as the DLQ. If the parent queue is fifo: true, this ARN must end with ".fifo". When omitted, Anvil creates a managed DLQ.
+	Arn *string `pulumi:"arn"`
+	// How many times a message can be received before being moved to the DLQ. Default: 3.
+	MaxReceiveCount *int `pulumi:"maxReceiveCount"`
+}
+
+// QueueDlqArgsInput is an input type that accepts QueueDlqArgsArgs and QueueDlqArgsOutput values.
+// You can construct a concrete instance of `QueueDlqArgsInput` via:
+//
+//	QueueDlqArgsArgs{...}
+type QueueDlqArgsInput interface {
+	pulumi.Input
+
+	ToQueueDlqArgsOutput() QueueDlqArgsOutput
+	ToQueueDlqArgsOutputWithContext(context.Context) QueueDlqArgsOutput
+}
+
+// Dead letter queue configuration. Set arn to reuse an existing queue. Omit arn to create a managed DLQ.
+type QueueDlqArgsArgs struct {
+	// ARN of an existing queue to use as the DLQ. If the parent queue is fifo: true, this ARN must end with ".fifo". When omitted, Anvil creates a managed DLQ.
+	Arn pulumi.StringPtrInput `pulumi:"arn"`
+	// How many times a message can be received before being moved to the DLQ. Default: 3.
+	MaxReceiveCount pulumi.IntPtrInput `pulumi:"maxReceiveCount"`
+}
+
+func (QueueDlqArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*QueueDlqArgs)(nil)).Elem()
+}
+
+func (i QueueDlqArgsArgs) ToQueueDlqArgsOutput() QueueDlqArgsOutput {
+	return i.ToQueueDlqArgsOutputWithContext(context.Background())
+}
+
+func (i QueueDlqArgsArgs) ToQueueDlqArgsOutputWithContext(ctx context.Context) QueueDlqArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueDlqArgsOutput)
+}
+
+func (i QueueDlqArgsArgs) ToQueueDlqArgsPtrOutput() QueueDlqArgsPtrOutput {
+	return i.ToQueueDlqArgsPtrOutputWithContext(context.Background())
+}
+
+func (i QueueDlqArgsArgs) ToQueueDlqArgsPtrOutputWithContext(ctx context.Context) QueueDlqArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueDlqArgsOutput).ToQueueDlqArgsPtrOutputWithContext(ctx)
+}
+
+// QueueDlqArgsPtrInput is an input type that accepts QueueDlqArgsArgs, QueueDlqArgsPtr and QueueDlqArgsPtrOutput values.
+// You can construct a concrete instance of `QueueDlqArgsPtrInput` via:
+//
+//	        QueueDlqArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type QueueDlqArgsPtrInput interface {
+	pulumi.Input
+
+	ToQueueDlqArgsPtrOutput() QueueDlqArgsPtrOutput
+	ToQueueDlqArgsPtrOutputWithContext(context.Context) QueueDlqArgsPtrOutput
+}
+
+type queueDlqArgsPtrType QueueDlqArgsArgs
+
+func QueueDlqArgsPtr(v *QueueDlqArgsArgs) QueueDlqArgsPtrInput {
+	return (*queueDlqArgsPtrType)(v)
+}
+
+func (*queueDlqArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**QueueDlqArgs)(nil)).Elem()
+}
+
+func (i *queueDlqArgsPtrType) ToQueueDlqArgsPtrOutput() QueueDlqArgsPtrOutput {
+	return i.ToQueueDlqArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *queueDlqArgsPtrType) ToQueueDlqArgsPtrOutputWithContext(ctx context.Context) QueueDlqArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueDlqArgsPtrOutput)
+}
+
+// Dead letter queue configuration. Set arn to reuse an existing queue. Omit arn to create a managed DLQ.
+type QueueDlqArgsOutput struct{ *pulumi.OutputState }
+
+func (QueueDlqArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*QueueDlqArgs)(nil)).Elem()
+}
+
+func (o QueueDlqArgsOutput) ToQueueDlqArgsOutput() QueueDlqArgsOutput {
+	return o
+}
+
+func (o QueueDlqArgsOutput) ToQueueDlqArgsOutputWithContext(ctx context.Context) QueueDlqArgsOutput {
+	return o
+}
+
+func (o QueueDlqArgsOutput) ToQueueDlqArgsPtrOutput() QueueDlqArgsPtrOutput {
+	return o.ToQueueDlqArgsPtrOutputWithContext(context.Background())
+}
+
+func (o QueueDlqArgsOutput) ToQueueDlqArgsPtrOutputWithContext(ctx context.Context) QueueDlqArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v QueueDlqArgs) *QueueDlqArgs {
+		return &v
+	}).(QueueDlqArgsPtrOutput)
+}
+
+// ARN of an existing queue to use as the DLQ. If the parent queue is fifo: true, this ARN must end with ".fifo". When omitted, Anvil creates a managed DLQ.
+func (o QueueDlqArgsOutput) Arn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v QueueDlqArgs) *string { return v.Arn }).(pulumi.StringPtrOutput)
+}
+
+// How many times a message can be received before being moved to the DLQ. Default: 3.
+func (o QueueDlqArgsOutput) MaxReceiveCount() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v QueueDlqArgs) *int { return v.MaxReceiveCount }).(pulumi.IntPtrOutput)
+}
+
+type QueueDlqArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (QueueDlqArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**QueueDlqArgs)(nil)).Elem()
+}
+
+func (o QueueDlqArgsPtrOutput) ToQueueDlqArgsPtrOutput() QueueDlqArgsPtrOutput {
+	return o
+}
+
+func (o QueueDlqArgsPtrOutput) ToQueueDlqArgsPtrOutputWithContext(ctx context.Context) QueueDlqArgsPtrOutput {
+	return o
+}
+
+func (o QueueDlqArgsPtrOutput) Elem() QueueDlqArgsOutput {
+	return o.ApplyT(func(v *QueueDlqArgs) QueueDlqArgs {
+		if v != nil {
+			return *v
+		}
+		var ret QueueDlqArgs
+		return ret
+	}).(QueueDlqArgsOutput)
+}
+
+// ARN of an existing queue to use as the DLQ. If the parent queue is fifo: true, this ARN must end with ".fifo". When omitted, Anvil creates a managed DLQ.
+func (o QueueDlqArgsPtrOutput) Arn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *QueueDlqArgs) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Arn
+	}).(pulumi.StringPtrOutput)
+}
+
+// How many times a message can be received before being moved to the DLQ. Default: 3.
+func (o QueueDlqArgsPtrOutput) MaxReceiveCount() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *QueueDlqArgs) *int {
+		if v == nil {
+			return nil
+		}
+		return v.MaxReceiveCount
+	}).(pulumi.IntPtrOutput)
+}
+
+// Lambda consumer configuration. Pass fn.arn and fn.roleArn from an Anvil Lambda component.
+type QueueLambdaConsumerArgs struct {
+	// The ARN of the Lambda function to trigger. Use fn.arn from an Anvil Lambda component.
+	Arn string `pulumi:"arn"`
+	// The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component. Required for Anvil to attach the consume permissions policy.
+	LambdaRoleArn string `pulumi:"lambdaRoleArn"`
+}
+
+// QueueLambdaConsumerArgsInput is an input type that accepts QueueLambdaConsumerArgsArgs and QueueLambdaConsumerArgsOutput values.
+// You can construct a concrete instance of `QueueLambdaConsumerArgsInput` via:
+//
+//	QueueLambdaConsumerArgsArgs{...}
+type QueueLambdaConsumerArgsInput interface {
+	pulumi.Input
+
+	ToQueueLambdaConsumerArgsOutput() QueueLambdaConsumerArgsOutput
+	ToQueueLambdaConsumerArgsOutputWithContext(context.Context) QueueLambdaConsumerArgsOutput
+}
+
+// Lambda consumer configuration. Pass fn.arn and fn.roleArn from an Anvil Lambda component.
+type QueueLambdaConsumerArgsArgs struct {
+	// The ARN of the Lambda function to trigger. Use fn.arn from an Anvil Lambda component.
+	Arn pulumi.StringInput `pulumi:"arn"`
+	// The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component. Required for Anvil to attach the consume permissions policy.
+	LambdaRoleArn pulumi.StringInput `pulumi:"lambdaRoleArn"`
+}
+
+func (QueueLambdaConsumerArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*QueueLambdaConsumerArgs)(nil)).Elem()
+}
+
+func (i QueueLambdaConsumerArgsArgs) ToQueueLambdaConsumerArgsOutput() QueueLambdaConsumerArgsOutput {
+	return i.ToQueueLambdaConsumerArgsOutputWithContext(context.Background())
+}
+
+func (i QueueLambdaConsumerArgsArgs) ToQueueLambdaConsumerArgsOutputWithContext(ctx context.Context) QueueLambdaConsumerArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueLambdaConsumerArgsOutput)
+}
+
+func (i QueueLambdaConsumerArgsArgs) ToQueueLambdaConsumerArgsPtrOutput() QueueLambdaConsumerArgsPtrOutput {
+	return i.ToQueueLambdaConsumerArgsPtrOutputWithContext(context.Background())
+}
+
+func (i QueueLambdaConsumerArgsArgs) ToQueueLambdaConsumerArgsPtrOutputWithContext(ctx context.Context) QueueLambdaConsumerArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueLambdaConsumerArgsOutput).ToQueueLambdaConsumerArgsPtrOutputWithContext(ctx)
+}
+
+// QueueLambdaConsumerArgsPtrInput is an input type that accepts QueueLambdaConsumerArgsArgs, QueueLambdaConsumerArgsPtr and QueueLambdaConsumerArgsPtrOutput values.
+// You can construct a concrete instance of `QueueLambdaConsumerArgsPtrInput` via:
+//
+//	        QueueLambdaConsumerArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type QueueLambdaConsumerArgsPtrInput interface {
+	pulumi.Input
+
+	ToQueueLambdaConsumerArgsPtrOutput() QueueLambdaConsumerArgsPtrOutput
+	ToQueueLambdaConsumerArgsPtrOutputWithContext(context.Context) QueueLambdaConsumerArgsPtrOutput
+}
+
+type queueLambdaConsumerArgsPtrType QueueLambdaConsumerArgsArgs
+
+func QueueLambdaConsumerArgsPtr(v *QueueLambdaConsumerArgsArgs) QueueLambdaConsumerArgsPtrInput {
+	return (*queueLambdaConsumerArgsPtrType)(v)
+}
+
+func (*queueLambdaConsumerArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**QueueLambdaConsumerArgs)(nil)).Elem()
+}
+
+func (i *queueLambdaConsumerArgsPtrType) ToQueueLambdaConsumerArgsPtrOutput() QueueLambdaConsumerArgsPtrOutput {
+	return i.ToQueueLambdaConsumerArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *queueLambdaConsumerArgsPtrType) ToQueueLambdaConsumerArgsPtrOutputWithContext(ctx context.Context) QueueLambdaConsumerArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueLambdaConsumerArgsPtrOutput)
+}
+
+// Lambda consumer configuration. Pass fn.arn and fn.roleArn from an Anvil Lambda component.
+type QueueLambdaConsumerArgsOutput struct{ *pulumi.OutputState }
+
+func (QueueLambdaConsumerArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*QueueLambdaConsumerArgs)(nil)).Elem()
+}
+
+func (o QueueLambdaConsumerArgsOutput) ToQueueLambdaConsumerArgsOutput() QueueLambdaConsumerArgsOutput {
+	return o
+}
+
+func (o QueueLambdaConsumerArgsOutput) ToQueueLambdaConsumerArgsOutputWithContext(ctx context.Context) QueueLambdaConsumerArgsOutput {
+	return o
+}
+
+func (o QueueLambdaConsumerArgsOutput) ToQueueLambdaConsumerArgsPtrOutput() QueueLambdaConsumerArgsPtrOutput {
+	return o.ToQueueLambdaConsumerArgsPtrOutputWithContext(context.Background())
+}
+
+func (o QueueLambdaConsumerArgsOutput) ToQueueLambdaConsumerArgsPtrOutputWithContext(ctx context.Context) QueueLambdaConsumerArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v QueueLambdaConsumerArgs) *QueueLambdaConsumerArgs {
+		return &v
+	}).(QueueLambdaConsumerArgsPtrOutput)
+}
+
+// The ARN of the Lambda function to trigger. Use fn.arn from an Anvil Lambda component.
+func (o QueueLambdaConsumerArgsOutput) Arn() pulumi.StringOutput {
+	return o.ApplyT(func(v QueueLambdaConsumerArgs) string { return v.Arn }).(pulumi.StringOutput)
+}
+
+// The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component. Required for Anvil to attach the consume permissions policy.
+func (o QueueLambdaConsumerArgsOutput) LambdaRoleArn() pulumi.StringOutput {
+	return o.ApplyT(func(v QueueLambdaConsumerArgs) string { return v.LambdaRoleArn }).(pulumi.StringOutput)
+}
+
+type QueueLambdaConsumerArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (QueueLambdaConsumerArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**QueueLambdaConsumerArgs)(nil)).Elem()
+}
+
+func (o QueueLambdaConsumerArgsPtrOutput) ToQueueLambdaConsumerArgsPtrOutput() QueueLambdaConsumerArgsPtrOutput {
+	return o
+}
+
+func (o QueueLambdaConsumerArgsPtrOutput) ToQueueLambdaConsumerArgsPtrOutputWithContext(ctx context.Context) QueueLambdaConsumerArgsPtrOutput {
+	return o
+}
+
+func (o QueueLambdaConsumerArgsPtrOutput) Elem() QueueLambdaConsumerArgsOutput {
+	return o.ApplyT(func(v *QueueLambdaConsumerArgs) QueueLambdaConsumerArgs {
+		if v != nil {
+			return *v
+		}
+		var ret QueueLambdaConsumerArgs
+		return ret
+	}).(QueueLambdaConsumerArgsOutput)
+}
+
+// The ARN of the Lambda function to trigger. Use fn.arn from an Anvil Lambda component.
+func (o QueueLambdaConsumerArgsPtrOutput) Arn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *QueueLambdaConsumerArgs) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Arn
+	}).(pulumi.StringPtrOutput)
+}
+
+// The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component. Required for Anvil to attach the consume permissions policy.
+func (o QueueLambdaConsumerArgsPtrOutput) LambdaRoleArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *QueueLambdaConsumerArgs) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.LambdaRoleArn
+	}).(pulumi.StringPtrOutput)
+}
+
+type QueueOverrides struct {
+	// Enables content-based deduplication for FIFO queues. For more information, see the [related documentation](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html#FIFO-queues-exactly-once-processing).
+	ContentBasedDeduplication *bool `pulumi:"contentBasedDeduplication"`
+	// Specifies whether message deduplication occurs at the message group or queue level. Valid values are `messageGroup` and <span pulumi-lang-nodejs="`queue`" pulumi-lang-dotnet="`Queue`" pulumi-lang-go="`queue`" pulumi-lang-python="`queue`" pulumi-lang-yaml="`queue`" pulumi-lang-java="`queue`">`queue`</span> (default).
+	DeduplicationScope *string `pulumi:"deduplicationScope"`
+	// Time in seconds that the delivery of all messages in the queue will be delayed. An integer from 0 to 900 (15 minutes). The default for this attribute is 0 seconds.
+	DelaySeconds *int `pulumi:"delaySeconds"`
+	// Boolean designating a FIFO queue. If not set, it defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span> making it standard.
+	FifoQueue *bool `pulumi:"fifoQueue"`
+	// Specifies whether the FIFO queue throughput quota applies to the entire queue or per message group. Valid values are `perQueue` (default) and `perMessageGroupId`.
+	FifoThroughputLimit *string `pulumi:"fifoThroughputLimit"`
+	// Length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. An integer representing seconds, between 60 seconds (1 minute) and 86,400 seconds (24 hours). The default is 300 (5 minutes).
+	KmsDataKeyReusePeriodSeconds *int `pulumi:"kmsDataKeyReusePeriodSeconds"`
+	// ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. For more information, see [Key Terms](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html#sqs-sse-key-terms).
+	KmsMasterKeyId *string `pulumi:"kmsMasterKeyId"`
+	// Limit of how many bytes a message can contain before Amazon SQS rejects it. An integer from 1024 bytes (1 KiB) up to 1048576 bytes (1024 KiB). The default for this attribute is 262144 (256 KiB).
+	MaxMessageSize *int `pulumi:"maxMessageSize"`
+	// Number of seconds Amazon SQS retains a message. Integer representing seconds, from 60 (1 minute) to 1209600 (14 days). The default for this attribute is 345600 (4 days).
+	MessageRetentionSeconds *int `pulumi:"messageRetentionSeconds"`
+	// Name of the queue. Queue names must be made up of only uppercase and lowercase ASCII letters, numbers, underscores, and hyphens, and must be between 1 and 80 characters long. For a FIFO (first-in-first-out) queue, the name must end with the `.fifo` suffix. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+	Name *string `pulumi:"name"`
+	// Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+	NamePrefix *string `pulumi:"namePrefix"`
+	// JSON policy for the SQS queue. For more information about building AWS IAM policy documents see the AWS IAM Policy Document Guide. The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.QueuePolicy`" pulumi-lang-dotnet="`aws.sqs.QueuePolicy`" pulumi-lang-go="`sqs.QueuePolicy`" pulumi-lang-python="`sqs.QueuePolicy`" pulumi-lang-yaml="`aws.sqs.QueuePolicy`" pulumi-lang-java="`aws.sqs.QueuePolicy`">`aws.sqs.QueuePolicy`</span> resource instead.
+	Policy *string `pulumi:"policy"`
+	// Time for which a ReceiveMessage call will wait for a message to arrive (long polling) before returning. An integer from 0 to 20 (seconds). The default for this attribute is 0, meaning that the call will return immediately.
+	ReceiveWaitTimeSeconds *int `pulumi:"receiveWaitTimeSeconds"`
+	// JSON policy to set up the Dead Letter Queue redrive permission, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/SQSDeadLetterQueue.html). The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-dotnet="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-go="`sqs.RedriveAllowPolicy`" pulumi-lang-python="`sqs.RedriveAllowPolicy`" pulumi-lang-yaml="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-java="`aws.sqs.RedriveAllowPolicy`">`aws.sqs.RedriveAllowPolicy`</span> resource instead.
+	RedriveAllowPolicy *string `pulumi:"redriveAllowPolicy"`
+	// JSON policy to set up the Dead Letter Queue, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/SQSDeadLetterQueue.html). The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.RedrivePolicy`" pulumi-lang-dotnet="`aws.sqs.RedrivePolicy`" pulumi-lang-go="`sqs.RedrivePolicy`" pulumi-lang-python="`sqs.RedrivePolicy`" pulumi-lang-yaml="`aws.sqs.RedrivePolicy`" pulumi-lang-java="`aws.sqs.RedrivePolicy`">`aws.sqs.RedrivePolicy`</span> resource instead. **Note:** when specifying `maxReceiveCount`, you must specify it as an integer (<span pulumi-lang-nodejs="`5`" pulumi-lang-dotnet="`5`" pulumi-lang-go="`5`" pulumi-lang-python="`5`" pulumi-lang-yaml="`5`" pulumi-lang-java="`5`">`5`</span>), and not a string (`"5"`).
+	RedrivePolicy *string `pulumi:"redrivePolicy"`
+	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+	Region *string `pulumi:"region"`
+	// Boolean to enable server-side encryption (SSE) of message content with SQS-owned encryption keys. See [Encryption at rest](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html). The provider will only perform drift detection of its value when present in a configuration.
+	SqsManagedSseEnabled *bool `pulumi:"sqsManagedSseEnabled"`
+	// Map of tags to assign to the queue. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+	Tags map[string]string `pulumi:"tags"`
+	// Visibility timeout for the queue. An integer from 0 to 43200 (12 hours). The default for this attribute is 30. For more information about visibility timeout, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/AboutVT.html).
+	VisibilityTimeoutSeconds *int `pulumi:"visibilityTimeoutSeconds"`
+}
+
+// QueueOverridesInput is an input type that accepts QueueOverridesArgs and QueueOverridesOutput values.
+// You can construct a concrete instance of `QueueOverridesInput` via:
+//
+//	QueueOverridesArgs{...}
+type QueueOverridesInput interface {
+	pulumi.Input
+
+	ToQueueOverridesOutput() QueueOverridesOutput
+	ToQueueOverridesOutputWithContext(context.Context) QueueOverridesOutput
+}
+
+type QueueOverridesArgs struct {
+	// Enables content-based deduplication for FIFO queues. For more information, see the [related documentation](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html#FIFO-queues-exactly-once-processing).
+	ContentBasedDeduplication pulumi.BoolPtrInput `pulumi:"contentBasedDeduplication"`
+	// Specifies whether message deduplication occurs at the message group or queue level. Valid values are `messageGroup` and <span pulumi-lang-nodejs="`queue`" pulumi-lang-dotnet="`Queue`" pulumi-lang-go="`queue`" pulumi-lang-python="`queue`" pulumi-lang-yaml="`queue`" pulumi-lang-java="`queue`">`queue`</span> (default).
+	DeduplicationScope pulumi.StringPtrInput `pulumi:"deduplicationScope"`
+	// Time in seconds that the delivery of all messages in the queue will be delayed. An integer from 0 to 900 (15 minutes). The default for this attribute is 0 seconds.
+	DelaySeconds pulumi.IntPtrInput `pulumi:"delaySeconds"`
+	// Boolean designating a FIFO queue. If not set, it defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span> making it standard.
+	FifoQueue pulumi.BoolPtrInput `pulumi:"fifoQueue"`
+	// Specifies whether the FIFO queue throughput quota applies to the entire queue or per message group. Valid values are `perQueue` (default) and `perMessageGroupId`.
+	FifoThroughputLimit pulumi.StringPtrInput `pulumi:"fifoThroughputLimit"`
+	// Length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. An integer representing seconds, between 60 seconds (1 minute) and 86,400 seconds (24 hours). The default is 300 (5 minutes).
+	KmsDataKeyReusePeriodSeconds pulumi.IntPtrInput `pulumi:"kmsDataKeyReusePeriodSeconds"`
+	// ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. For more information, see [Key Terms](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html#sqs-sse-key-terms).
+	KmsMasterKeyId pulumi.StringPtrInput `pulumi:"kmsMasterKeyId"`
+	// Limit of how many bytes a message can contain before Amazon SQS rejects it. An integer from 1024 bytes (1 KiB) up to 1048576 bytes (1024 KiB). The default for this attribute is 262144 (256 KiB).
+	MaxMessageSize pulumi.IntPtrInput `pulumi:"maxMessageSize"`
+	// Number of seconds Amazon SQS retains a message. Integer representing seconds, from 60 (1 minute) to 1209600 (14 days). The default for this attribute is 345600 (4 days).
+	MessageRetentionSeconds pulumi.IntPtrInput `pulumi:"messageRetentionSeconds"`
+	// Name of the queue. Queue names must be made up of only uppercase and lowercase ASCII letters, numbers, underscores, and hyphens, and must be between 1 and 80 characters long. For a FIFO (first-in-first-out) queue, the name must end with the `.fifo` suffix. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+	Name pulumi.StringPtrInput `pulumi:"name"`
+	// Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+	NamePrefix pulumi.StringPtrInput `pulumi:"namePrefix"`
+	// JSON policy for the SQS queue. For more information about building AWS IAM policy documents see the AWS IAM Policy Document Guide. The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.QueuePolicy`" pulumi-lang-dotnet="`aws.sqs.QueuePolicy`" pulumi-lang-go="`sqs.QueuePolicy`" pulumi-lang-python="`sqs.QueuePolicy`" pulumi-lang-yaml="`aws.sqs.QueuePolicy`" pulumi-lang-java="`aws.sqs.QueuePolicy`">`aws.sqs.QueuePolicy`</span> resource instead.
+	Policy pulumi.StringPtrInput `pulumi:"policy"`
+	// Time for which a ReceiveMessage call will wait for a message to arrive (long polling) before returning. An integer from 0 to 20 (seconds). The default for this attribute is 0, meaning that the call will return immediately.
+	ReceiveWaitTimeSeconds pulumi.IntPtrInput `pulumi:"receiveWaitTimeSeconds"`
+	// JSON policy to set up the Dead Letter Queue redrive permission, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/SQSDeadLetterQueue.html). The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-dotnet="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-go="`sqs.RedriveAllowPolicy`" pulumi-lang-python="`sqs.RedriveAllowPolicy`" pulumi-lang-yaml="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-java="`aws.sqs.RedriveAllowPolicy`">`aws.sqs.RedriveAllowPolicy`</span> resource instead.
+	RedriveAllowPolicy pulumi.StringPtrInput `pulumi:"redriveAllowPolicy"`
+	// JSON policy to set up the Dead Letter Queue, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/SQSDeadLetterQueue.html). The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.RedrivePolicy`" pulumi-lang-dotnet="`aws.sqs.RedrivePolicy`" pulumi-lang-go="`sqs.RedrivePolicy`" pulumi-lang-python="`sqs.RedrivePolicy`" pulumi-lang-yaml="`aws.sqs.RedrivePolicy`" pulumi-lang-java="`aws.sqs.RedrivePolicy`">`aws.sqs.RedrivePolicy`</span> resource instead. **Note:** when specifying `maxReceiveCount`, you must specify it as an integer (<span pulumi-lang-nodejs="`5`" pulumi-lang-dotnet="`5`" pulumi-lang-go="`5`" pulumi-lang-python="`5`" pulumi-lang-yaml="`5`" pulumi-lang-java="`5`">`5`</span>), and not a string (`"5"`).
+	RedrivePolicy pulumi.StringPtrInput `pulumi:"redrivePolicy"`
+	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+	Region pulumi.StringPtrInput `pulumi:"region"`
+	// Boolean to enable server-side encryption (SSE) of message content with SQS-owned encryption keys. See [Encryption at rest](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html). The provider will only perform drift detection of its value when present in a configuration.
+	SqsManagedSseEnabled pulumi.BoolPtrInput `pulumi:"sqsManagedSseEnabled"`
+	// Map of tags to assign to the queue. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+	Tags pulumi.StringMapInput `pulumi:"tags"`
+	// Visibility timeout for the queue. An integer from 0 to 43200 (12 hours). The default for this attribute is 30. For more information about visibility timeout, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/AboutVT.html).
+	VisibilityTimeoutSeconds pulumi.IntPtrInput `pulumi:"visibilityTimeoutSeconds"`
+}
+
+func (QueueOverridesArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*QueueOverrides)(nil)).Elem()
+}
+
+func (i QueueOverridesArgs) ToQueueOverridesOutput() QueueOverridesOutput {
+	return i.ToQueueOverridesOutputWithContext(context.Background())
+}
+
+func (i QueueOverridesArgs) ToQueueOverridesOutputWithContext(ctx context.Context) QueueOverridesOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueOverridesOutput)
+}
+
+func (i QueueOverridesArgs) ToQueueOverridesPtrOutput() QueueOverridesPtrOutput {
+	return i.ToQueueOverridesPtrOutputWithContext(context.Background())
+}
+
+func (i QueueOverridesArgs) ToQueueOverridesPtrOutputWithContext(ctx context.Context) QueueOverridesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueOverridesOutput).ToQueueOverridesPtrOutputWithContext(ctx)
+}
+
+// QueueOverridesPtrInput is an input type that accepts QueueOverridesArgs, QueueOverridesPtr and QueueOverridesPtrOutput values.
+// You can construct a concrete instance of `QueueOverridesPtrInput` via:
+//
+//	        QueueOverridesArgs{...}
+//
+//	or:
+//
+//	        nil
+type QueueOverridesPtrInput interface {
+	pulumi.Input
+
+	ToQueueOverridesPtrOutput() QueueOverridesPtrOutput
+	ToQueueOverridesPtrOutputWithContext(context.Context) QueueOverridesPtrOutput
+}
+
+type queueOverridesPtrType QueueOverridesArgs
+
+func QueueOverridesPtr(v *QueueOverridesArgs) QueueOverridesPtrInput {
+	return (*queueOverridesPtrType)(v)
+}
+
+func (*queueOverridesPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**QueueOverrides)(nil)).Elem()
+}
+
+func (i *queueOverridesPtrType) ToQueueOverridesPtrOutput() QueueOverridesPtrOutput {
+	return i.ToQueueOverridesPtrOutputWithContext(context.Background())
+}
+
+func (i *queueOverridesPtrType) ToQueueOverridesPtrOutputWithContext(ctx context.Context) QueueOverridesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueOverridesPtrOutput)
+}
+
+type QueueOverridesOutput struct{ *pulumi.OutputState }
+
+func (QueueOverridesOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*QueueOverrides)(nil)).Elem()
+}
+
+func (o QueueOverridesOutput) ToQueueOverridesOutput() QueueOverridesOutput {
+	return o
+}
+
+func (o QueueOverridesOutput) ToQueueOverridesOutputWithContext(ctx context.Context) QueueOverridesOutput {
+	return o
+}
+
+func (o QueueOverridesOutput) ToQueueOverridesPtrOutput() QueueOverridesPtrOutput {
+	return o.ToQueueOverridesPtrOutputWithContext(context.Background())
+}
+
+func (o QueueOverridesOutput) ToQueueOverridesPtrOutputWithContext(ctx context.Context) QueueOverridesPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v QueueOverrides) *QueueOverrides {
+		return &v
+	}).(QueueOverridesPtrOutput)
+}
+
+// Enables content-based deduplication for FIFO queues. For more information, see the [related documentation](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html#FIFO-queues-exactly-once-processing).
+func (o QueueOverridesOutput) ContentBasedDeduplication() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *bool { return v.ContentBasedDeduplication }).(pulumi.BoolPtrOutput)
+}
+
+// Specifies whether message deduplication occurs at the message group or queue level. Valid values are `messageGroup` and <span pulumi-lang-nodejs="`queue`" pulumi-lang-dotnet="`Queue`" pulumi-lang-go="`queue`" pulumi-lang-python="`queue`" pulumi-lang-yaml="`queue`" pulumi-lang-java="`queue`">`queue`</span> (default).
+func (o QueueOverridesOutput) DeduplicationScope() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *string { return v.DeduplicationScope }).(pulumi.StringPtrOutput)
+}
+
+// Time in seconds that the delivery of all messages in the queue will be delayed. An integer from 0 to 900 (15 minutes). The default for this attribute is 0 seconds.
+func (o QueueOverridesOutput) DelaySeconds() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *int { return v.DelaySeconds }).(pulumi.IntPtrOutput)
+}
+
+// Boolean designating a FIFO queue. If not set, it defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span> making it standard.
+func (o QueueOverridesOutput) FifoQueue() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *bool { return v.FifoQueue }).(pulumi.BoolPtrOutput)
+}
+
+// Specifies whether the FIFO queue throughput quota applies to the entire queue or per message group. Valid values are `perQueue` (default) and `perMessageGroupId`.
+func (o QueueOverridesOutput) FifoThroughputLimit() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *string { return v.FifoThroughputLimit }).(pulumi.StringPtrOutput)
+}
+
+// Length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. An integer representing seconds, between 60 seconds (1 minute) and 86,400 seconds (24 hours). The default is 300 (5 minutes).
+func (o QueueOverridesOutput) KmsDataKeyReusePeriodSeconds() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *int { return v.KmsDataKeyReusePeriodSeconds }).(pulumi.IntPtrOutput)
+}
+
+// ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. For more information, see [Key Terms](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html#sqs-sse-key-terms).
+func (o QueueOverridesOutput) KmsMasterKeyId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *string { return v.KmsMasterKeyId }).(pulumi.StringPtrOutput)
+}
+
+// Limit of how many bytes a message can contain before Amazon SQS rejects it. An integer from 1024 bytes (1 KiB) up to 1048576 bytes (1024 KiB). The default for this attribute is 262144 (256 KiB).
+func (o QueueOverridesOutput) MaxMessageSize() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *int { return v.MaxMessageSize }).(pulumi.IntPtrOutput)
+}
+
+// Number of seconds Amazon SQS retains a message. Integer representing seconds, from 60 (1 minute) to 1209600 (14 days). The default for this attribute is 345600 (4 days).
+func (o QueueOverridesOutput) MessageRetentionSeconds() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *int { return v.MessageRetentionSeconds }).(pulumi.IntPtrOutput)
+}
+
+// Name of the queue. Queue names must be made up of only uppercase and lowercase ASCII letters, numbers, underscores, and hyphens, and must be between 1 and 80 characters long. For a FIFO (first-in-first-out) queue, the name must end with the `.fifo` suffix. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+func (o QueueOverridesOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *string { return v.Name }).(pulumi.StringPtrOutput)
+}
+
+// Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+func (o QueueOverridesOutput) NamePrefix() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *string { return v.NamePrefix }).(pulumi.StringPtrOutput)
+}
+
+// JSON policy for the SQS queue. For more information about building AWS IAM policy documents see the AWS IAM Policy Document Guide. The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.QueuePolicy`" pulumi-lang-dotnet="`aws.sqs.QueuePolicy`" pulumi-lang-go="`sqs.QueuePolicy`" pulumi-lang-python="`sqs.QueuePolicy`" pulumi-lang-yaml="`aws.sqs.QueuePolicy`" pulumi-lang-java="`aws.sqs.QueuePolicy`">`aws.sqs.QueuePolicy`</span> resource instead.
+func (o QueueOverridesOutput) Policy() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *string { return v.Policy }).(pulumi.StringPtrOutput)
+}
+
+// Time for which a ReceiveMessage call will wait for a message to arrive (long polling) before returning. An integer from 0 to 20 (seconds). The default for this attribute is 0, meaning that the call will return immediately.
+func (o QueueOverridesOutput) ReceiveWaitTimeSeconds() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *int { return v.ReceiveWaitTimeSeconds }).(pulumi.IntPtrOutput)
+}
+
+// JSON policy to set up the Dead Letter Queue redrive permission, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/SQSDeadLetterQueue.html). The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-dotnet="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-go="`sqs.RedriveAllowPolicy`" pulumi-lang-python="`sqs.RedriveAllowPolicy`" pulumi-lang-yaml="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-java="`aws.sqs.RedriveAllowPolicy`">`aws.sqs.RedriveAllowPolicy`</span> resource instead.
+func (o QueueOverridesOutput) RedriveAllowPolicy() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *string { return v.RedriveAllowPolicy }).(pulumi.StringPtrOutput)
+}
+
+// JSON policy to set up the Dead Letter Queue, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/SQSDeadLetterQueue.html). The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.RedrivePolicy`" pulumi-lang-dotnet="`aws.sqs.RedrivePolicy`" pulumi-lang-go="`sqs.RedrivePolicy`" pulumi-lang-python="`sqs.RedrivePolicy`" pulumi-lang-yaml="`aws.sqs.RedrivePolicy`" pulumi-lang-java="`aws.sqs.RedrivePolicy`">`aws.sqs.RedrivePolicy`</span> resource instead. **Note:** when specifying `maxReceiveCount`, you must specify it as an integer (<span pulumi-lang-nodejs="`5`" pulumi-lang-dotnet="`5`" pulumi-lang-go="`5`" pulumi-lang-python="`5`" pulumi-lang-yaml="`5`" pulumi-lang-java="`5`">`5`</span>), and not a string (`"5"`).
+func (o QueueOverridesOutput) RedrivePolicy() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *string { return v.RedrivePolicy }).(pulumi.StringPtrOutput)
+}
+
+// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+func (o QueueOverridesOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *string { return v.Region }).(pulumi.StringPtrOutput)
+}
+
+// Boolean to enable server-side encryption (SSE) of message content with SQS-owned encryption keys. See [Encryption at rest](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html). The provider will only perform drift detection of its value when present in a configuration.
+func (o QueueOverridesOutput) SqsManagedSseEnabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *bool { return v.SqsManagedSseEnabled }).(pulumi.BoolPtrOutput)
+}
+
+// Map of tags to assign to the queue. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+func (o QueueOverridesOutput) Tags() pulumi.StringMapOutput {
+	return o.ApplyT(func(v QueueOverrides) map[string]string { return v.Tags }).(pulumi.StringMapOutput)
+}
+
+// Visibility timeout for the queue. An integer from 0 to 43200 (12 hours). The default for this attribute is 30. For more information about visibility timeout, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/AboutVT.html).
+func (o QueueOverridesOutput) VisibilityTimeoutSeconds() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v QueueOverrides) *int { return v.VisibilityTimeoutSeconds }).(pulumi.IntPtrOutput)
+}
+
+type QueueOverridesPtrOutput struct{ *pulumi.OutputState }
+
+func (QueueOverridesPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**QueueOverrides)(nil)).Elem()
+}
+
+func (o QueueOverridesPtrOutput) ToQueueOverridesPtrOutput() QueueOverridesPtrOutput {
+	return o
+}
+
+func (o QueueOverridesPtrOutput) ToQueueOverridesPtrOutputWithContext(ctx context.Context) QueueOverridesPtrOutput {
+	return o
+}
+
+func (o QueueOverridesPtrOutput) Elem() QueueOverridesOutput {
+	return o.ApplyT(func(v *QueueOverrides) QueueOverrides {
+		if v != nil {
+			return *v
+		}
+		var ret QueueOverrides
+		return ret
+	}).(QueueOverridesOutput)
+}
+
+// Enables content-based deduplication for FIFO queues. For more information, see the [related documentation](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html#FIFO-queues-exactly-once-processing).
+func (o QueueOverridesPtrOutput) ContentBasedDeduplication() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.ContentBasedDeduplication
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Specifies whether message deduplication occurs at the message group or queue level. Valid values are `messageGroup` and <span pulumi-lang-nodejs="`queue`" pulumi-lang-dotnet="`Queue`" pulumi-lang-go="`queue`" pulumi-lang-python="`queue`" pulumi-lang-yaml="`queue`" pulumi-lang-java="`queue`">`queue`</span> (default).
+func (o QueueOverridesPtrOutput) DeduplicationScope() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.DeduplicationScope
+	}).(pulumi.StringPtrOutput)
+}
+
+// Time in seconds that the delivery of all messages in the queue will be delayed. An integer from 0 to 900 (15 minutes). The default for this attribute is 0 seconds.
+func (o QueueOverridesPtrOutput) DelaySeconds() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *int {
+		if v == nil {
+			return nil
+		}
+		return v.DelaySeconds
+	}).(pulumi.IntPtrOutput)
+}
+
+// Boolean designating a FIFO queue. If not set, it defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span> making it standard.
+func (o QueueOverridesPtrOutput) FifoQueue() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.FifoQueue
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Specifies whether the FIFO queue throughput quota applies to the entire queue or per message group. Valid values are `perQueue` (default) and `perMessageGroupId`.
+func (o QueueOverridesPtrOutput) FifoThroughputLimit() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.FifoThroughputLimit
+	}).(pulumi.StringPtrOutput)
+}
+
+// Length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. An integer representing seconds, between 60 seconds (1 minute) and 86,400 seconds (24 hours). The default is 300 (5 minutes).
+func (o QueueOverridesPtrOutput) KmsDataKeyReusePeriodSeconds() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *int {
+		if v == nil {
+			return nil
+		}
+		return v.KmsDataKeyReusePeriodSeconds
+	}).(pulumi.IntPtrOutput)
+}
+
+// ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. For more information, see [Key Terms](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html#sqs-sse-key-terms).
+func (o QueueOverridesPtrOutput) KmsMasterKeyId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.KmsMasterKeyId
+	}).(pulumi.StringPtrOutput)
+}
+
+// Limit of how many bytes a message can contain before Amazon SQS rejects it. An integer from 1024 bytes (1 KiB) up to 1048576 bytes (1024 KiB). The default for this attribute is 262144 (256 KiB).
+func (o QueueOverridesPtrOutput) MaxMessageSize() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *int {
+		if v == nil {
+			return nil
+		}
+		return v.MaxMessageSize
+	}).(pulumi.IntPtrOutput)
+}
+
+// Number of seconds Amazon SQS retains a message. Integer representing seconds, from 60 (1 minute) to 1209600 (14 days). The default for this attribute is 345600 (4 days).
+func (o QueueOverridesPtrOutput) MessageRetentionSeconds() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *int {
+		if v == nil {
+			return nil
+		}
+		return v.MessageRetentionSeconds
+	}).(pulumi.IntPtrOutput)
+}
+
+// Name of the queue. Queue names must be made up of only uppercase and lowercase ASCII letters, numbers, underscores, and hyphens, and must be between 1 and 80 characters long. For a FIFO (first-in-first-out) queue, the name must end with the `.fifo` suffix. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+func (o QueueOverridesPtrOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Name
+	}).(pulumi.StringPtrOutput)
+}
+
+// Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+func (o QueueOverridesPtrOutput) NamePrefix() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.NamePrefix
+	}).(pulumi.StringPtrOutput)
+}
+
+// JSON policy for the SQS queue. For more information about building AWS IAM policy documents see the AWS IAM Policy Document Guide. The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.QueuePolicy`" pulumi-lang-dotnet="`aws.sqs.QueuePolicy`" pulumi-lang-go="`sqs.QueuePolicy`" pulumi-lang-python="`sqs.QueuePolicy`" pulumi-lang-yaml="`aws.sqs.QueuePolicy`" pulumi-lang-java="`aws.sqs.QueuePolicy`">`aws.sqs.QueuePolicy`</span> resource instead.
+func (o QueueOverridesPtrOutput) Policy() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Policy
+	}).(pulumi.StringPtrOutput)
+}
+
+// Time for which a ReceiveMessage call will wait for a message to arrive (long polling) before returning. An integer from 0 to 20 (seconds). The default for this attribute is 0, meaning that the call will return immediately.
+func (o QueueOverridesPtrOutput) ReceiveWaitTimeSeconds() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *int {
+		if v == nil {
+			return nil
+		}
+		return v.ReceiveWaitTimeSeconds
+	}).(pulumi.IntPtrOutput)
+}
+
+// JSON policy to set up the Dead Letter Queue redrive permission, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/SQSDeadLetterQueue.html). The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-dotnet="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-go="`sqs.RedriveAllowPolicy`" pulumi-lang-python="`sqs.RedriveAllowPolicy`" pulumi-lang-yaml="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-java="`aws.sqs.RedriveAllowPolicy`">`aws.sqs.RedriveAllowPolicy`</span> resource instead.
+func (o QueueOverridesPtrOutput) RedriveAllowPolicy() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.RedriveAllowPolicy
+	}).(pulumi.StringPtrOutput)
+}
+
+// JSON policy to set up the Dead Letter Queue, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/SQSDeadLetterQueue.html). The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.RedrivePolicy`" pulumi-lang-dotnet="`aws.sqs.RedrivePolicy`" pulumi-lang-go="`sqs.RedrivePolicy`" pulumi-lang-python="`sqs.RedrivePolicy`" pulumi-lang-yaml="`aws.sqs.RedrivePolicy`" pulumi-lang-java="`aws.sqs.RedrivePolicy`">`aws.sqs.RedrivePolicy`</span> resource instead. **Note:** when specifying `maxReceiveCount`, you must specify it as an integer (<span pulumi-lang-nodejs="`5`" pulumi-lang-dotnet="`5`" pulumi-lang-go="`5`" pulumi-lang-python="`5`" pulumi-lang-yaml="`5`" pulumi-lang-java="`5`">`5`</span>), and not a string (`"5"`).
+func (o QueueOverridesPtrOutput) RedrivePolicy() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.RedrivePolicy
+	}).(pulumi.StringPtrOutput)
+}
+
+// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+func (o QueueOverridesPtrOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Region
+	}).(pulumi.StringPtrOutput)
+}
+
+// Boolean to enable server-side encryption (SSE) of message content with SQS-owned encryption keys. See [Encryption at rest](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html). The provider will only perform drift detection of its value when present in a configuration.
+func (o QueueOverridesPtrOutput) SqsManagedSseEnabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.SqsManagedSseEnabled
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Map of tags to assign to the queue. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+func (o QueueOverridesPtrOutput) Tags() pulumi.StringMapOutput {
+	return o.ApplyT(func(v *QueueOverrides) map[string]string {
+		if v == nil {
+			return nil
+		}
+		return v.Tags
+	}).(pulumi.StringMapOutput)
+}
+
+// Visibility timeout for the queue. An integer from 0 to 43200 (12 hours). The default for this attribute is 30. For more information about visibility timeout, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/AboutVT.html).
+func (o QueueOverridesPtrOutput) VisibilityTimeoutSeconds() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *QueueOverrides) *int {
+		if v == nil {
+			return nil
+		}
+		return v.VisibilityTimeoutSeconds
+	}).(pulumi.IntPtrOutput)
+}
+
+type QueueTransformArgs struct {
+	Queue *QueueOverrides `pulumi:"queue"`
+}
+
+// QueueTransformArgsInput is an input type that accepts QueueTransformArgsArgs and QueueTransformArgsOutput values.
+// You can construct a concrete instance of `QueueTransformArgsInput` via:
+//
+//	QueueTransformArgsArgs{...}
+type QueueTransformArgsInput interface {
+	pulumi.Input
+
+	ToQueueTransformArgsOutput() QueueTransformArgsOutput
+	ToQueueTransformArgsOutputWithContext(context.Context) QueueTransformArgsOutput
+}
+
+type QueueTransformArgsArgs struct {
+	Queue QueueOverridesPtrInput `pulumi:"queue"`
+}
+
+func (QueueTransformArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*QueueTransformArgs)(nil)).Elem()
+}
+
+func (i QueueTransformArgsArgs) ToQueueTransformArgsOutput() QueueTransformArgsOutput {
+	return i.ToQueueTransformArgsOutputWithContext(context.Background())
+}
+
+func (i QueueTransformArgsArgs) ToQueueTransformArgsOutputWithContext(ctx context.Context) QueueTransformArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueTransformArgsOutput)
+}
+
+func (i QueueTransformArgsArgs) ToQueueTransformArgsPtrOutput() QueueTransformArgsPtrOutput {
+	return i.ToQueueTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (i QueueTransformArgsArgs) ToQueueTransformArgsPtrOutputWithContext(ctx context.Context) QueueTransformArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueTransformArgsOutput).ToQueueTransformArgsPtrOutputWithContext(ctx)
+}
+
+// QueueTransformArgsPtrInput is an input type that accepts QueueTransformArgsArgs, QueueTransformArgsPtr and QueueTransformArgsPtrOutput values.
+// You can construct a concrete instance of `QueueTransformArgsPtrInput` via:
+//
+//	        QueueTransformArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type QueueTransformArgsPtrInput interface {
+	pulumi.Input
+
+	ToQueueTransformArgsPtrOutput() QueueTransformArgsPtrOutput
+	ToQueueTransformArgsPtrOutputWithContext(context.Context) QueueTransformArgsPtrOutput
+}
+
+type queueTransformArgsPtrType QueueTransformArgsArgs
+
+func QueueTransformArgsPtr(v *QueueTransformArgsArgs) QueueTransformArgsPtrInput {
+	return (*queueTransformArgsPtrType)(v)
+}
+
+func (*queueTransformArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**QueueTransformArgs)(nil)).Elem()
+}
+
+func (i *queueTransformArgsPtrType) ToQueueTransformArgsPtrOutput() QueueTransformArgsPtrOutput {
+	return i.ToQueueTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *queueTransformArgsPtrType) ToQueueTransformArgsPtrOutputWithContext(ctx context.Context) QueueTransformArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(QueueTransformArgsPtrOutput)
+}
+
+type QueueTransformArgsOutput struct{ *pulumi.OutputState }
+
+func (QueueTransformArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*QueueTransformArgs)(nil)).Elem()
+}
+
+func (o QueueTransformArgsOutput) ToQueueTransformArgsOutput() QueueTransformArgsOutput {
+	return o
+}
+
+func (o QueueTransformArgsOutput) ToQueueTransformArgsOutputWithContext(ctx context.Context) QueueTransformArgsOutput {
+	return o
+}
+
+func (o QueueTransformArgsOutput) ToQueueTransformArgsPtrOutput() QueueTransformArgsPtrOutput {
+	return o.ToQueueTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (o QueueTransformArgsOutput) ToQueueTransformArgsPtrOutputWithContext(ctx context.Context) QueueTransformArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v QueueTransformArgs) *QueueTransformArgs {
+		return &v
+	}).(QueueTransformArgsPtrOutput)
+}
+
+func (o QueueTransformArgsOutput) Queue() QueueOverridesPtrOutput {
+	return o.ApplyT(func(v QueueTransformArgs) *QueueOverrides { return v.Queue }).(QueueOverridesPtrOutput)
+}
+
+type QueueTransformArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (QueueTransformArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**QueueTransformArgs)(nil)).Elem()
+}
+
+func (o QueueTransformArgsPtrOutput) ToQueueTransformArgsPtrOutput() QueueTransformArgsPtrOutput {
+	return o
+}
+
+func (o QueueTransformArgsPtrOutput) ToQueueTransformArgsPtrOutputWithContext(ctx context.Context) QueueTransformArgsPtrOutput {
+	return o
+}
+
+func (o QueueTransformArgsPtrOutput) Elem() QueueTransformArgsOutput {
+	return o.ApplyT(func(v *QueueTransformArgs) QueueTransformArgs {
+		if v != nil {
+			return *v
+		}
+		var ret QueueTransformArgs
+		return ret
+	}).(QueueTransformArgsOutput)
+}
+
+func (o QueueTransformArgsPtrOutput) Queue() QueueOverridesPtrOutput {
+	return o.ApplyT(func(v *QueueTransformArgs) *QueueOverrides {
+		if v == nil {
+			return nil
+		}
+		return v.Queue
+	}).(QueueOverridesPtrOutput)
+}
+
 // SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
 type SiteOriginProtection struct {
 	// Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
@@ -7831,6 +8901,16 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaVpcEndpointArgsArrayInput)(nil)).Elem(), LambdaVpcEndpointArgsArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformInput)(nil)).Elem(), PABTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*PABTransformPtrInput)(nil)).Elem(), PABTransformArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*QueueConsumerArgsInput)(nil)).Elem(), QueueConsumerArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*QueueConsumerArgsPtrInput)(nil)).Elem(), QueueConsumerArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*QueueDlqArgsInput)(nil)).Elem(), QueueDlqArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*QueueDlqArgsPtrInput)(nil)).Elem(), QueueDlqArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*QueueLambdaConsumerArgsInput)(nil)).Elem(), QueueLambdaConsumerArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*QueueLambdaConsumerArgsPtrInput)(nil)).Elem(), QueueLambdaConsumerArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*QueueOverridesInput)(nil)).Elem(), QueueOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*QueueOverridesPtrInput)(nil)).Elem(), QueueOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*QueueTransformArgsInput)(nil)).Elem(), QueueTransformArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*QueueTransformArgsPtrInput)(nil)).Elem(), QueueTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*SiteOriginProtectionInput)(nil)).Elem(), SiteOriginProtectionArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*SiteOriginProtectionPtrInput)(nil)).Elem(), SiteOriginProtectionArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsInput)(nil)).Elem(), VpcBastionArgsArgs{})
@@ -7907,6 +8987,16 @@ func init() {
 	pulumi.RegisterOutputType(LambdaVpcEndpointArgsArrayOutput{})
 	pulumi.RegisterOutputType(PABTransformOutput{})
 	pulumi.RegisterOutputType(PABTransformPtrOutput{})
+	pulumi.RegisterOutputType(QueueConsumerArgsOutput{})
+	pulumi.RegisterOutputType(QueueConsumerArgsPtrOutput{})
+	pulumi.RegisterOutputType(QueueDlqArgsOutput{})
+	pulumi.RegisterOutputType(QueueDlqArgsPtrOutput{})
+	pulumi.RegisterOutputType(QueueLambdaConsumerArgsOutput{})
+	pulumi.RegisterOutputType(QueueLambdaConsumerArgsPtrOutput{})
+	pulumi.RegisterOutputType(QueueOverridesOutput{})
+	pulumi.RegisterOutputType(QueueOverridesPtrOutput{})
+	pulumi.RegisterOutputType(QueueTransformArgsOutput{})
+	pulumi.RegisterOutputType(QueueTransformArgsPtrOutput{})
 	pulumi.RegisterOutputType(SiteOriginProtectionOutput{})
 	pulumi.RegisterOutputType(SiteOriginProtectionPtrOutput{})
 	pulumi.RegisterOutputType(VpcBastionArgsOutput{})

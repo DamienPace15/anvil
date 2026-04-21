@@ -17,6 +17,7 @@
         "aws/httpApi.ts",
         "aws/index.ts",
         "aws/lambda.ts",
+        "aws/queue.ts",
         "aws/svelteKitSite.ts",
         "aws/vpc.ts",
         "aws/vpcEndpoint.ts",

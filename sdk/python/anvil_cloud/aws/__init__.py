@@ -10,6 +10,7 @@ from ._enums import *
 from .bucket import *
 from .http_api import *
 from .lambda_ import *
+from .queue import *
 from .svelte_kit_site import *
 from .vpc import *
 from .vpc_endpoint import *

@@ -1,3 +1,5 @@
+export { QUEUE_GRANT_CONFIG } from './queue-config';
+
 export { BUCKET_GRANT_CONFIG } from './bucket-configs';
 export {
   LAMBDA_GRANT_CONFIG,

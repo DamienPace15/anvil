@@ -17,6 +17,7 @@ import {
   BUCKET_GRANT_CONFIG,
   LAMBDA_GRANT_CONFIG,
   LAMBDA_GRANT_TARGET_CONFIG,
+  QUEUE_GRANT_CONFIG,
 } from './configs';
 import {
   generateTSGrantMethod,
@@ -41,7 +42,11 @@ const doPython = !tsOnly;
 
 // ── Grant registries ───────────────────────────────────────
 
-const GRANT_CONFIGS: GrantConfig[] = [BUCKET_GRANT_CONFIG, LAMBDA_GRANT_CONFIG];
+const GRANT_CONFIGS: GrantConfig[] = [
+  BUCKET_GRANT_CONFIG,
+  LAMBDA_GRANT_CONFIG,
+  QUEUE_GRANT_CONFIG,
+];
 const GRANT_TARGET_CONFIGS: GrantTargetConfig[] = [LAMBDA_GRANT_TARGET_CONFIG];
 
 // ── TS file helpers ────────────────────────────────────────

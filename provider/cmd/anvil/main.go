@@ -10,6 +10,7 @@ import (
 	awsbucket "github.com/DamienPace15/anvil/provider/aws/bucket"
 	awshttpapi "github.com/DamienPace15/anvil/provider/aws/httpapi"
 	awslambda "github.com/DamienPace15/anvil/provider/aws/lambda"
+	awsqueue "github.com/DamienPace15/anvil/provider/aws/queue"
 	awssveltekitsite "github.com/DamienPace15/anvil/provider/aws/sveltekitsite"
 	awsvpc "github.com/DamienPace15/anvil/provider/aws/vpc"
 	awsvpcEndpoint "github.com/DamienPace15/anvil/provider/aws/vpcEndpoint"
@@ -23,6 +24,7 @@ func main() {
 			infer.ComponentF(awsbucket.NewBucket),
 			infer.ComponentF(awshttpapi.NewHttpApi),
 			infer.ComponentF(awslambda.NewLambda),
+			infer.ComponentF(awsqueue.NewQueue),
 			infer.ComponentF(awssveltekitsite.NewSvelteKitSite),
 			infer.ComponentF(awsvpc.NewVpc),
 			infer.ComponentF(awsvpcEndpoint.NewVpcEndpoint),
