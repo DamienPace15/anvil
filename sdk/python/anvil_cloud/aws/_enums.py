@@ -7,7 +7,6 @@ import pulumi
 from enum import Enum
 
 __all__ = [
-    'AwsVpcEndpointService',
     'HttpApiMethod',
     'LambdaArchitecture',
     'LambdaLogRetention',
@@ -16,65 +15,6 @@ __all__ = [
     'SiteOriginProtectionProvider',
     'VpcNatType',
 ]
-
-
-@pulumi.type_token("anvil:aws:AwsVpcEndpointService")
-class AwsVpcEndpointService(_builtins.str, Enum):
-    """
-    The AWS service to route privately via an Interface VPC Endpoint. Each value maps to the com.amazonaws.{region}.{suffix} endpoint service name.
-    """
-    SSM = "ssm"
-    """
-    AWS Systems Manager. Required alongside ssmmessages and ec2messages for full SSM functionality including Session Manager and Run Command.
-    """
-    SSMMESSAGES = "ssmmessages"
-    """
-    SSM Session Manager messaging. Required alongside ssm and ec2messages.
-    """
-    EC2MESSAGES = "ec2messages"
-    """
-    SSM Run Command messaging. Required alongside ssm and ssmmessages.
-    """
-    SECRETSMANAGER = "secretsmanager"
-    """
-    AWS Secrets Manager. Allows compute resources to call GetSecretValue and other Secrets Manager APIs without traversing the public internet.
-    """
-    ECR_API = "ecr.api"
-    """
-    ECR control plane — authentication, image manifests, and repository metadata. Required alongside ecr.dkr for private image pulls.
-    """
-    ECR_DKR = "ecr.dkr"
-    """
-    ECR data plane — image layer pulls. Required alongside ecr.api for private image pulls.
-    """
-    SQS = "sqs"
-    """
-    Amazon Simple Queue Service. Covers all SQS operations including SendMessage, ReceiveMessage, and DeleteMessage — all are client-initiated HTTPS, one endpoint covers all operations.
-    """
-    SNS = "sns"
-    """
-    Amazon Simple Notification Service. Allows compute resources to publish to SNS topics without traversing the public internet.
-    """
-    LAMBDA_ = "lambda"
-    """
-    AWS Lambda invoke. Allows private invocation of Lambda functions from within the VPC.
-    """
-    LOGS = "logs"
-    """
-    Amazon CloudWatch Logs. Required for compute resources in private subnets to ship logs to CloudWatch without a NAT Gateway.
-    """
-    MONITORING = "monitoring"
-    """
-    Amazon CloudWatch Metrics. Required for compute resources in private subnets to publish custom metrics without a NAT Gateway.
-    """
-    KMS = "kms"
-    """
-    AWS Key Management Service. Required for compute resources that perform envelope encryption, use KMS-managed secrets, or interact with services that call KMS on their behalf.
-    """
-    STS = "sts"
-    """
-    AWS Security Token Service. Required for IAM role assumption and temporary credential generation within private subnets.
-    """
 
 
 @pulumi.type_token("anvil:aws:HttpApiMethod")

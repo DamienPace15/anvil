@@ -14,7 +14,7 @@
           "description": "The IDs of the private subnets to attach the endpoint to. AWS places one ENI per subnet. Pass all private subnet IDs from your VPC — typically one per AZ."
         },
         "service": {
-          "$ref": "#/types/anvil:aws:AwsVpcEndpointService",
+          "type": "string",
           "description": "The AWS service to route privately. The full com.amazonaws.{region}.{service} name is constructed at deploy time from the resolved region — you never write it manually."
         },
         "overridePermissions": {
@@ -60,64 +60,6 @@
         }
       },
       "required": ["effect", "action"]
-    },
-    "anvil:aws:AwsVpcEndpointService": {
-      "type": "string",
-      "description": "The AWS service to route privately via an Interface VPC Endpoint. Each value maps to the com.amazonaws.{region}.{suffix} endpoint service name.",
-      "enum": [
-        {
-          "value": "ssm",
-          "description": "AWS Systems Manager. Required alongside ssmmessages and ec2messages for full SSM functionality including Session Manager and Run Command."
-        },
-        {
-          "value": "ssmmessages",
-          "description": "SSM Session Manager messaging. Required alongside ssm and ec2messages."
-        },
-        {
-          "value": "ec2messages",
-          "description": "SSM Run Command messaging. Required alongside ssm and ssmmessages."
-        },
-        {
-          "value": "secretsmanager",
-          "description": "AWS Secrets Manager. Allows compute resources to call GetSecretValue and other Secrets Manager APIs without traversing the public internet."
-        },
-        {
-          "value": "ecr.api",
-          "description": "ECR control plane — authentication, image manifests, and repository metadata. Required alongside ecr.dkr for private image pulls."
-        },
-        {
-          "value": "ecr.dkr",
-          "description": "ECR data plane — image layer pulls. Required alongside ecr.api for private image pulls."
-        },
-        {
-          "value": "sqs",
-          "description": "Amazon Simple Queue Service. Covers all SQS operations including SendMessage, ReceiveMessage, and DeleteMessage — all are client-initiated HTTPS, one endpoint covers all operations."
-        },
-        {
-          "value": "sns",
-          "description": "Amazon Simple Notification Service. Allows compute resources to publish to SNS topics without traversing the public internet."
-        },
-        {
-          "value": "lambda",
-          "description": "AWS Lambda invoke. Allows private invocation of Lambda functions from within the VPC."
-        },
-        {
-          "value": "logs",
-          "description": "Amazon CloudWatch Logs. Required for compute resources in private subnets to ship logs to CloudWatch without a NAT Gateway."
-        },
-        {
-          "value": "monitoring",
-          "description": "Amazon CloudWatch Metrics. Required for compute resources in private subnets to publish custom metrics without a NAT Gateway."
-        },
-        {
-          "value": "kms",
-          "description": "AWS Key Management Service. Required for compute resources that perform envelope encryption, use KMS-managed secrets, or interact with services that call KMS on their behalf."
-        },
-        {
-          "value": "sts",
-          "description": "AWS Security Token Service. Required for IAM role assumption and temporary credential generation within private subnets."
-        }
-      ]
     }
   },
   "x-upstream-provider": "aws",
