@@ -13,6 +13,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from .. import _utilities
+from . import outputs
 from ._enums import *
 from ._inputs import *
 
@@ -180,6 +181,7 @@ class HttpApi(pulumi.ComponentResource):
             __props__.__dict__["throttling"] = throttling
             __props__.__dict__["api_endpoint"] = None
             __props__.__dict__["api_id"] = None
+            __props__.__dict__["cert_validation_cname"] = None
             __props__.__dict__["url"] = None
         super(HttpApi, __self__).__init__(
             'anvil:aws:HttpApi',
@@ -203,6 +205,14 @@ class HttpApi(pulumi.ComponentResource):
         The API Gateway HTTP API ID.
         """
         return pulumi.get(self, "api_id")
+
+    @_builtins.property
+    @pulumi.getter(name="certValidationCname")
+    def cert_validation_cname(self) -> pulumi.Output['outputs.HttpApiCertValidationCname']:
+        """
+        ACM cert validation CNAME. Only populated when domain.dns: false and domain.certificateArn is omitted. Add this record in Cloudflare (or your DNS provider) then re-run deploy — Anvil blocks until ACM confirms validation.
+        """
+        return pulumi.get(self, "cert_validation_cname")
 
     @_builtins.property
     @pulumi.getter

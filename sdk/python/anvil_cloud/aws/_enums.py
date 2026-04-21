@@ -13,6 +13,7 @@ __all__ = [
     'LambdaLogRetention',
     'LambdaRuntime',
     'S3FlowLogLifecycle',
+    'SiteOriginProtectionProvider',
     'VpcNatType',
 ]
 
@@ -168,6 +169,17 @@ class S3FlowLogLifecycle(_builtins.str, Enum):
     STANDARD = "standard"
     """
     Auto-tiered: Standard (0-30d) → Standard-IA (30-90d) → Glacier Instant Retrieval (90d+). Suitable for compliance retention at minimal long-term cost.
+    """
+
+
+@pulumi.type_token("anvil:aws:SiteOriginProtectionProvider")
+class SiteOriginProtectionProvider(_builtins.str, Enum):
+    """
+    The CDN/proxy provider sitting in front of CloudFront.
+    """
+    CLOUDFLARE = "cloudflare"
+    """
+    Cloudflare — inject x-origin-secret via a Cloudflare Transform Rule.
     """
 
 

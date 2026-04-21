@@ -2,6 +2,9 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "../types/input";
+import * as outputs from "../types/output";
+import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 export class SvelteKitSite extends pulumi.ComponentResource {
@@ -23,6 +26,10 @@ export class SvelteKitSite extends pulumi.ComponentResource {
     declare public /*out*/ readonly cloudFrontDistributionId: pulumi.Output<string | undefined>;
     declare public /*out*/ readonly dnsRecords: pulumi.Output<string | undefined>;
     declare public /*out*/ readonly functionName: pulumi.Output<string | undefined>;
+    /**
+     * OriginSecret is the x-origin-secret header value to configure in Cloudflare Transform Rules. Only populated when originProtection is set.
+     */
+    declare public /*out*/ readonly originSecret: pulumi.Output<string | undefined>;
     declare public /*out*/ readonly url: pulumi.Output<string | undefined>;
 
     /**
@@ -38,6 +45,7 @@ export class SvelteKitSite extends pulumi.ComponentResource {
         if (!opts.id) {
             resourceInputs["domain"] = args?.domain;
             resourceInputs["environment"] = args?.environment;
+            resourceInputs["originProtection"] = args?.originProtection;
             resourceInputs["path"] = args?.path;
             resourceInputs["runtimeEnvironment"] = args?.runtimeEnvironment;
             resourceInputs["transform"] = args?.transform;
@@ -45,12 +53,14 @@ export class SvelteKitSite extends pulumi.ComponentResource {
             resourceInputs["cloudFrontDistributionId"] = undefined /*out*/;
             resourceInputs["dnsRecords"] = undefined /*out*/;
             resourceInputs["functionName"] = undefined /*out*/;
+            resourceInputs["originSecret"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         } else {
             resourceInputs["bucketName"] = undefined /*out*/;
             resourceInputs["cloudFrontDistributionId"] = undefined /*out*/;
             resourceInputs["dnsRecords"] = undefined /*out*/;
             resourceInputs["functionName"] = undefined /*out*/;
+            resourceInputs["originSecret"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
@@ -67,6 +77,10 @@ export interface SvelteKitSiteArgs {
      * Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
      */
     environment?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set.
+     */
+    originProtection?: pulumi.Input<inputs.aws.SiteOriginProtectionArgs>;
     path?: pulumi.Input<string>;
     /**
      * Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.

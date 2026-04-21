@@ -13,6 +13,8 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from .. import _utilities
+from ._enums import *
+from ._inputs import *
 
 __all__ = ['SvelteKitSiteArgs', 'SvelteKitSite']
 
@@ -21,6 +23,7 @@ class SvelteKitSiteArgs:
     def __init__(__self__, *,
                  domain: Optional[pulumi.Input[_builtins.str]] = None,
                  environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 origin_protection: Optional[pulumi.Input['SiteOriginProtectionArgs']] = None,
                  path: Optional[pulumi.Input[_builtins.str]] = None,
                  runtime_environment: Optional[pulumi.Input[_builtins.str]] = None,
                  transform: Optional[pulumi.Input[_builtins.str]] = None):
@@ -28,12 +31,15 @@ class SvelteKitSiteArgs:
         The set of arguments for constructing a SvelteKitSite resource.
 
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
+        :param pulumi.Input['SiteOriginProtectionArgs'] origin_protection: OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set.
         :param pulumi.Input[_builtins.str] runtime_environment: Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
         """
         if domain is not None:
             pulumi.set(__self__, "domain", domain)
         if environment is not None:
             pulumi.set(__self__, "environment", environment)
+        if origin_protection is not None:
+            pulumi.set(__self__, "origin_protection", origin_protection)
         if path is not None:
             pulumi.set(__self__, "path", path)
         if runtime_environment is not None:
@@ -61,6 +67,18 @@ class SvelteKitSiteArgs:
     @environment.setter
     def environment(self, value: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]):
         pulumi.set(self, "environment", value)
+
+    @_builtins.property
+    @pulumi.getter(name="originProtection")
+    def origin_protection(self) -> Optional[pulumi.Input['SiteOriginProtectionArgs']]:
+        """
+        OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set.
+        """
+        return pulumi.get(self, "origin_protection")
+
+    @origin_protection.setter
+    def origin_protection(self, value: Optional[pulumi.Input['SiteOriginProtectionArgs']]):
+        pulumi.set(self, "origin_protection", value)
 
     @_builtins.property
     @pulumi.getter
@@ -101,6 +119,7 @@ class SvelteKitSite(pulumi.ComponentResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  domain: Optional[pulumi.Input[_builtins.str]] = None,
                  environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 origin_protection: Optional[pulumi.Input[Union['SiteOriginProtectionArgs', 'SiteOriginProtectionArgsDict']]] = None,
                  path: Optional[pulumi.Input[_builtins.str]] = None,
                  runtime_environment: Optional[pulumi.Input[_builtins.str]] = None,
                  transform: Optional[pulumi.Input[_builtins.str]] = None,
@@ -111,6 +130,7 @@ class SvelteKitSite(pulumi.ComponentResource):
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
+        :param pulumi.Input[Union['SiteOriginProtectionArgs', 'SiteOriginProtectionArgsDict']] origin_protection: OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set.
         :param pulumi.Input[_builtins.str] runtime_environment: Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
         """
         ...
@@ -139,6 +159,7 @@ class SvelteKitSite(pulumi.ComponentResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  domain: Optional[pulumi.Input[_builtins.str]] = None,
                  environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 origin_protection: Optional[pulumi.Input[Union['SiteOriginProtectionArgs', 'SiteOriginProtectionArgsDict']]] = None,
                  path: Optional[pulumi.Input[_builtins.str]] = None,
                  runtime_environment: Optional[pulumi.Input[_builtins.str]] = None,
                  transform: Optional[pulumi.Input[_builtins.str]] = None,
@@ -155,6 +176,7 @@ class SvelteKitSite(pulumi.ComponentResource):
 
             __props__.__dict__["domain"] = domain
             __props__.__dict__["environment"] = environment
+            __props__.__dict__["origin_protection"] = origin_protection
             __props__.__dict__["path"] = path
             __props__.__dict__["runtime_environment"] = runtime_environment
             __props__.__dict__["transform"] = transform
@@ -162,6 +184,7 @@ class SvelteKitSite(pulumi.ComponentResource):
             __props__.__dict__["cloud_front_distribution_id"] = None
             __props__.__dict__["dns_records"] = None
             __props__.__dict__["function_name"] = None
+            __props__.__dict__["origin_secret"] = None
             __props__.__dict__["url"] = None
         super(SvelteKitSite, __self__).__init__(
             'anvil:aws:SvelteKitSite',
@@ -189,6 +212,14 @@ class SvelteKitSite(pulumi.ComponentResource):
     @pulumi.getter(name="functionName")
     def function_name(self) -> pulumi.Output[Optional[_builtins.str]]:
         return pulumi.get(self, "function_name")
+
+    @_builtins.property
+    @pulumi.getter(name="originSecret")
+    def origin_secret(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        OriginSecret is the x-origin-secret header value to configure in Cloudflare Transform Rules. Only populated when originProtection is set.
+        """
+        return pulumi.get(self, "origin_secret")
 
     @_builtins.property
     @pulumi.getter

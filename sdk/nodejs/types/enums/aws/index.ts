@@ -162,6 +162,18 @@ export const S3FlowLogLifecycle = {
 
 export type S3FlowLogLifecycle = (typeof S3FlowLogLifecycle)[keyof typeof S3FlowLogLifecycle];
 
+export const SiteOriginProtectionProvider = {
+    /**
+     * Cloudflare — inject x-origin-secret via a Cloudflare Transform Rule.
+     */
+    Cloudflare: "cloudflare",
+} as const;
+
+/**
+ * The CDN/proxy provider sitting in front of CloudFront.
+ */
+export type SiteOriginProtectionProvider = (typeof SiteOriginProtectionProvider)[keyof typeof SiteOriginProtectionProvider];
+
 export const VpcNatType = {
     /**
      * AWS managed NAT Gateway. One per AZ for true HA. ~$32/month per AZ plus $0.045/GB data processed.

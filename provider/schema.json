@@ -290,6 +290,10 @@
           "description": "Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.",
           "type": "object"
         },
+        "originProtection": {
+          "$ref": "#/types/anvil:aws:SiteOriginProtection",
+          "description": "OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set."
+        },
         "path": {
           "type": "string"
         },
@@ -313,6 +317,10 @@
           "type": "string"
         },
         "functionName": {
+          "type": "string"
+        },
+        "originSecret": {
+          "description": "OriginSecret is the x-origin-secret header value to configure in Cloudflare Transform Rules. Only populated when originProtection is set.",
           "type": "string"
         },
         "url": {
@@ -1753,6 +1761,26 @@
         {
           "description": "Auto-tiered: Standard (0-30d) → Standard-IA (30-90d) → Glacier Instant Retrieval (90d+). Suitable for compliance retention at minimal long-term cost.",
           "value": "standard"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:SiteOriginProtection": {
+      "description": "SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.",
+      "properties": {
+        "provider": {
+          "$ref": "#/types/anvil:aws:SiteOriginProtectionProvider",
+          "description": "Provider is the CDN/proxy in front of CloudFront. Only \"cloudflare\" is supported."
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:SiteOriginProtectionProvider": {
+      "description": "The CDN/proxy provider sitting in front of CloudFront.",
+      "enum": [
+        {
+          "description": "Cloudflare — inject x-origin-secret via a Cloudflare Transform Rule.",
+          "value": "cloudflare"
         }
       ],
       "type": "string"
