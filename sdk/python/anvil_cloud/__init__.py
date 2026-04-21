@@ -30,6 +30,7 @@ _utilities.register(
    "anvil:aws:Bucket": "Bucket",
    "anvil:aws:HttpApi": "HttpApi",
    "anvil:aws:Lambda": "Lambda",
+   "anvil:aws:Queue": "Queue",
    "anvil:aws:SvelteKitSite": "SvelteKitSite",
    "anvil:aws:Vpc": "Vpc",
    "anvil:aws:VpcEndpoint": "VpcEndpoint"

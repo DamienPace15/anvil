@@ -799,6 +799,127 @@ export namespace aws {
     }
 
     /**
+     * Consumer configuration for this queue.
+     */
+    export interface QueueConsumerArgsArgs {
+        /**
+         * Wire an Anvil Lambda function as the SQS consumer. Creates the event source mapping and grants sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes to the Lambda's execution role.
+         */
+        lambda?: pulumi.Input<inputs.aws.QueueLambdaConsumerArgsArgs>;
+    }
+
+    /**
+     * Dead letter queue configuration. Set arn to reuse an existing queue. Omit arn to create a managed DLQ.
+     */
+    export interface QueueDlqArgsArgs {
+        /**
+         * ARN of an existing queue to use as the DLQ. If the parent queue is fifo: true, this ARN must end with ".fifo". When omitted, Anvil creates a managed DLQ.
+         */
+        arn?: pulumi.Input<string>;
+        /**
+         * How many times a message can be received before being moved to the DLQ. Default: 3.
+         */
+        maxReceiveCount?: pulumi.Input<number>;
+    }
+
+    /**
+     * Lambda consumer configuration. Pass fn.arn and fn.roleArn from an Anvil Lambda component.
+     */
+    export interface QueueLambdaConsumerArgsArgs {
+        /**
+         * The ARN of the Lambda function to trigger. Use fn.arn from an Anvil Lambda component.
+         */
+        arn: pulumi.Input<string>;
+        /**
+         * The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component. Required for Anvil to attach the consume permissions policy.
+         */
+        lambdaRoleArn: pulumi.Input<string>;
+    }
+
+    export interface QueueOverridesArgs {
+        /**
+         * Enables content-based deduplication for FIFO queues. For more information, see the [related documentation](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html#FIFO-queues-exactly-once-processing).
+         */
+        contentBasedDeduplication?: pulumi.Input<boolean>;
+        /**
+         * Specifies whether message deduplication occurs at the message group or queue level. Valid values are `messageGroup` and <span pulumi-lang-nodejs="`queue`" pulumi-lang-dotnet="`Queue`" pulumi-lang-go="`queue`" pulumi-lang-python="`queue`" pulumi-lang-yaml="`queue`" pulumi-lang-java="`queue`">`queue`</span> (default).
+         */
+        deduplicationScope?: pulumi.Input<string>;
+        /**
+         * Time in seconds that the delivery of all messages in the queue will be delayed. An integer from 0 to 900 (15 minutes). The default for this attribute is 0 seconds.
+         */
+        delaySeconds?: pulumi.Input<number>;
+        /**
+         * Boolean designating a FIFO queue. If not set, it defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span> making it standard.
+         */
+        fifoQueue?: pulumi.Input<boolean>;
+        /**
+         * Specifies whether the FIFO queue throughput quota applies to the entire queue or per message group. Valid values are `perQueue` (default) and `perMessageGroupId`.
+         */
+        fifoThroughputLimit?: pulumi.Input<string>;
+        /**
+         * Length of time, in seconds, for which Amazon SQS can reuse a data key to encrypt or decrypt messages before calling AWS KMS again. An integer representing seconds, between 60 seconds (1 minute) and 86,400 seconds (24 hours). The default is 300 (5 minutes).
+         */
+        kmsDataKeyReusePeriodSeconds?: pulumi.Input<number>;
+        /**
+         * ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK. For more information, see [Key Terms](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html#sqs-sse-key-terms).
+         */
+        kmsMasterKeyId?: pulumi.Input<string>;
+        /**
+         * Limit of how many bytes a message can contain before Amazon SQS rejects it. An integer from 1024 bytes (1 KiB) up to 1048576 bytes (1024 KiB). The default for this attribute is 262144 (256 KiB).
+         */
+        maxMessageSize?: pulumi.Input<number>;
+        /**
+         * Number of seconds Amazon SQS retains a message. Integer representing seconds, from 60 (1 minute) to 1209600 (14 days). The default for this attribute is 345600 (4 days).
+         */
+        messageRetentionSeconds?: pulumi.Input<number>;
+        /**
+         * Name of the queue. Queue names must be made up of only uppercase and lowercase ASCII letters, numbers, underscores, and hyphens, and must be between 1 and 80 characters long. For a FIFO (first-in-first-out) queue, the name must end with the `.fifo` suffix. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+         */
+        name?: pulumi.Input<string>;
+        /**
+         * Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+         */
+        namePrefix?: pulumi.Input<string>;
+        /**
+         * JSON policy for the SQS queue. For more information about building AWS IAM policy documents see the AWS IAM Policy Document Guide. The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.QueuePolicy`" pulumi-lang-dotnet="`aws.sqs.QueuePolicy`" pulumi-lang-go="`sqs.QueuePolicy`" pulumi-lang-python="`sqs.QueuePolicy`" pulumi-lang-yaml="`aws.sqs.QueuePolicy`" pulumi-lang-java="`aws.sqs.QueuePolicy`">`aws.sqs.QueuePolicy`</span> resource instead.
+         */
+        policy?: pulumi.Input<string>;
+        /**
+         * Time for which a ReceiveMessage call will wait for a message to arrive (long polling) before returning. An integer from 0 to 20 (seconds). The default for this attribute is 0, meaning that the call will return immediately.
+         */
+        receiveWaitTimeSeconds?: pulumi.Input<number>;
+        /**
+         * JSON policy to set up the Dead Letter Queue redrive permission, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/SQSDeadLetterQueue.html). The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-dotnet="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-go="`sqs.RedriveAllowPolicy`" pulumi-lang-python="`sqs.RedriveAllowPolicy`" pulumi-lang-yaml="`aws.sqs.RedriveAllowPolicy`" pulumi-lang-java="`aws.sqs.RedriveAllowPolicy`">`aws.sqs.RedriveAllowPolicy`</span> resource instead.
+         */
+        redriveAllowPolicy?: pulumi.Input<string>;
+        /**
+         * JSON policy to set up the Dead Letter Queue, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/SQSDeadLetterQueue.html). The provider will only perform drift detection of its value when present in a configuration. It is preferred to use the <span pulumi-lang-nodejs="`aws.sqs.RedrivePolicy`" pulumi-lang-dotnet="`aws.sqs.RedrivePolicy`" pulumi-lang-go="`sqs.RedrivePolicy`" pulumi-lang-python="`sqs.RedrivePolicy`" pulumi-lang-yaml="`aws.sqs.RedrivePolicy`" pulumi-lang-java="`aws.sqs.RedrivePolicy`">`aws.sqs.RedrivePolicy`</span> resource instead. **Note:** when specifying `maxReceiveCount`, you must specify it as an integer (<span pulumi-lang-nodejs="`5`" pulumi-lang-dotnet="`5`" pulumi-lang-go="`5`" pulumi-lang-python="`5`" pulumi-lang-yaml="`5`" pulumi-lang-java="`5`">`5`</span>), and not a string (`"5"`).
+         */
+        redrivePolicy?: pulumi.Input<string>;
+        /**
+         * Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+         */
+        region?: pulumi.Input<string>;
+        /**
+         * Boolean to enable server-side encryption (SSE) of message content with SQS-owned encryption keys. See [Encryption at rest](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-server-side-encryption.html). The provider will only perform drift detection of its value when present in a configuration.
+         */
+        sqsManagedSseEnabled?: pulumi.Input<boolean>;
+        /**
+         * Map of tags to assign to the queue. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+         */
+        tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+        /**
+         * Visibility timeout for the queue. An integer from 0 to 43200 (12 hours). The default for this attribute is 30. For more information about visibility timeout, see [AWS docs](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/AboutVT.html).
+         */
+        visibilityTimeoutSeconds?: pulumi.Input<number>;
+    }
+
+    export interface QueueTransformArgsArgs {
+        queue?: pulumi.Input<inputs.aws.QueueOverridesArgs>;
+    }
+
+    /**
      * SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
      */
     export interface SiteOriginProtectionArgs {

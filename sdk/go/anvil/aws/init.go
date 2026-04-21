@@ -27,6 +27,8 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &HttpApi{}
 	case "anvil:aws:Lambda":
 		r = &Lambda{}
+	case "anvil:aws:Queue":
+		r = &Queue{}
 	case "anvil:aws:SvelteKitSite":
 		r = &SvelteKitSite{}
 	case "anvil:aws:Vpc":

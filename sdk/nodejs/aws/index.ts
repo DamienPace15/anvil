@@ -20,6 +20,11 @@ export type Lambda = import("./lambda").Lambda;
 export const Lambda: typeof import("./lambda").Lambda = null as any;
 utilities.lazyLoad(exports, ["Lambda"], () => require("./lambda"));
 
+export { QueueArgs } from "./queue";
+export type Queue = import("./queue").Queue;
+export const Queue: typeof import("./queue").Queue = null as any;
+utilities.lazyLoad(exports, ["Queue"], () => require("./queue"));
+
 export { SvelteKitSiteArgs } from "./svelteKitSite";
 export type SvelteKitSite = import("./svelteKitSite").SvelteKitSite;
 export const SvelteKitSite: typeof import("./svelteKitSite").SvelteKitSite = null as any;
@@ -49,6 +54,8 @@ const _module = {
                 return new HttpApi(name, <any>undefined, { urn })
             case "anvil:aws:Lambda":
                 return new Lambda(name, <any>undefined, { urn })
+            case "anvil:aws:Queue":
+                return new Queue(name, <any>undefined, { urn })
             case "anvil:aws:SvelteKitSite":
                 return new SvelteKitSite(name, <any>undefined, { urn })
             case "anvil:aws:Vpc":
