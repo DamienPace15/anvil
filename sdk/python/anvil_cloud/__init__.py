@@ -28,6 +28,7 @@ _utilities.register(
   "fqn": "anvil_cloud.aws",
   "classes": {
    "anvil:aws:Bucket": "Bucket",
+   "anvil:aws:EventBus": "EventBus",
    "anvil:aws:HttpApi": "HttpApi",
    "anvil:aws:Lambda": "Lambda",
    "anvil:aws:Queue": "Queue",

@@ -8,6 +8,7 @@ import typing
 # Export this package's modules as members:
 from ._enums import *
 from .bucket import *
+from .event_bus import *
 from .http_api import *
 from .lambda_ import *
 from .queue import *

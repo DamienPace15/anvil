@@ -125,6 +125,37 @@
       ],
       "requiredInputs": []
     },
+    "anvil:aws:EventBus": {
+      "description": "An Anvil-managed EventBridge event bus. Archives events for 7 days by default for replay and debugging. Rules route matching events to Lambda targets.",
+      "inputProperties": {
+        "rules": {
+          "description": "EventBridge rules on this bus. Each rule matches events by pattern and routes them to a target.",
+          "items": {
+            "$ref": "#/types/anvil:aws:EventBusRule"
+          },
+          "type": "array"
+        },
+        "transform": {
+          "$ref": "#/types/anvil:aws:EventBridgeTransformArgs"
+        }
+      },
+      "isComponent": true,
+      "properties": {
+        "arn": {
+          "description": "The ARN of the EventBridge event bus.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the EventBridge event bus. Pass to HttpApi consumer: { eventBridge: { name: bus.name } }",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "arn"
+      ],
+      "requiredInputs": []
+    },
     "anvil:aws:HttpApi": {
       "description": "An Anvil-managed AWS HTTP API Gateway (API Gateway v2). Route-level consumers support Lambda, SQS, EventBridge, Step Functions, and HTTP proxy integrations. Secure by default: TLS 1.2 minimum enforced on custom domains, execute-api endpoint disabled when a custom domain is set, conservative throttling defaults (1000 rps / 500 burst), CORS opt-in with wildcard origin blocked, per-consumer least-privilege IAM roles, access logs on by default.",
       "inputProperties": {
@@ -1033,6 +1064,151 @@
             "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationRoutingRule:BucketWebsiteConfigurationRoutingRule"
           },
           "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:EventArchiveOverrides": {
+      "description": "Direct overrides for the underlying aws.cloudwatch.EventArchive resource. Use retentionDays to change the default 7 day retention.",
+      "type": "object"
+    },
+    "anvil:aws:EventBridgeOverrides": {
+      "properties": {
+        "deadLetterConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:cloudwatch/EventBusDeadLetterConfig:EventBusDeadLetterConfig",
+          "description": "Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ). This block supports the following arguments:\n"
+        },
+        "description": {
+          "description": "Event bus description.\n",
+          "type": "string"
+        },
+        "eventSourceName": {
+          "description": "Partner event source that the new event bus will be matched with. Must match \u003cspan pulumi-lang-nodejs=\"`name`\" pulumi-lang-dotnet=\"`Name`\" pulumi-lang-go=\"`name`\" pulumi-lang-python=\"`name`\" pulumi-lang-yaml=\"`name`\" pulumi-lang-java=\"`name`\"\u003e`name`\u003c/span\u003e.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "kmsKeyIdentifier": {
+          "description": "Identifier of the AWS KMS customer managed key for EventBridge to use, if you choose to use a customer managed key to encrypt events on this event bus. The identifier can be the key Amazon Resource Name (ARN), KeyId, key alias, or key alias ARN.\n",
+          "type": "string"
+        },
+        "logConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:cloudwatch/EventBusLogConfig:EventBusLogConfig",
+          "description": "Block for logging configuration settings for the event bus.\n"
+        },
+        "name": {
+          "description": "Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the \u003cspan pulumi-lang-nodejs=\"`name`\" pulumi-lang-dotnet=\"`Name`\" pulumi-lang-go=\"`name`\" pulumi-lang-python=\"`name`\" pulumi-lang-yaml=\"`name`\" pulumi-lang-java=\"`name`\"\u003e`name`\u003c/span\u003e matches the \u003cspan pulumi-lang-nodejs=\"`eventSourceName`\" pulumi-lang-dotnet=\"`EventSourceName`\" pulumi-lang-go=\"`eventSourceName`\" pulumi-lang-python=\"`event_source_name`\" pulumi-lang-yaml=\"`eventSourceName`\" pulumi-lang-java=\"`eventSourceName`\"\u003e`event_source_name`\u003c/span\u003e.\n\nThe following arguments are optional:\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "region": {
+          "description": "Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.\n",
+          "type": "string"
+        },
+        "tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of tags assigned to the resource. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`default_tags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n",
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:EventBridgeTransformArgs": {
+      "properties": {
+        "eventBridge": {
+          "$ref": "#/types/anvil:aws:EventBridgeOverrides"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:EventBusLambdaTargetArgs": {
+      "description": "Lambda function target for an EventBridge rule. Pass fn.arn and fn.roleArn from an Anvil Lambda component.",
+      "properties": {
+        "arn": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The ARN of the Lambda function to invoke. Use fn.arn from an Anvil Lambda component."
+        },
+        "lambdaRoleArn": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component."
+        }
+      },
+      "required": [
+        "arn",
+        "lambdaRoleArn"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:EventBusOverrides": {
+      "description": "Direct overrides for the underlying aws.cloudwatch.EventBus resource.",
+      "type": "object"
+    },
+    "anvil:aws:EventBusRule": {
+      "description": "An EventBridge rule that matches events by pattern and routes them to a target.",
+      "properties": {
+        "name": {
+          "description": "Logical name for this rule. Used to construct the physical rule name.",
+          "type": "string"
+        },
+        "pattern": {
+          "$ref": "#/types/anvil:aws:EventBusRulePattern",
+          "description": "Defines which events this rule matches."
+        },
+        "target": {
+          "$ref": "#/types/anvil:aws:EventBusRuleTarget",
+          "description": "Defines what receives matching events."
+        }
+      },
+      "required": [
+        "name",
+        "pattern",
+        "target"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:EventBusRulePattern": {
+      "description": "EventBridge content-based filtering pattern. All fields are AND-ed — an event must match every specified field.",
+      "properties": {
+        "detail": {
+          "$ref": "pulumi.json#/Any",
+          "description": "Matches against fields inside the event detail payload. Structure depends on the event producer. e.g. { \"orderId\": [{ \"exists\": true }], \"status\": [\"pending\"] }"
+        },
+        "detailType": {
+          "description": "Filters on the detail-type field. e.g. [\"order.created\", \"order.cancelled\"]",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "source": {
+          "description": "Filters on the event source field. e.g. [\"anvil.api\", \"anvil.worker\"]",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:EventBusRuleTarget": {
+      "description": "Target that receives matching events from an EventBridge rule.",
+      "properties": {
+        "lambda": {
+          "$ref": "#/types/anvil:aws:EventBusLambdaTargetArgs",
+          "description": "Invoke a Lambda function when events match the rule pattern. Anvil creates the EventBridge target and grants EventBridge permission to invoke the function."
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:EventBusTransformArgs": {
+      "description": "Escape hatches for direct Pulumi AWS resource overrides.",
+      "properties": {
+        "archive": {
+          "$ref": "#/types/anvil:aws:EventArchiveOverrides"
+        },
+        "bus": {
+          "$ref": "#/types/anvil:aws:EventBusOverrides"
         }
       },
       "type": "object"

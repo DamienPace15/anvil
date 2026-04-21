@@ -8,6 +8,7 @@ import (
 	"reflect"
 
 	"github.com/DamienPace15/anvil/sdk/go/anvil/internal"
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cloudwatch"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/lambda"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/s3"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -3318,6 +3319,836 @@ func (o BucketWebsiteConfigurationTransformPtrOutput) RoutingRules() s3.BucketWe
 		}
 		return v.RoutingRules
 	}).(s3.BucketWebsiteConfigurationRoutingRuleArrayOutput)
+}
+
+// Direct overrides for the underlying aws.cloudwatch.EventArchive resource. Use retentionDays to change the default 7 day retention.
+type EventArchiveOverrides struct {
+}
+
+type EventBridgeOverrides struct {
+	// Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ). This block supports the following arguments:
+	DeadLetterConfig *cloudwatch.EventBusDeadLetterConfig `pulumi:"deadLetterConfig"`
+	// Event bus description.
+	Description *string `pulumi:"description"`
+	// Partner event source that the new event bus will be matched with. Must match <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+	EventSourceName *string `pulumi:"eventSourceName"`
+	// Identifier of the AWS KMS customer managed key for EventBridge to use, if you choose to use a customer managed key to encrypt events on this event bus. The identifier can be the key Amazon Resource Name (ARN), KeyId, key alias, or key alias ARN.
+	KmsKeyIdentifier *string `pulumi:"kmsKeyIdentifier"`
+	// Block for logging configuration settings for the event bus.
+	LogConfig *cloudwatch.EventBusLogConfig `pulumi:"logConfig"`
+	// Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span> matches the <span pulumi-lang-nodejs="`eventSourceName`" pulumi-lang-dotnet="`EventSourceName`" pulumi-lang-go="`eventSourceName`" pulumi-lang-python="`event_source_name`" pulumi-lang-yaml="`eventSourceName`" pulumi-lang-java="`eventSourceName`">`event_source_name`</span>.
+	//
+	// The following arguments are optional:
+	Name *string `pulumi:"name"`
+	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+	Region *string `pulumi:"region"`
+	// Map of tags assigned to the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+	Tags map[string]string `pulumi:"tags"`
+}
+
+// EventBridgeOverridesInput is an input type that accepts EventBridgeOverridesArgs and EventBridgeOverridesOutput values.
+// You can construct a concrete instance of `EventBridgeOverridesInput` via:
+//
+//	EventBridgeOverridesArgs{...}
+type EventBridgeOverridesInput interface {
+	pulumi.Input
+
+	ToEventBridgeOverridesOutput() EventBridgeOverridesOutput
+	ToEventBridgeOverridesOutputWithContext(context.Context) EventBridgeOverridesOutput
+}
+
+type EventBridgeOverridesArgs struct {
+	// Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ). This block supports the following arguments:
+	DeadLetterConfig cloudwatch.EventBusDeadLetterConfigPtrInput `pulumi:"deadLetterConfig"`
+	// Event bus description.
+	Description pulumi.StringPtrInput `pulumi:"description"`
+	// Partner event source that the new event bus will be matched with. Must match <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+	EventSourceName pulumi.StringPtrInput `pulumi:"eventSourceName"`
+	// Identifier of the AWS KMS customer managed key for EventBridge to use, if you choose to use a customer managed key to encrypt events on this event bus. The identifier can be the key Amazon Resource Name (ARN), KeyId, key alias, or key alias ARN.
+	KmsKeyIdentifier pulumi.StringPtrInput `pulumi:"kmsKeyIdentifier"`
+	// Block for logging configuration settings for the event bus.
+	LogConfig cloudwatch.EventBusLogConfigPtrInput `pulumi:"logConfig"`
+	// Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span> matches the <span pulumi-lang-nodejs="`eventSourceName`" pulumi-lang-dotnet="`EventSourceName`" pulumi-lang-go="`eventSourceName`" pulumi-lang-python="`event_source_name`" pulumi-lang-yaml="`eventSourceName`" pulumi-lang-java="`eventSourceName`">`event_source_name`</span>.
+	//
+	// The following arguments are optional:
+	Name pulumi.StringPtrInput `pulumi:"name"`
+	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+	Region pulumi.StringPtrInput `pulumi:"region"`
+	// Map of tags assigned to the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+	Tags pulumi.StringMapInput `pulumi:"tags"`
+}
+
+func (EventBridgeOverridesArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*EventBridgeOverrides)(nil)).Elem()
+}
+
+func (i EventBridgeOverridesArgs) ToEventBridgeOverridesOutput() EventBridgeOverridesOutput {
+	return i.ToEventBridgeOverridesOutputWithContext(context.Background())
+}
+
+func (i EventBridgeOverridesArgs) ToEventBridgeOverridesOutputWithContext(ctx context.Context) EventBridgeOverridesOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBridgeOverridesOutput)
+}
+
+func (i EventBridgeOverridesArgs) ToEventBridgeOverridesPtrOutput() EventBridgeOverridesPtrOutput {
+	return i.ToEventBridgeOverridesPtrOutputWithContext(context.Background())
+}
+
+func (i EventBridgeOverridesArgs) ToEventBridgeOverridesPtrOutputWithContext(ctx context.Context) EventBridgeOverridesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBridgeOverridesOutput).ToEventBridgeOverridesPtrOutputWithContext(ctx)
+}
+
+// EventBridgeOverridesPtrInput is an input type that accepts EventBridgeOverridesArgs, EventBridgeOverridesPtr and EventBridgeOverridesPtrOutput values.
+// You can construct a concrete instance of `EventBridgeOverridesPtrInput` via:
+//
+//	        EventBridgeOverridesArgs{...}
+//
+//	or:
+//
+//	        nil
+type EventBridgeOverridesPtrInput interface {
+	pulumi.Input
+
+	ToEventBridgeOverridesPtrOutput() EventBridgeOverridesPtrOutput
+	ToEventBridgeOverridesPtrOutputWithContext(context.Context) EventBridgeOverridesPtrOutput
+}
+
+type eventBridgeOverridesPtrType EventBridgeOverridesArgs
+
+func EventBridgeOverridesPtr(v *EventBridgeOverridesArgs) EventBridgeOverridesPtrInput {
+	return (*eventBridgeOverridesPtrType)(v)
+}
+
+func (*eventBridgeOverridesPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**EventBridgeOverrides)(nil)).Elem()
+}
+
+func (i *eventBridgeOverridesPtrType) ToEventBridgeOverridesPtrOutput() EventBridgeOverridesPtrOutput {
+	return i.ToEventBridgeOverridesPtrOutputWithContext(context.Background())
+}
+
+func (i *eventBridgeOverridesPtrType) ToEventBridgeOverridesPtrOutputWithContext(ctx context.Context) EventBridgeOverridesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBridgeOverridesPtrOutput)
+}
+
+type EventBridgeOverridesOutput struct{ *pulumi.OutputState }
+
+func (EventBridgeOverridesOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*EventBridgeOverrides)(nil)).Elem()
+}
+
+func (o EventBridgeOverridesOutput) ToEventBridgeOverridesOutput() EventBridgeOverridesOutput {
+	return o
+}
+
+func (o EventBridgeOverridesOutput) ToEventBridgeOverridesOutputWithContext(ctx context.Context) EventBridgeOverridesOutput {
+	return o
+}
+
+func (o EventBridgeOverridesOutput) ToEventBridgeOverridesPtrOutput() EventBridgeOverridesPtrOutput {
+	return o.ToEventBridgeOverridesPtrOutputWithContext(context.Background())
+}
+
+func (o EventBridgeOverridesOutput) ToEventBridgeOverridesPtrOutputWithContext(ctx context.Context) EventBridgeOverridesPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v EventBridgeOverrides) *EventBridgeOverrides {
+		return &v
+	}).(EventBridgeOverridesPtrOutput)
+}
+
+// Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ). This block supports the following arguments:
+func (o EventBridgeOverridesOutput) DeadLetterConfig() cloudwatch.EventBusDeadLetterConfigPtrOutput {
+	return o.ApplyT(func(v EventBridgeOverrides) *cloudwatch.EventBusDeadLetterConfig { return v.DeadLetterConfig }).(cloudwatch.EventBusDeadLetterConfigPtrOutput)
+}
+
+// Event bus description.
+func (o EventBridgeOverridesOutput) Description() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v EventBridgeOverrides) *string { return v.Description }).(pulumi.StringPtrOutput)
+}
+
+// Partner event source that the new event bus will be matched with. Must match <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+func (o EventBridgeOverridesOutput) EventSourceName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v EventBridgeOverrides) *string { return v.EventSourceName }).(pulumi.StringPtrOutput)
+}
+
+// Identifier of the AWS KMS customer managed key for EventBridge to use, if you choose to use a customer managed key to encrypt events on this event bus. The identifier can be the key Amazon Resource Name (ARN), KeyId, key alias, or key alias ARN.
+func (o EventBridgeOverridesOutput) KmsKeyIdentifier() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v EventBridgeOverrides) *string { return v.KmsKeyIdentifier }).(pulumi.StringPtrOutput)
+}
+
+// Block for logging configuration settings for the event bus.
+func (o EventBridgeOverridesOutput) LogConfig() cloudwatch.EventBusLogConfigPtrOutput {
+	return o.ApplyT(func(v EventBridgeOverrides) *cloudwatch.EventBusLogConfig { return v.LogConfig }).(cloudwatch.EventBusLogConfigPtrOutput)
+}
+
+// Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span> matches the <span pulumi-lang-nodejs="`eventSourceName`" pulumi-lang-dotnet="`EventSourceName`" pulumi-lang-go="`eventSourceName`" pulumi-lang-python="`event_source_name`" pulumi-lang-yaml="`eventSourceName`" pulumi-lang-java="`eventSourceName`">`event_source_name`</span>.
+//
+// The following arguments are optional:
+func (o EventBridgeOverridesOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v EventBridgeOverrides) *string { return v.Name }).(pulumi.StringPtrOutput)
+}
+
+// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+func (o EventBridgeOverridesOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v EventBridgeOverrides) *string { return v.Region }).(pulumi.StringPtrOutput)
+}
+
+// Map of tags assigned to the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+func (o EventBridgeOverridesOutput) Tags() pulumi.StringMapOutput {
+	return o.ApplyT(func(v EventBridgeOverrides) map[string]string { return v.Tags }).(pulumi.StringMapOutput)
+}
+
+type EventBridgeOverridesPtrOutput struct{ *pulumi.OutputState }
+
+func (EventBridgeOverridesPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**EventBridgeOverrides)(nil)).Elem()
+}
+
+func (o EventBridgeOverridesPtrOutput) ToEventBridgeOverridesPtrOutput() EventBridgeOverridesPtrOutput {
+	return o
+}
+
+func (o EventBridgeOverridesPtrOutput) ToEventBridgeOverridesPtrOutputWithContext(ctx context.Context) EventBridgeOverridesPtrOutput {
+	return o
+}
+
+func (o EventBridgeOverridesPtrOutput) Elem() EventBridgeOverridesOutput {
+	return o.ApplyT(func(v *EventBridgeOverrides) EventBridgeOverrides {
+		if v != nil {
+			return *v
+		}
+		var ret EventBridgeOverrides
+		return ret
+	}).(EventBridgeOverridesOutput)
+}
+
+// Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ). This block supports the following arguments:
+func (o EventBridgeOverridesPtrOutput) DeadLetterConfig() cloudwatch.EventBusDeadLetterConfigPtrOutput {
+	return o.ApplyT(func(v *EventBridgeOverrides) *cloudwatch.EventBusDeadLetterConfig {
+		if v == nil {
+			return nil
+		}
+		return v.DeadLetterConfig
+	}).(cloudwatch.EventBusDeadLetterConfigPtrOutput)
+}
+
+// Event bus description.
+func (o EventBridgeOverridesPtrOutput) Description() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *EventBridgeOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Description
+	}).(pulumi.StringPtrOutput)
+}
+
+// Partner event source that the new event bus will be matched with. Must match <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+func (o EventBridgeOverridesPtrOutput) EventSourceName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *EventBridgeOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.EventSourceName
+	}).(pulumi.StringPtrOutput)
+}
+
+// Identifier of the AWS KMS customer managed key for EventBridge to use, if you choose to use a customer managed key to encrypt events on this event bus. The identifier can be the key Amazon Resource Name (ARN), KeyId, key alias, or key alias ARN.
+func (o EventBridgeOverridesPtrOutput) KmsKeyIdentifier() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *EventBridgeOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.KmsKeyIdentifier
+	}).(pulumi.StringPtrOutput)
+}
+
+// Block for logging configuration settings for the event bus.
+func (o EventBridgeOverridesPtrOutput) LogConfig() cloudwatch.EventBusLogConfigPtrOutput {
+	return o.ApplyT(func(v *EventBridgeOverrides) *cloudwatch.EventBusLogConfig {
+		if v == nil {
+			return nil
+		}
+		return v.LogConfig
+	}).(cloudwatch.EventBusLogConfigPtrOutput)
+}
+
+// Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span> matches the <span pulumi-lang-nodejs="`eventSourceName`" pulumi-lang-dotnet="`EventSourceName`" pulumi-lang-go="`eventSourceName`" pulumi-lang-python="`event_source_name`" pulumi-lang-yaml="`eventSourceName`" pulumi-lang-java="`eventSourceName`">`event_source_name`</span>.
+//
+// The following arguments are optional:
+func (o EventBridgeOverridesPtrOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *EventBridgeOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Name
+	}).(pulumi.StringPtrOutput)
+}
+
+// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+func (o EventBridgeOverridesPtrOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *EventBridgeOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Region
+	}).(pulumi.StringPtrOutput)
+}
+
+// Map of tags assigned to the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+func (o EventBridgeOverridesPtrOutput) Tags() pulumi.StringMapOutput {
+	return o.ApplyT(func(v *EventBridgeOverrides) map[string]string {
+		if v == nil {
+			return nil
+		}
+		return v.Tags
+	}).(pulumi.StringMapOutput)
+}
+
+type EventBridgeTransformArgs struct {
+	EventBridge *EventBridgeOverrides `pulumi:"eventBridge"`
+}
+
+// EventBridgeTransformArgsInput is an input type that accepts EventBridgeTransformArgsArgs and EventBridgeTransformArgsOutput values.
+// You can construct a concrete instance of `EventBridgeTransformArgsInput` via:
+//
+//	EventBridgeTransformArgsArgs{...}
+type EventBridgeTransformArgsInput interface {
+	pulumi.Input
+
+	ToEventBridgeTransformArgsOutput() EventBridgeTransformArgsOutput
+	ToEventBridgeTransformArgsOutputWithContext(context.Context) EventBridgeTransformArgsOutput
+}
+
+type EventBridgeTransformArgsArgs struct {
+	EventBridge EventBridgeOverridesPtrInput `pulumi:"eventBridge"`
+}
+
+func (EventBridgeTransformArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*EventBridgeTransformArgs)(nil)).Elem()
+}
+
+func (i EventBridgeTransformArgsArgs) ToEventBridgeTransformArgsOutput() EventBridgeTransformArgsOutput {
+	return i.ToEventBridgeTransformArgsOutputWithContext(context.Background())
+}
+
+func (i EventBridgeTransformArgsArgs) ToEventBridgeTransformArgsOutputWithContext(ctx context.Context) EventBridgeTransformArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBridgeTransformArgsOutput)
+}
+
+func (i EventBridgeTransformArgsArgs) ToEventBridgeTransformArgsPtrOutput() EventBridgeTransformArgsPtrOutput {
+	return i.ToEventBridgeTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (i EventBridgeTransformArgsArgs) ToEventBridgeTransformArgsPtrOutputWithContext(ctx context.Context) EventBridgeTransformArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBridgeTransformArgsOutput).ToEventBridgeTransformArgsPtrOutputWithContext(ctx)
+}
+
+// EventBridgeTransformArgsPtrInput is an input type that accepts EventBridgeTransformArgsArgs, EventBridgeTransformArgsPtr and EventBridgeTransformArgsPtrOutput values.
+// You can construct a concrete instance of `EventBridgeTransformArgsPtrInput` via:
+//
+//	        EventBridgeTransformArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type EventBridgeTransformArgsPtrInput interface {
+	pulumi.Input
+
+	ToEventBridgeTransformArgsPtrOutput() EventBridgeTransformArgsPtrOutput
+	ToEventBridgeTransformArgsPtrOutputWithContext(context.Context) EventBridgeTransformArgsPtrOutput
+}
+
+type eventBridgeTransformArgsPtrType EventBridgeTransformArgsArgs
+
+func EventBridgeTransformArgsPtr(v *EventBridgeTransformArgsArgs) EventBridgeTransformArgsPtrInput {
+	return (*eventBridgeTransformArgsPtrType)(v)
+}
+
+func (*eventBridgeTransformArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**EventBridgeTransformArgs)(nil)).Elem()
+}
+
+func (i *eventBridgeTransformArgsPtrType) ToEventBridgeTransformArgsPtrOutput() EventBridgeTransformArgsPtrOutput {
+	return i.ToEventBridgeTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *eventBridgeTransformArgsPtrType) ToEventBridgeTransformArgsPtrOutputWithContext(ctx context.Context) EventBridgeTransformArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBridgeTransformArgsPtrOutput)
+}
+
+type EventBridgeTransformArgsOutput struct{ *pulumi.OutputState }
+
+func (EventBridgeTransformArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*EventBridgeTransformArgs)(nil)).Elem()
+}
+
+func (o EventBridgeTransformArgsOutput) ToEventBridgeTransformArgsOutput() EventBridgeTransformArgsOutput {
+	return o
+}
+
+func (o EventBridgeTransformArgsOutput) ToEventBridgeTransformArgsOutputWithContext(ctx context.Context) EventBridgeTransformArgsOutput {
+	return o
+}
+
+func (o EventBridgeTransformArgsOutput) ToEventBridgeTransformArgsPtrOutput() EventBridgeTransformArgsPtrOutput {
+	return o.ToEventBridgeTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (o EventBridgeTransformArgsOutput) ToEventBridgeTransformArgsPtrOutputWithContext(ctx context.Context) EventBridgeTransformArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v EventBridgeTransformArgs) *EventBridgeTransformArgs {
+		return &v
+	}).(EventBridgeTransformArgsPtrOutput)
+}
+
+func (o EventBridgeTransformArgsOutput) EventBridge() EventBridgeOverridesPtrOutput {
+	return o.ApplyT(func(v EventBridgeTransformArgs) *EventBridgeOverrides { return v.EventBridge }).(EventBridgeOverridesPtrOutput)
+}
+
+type EventBridgeTransformArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (EventBridgeTransformArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**EventBridgeTransformArgs)(nil)).Elem()
+}
+
+func (o EventBridgeTransformArgsPtrOutput) ToEventBridgeTransformArgsPtrOutput() EventBridgeTransformArgsPtrOutput {
+	return o
+}
+
+func (o EventBridgeTransformArgsPtrOutput) ToEventBridgeTransformArgsPtrOutputWithContext(ctx context.Context) EventBridgeTransformArgsPtrOutput {
+	return o
+}
+
+func (o EventBridgeTransformArgsPtrOutput) Elem() EventBridgeTransformArgsOutput {
+	return o.ApplyT(func(v *EventBridgeTransformArgs) EventBridgeTransformArgs {
+		if v != nil {
+			return *v
+		}
+		var ret EventBridgeTransformArgs
+		return ret
+	}).(EventBridgeTransformArgsOutput)
+}
+
+func (o EventBridgeTransformArgsPtrOutput) EventBridge() EventBridgeOverridesPtrOutput {
+	return o.ApplyT(func(v *EventBridgeTransformArgs) *EventBridgeOverrides {
+		if v == nil {
+			return nil
+		}
+		return v.EventBridge
+	}).(EventBridgeOverridesPtrOutput)
+}
+
+// Lambda function target for an EventBridge rule. Pass fn.arn and fn.roleArn from an Anvil Lambda component.
+type EventBusLambdaTargetArgs struct {
+	// The ARN of the Lambda function to invoke. Use fn.arn from an Anvil Lambda component.
+	Arn interface{} `pulumi:"arn"`
+	// The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component.
+	LambdaRoleArn interface{} `pulumi:"lambdaRoleArn"`
+}
+
+// EventBusLambdaTargetArgsInput is an input type that accepts EventBusLambdaTargetArgsArgs and EventBusLambdaTargetArgsOutput values.
+// You can construct a concrete instance of `EventBusLambdaTargetArgsInput` via:
+//
+//	EventBusLambdaTargetArgsArgs{...}
+type EventBusLambdaTargetArgsInput interface {
+	pulumi.Input
+
+	ToEventBusLambdaTargetArgsOutput() EventBusLambdaTargetArgsOutput
+	ToEventBusLambdaTargetArgsOutputWithContext(context.Context) EventBusLambdaTargetArgsOutput
+}
+
+// Lambda function target for an EventBridge rule. Pass fn.arn and fn.roleArn from an Anvil Lambda component.
+type EventBusLambdaTargetArgsArgs struct {
+	// The ARN of the Lambda function to invoke. Use fn.arn from an Anvil Lambda component.
+	Arn pulumi.Input `pulumi:"arn"`
+	// The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component.
+	LambdaRoleArn pulumi.Input `pulumi:"lambdaRoleArn"`
+}
+
+func (EventBusLambdaTargetArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*EventBusLambdaTargetArgs)(nil)).Elem()
+}
+
+func (i EventBusLambdaTargetArgsArgs) ToEventBusLambdaTargetArgsOutput() EventBusLambdaTargetArgsOutput {
+	return i.ToEventBusLambdaTargetArgsOutputWithContext(context.Background())
+}
+
+func (i EventBusLambdaTargetArgsArgs) ToEventBusLambdaTargetArgsOutputWithContext(ctx context.Context) EventBusLambdaTargetArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBusLambdaTargetArgsOutput)
+}
+
+func (i EventBusLambdaTargetArgsArgs) ToEventBusLambdaTargetArgsPtrOutput() EventBusLambdaTargetArgsPtrOutput {
+	return i.ToEventBusLambdaTargetArgsPtrOutputWithContext(context.Background())
+}
+
+func (i EventBusLambdaTargetArgsArgs) ToEventBusLambdaTargetArgsPtrOutputWithContext(ctx context.Context) EventBusLambdaTargetArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBusLambdaTargetArgsOutput).ToEventBusLambdaTargetArgsPtrOutputWithContext(ctx)
+}
+
+// EventBusLambdaTargetArgsPtrInput is an input type that accepts EventBusLambdaTargetArgsArgs, EventBusLambdaTargetArgsPtr and EventBusLambdaTargetArgsPtrOutput values.
+// You can construct a concrete instance of `EventBusLambdaTargetArgsPtrInput` via:
+//
+//	        EventBusLambdaTargetArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type EventBusLambdaTargetArgsPtrInput interface {
+	pulumi.Input
+
+	ToEventBusLambdaTargetArgsPtrOutput() EventBusLambdaTargetArgsPtrOutput
+	ToEventBusLambdaTargetArgsPtrOutputWithContext(context.Context) EventBusLambdaTargetArgsPtrOutput
+}
+
+type eventBusLambdaTargetArgsPtrType EventBusLambdaTargetArgsArgs
+
+func EventBusLambdaTargetArgsPtr(v *EventBusLambdaTargetArgsArgs) EventBusLambdaTargetArgsPtrInput {
+	return (*eventBusLambdaTargetArgsPtrType)(v)
+}
+
+func (*eventBusLambdaTargetArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**EventBusLambdaTargetArgs)(nil)).Elem()
+}
+
+func (i *eventBusLambdaTargetArgsPtrType) ToEventBusLambdaTargetArgsPtrOutput() EventBusLambdaTargetArgsPtrOutput {
+	return i.ToEventBusLambdaTargetArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *eventBusLambdaTargetArgsPtrType) ToEventBusLambdaTargetArgsPtrOutputWithContext(ctx context.Context) EventBusLambdaTargetArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBusLambdaTargetArgsPtrOutput)
+}
+
+// Lambda function target for an EventBridge rule. Pass fn.arn and fn.roleArn from an Anvil Lambda component.
+type EventBusLambdaTargetArgsOutput struct{ *pulumi.OutputState }
+
+func (EventBusLambdaTargetArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*EventBusLambdaTargetArgs)(nil)).Elem()
+}
+
+func (o EventBusLambdaTargetArgsOutput) ToEventBusLambdaTargetArgsOutput() EventBusLambdaTargetArgsOutput {
+	return o
+}
+
+func (o EventBusLambdaTargetArgsOutput) ToEventBusLambdaTargetArgsOutputWithContext(ctx context.Context) EventBusLambdaTargetArgsOutput {
+	return o
+}
+
+func (o EventBusLambdaTargetArgsOutput) ToEventBusLambdaTargetArgsPtrOutput() EventBusLambdaTargetArgsPtrOutput {
+	return o.ToEventBusLambdaTargetArgsPtrOutputWithContext(context.Background())
+}
+
+func (o EventBusLambdaTargetArgsOutput) ToEventBusLambdaTargetArgsPtrOutputWithContext(ctx context.Context) EventBusLambdaTargetArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v EventBusLambdaTargetArgs) *EventBusLambdaTargetArgs {
+		return &v
+	}).(EventBusLambdaTargetArgsPtrOutput)
+}
+
+// The ARN of the Lambda function to invoke. Use fn.arn from an Anvil Lambda component.
+func (o EventBusLambdaTargetArgsOutput) Arn() pulumi.AnyOutput {
+	return o.ApplyT(func(v EventBusLambdaTargetArgs) interface{} { return v.Arn }).(pulumi.AnyOutput)
+}
+
+// The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component.
+func (o EventBusLambdaTargetArgsOutput) LambdaRoleArn() pulumi.AnyOutput {
+	return o.ApplyT(func(v EventBusLambdaTargetArgs) interface{} { return v.LambdaRoleArn }).(pulumi.AnyOutput)
+}
+
+type EventBusLambdaTargetArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (EventBusLambdaTargetArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**EventBusLambdaTargetArgs)(nil)).Elem()
+}
+
+func (o EventBusLambdaTargetArgsPtrOutput) ToEventBusLambdaTargetArgsPtrOutput() EventBusLambdaTargetArgsPtrOutput {
+	return o
+}
+
+func (o EventBusLambdaTargetArgsPtrOutput) ToEventBusLambdaTargetArgsPtrOutputWithContext(ctx context.Context) EventBusLambdaTargetArgsPtrOutput {
+	return o
+}
+
+func (o EventBusLambdaTargetArgsPtrOutput) Elem() EventBusLambdaTargetArgsOutput {
+	return o.ApplyT(func(v *EventBusLambdaTargetArgs) EventBusLambdaTargetArgs {
+		if v != nil {
+			return *v
+		}
+		var ret EventBusLambdaTargetArgs
+		return ret
+	}).(EventBusLambdaTargetArgsOutput)
+}
+
+// The ARN of the Lambda function to invoke. Use fn.arn from an Anvil Lambda component.
+func (o EventBusLambdaTargetArgsPtrOutput) Arn() pulumi.AnyOutput {
+	return o.ApplyT(func(v *EventBusLambdaTargetArgs) interface{} {
+		if v == nil {
+			return nil
+		}
+		return v.Arn
+	}).(pulumi.AnyOutput)
+}
+
+// The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component.
+func (o EventBusLambdaTargetArgsPtrOutput) LambdaRoleArn() pulumi.AnyOutput {
+	return o.ApplyT(func(v *EventBusLambdaTargetArgs) interface{} {
+		if v == nil {
+			return nil
+		}
+		return v.LambdaRoleArn
+	}).(pulumi.AnyOutput)
+}
+
+// Direct overrides for the underlying aws.cloudwatch.EventBus resource.
+type EventBusOverrides struct {
+}
+
+// An EventBridge rule that matches events by pattern and routes them to a target.
+type EventBusRule struct {
+	// Logical name for this rule. Used to construct the physical rule name.
+	Name string `pulumi:"name"`
+	// Defines which events this rule matches.
+	Pattern EventBusRulePattern `pulumi:"pattern"`
+	// Defines what receives matching events.
+	Target EventBusRuleTarget `pulumi:"target"`
+}
+
+// EventBusRuleInput is an input type that accepts EventBusRuleArgs and EventBusRuleOutput values.
+// You can construct a concrete instance of `EventBusRuleInput` via:
+//
+//	EventBusRuleArgs{...}
+type EventBusRuleInput interface {
+	pulumi.Input
+
+	ToEventBusRuleOutput() EventBusRuleOutput
+	ToEventBusRuleOutputWithContext(context.Context) EventBusRuleOutput
+}
+
+// An EventBridge rule that matches events by pattern and routes them to a target.
+type EventBusRuleArgs struct {
+	// Logical name for this rule. Used to construct the physical rule name.
+	Name pulumi.StringInput `pulumi:"name"`
+	// Defines which events this rule matches.
+	Pattern EventBusRulePatternInput `pulumi:"pattern"`
+	// Defines what receives matching events.
+	Target EventBusRuleTargetInput `pulumi:"target"`
+}
+
+func (EventBusRuleArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*EventBusRule)(nil)).Elem()
+}
+
+func (i EventBusRuleArgs) ToEventBusRuleOutput() EventBusRuleOutput {
+	return i.ToEventBusRuleOutputWithContext(context.Background())
+}
+
+func (i EventBusRuleArgs) ToEventBusRuleOutputWithContext(ctx context.Context) EventBusRuleOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBusRuleOutput)
+}
+
+// EventBusRuleArrayInput is an input type that accepts EventBusRuleArray and EventBusRuleArrayOutput values.
+// You can construct a concrete instance of `EventBusRuleArrayInput` via:
+//
+//	EventBusRuleArray{ EventBusRuleArgs{...} }
+type EventBusRuleArrayInput interface {
+	pulumi.Input
+
+	ToEventBusRuleArrayOutput() EventBusRuleArrayOutput
+	ToEventBusRuleArrayOutputWithContext(context.Context) EventBusRuleArrayOutput
+}
+
+type EventBusRuleArray []EventBusRuleInput
+
+func (EventBusRuleArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]EventBusRule)(nil)).Elem()
+}
+
+func (i EventBusRuleArray) ToEventBusRuleArrayOutput() EventBusRuleArrayOutput {
+	return i.ToEventBusRuleArrayOutputWithContext(context.Background())
+}
+
+func (i EventBusRuleArray) ToEventBusRuleArrayOutputWithContext(ctx context.Context) EventBusRuleArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBusRuleArrayOutput)
+}
+
+// An EventBridge rule that matches events by pattern and routes them to a target.
+type EventBusRuleOutput struct{ *pulumi.OutputState }
+
+func (EventBusRuleOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*EventBusRule)(nil)).Elem()
+}
+
+func (o EventBusRuleOutput) ToEventBusRuleOutput() EventBusRuleOutput {
+	return o
+}
+
+func (o EventBusRuleOutput) ToEventBusRuleOutputWithContext(ctx context.Context) EventBusRuleOutput {
+	return o
+}
+
+// Logical name for this rule. Used to construct the physical rule name.
+func (o EventBusRuleOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v EventBusRule) string { return v.Name }).(pulumi.StringOutput)
+}
+
+// Defines which events this rule matches.
+func (o EventBusRuleOutput) Pattern() EventBusRulePatternOutput {
+	return o.ApplyT(func(v EventBusRule) EventBusRulePattern { return v.Pattern }).(EventBusRulePatternOutput)
+}
+
+// Defines what receives matching events.
+func (o EventBusRuleOutput) Target() EventBusRuleTargetOutput {
+	return o.ApplyT(func(v EventBusRule) EventBusRuleTarget { return v.Target }).(EventBusRuleTargetOutput)
+}
+
+type EventBusRuleArrayOutput struct{ *pulumi.OutputState }
+
+func (EventBusRuleArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]EventBusRule)(nil)).Elem()
+}
+
+func (o EventBusRuleArrayOutput) ToEventBusRuleArrayOutput() EventBusRuleArrayOutput {
+	return o
+}
+
+func (o EventBusRuleArrayOutput) ToEventBusRuleArrayOutputWithContext(ctx context.Context) EventBusRuleArrayOutput {
+	return o
+}
+
+func (o EventBusRuleArrayOutput) Index(i pulumi.IntInput) EventBusRuleOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) EventBusRule {
+		return vs[0].([]EventBusRule)[vs[1].(int)]
+	}).(EventBusRuleOutput)
+}
+
+// EventBridge content-based filtering pattern. All fields are AND-ed — an event must match every specified field.
+type EventBusRulePattern struct {
+	// Matches against fields inside the event detail payload. Structure depends on the event producer. e.g. { "orderId": [{ "exists": true }], "status": ["pending"] }
+	Detail interface{} `pulumi:"detail"`
+	// Filters on the detail-type field. e.g. ["order.created", "order.cancelled"]
+	DetailType []string `pulumi:"detailType"`
+	// Filters on the event source field. e.g. ["anvil.api", "anvil.worker"]
+	Source []string `pulumi:"source"`
+}
+
+// EventBusRulePatternInput is an input type that accepts EventBusRulePatternArgs and EventBusRulePatternOutput values.
+// You can construct a concrete instance of `EventBusRulePatternInput` via:
+//
+//	EventBusRulePatternArgs{...}
+type EventBusRulePatternInput interface {
+	pulumi.Input
+
+	ToEventBusRulePatternOutput() EventBusRulePatternOutput
+	ToEventBusRulePatternOutputWithContext(context.Context) EventBusRulePatternOutput
+}
+
+// EventBridge content-based filtering pattern. All fields are AND-ed — an event must match every specified field.
+type EventBusRulePatternArgs struct {
+	// Matches against fields inside the event detail payload. Structure depends on the event producer. e.g. { "orderId": [{ "exists": true }], "status": ["pending"] }
+	Detail pulumi.Input `pulumi:"detail"`
+	// Filters on the detail-type field. e.g. ["order.created", "order.cancelled"]
+	DetailType pulumi.StringArrayInput `pulumi:"detailType"`
+	// Filters on the event source field. e.g. ["anvil.api", "anvil.worker"]
+	Source pulumi.StringArrayInput `pulumi:"source"`
+}
+
+func (EventBusRulePatternArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*EventBusRulePattern)(nil)).Elem()
+}
+
+func (i EventBusRulePatternArgs) ToEventBusRulePatternOutput() EventBusRulePatternOutput {
+	return i.ToEventBusRulePatternOutputWithContext(context.Background())
+}
+
+func (i EventBusRulePatternArgs) ToEventBusRulePatternOutputWithContext(ctx context.Context) EventBusRulePatternOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBusRulePatternOutput)
+}
+
+// EventBridge content-based filtering pattern. All fields are AND-ed — an event must match every specified field.
+type EventBusRulePatternOutput struct{ *pulumi.OutputState }
+
+func (EventBusRulePatternOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*EventBusRulePattern)(nil)).Elem()
+}
+
+func (o EventBusRulePatternOutput) ToEventBusRulePatternOutput() EventBusRulePatternOutput {
+	return o
+}
+
+func (o EventBusRulePatternOutput) ToEventBusRulePatternOutputWithContext(ctx context.Context) EventBusRulePatternOutput {
+	return o
+}
+
+// Matches against fields inside the event detail payload. Structure depends on the event producer. e.g. { "orderId": [{ "exists": true }], "status": ["pending"] }
+func (o EventBusRulePatternOutput) Detail() pulumi.AnyOutput {
+	return o.ApplyT(func(v EventBusRulePattern) interface{} { return v.Detail }).(pulumi.AnyOutput)
+}
+
+// Filters on the detail-type field. e.g. ["order.created", "order.cancelled"]
+func (o EventBusRulePatternOutput) DetailType() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v EventBusRulePattern) []string { return v.DetailType }).(pulumi.StringArrayOutput)
+}
+
+// Filters on the event source field. e.g. ["anvil.api", "anvil.worker"]
+func (o EventBusRulePatternOutput) Source() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v EventBusRulePattern) []string { return v.Source }).(pulumi.StringArrayOutput)
+}
+
+// Target that receives matching events from an EventBridge rule.
+type EventBusRuleTarget struct {
+	// Invoke a Lambda function when events match the rule pattern. Anvil creates the EventBridge target and grants EventBridge permission to invoke the function.
+	Lambda *EventBusLambdaTargetArgs `pulumi:"lambda"`
+}
+
+// EventBusRuleTargetInput is an input type that accepts EventBusRuleTargetArgs and EventBusRuleTargetOutput values.
+// You can construct a concrete instance of `EventBusRuleTargetInput` via:
+//
+//	EventBusRuleTargetArgs{...}
+type EventBusRuleTargetInput interface {
+	pulumi.Input
+
+	ToEventBusRuleTargetOutput() EventBusRuleTargetOutput
+	ToEventBusRuleTargetOutputWithContext(context.Context) EventBusRuleTargetOutput
+}
+
+// Target that receives matching events from an EventBridge rule.
+type EventBusRuleTargetArgs struct {
+	// Invoke a Lambda function when events match the rule pattern. Anvil creates the EventBridge target and grants EventBridge permission to invoke the function.
+	Lambda EventBusLambdaTargetArgsPtrInput `pulumi:"lambda"`
+}
+
+func (EventBusRuleTargetArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*EventBusRuleTarget)(nil)).Elem()
+}
+
+func (i EventBusRuleTargetArgs) ToEventBusRuleTargetOutput() EventBusRuleTargetOutput {
+	return i.ToEventBusRuleTargetOutputWithContext(context.Background())
+}
+
+func (i EventBusRuleTargetArgs) ToEventBusRuleTargetOutputWithContext(ctx context.Context) EventBusRuleTargetOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(EventBusRuleTargetOutput)
+}
+
+// Target that receives matching events from an EventBridge rule.
+type EventBusRuleTargetOutput struct{ *pulumi.OutputState }
+
+func (EventBusRuleTargetOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*EventBusRuleTarget)(nil)).Elem()
+}
+
+func (o EventBusRuleTargetOutput) ToEventBusRuleTargetOutput() EventBusRuleTargetOutput {
+	return o
+}
+
+func (o EventBusRuleTargetOutput) ToEventBusRuleTargetOutputWithContext(ctx context.Context) EventBusRuleTargetOutput {
+	return o
+}
+
+// Invoke a Lambda function when events match the rule pattern. Anvil creates the EventBridge target and grants EventBridge permission to invoke the function.
+func (o EventBusRuleTargetOutput) Lambda() EventBusLambdaTargetArgsPtrOutput {
+	return o.ApplyT(func(v EventBusRuleTarget) *EventBusLambdaTargetArgs { return v.Lambda }).(EventBusLambdaTargetArgsPtrOutput)
+}
+
+// Escape hatches for direct Pulumi AWS resource overrides.
+type EventBusTransformArgs struct {
+	Archive *EventArchiveOverrides `pulumi:"archive"`
+	Bus     *EventBusOverrides     `pulumi:"bus"`
 }
 
 // ACM certificate DNS validation CNAME record. Only populated when domain.dns: false and domain.certificateArn is omitted. Add this record in your DNS provider (e.g. Cloudflare) then re-run deploy — Anvil blocks until ACM confirms validation.
@@ -8868,6 +9699,16 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketVersioningTransformPtrInput)(nil)).Elem(), BucketVersioningTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketWebsiteConfigurationTransformInput)(nil)).Elem(), BucketWebsiteConfigurationTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketWebsiteConfigurationTransformPtrInput)(nil)).Elem(), BucketWebsiteConfigurationTransformArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*EventBridgeOverridesInput)(nil)).Elem(), EventBridgeOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*EventBridgeOverridesPtrInput)(nil)).Elem(), EventBridgeOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*EventBridgeTransformArgsInput)(nil)).Elem(), EventBridgeTransformArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*EventBridgeTransformArgsPtrInput)(nil)).Elem(), EventBridgeTransformArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*EventBusLambdaTargetArgsInput)(nil)).Elem(), EventBusLambdaTargetArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*EventBusLambdaTargetArgsPtrInput)(nil)).Elem(), EventBusLambdaTargetArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*EventBusRuleInput)(nil)).Elem(), EventBusRuleArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*EventBusRuleArrayInput)(nil)).Elem(), EventBusRuleArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*EventBusRulePatternInput)(nil)).Elem(), EventBusRulePatternArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*EventBusRuleTargetInput)(nil)).Elem(), EventBusRuleTargetArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiCorsInput)(nil)).Elem(), HttpApiCorsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiCorsPtrInput)(nil)).Elem(), HttpApiCorsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiDomainInput)(nil)).Elem(), HttpApiDomainArgs{})
@@ -8953,6 +9794,16 @@ func init() {
 	pulumi.RegisterOutputType(BucketVersioningTransformPtrOutput{})
 	pulumi.RegisterOutputType(BucketWebsiteConfigurationTransformOutput{})
 	pulumi.RegisterOutputType(BucketWebsiteConfigurationTransformPtrOutput{})
+	pulumi.RegisterOutputType(EventBridgeOverridesOutput{})
+	pulumi.RegisterOutputType(EventBridgeOverridesPtrOutput{})
+	pulumi.RegisterOutputType(EventBridgeTransformArgsOutput{})
+	pulumi.RegisterOutputType(EventBridgeTransformArgsPtrOutput{})
+	pulumi.RegisterOutputType(EventBusLambdaTargetArgsOutput{})
+	pulumi.RegisterOutputType(EventBusLambdaTargetArgsPtrOutput{})
+	pulumi.RegisterOutputType(EventBusRuleOutput{})
+	pulumi.RegisterOutputType(EventBusRuleArrayOutput{})
+	pulumi.RegisterOutputType(EventBusRulePatternOutput{})
+	pulumi.RegisterOutputType(EventBusRuleTargetOutput{})
 	pulumi.RegisterOutputType(HttpApiCertValidationCnameOutput{})
 	pulumi.RegisterOutputType(HttpApiCorsOutput{})
 	pulumi.RegisterOutputType(HttpApiCorsPtrOutput{})
