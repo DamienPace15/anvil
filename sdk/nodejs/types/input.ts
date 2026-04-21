@@ -364,6 +364,107 @@ export namespace aws {
         routingRules?: pulumi.Input<pulumi.Input<pulumiAws.types.input.s3.BucketWebsiteConfigurationRoutingRule>[]>;
     }
 
+    export interface EventBridgeOverridesArgs {
+        /**
+         * Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ). This block supports the following arguments:
+         */
+        deadLetterConfig?: pulumi.Input<pulumiAws.types.input.cloudwatch.EventBusDeadLetterConfig>;
+        /**
+         * Event bus description.
+         */
+        description?: pulumi.Input<string>;
+        /**
+         * Partner event source that the new event bus will be matched with. Must match <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+         */
+        eventSourceName?: pulumi.Input<string>;
+        /**
+         * Identifier of the AWS KMS customer managed key for EventBridge to use, if you choose to use a customer managed key to encrypt events on this event bus. The identifier can be the key Amazon Resource Name (ARN), KeyId, key alias, or key alias ARN.
+         */
+        kmsKeyIdentifier?: pulumi.Input<string>;
+        /**
+         * Block for logging configuration settings for the event bus.
+         */
+        logConfig?: pulumi.Input<pulumiAws.types.input.cloudwatch.EventBusLogConfig>;
+        /**
+         * Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span> matches the <span pulumi-lang-nodejs="`eventSourceName`" pulumi-lang-dotnet="`EventSourceName`" pulumi-lang-go="`eventSourceName`" pulumi-lang-python="`event_source_name`" pulumi-lang-yaml="`eventSourceName`" pulumi-lang-java="`eventSourceName`">`event_source_name`</span>.
+         *
+         * The following arguments are optional:
+         */
+        name?: pulumi.Input<string>;
+        /**
+         * Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+         */
+        region?: pulumi.Input<string>;
+        /**
+         * Map of tags assigned to the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+         */
+        tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    }
+
+    export interface EventBridgeTransformArgsArgs {
+        eventBridge?: pulumi.Input<inputs.aws.EventBridgeOverridesArgs>;
+    }
+
+    /**
+     * Lambda function target for an EventBridge rule. Pass fn.arn and fn.roleArn from an Anvil Lambda component.
+     */
+    export interface EventBusLambdaTargetArgsArgs {
+        /**
+         * The ARN of the Lambda function to invoke. Use fn.arn from an Anvil Lambda component.
+         */
+        arn: any;
+        /**
+         * The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component.
+         */
+        lambdaRoleArn: any;
+    }
+
+    /**
+     * An EventBridge rule that matches events by pattern and routes them to a target.
+     */
+    export interface EventBusRuleArgs {
+        /**
+         * Logical name for this rule. Used to construct the physical rule name.
+         */
+        name: pulumi.Input<string>;
+        /**
+         * Defines which events this rule matches.
+         */
+        pattern: pulumi.Input<inputs.aws.EventBusRulePatternArgs>;
+        /**
+         * Defines what receives matching events.
+         */
+        target: pulumi.Input<inputs.aws.EventBusRuleTargetArgs>;
+    }
+
+    /**
+     * EventBridge content-based filtering pattern. All fields are AND-ed — an event must match every specified field.
+     */
+    export interface EventBusRulePatternArgs {
+        /**
+         * Matches against fields inside the event detail payload. Structure depends on the event producer. e.g. { "orderId": [{ "exists": true }], "status": ["pending"] }
+         */
+        detail?: any;
+        /**
+         * Filters on the detail-type field. e.g. ["order.created", "order.cancelled"]
+         */
+        detailType?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Filters on the event source field. e.g. ["anvil.api", "anvil.worker"]
+         */
+        source?: pulumi.Input<pulumi.Input<string>[]>;
+    }
+
+    /**
+     * Target that receives matching events from an EventBridge rule.
+     */
+    export interface EventBusRuleTargetArgs {
+        /**
+         * Invoke a Lambda function when events match the rule pattern. Anvil creates the EventBridge target and grants EventBridge permission to invoke the function.
+         */
+        lambda?: pulumi.Input<inputs.aws.EventBusLambdaTargetArgsArgs>;
+    }
+
     /**
      * Cross-Origin Resource Sharing configuration. Opt-in — omit to disable CORS. Security rules: allowOrigins '*' is blocked, allowCredentials requires explicit origins, allowMethods is inferred from routes when omitted.
      */

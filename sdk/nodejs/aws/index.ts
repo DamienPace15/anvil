@@ -10,6 +10,11 @@ export type Bucket = import("./bucket").Bucket;
 export const Bucket: typeof import("./bucket").Bucket = null as any;
 utilities.lazyLoad(exports, ["Bucket"], () => require("./bucket"));
 
+export { EventBusArgs } from "./eventBus";
+export type EventBus = import("./eventBus").EventBus;
+export const EventBus: typeof import("./eventBus").EventBus = null as any;
+utilities.lazyLoad(exports, ["EventBus"], () => require("./eventBus"));
+
 export { HttpApiArgs } from "./httpApi";
 export type HttpApi = import("./httpApi").HttpApi;
 export const HttpApi: typeof import("./httpApi").HttpApi = null as any;
@@ -50,6 +55,8 @@ const _module = {
         switch (type) {
             case "anvil:aws:Bucket":
                 return new Bucket(name, <any>undefined, { urn })
+            case "anvil:aws:EventBus":
+                return new EventBus(name, <any>undefined, { urn })
             case "anvil:aws:HttpApi":
                 return new HttpApi(name, <any>undefined, { urn })
             case "anvil:aws:Lambda":

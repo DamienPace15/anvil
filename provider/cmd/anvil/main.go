@@ -8,6 +8,7 @@ import (
 
 	"github.com/pulumi/pulumi-go-provider/infer"
 	awsbucket "github.com/DamienPace15/anvil/provider/aws/bucket"
+	awseventBridge "github.com/DamienPace15/anvil/provider/aws/eventBridge"
 	awshttpapi "github.com/DamienPace15/anvil/provider/aws/httpapi"
 	awslambda "github.com/DamienPace15/anvil/provider/aws/lambda"
 	awsqueue "github.com/DamienPace15/anvil/provider/aws/queue"
@@ -22,6 +23,7 @@ func main() {
 	p, err := infer.NewProviderBuilder().
 		WithComponents(
 			infer.ComponentF(awsbucket.NewBucket),
+			infer.ComponentF(awseventBridge.NewEventBus),
 			infer.ComponentF(awshttpapi.NewHttpApi),
 			infer.ComponentF(awslambda.NewLambda),
 			infer.ComponentF(awsqueue.NewQueue),

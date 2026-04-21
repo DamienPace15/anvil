@@ -45,6 +45,18 @@ __all__ = [
     'BucketVersioningTransformArgsDict',
     'BucketWebsiteConfigurationTransformArgs',
     'BucketWebsiteConfigurationTransformArgsDict',
+    'EventBridgeOverridesArgs',
+    'EventBridgeOverridesArgsDict',
+    'EventBridgeTransformArgsArgs',
+    'EventBridgeTransformArgsArgsDict',
+    'EventBusLambdaTargetArgsArgs',
+    'EventBusLambdaTargetArgsArgsDict',
+    'EventBusRulePatternArgs',
+    'EventBusRulePatternArgsDict',
+    'EventBusRuleTargetArgs',
+    'EventBusRuleTargetArgsDict',
+    'EventBusRuleArgs',
+    'EventBusRuleArgsDict',
     'HttpApiCorsArgs',
     'HttpApiCorsArgsDict',
     'HttpApiDomainArgs',
@@ -1831,6 +1843,432 @@ class BucketWebsiteConfigurationTransformArgs:
     @routing_rules.setter
     def routing_rules(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.s3.BucketWebsiteConfigurationRoutingRuleArgs']]]]):
         pulumi.set(self, "routing_rules", value)
+
+
+class EventBridgeOverridesArgsDict(TypedDict):
+    dead_letter_config: NotRequired[pulumi.Input['pulumi_aws.cloudwatch.EventBusDeadLetterConfigArgsDict']]
+    """
+    Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ). This block supports the following arguments:
+    """
+    description: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Event bus description.
+    """
+    event_source_name: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Partner event source that the new event bus will be matched with. Must match <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+    """
+    kms_key_identifier: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Identifier of the AWS KMS customer managed key for EventBridge to use, if you choose to use a customer managed key to encrypt events on this event bus. The identifier can be the key Amazon Resource Name (ARN), KeyId, key alias, or key alias ARN.
+    """
+    log_config: NotRequired[pulumi.Input['pulumi_aws.cloudwatch.EventBusLogConfigArgsDict']]
+    """
+    Block for logging configuration settings for the event bus.
+    """
+    name: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span> matches the <span pulumi-lang-nodejs="`eventSourceName`" pulumi-lang-dotnet="`EventSourceName`" pulumi-lang-go="`eventSourceName`" pulumi-lang-python="`event_source_name`" pulumi-lang-yaml="`eventSourceName`" pulumi-lang-java="`eventSourceName`">`event_source_name`</span>.
+
+    The following arguments are optional:
+    """
+    region: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+    """
+    tags: NotRequired[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]
+    """
+    Map of tags assigned to the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+    """
+
+@pulumi.input_type
+class EventBridgeOverridesArgs:
+    def __init__(__self__, *,
+                 dead_letter_config: Optional[pulumi.Input['pulumi_aws.cloudwatch.EventBusDeadLetterConfigArgs']] = None,
+                 description: Optional[pulumi.Input[_builtins.str]] = None,
+                 event_source_name: Optional[pulumi.Input[_builtins.str]] = None,
+                 kms_key_identifier: Optional[pulumi.Input[_builtins.str]] = None,
+                 log_config: Optional[pulumi.Input['pulumi_aws.cloudwatch.EventBusLogConfigArgs']] = None,
+                 name: Optional[pulumi.Input[_builtins.str]] = None,
+                 region: Optional[pulumi.Input[_builtins.str]] = None,
+                 tags: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None):
+        """
+        :param pulumi.Input['pulumi_aws.cloudwatch.EventBusDeadLetterConfigArgs'] dead_letter_config: Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ). This block supports the following arguments:
+        :param pulumi.Input[_builtins.str] description: Event bus description.
+        :param pulumi.Input[_builtins.str] event_source_name: Partner event source that the new event bus will be matched with. Must match <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+        :param pulumi.Input[_builtins.str] kms_key_identifier: Identifier of the AWS KMS customer managed key for EventBridge to use, if you choose to use a customer managed key to encrypt events on this event bus. The identifier can be the key Amazon Resource Name (ARN), KeyId, key alias, or key alias ARN.
+        :param pulumi.Input['pulumi_aws.cloudwatch.EventBusLogConfigArgs'] log_config: Block for logging configuration settings for the event bus.
+        :param pulumi.Input[_builtins.str] name: Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span> matches the <span pulumi-lang-nodejs="`eventSourceName`" pulumi-lang-dotnet="`EventSourceName`" pulumi-lang-go="`eventSourceName`" pulumi-lang-python="`event_source_name`" pulumi-lang-yaml="`eventSourceName`" pulumi-lang-java="`eventSourceName`">`event_source_name`</span>.
+               
+               The following arguments are optional:
+        :param pulumi.Input[_builtins.str] region: Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] tags: Map of tags assigned to the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+        """
+        if dead_letter_config is not None:
+            pulumi.set(__self__, "dead_letter_config", dead_letter_config)
+        if description is not None:
+            pulumi.set(__self__, "description", description)
+        if event_source_name is not None:
+            pulumi.set(__self__, "event_source_name", event_source_name)
+        if kms_key_identifier is not None:
+            pulumi.set(__self__, "kms_key_identifier", kms_key_identifier)
+        if log_config is not None:
+            pulumi.set(__self__, "log_config", log_config)
+        if name is not None:
+            pulumi.set(__self__, "name", name)
+        if region is not None:
+            pulumi.set(__self__, "region", region)
+        if tags is not None:
+            pulumi.set(__self__, "tags", tags)
+
+    @_builtins.property
+    @pulumi.getter(name="deadLetterConfig")
+    def dead_letter_config(self) -> Optional[pulumi.Input['pulumi_aws.cloudwatch.EventBusDeadLetterConfigArgs']]:
+        """
+        Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ). This block supports the following arguments:
+        """
+        return pulumi.get(self, "dead_letter_config")
+
+    @dead_letter_config.setter
+    def dead_letter_config(self, value: Optional[pulumi.Input['pulumi_aws.cloudwatch.EventBusDeadLetterConfigArgs']]):
+        pulumi.set(self, "dead_letter_config", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def description(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Event bus description.
+        """
+        return pulumi.get(self, "description")
+
+    @description.setter
+    def description(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "description", value)
+
+    @_builtins.property
+    @pulumi.getter(name="eventSourceName")
+    def event_source_name(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Partner event source that the new event bus will be matched with. Must match <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+        """
+        return pulumi.get(self, "event_source_name")
+
+    @event_source_name.setter
+    def event_source_name(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "event_source_name", value)
+
+    @_builtins.property
+    @pulumi.getter(name="kmsKeyIdentifier")
+    def kms_key_identifier(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Identifier of the AWS KMS customer managed key for EventBridge to use, if you choose to use a customer managed key to encrypt events on this event bus. The identifier can be the key Amazon Resource Name (ARN), KeyId, key alias, or key alias ARN.
+        """
+        return pulumi.get(self, "kms_key_identifier")
+
+    @kms_key_identifier.setter
+    def kms_key_identifier(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "kms_key_identifier", value)
+
+    @_builtins.property
+    @pulumi.getter(name="logConfig")
+    def log_config(self) -> Optional[pulumi.Input['pulumi_aws.cloudwatch.EventBusLogConfigArgs']]:
+        """
+        Block for logging configuration settings for the event bus.
+        """
+        return pulumi.get(self, "log_config")
+
+    @log_config.setter
+    def log_config(self, value: Optional[pulumi.Input['pulumi_aws.cloudwatch.EventBusLogConfigArgs']]):
+        pulumi.set(self, "log_config", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span> matches the <span pulumi-lang-nodejs="`eventSourceName`" pulumi-lang-dotnet="`EventSourceName`" pulumi-lang-go="`eventSourceName`" pulumi-lang-python="`event_source_name`" pulumi-lang-yaml="`eventSourceName`" pulumi-lang-java="`eventSourceName`">`event_source_name`</span>.
+
+        The following arguments are optional:
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def region(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+        """
+        return pulumi.get(self, "region")
+
+    @region.setter
+    def region(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "region", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def tags(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]:
+        """
+        Map of tags assigned to the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+        """
+        return pulumi.get(self, "tags")
+
+    @tags.setter
+    def tags(self, value: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "tags", value)
+
+
+class EventBridgeTransformArgsArgsDict(TypedDict):
+    event_bridge: NotRequired[pulumi.Input['EventBridgeOverridesArgsDict']]
+
+@pulumi.input_type
+class EventBridgeTransformArgsArgs:
+    def __init__(__self__, *,
+                 event_bridge: Optional[pulumi.Input['EventBridgeOverridesArgs']] = None):
+        if event_bridge is not None:
+            pulumi.set(__self__, "event_bridge", event_bridge)
+
+    @_builtins.property
+    @pulumi.getter(name="eventBridge")
+    def event_bridge(self) -> Optional[pulumi.Input['EventBridgeOverridesArgs']]:
+        return pulumi.get(self, "event_bridge")
+
+    @event_bridge.setter
+    def event_bridge(self, value: Optional[pulumi.Input['EventBridgeOverridesArgs']]):
+        pulumi.set(self, "event_bridge", value)
+
+
+class EventBusLambdaTargetArgsArgsDict(TypedDict):
+    """
+    Lambda function target for an EventBridge rule. Pass fn.arn and fn.roleArn from an Anvil Lambda component.
+    """
+    arn: Any
+    """
+    The ARN of the Lambda function to invoke. Use fn.arn from an Anvil Lambda component.
+    """
+    lambda_role_arn: Any
+    """
+    The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component.
+    """
+
+@pulumi.input_type
+class EventBusLambdaTargetArgsArgs:
+    def __init__(__self__, *,
+                 arn: Any,
+                 lambda_role_arn: Any):
+        """
+        Lambda function target for an EventBridge rule. Pass fn.arn and fn.roleArn from an Anvil Lambda component.
+
+        :param Any arn: The ARN of the Lambda function to invoke. Use fn.arn from an Anvil Lambda component.
+        :param Any lambda_role_arn: The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component.
+        """
+        pulumi.set(__self__, "arn", arn)
+        pulumi.set(__self__, "lambda_role_arn", lambda_role_arn)
+
+    @_builtins.property
+    @pulumi.getter
+    def arn(self) -> Any:
+        """
+        The ARN of the Lambda function to invoke. Use fn.arn from an Anvil Lambda component.
+        """
+        return pulumi.get(self, "arn")
+
+    @arn.setter
+    def arn(self, value: Any):
+        pulumi.set(self, "arn", value)
+
+    @_builtins.property
+    @pulumi.getter(name="lambdaRoleArn")
+    def lambda_role_arn(self) -> Any:
+        """
+        The ARN of the Lambda's execution role. Use fn.roleArn from an Anvil Lambda component.
+        """
+        return pulumi.get(self, "lambda_role_arn")
+
+    @lambda_role_arn.setter
+    def lambda_role_arn(self, value: Any):
+        pulumi.set(self, "lambda_role_arn", value)
+
+
+class EventBusRulePatternArgsDict(TypedDict):
+    """
+    EventBridge content-based filtering pattern. All fields are AND-ed — an event must match every specified field.
+    """
+    detail: NotRequired[Any]
+    """
+    Matches against fields inside the event detail payload. Structure depends on the event producer. e.g. { "orderId": [{ "exists": true }], "status": ["pending"] }
+    """
+    detail_type: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Filters on the detail-type field. e.g. ["order.created", "order.cancelled"]
+    """
+    source: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Filters on the event source field. e.g. ["anvil.api", "anvil.worker"]
+    """
+
+@pulumi.input_type
+class EventBusRulePatternArgs:
+    def __init__(__self__, *,
+                 detail: Optional[Any] = None,
+                 detail_type: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 source: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None):
+        """
+        EventBridge content-based filtering pattern. All fields are AND-ed — an event must match every specified field.
+
+        :param Any detail: Matches against fields inside the event detail payload. Structure depends on the event producer. e.g. { "orderId": [{ "exists": true }], "status": ["pending"] }
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] detail_type: Filters on the detail-type field. e.g. ["order.created", "order.cancelled"]
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] source: Filters on the event source field. e.g. ["anvil.api", "anvil.worker"]
+        """
+        if detail is not None:
+            pulumi.set(__self__, "detail", detail)
+        if detail_type is not None:
+            pulumi.set(__self__, "detail_type", detail_type)
+        if source is not None:
+            pulumi.set(__self__, "source", source)
+
+    @_builtins.property
+    @pulumi.getter
+    def detail(self) -> Optional[Any]:
+        """
+        Matches against fields inside the event detail payload. Structure depends on the event producer. e.g. { "orderId": [{ "exists": true }], "status": ["pending"] }
+        """
+        return pulumi.get(self, "detail")
+
+    @detail.setter
+    def detail(self, value: Optional[Any]):
+        pulumi.set(self, "detail", value)
+
+    @_builtins.property
+    @pulumi.getter(name="detailType")
+    def detail_type(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Filters on the detail-type field. e.g. ["order.created", "order.cancelled"]
+        """
+        return pulumi.get(self, "detail_type")
+
+    @detail_type.setter
+    def detail_type(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "detail_type", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def source(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Filters on the event source field. e.g. ["anvil.api", "anvil.worker"]
+        """
+        return pulumi.get(self, "source")
+
+    @source.setter
+    def source(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "source", value)
+
+
+class EventBusRuleTargetArgsDict(TypedDict):
+    """
+    Target that receives matching events from an EventBridge rule.
+    """
+    lambda_: NotRequired[pulumi.Input['EventBusLambdaTargetArgsArgsDict']]
+    """
+    Invoke a Lambda function when events match the rule pattern. Anvil creates the EventBridge target and grants EventBridge permission to invoke the function.
+    """
+
+@pulumi.input_type
+class EventBusRuleTargetArgs:
+    def __init__(__self__, *,
+                 lambda_: Optional[pulumi.Input['EventBusLambdaTargetArgsArgs']] = None):
+        """
+        Target that receives matching events from an EventBridge rule.
+
+        :param pulumi.Input['EventBusLambdaTargetArgsArgs'] lambda_: Invoke a Lambda function when events match the rule pattern. Anvil creates the EventBridge target and grants EventBridge permission to invoke the function.
+        """
+        if lambda_ is not None:
+            pulumi.set(__self__, "lambda_", lambda_)
+
+    @_builtins.property
+    @pulumi.getter(name="lambda")
+    def lambda_(self) -> Optional[pulumi.Input['EventBusLambdaTargetArgsArgs']]:
+        """
+        Invoke a Lambda function when events match the rule pattern. Anvil creates the EventBridge target and grants EventBridge permission to invoke the function.
+        """
+        return pulumi.get(self, "lambda_")
+
+    @lambda_.setter
+    def lambda_(self, value: Optional[pulumi.Input['EventBusLambdaTargetArgsArgs']]):
+        pulumi.set(self, "lambda_", value)
+
+
+class EventBusRuleArgsDict(TypedDict):
+    """
+    An EventBridge rule that matches events by pattern and routes them to a target.
+    """
+    name: pulumi.Input[_builtins.str]
+    """
+    Logical name for this rule. Used to construct the physical rule name.
+    """
+    pattern: pulumi.Input['EventBusRulePatternArgsDict']
+    """
+    Defines which events this rule matches.
+    """
+    target: pulumi.Input['EventBusRuleTargetArgsDict']
+    """
+    Defines what receives matching events.
+    """
+
+@pulumi.input_type
+class EventBusRuleArgs:
+    def __init__(__self__, *,
+                 name: pulumi.Input[_builtins.str],
+                 pattern: pulumi.Input['EventBusRulePatternArgs'],
+                 target: pulumi.Input['EventBusRuleTargetArgs']):
+        """
+        An EventBridge rule that matches events by pattern and routes them to a target.
+
+        :param pulumi.Input[_builtins.str] name: Logical name for this rule. Used to construct the physical rule name.
+        :param pulumi.Input['EventBusRulePatternArgs'] pattern: Defines which events this rule matches.
+        :param pulumi.Input['EventBusRuleTargetArgs'] target: Defines what receives matching events.
+        """
+        pulumi.set(__self__, "name", name)
+        pulumi.set(__self__, "pattern", pattern)
+        pulumi.set(__self__, "target", target)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> pulumi.Input[_builtins.str]:
+        """
+        Logical name for this rule. Used to construct the physical rule name.
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def pattern(self) -> pulumi.Input['EventBusRulePatternArgs']:
+        """
+        Defines which events this rule matches.
+        """
+        return pulumi.get(self, "pattern")
+
+    @pattern.setter
+    def pattern(self, value: pulumi.Input['EventBusRulePatternArgs']):
+        pulumi.set(self, "pattern", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def target(self) -> pulumi.Input['EventBusRuleTargetArgs']:
+        """
+        Defines what receives matching events.
+        """
+        return pulumi.get(self, "target")
+
+    @target.setter
+    def target(self, value: pulumi.Input['EventBusRuleTargetArgs']):
+        pulumi.set(self, "target", value)
 
 
 class HttpApiCorsArgsDict(TypedDict):
