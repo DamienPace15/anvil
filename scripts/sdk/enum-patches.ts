@@ -83,19 +83,6 @@ export const ENUM_PATCHES: EnumPatchConfig[] = [
       },
     ],
   },
-  // ── AWS VpcEndpoint ────────────────────────────────────
-  {
-    tsFile: 'aws/vpcendpoint.ts',
-    pyFile: 'aws/vpcendpoint.py',
-    fields: [
-      {
-        field: 'service',
-        required: true,
-        tsEnumType: 'enums.aws.AwsVpcEndpointService',
-        pyEnumType: 'AwsVpcEndpointService',
-      },
-    ],
-  },
 
   // ── AWS Bucket ─────────────────────────────────────────
   // Add bucket enum patches here when storageTransition and

@@ -90,7 +90,7 @@ export interface VpcEndpointArgs {
     /**
      * The AWS service to route privately. The full com.amazonaws.{region}.{service} name is constructed at deploy time from the resolved region — you never write it manually.
      */
-    service: pulumi.Input<enums.aws.AwsVpcEndpointService>;
+    service: pulumi.Input<string>;
     /**
      * The ID of the VPC to create the endpoint in. Accepts both Anvil-managed VPC IDs and imported VPC IDs.
      */

@@ -13,7 +13,6 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from .. import _utilities
-from ._enums import *
 from ._inputs import *
 
 __all__ = ['VpcEndpointArgs', 'VpcEndpoint']
@@ -22,14 +21,14 @@ __all__ = ['VpcEndpointArgs', 'VpcEndpoint']
 class VpcEndpointArgs:
     def __init__(__self__, *,
                  private_subnet_ids: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]],
-                 service: pulumi.Input['AwsVpcEndpointService'],
+                 service: pulumi.Input[_builtins.str],
                  vpc_id: pulumi.Input[_builtins.str],
                  override_permissions: Optional[pulumi.Input[Sequence[pulumi.Input['VpcEndpointPermissionArgs']]]] = None):
         """
         The set of arguments for constructing a VpcEndpoint resource.
 
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] private_subnet_ids: The IDs of the private subnets to attach the endpoint to. AWS places one ENI per subnet. Pass all private subnet IDs from your VPC — typically one per AZ.
-        :param pulumi.Input['AwsVpcEndpointService'] service: The AWS service to route privately. The full com.amazonaws.{region}.{service} name is constructed at deploy time from the resolved region — you never write it manually.
+        :param pulumi.Input[_builtins.str] service: The AWS service to route privately. The full com.amazonaws.{region}.{service} name is constructed at deploy time from the resolved region — you never write it manually.
         :param pulumi.Input[_builtins.str] vpc_id: The ID of the VPC to create the endpoint in. Accepts both Anvil-managed VPC IDs and imported VPC IDs.
         :param pulumi.Input[Sequence[pulumi.Input['VpcEndpointPermissionArgs']]] override_permissions: Explicit Allow and Deny permission statements for the endpoint policy. When omitted, the endpoint policy allows all actions (*) for all Anvil compute principals (Lambda, ECS, EC2). When set, only the declared actions are permitted — the caller is responsible for declaring every action their compute resources need. Supports both Allow and Deny effects. Resource defaults to "*" if omitted on a permission entry.
         """
@@ -53,14 +52,14 @@ class VpcEndpointArgs:
 
     @_builtins.property
     @pulumi.getter
-    def service(self) -> pulumi.Input['AwsVpcEndpointService']:
+    def service(self) -> pulumi.Input[_builtins.str]:
         """
         The AWS service to route privately. The full com.amazonaws.{region}.{service} name is constructed at deploy time from the resolved region — you never write it manually.
         """
         return pulumi.get(self, "service")
 
     @service.setter
-    def service(self, value: pulumi.Input['AwsVpcEndpointService']):
+    def service(self, value: pulumi.Input[_builtins.str]):
         pulumi.set(self, "service", value)
 
     @_builtins.property
@@ -96,7 +95,7 @@ class VpcEndpoint(pulumi.ComponentResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  override_permissions: Optional[pulumi.Input[Sequence[pulumi.Input[Union['VpcEndpointPermissionArgs', 'VpcEndpointPermissionArgsDict']]]]] = None,
                  private_subnet_ids: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
-                 service: Optional[pulumi.Input['AwsVpcEndpointService']] = None,
+                 service: Optional[pulumi.Input[_builtins.str]] = None,
                  vpc_id: Optional[pulumi.Input[_builtins.str]] = None,
                  __props__=None):
         """
@@ -107,7 +106,7 @@ class VpcEndpoint(pulumi.ComponentResource):
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[Sequence[pulumi.Input[Union['VpcEndpointPermissionArgs', 'VpcEndpointPermissionArgsDict']]]] override_permissions: Explicit Allow and Deny permission statements for the endpoint policy. When omitted, the endpoint policy allows all actions (*) for all Anvil compute principals (Lambda, ECS, EC2). When set, only the declared actions are permitted — the caller is responsible for declaring every action their compute resources need. Supports both Allow and Deny effects. Resource defaults to "*" if omitted on a permission entry.
         :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] private_subnet_ids: The IDs of the private subnets to attach the endpoint to. AWS places one ENI per subnet. Pass all private subnet IDs from your VPC — typically one per AZ.
-        :param pulumi.Input['AwsVpcEndpointService'] service: The AWS service to route privately. The full com.amazonaws.{region}.{service} name is constructed at deploy time from the resolved region — you never write it manually.
+        :param pulumi.Input[_builtins.str] service: The AWS service to route privately. The full com.amazonaws.{region}.{service} name is constructed at deploy time from the resolved region — you never write it manually.
         :param pulumi.Input[_builtins.str] vpc_id: The ID of the VPC to create the endpoint in. Accepts both Anvil-managed VPC IDs and imported VPC IDs.
         """
         ...
@@ -137,7 +136,7 @@ class VpcEndpoint(pulumi.ComponentResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  override_permissions: Optional[pulumi.Input[Sequence[pulumi.Input[Union['VpcEndpointPermissionArgs', 'VpcEndpointPermissionArgsDict']]]]] = None,
                  private_subnet_ids: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
-                 service: Optional[pulumi.Input['AwsVpcEndpointService']] = None,
+                 service: Optional[pulumi.Input[_builtins.str]] = None,
                  vpc_id: Optional[pulumi.Input[_builtins.str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)

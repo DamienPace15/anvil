@@ -55,7 +55,7 @@ type vpcEndpointArgs struct {
 	// The IDs of the private subnets to attach the endpoint to. AWS places one ENI per subnet. Pass all private subnet IDs from your VPC — typically one per AZ.
 	PrivateSubnetIds []string `pulumi:"privateSubnetIds"`
 	// The AWS service to route privately. The full com.amazonaws.{region}.{service} name is constructed at deploy time from the resolved region — you never write it manually.
-	Service AwsVpcEndpointService `pulumi:"service"`
+	Service string `pulumi:"service"`
 	// The ID of the VPC to create the endpoint in. Accepts both Anvil-managed VPC IDs and imported VPC IDs.
 	VpcId string `pulumi:"vpcId"`
 }
@@ -67,7 +67,7 @@ type VpcEndpointArgs struct {
 	// The IDs of the private subnets to attach the endpoint to. AWS places one ENI per subnet. Pass all private subnet IDs from your VPC — typically one per AZ.
 	PrivateSubnetIds pulumi.StringArrayInput
 	// The AWS service to route privately. The full com.amazonaws.{region}.{service} name is constructed at deploy time from the resolved region — you never write it manually.
-	Service AwsVpcEndpointServiceInput
+	Service pulumi.StringInput
 	// The ID of the VPC to create the endpoint in. Accepts both Anvil-managed VPC IDs and imported VPC IDs.
 	VpcId pulumi.StringInput
 }
