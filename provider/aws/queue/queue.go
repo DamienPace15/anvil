@@ -24,7 +24,7 @@ type QueueDlqArgs struct {
 	// When set, Anvil wires the redrive policy to this queue without creating
 	// a new one. If the parent queue is FIFO, this ARN must end with ".fifo".
 	// When omitted, Anvil creates a managed DLQ as a child resource.
-	Arn string `pulumi:"arn,optional"`
+	Arn pulumi.StringInput `pulumi:"arn,optional"`
 
 	// MaxReceiveCount is how many times a message can be received before
 	// being moved to the DLQ. Default: 3.
@@ -144,14 +144,17 @@ func NewQueue(ctx *pulumi.Context, name string, args QueueArgs, opts ...pulumi.R
 	}
 
 	// ── Validation ─────────────────────────────────────
-	if args.Fifo && args.Dlq != nil && args.Dlq.Arn != "" {
-		if !strings.HasSuffix(args.Dlq.Arn, ".fifo") {
-			return nil, fmt.Errorf(
-				"queue %q: fifo is true but dlq.arn %q does not end with \".fifo\" — "+
-					"a FIFO queue requires a FIFO dead letter queue",
-				name, args.Dlq.Arn,
-			)
-		}
+	if args.Fifo && args.Dlq != nil && args.Dlq.Arn != nil {
+		args.Dlq.Arn.ToStringOutput().ApplyT(func(arn string) (string, error) {
+			if arn != "" && !strings.HasSuffix(arn, ".fifo") {
+				return "", fmt.Errorf(
+					"queue %q: fifo is true but dlq.arn %q does not end with \".fifo\" — "+
+						"a FIFO queue requires a FIFO dead letter queue",
+					name, arn,
+				)
+			}
+			return arn, nil
+		})
 	}
 
 	const visibilityTimeout = 30
@@ -162,10 +165,10 @@ func NewQueue(ctx *pulumi.Context, name string, args QueueArgs, opts ...pulumi.R
 	var dlqArn pulumi.StringOutput
 	var dlqUrl pulumi.StringOutput
 
-	byoDLQ := args.Dlq != nil && args.Dlq.Arn != ""
+	byoDLQ := args.Dlq != nil && args.Dlq.Arn != nil
 
 	if byoDLQ {
-		dlqArn = pulumi.String(args.Dlq.Arn).ToStringOutput()
+		dlqArn = args.Dlq.Arn.ToStringOutput()
 		dlqUrl = sqsURLFromARN(dlqArn)
 	} else {
 		var dlqPhysicalName string
