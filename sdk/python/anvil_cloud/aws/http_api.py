@@ -24,6 +24,7 @@ class HttpApiArgs:
     def __init__(__self__, *,
                  routes: pulumi.Input[Sequence[pulumi.Input['HttpApiRouteArgs']]],
                  cors: Optional[pulumi.Input['HttpApiCorsArgs']] = None,
+                 default_authorizer_id: Optional[Any] = None,
                  domain: Optional[pulumi.Input['HttpApiDomainArgs']] = None,
                  log_retention: Optional[pulumi.Input[_builtins.str]] = None,
                  throttling: Optional[pulumi.Input['HttpApiThrottlingArgs']] = None):
@@ -32,6 +33,7 @@ class HttpApiArgs:
 
         :param pulumi.Input[Sequence[pulumi.Input['HttpApiRouteArgs']]] routes: The API routes. Each route maps a method and path to a consumer. At least one route is required.
         :param pulumi.Input['HttpApiCorsArgs'] cors: Optional CORS configuration. Opt-in — omit to disable CORS entirely. When enabled, allowOrigins is required and wildcard '*' is blocked as a security measure.
+        :param Any default_authorizer_id: The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
         :param pulumi.Input['HttpApiDomainArgs'] domain: Optional custom domain for the API. When set, Anvil provisions the ACM certificate, API Gateway domain name, and Route 53 DNS record automatically. The raw execute-api endpoint is disabled — all traffic must flow through the custom domain.
         :param pulumi.Input[_builtins.str] log_retention: CloudWatch access log retention period. Presets: '7d' | '30d' | '90d' | '1y' | '3y' | '6y' | '7y'. Default: '1y' — satisfies SOC 2, ISO 27001, and PCI DSS baseline retention requirements.
         :param pulumi.Input['HttpApiThrottlingArgs'] throttling: Optional throttling configuration. Defaults to rateLimit: 1000 rps and burstLimit: 500 concurrent requests when omitted. Without throttling a single route can exhaust the account-level limit shared across all APIs.
@@ -39,6 +41,8 @@ class HttpApiArgs:
         pulumi.set(__self__, "routes", routes)
         if cors is not None:
             pulumi.set(__self__, "cors", cors)
+        if default_authorizer_id is not None:
+            pulumi.set(__self__, "default_authorizer_id", default_authorizer_id)
         if domain is not None:
             pulumi.set(__self__, "domain", domain)
         if log_retention is not None:
@@ -69,6 +73,18 @@ class HttpApiArgs:
     @cors.setter
     def cors(self, value: Optional[pulumi.Input['HttpApiCorsArgs']]):
         pulumi.set(self, "cors", value)
+
+    @_builtins.property
+    @pulumi.getter(name="defaultAuthorizerId")
+    def default_authorizer_id(self) -> Optional[Any]:
+        """
+        The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
+        """
+        return pulumi.get(self, "default_authorizer_id")
+
+    @default_authorizer_id.setter
+    def default_authorizer_id(self, value: Optional[Any]):
+        pulumi.set(self, "default_authorizer_id", value)
 
     @_builtins.property
     @pulumi.getter
@@ -114,6 +130,7 @@ class HttpApi(pulumi.ComponentResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  cors: Optional[pulumi.Input[Union['HttpApiCorsArgs', 'HttpApiCorsArgsDict']]] = None,
+                 default_authorizer_id: Optional[Any] = None,
                  domain: Optional[pulumi.Input[Union['HttpApiDomainArgs', 'HttpApiDomainArgsDict']]] = None,
                  log_retention: Optional[pulumi.Input[_builtins.str]] = None,
                  routes: Optional[pulumi.Input[Sequence[pulumi.Input[Union['HttpApiRouteArgs', 'HttpApiRouteArgsDict']]]]] = None,
@@ -126,6 +143,7 @@ class HttpApi(pulumi.ComponentResource):
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[Union['HttpApiCorsArgs', 'HttpApiCorsArgsDict']] cors: Optional CORS configuration. Opt-in — omit to disable CORS entirely. When enabled, allowOrigins is required and wildcard '*' is blocked as a security measure.
+        :param Any default_authorizer_id: The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
         :param pulumi.Input[Union['HttpApiDomainArgs', 'HttpApiDomainArgsDict']] domain: Optional custom domain for the API. When set, Anvil provisions the ACM certificate, API Gateway domain name, and Route 53 DNS record automatically. The raw execute-api endpoint is disabled — all traffic must flow through the custom domain.
         :param pulumi.Input[_builtins.str] log_retention: CloudWatch access log retention period. Presets: '7d' | '30d' | '90d' | '1y' | '3y' | '6y' | '7y'. Default: '1y' — satisfies SOC 2, ISO 27001, and PCI DSS baseline retention requirements.
         :param pulumi.Input[Sequence[pulumi.Input[Union['HttpApiRouteArgs', 'HttpApiRouteArgsDict']]]] routes: The API routes. Each route maps a method and path to a consumer. At least one route is required.
@@ -157,6 +175,7 @@ class HttpApi(pulumi.ComponentResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  cors: Optional[pulumi.Input[Union['HttpApiCorsArgs', 'HttpApiCorsArgsDict']]] = None,
+                 default_authorizer_id: Optional[Any] = None,
                  domain: Optional[pulumi.Input[Union['HttpApiDomainArgs', 'HttpApiDomainArgsDict']]] = None,
                  log_retention: Optional[pulumi.Input[_builtins.str]] = None,
                  routes: Optional[pulumi.Input[Sequence[pulumi.Input[Union['HttpApiRouteArgs', 'HttpApiRouteArgsDict']]]]] = None,
@@ -173,6 +192,7 @@ class HttpApi(pulumi.ComponentResource):
             __props__ = HttpApiArgs.__new__(HttpApiArgs)
 
             __props__.__dict__["cors"] = cors
+            __props__.__dict__["default_authorizer_id"] = default_authorizer_id
             __props__.__dict__["domain"] = domain
             __props__.__dict__["log_retention"] = log_retention
             if routes is None and not opts.urn:

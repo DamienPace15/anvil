@@ -1,0 +1,29 @@
+{
+  "resources": {
+    "anvil:aws:CognitoAuth": {
+      "isComponent": true,
+      "description": "An Anvil-managed JWT authorizer backed by a Cognito user pool. Derives the issuer URL automatically from the user pool ID — no manual Cognito endpoint construction required. Creates a native API Gateway JWT authorizer; verification is handled entirely by API Gateway with no Lambda or custom code. Pass authorizerId to HttpApi defaultAuthorizerId to protect your API routes.",
+      "inputProperties": {
+        "userPoolId": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The Cognito user pool ID. Pass pool.userPoolId directly. Accepts Output<string>. Anvil derives the issuer URL automatically: https://cognito-idp.{region}.amazonaws.com/{userPoolId}."
+        },
+        "audience": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "The Cognito app client IDs allowed to access this API. API Gateway rejects tokens whose 'aud' claim does not match one of these values. Pass your Cognito app client ID(s) here."
+        }
+      },
+      "requiredInputs": ["userPoolId", "audience"],
+      "properties": {
+        "authorizerId": {
+          "type": "string",
+          "description": "The API Gateway authorizer ID. Pass this to HttpApi defaultAuthorizerId to protect your API routes."
+        }
+      },
+      "required": ["authorizerId"]
+    }
+  },
+  "x-upstream-provider": "aws",
+  "x-upstream-version": "v7.23.0"
+}

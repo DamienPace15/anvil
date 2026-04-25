@@ -2726,6 +2726,14 @@ class HttpApiRouteArgsDict(TypedDict):
     """
     The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.
     """
+    scopes: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    OAuth scopes required to access this route. API Gateway rejects tokens that do not contain all listed scopes. Only applies when defaultAuthorizerId is set and skipAuth is false. Example: ['read:users', 'write:orders'].
+    """
+    skip_auth: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Explicitly opt this route out of the API-level defaultAuthorizer. Use for health checks, webhook endpoints, or any route that handles its own validation. Has no effect if defaultAuthorizerId is not set.
+    """
     throttling: NotRequired[pulumi.Input['HttpApiThrottlingArgsDict']]
     """
     Optional per-route throttling override. Inherits API-level throttling when omitted.
@@ -2737,6 +2745,8 @@ class HttpApiRouteArgs:
                  consumer: pulumi.Input['HttpApiRouteConsumerArgs'],
                  method: pulumi.Input['HttpApiMethod'],
                  path: pulumi.Input[_builtins.str],
+                 scopes: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 skip_auth: Optional[pulumi.Input[_builtins.bool]] = None,
                  throttling: Optional[pulumi.Input['HttpApiThrottlingArgs']] = None):
         """
         A single route on the HTTP API mapping a method and path to a consumer target.
@@ -2744,11 +2754,17 @@ class HttpApiRouteArgs:
         :param pulumi.Input['HttpApiRouteConsumerArgs'] consumer: The target that handles this route. Exactly one consumer type must be set.
         :param pulumi.Input['HttpApiMethod'] method: The HTTP method for this route.
         :param pulumi.Input[_builtins.str] path: The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] scopes: OAuth scopes required to access this route. API Gateway rejects tokens that do not contain all listed scopes. Only applies when defaultAuthorizerId is set and skipAuth is false. Example: ['read:users', 'write:orders'].
+        :param pulumi.Input[_builtins.bool] skip_auth: Explicitly opt this route out of the API-level defaultAuthorizer. Use for health checks, webhook endpoints, or any route that handles its own validation. Has no effect if defaultAuthorizerId is not set.
         :param pulumi.Input['HttpApiThrottlingArgs'] throttling: Optional per-route throttling override. Inherits API-level throttling when omitted.
         """
         pulumi.set(__self__, "consumer", consumer)
         pulumi.set(__self__, "method", method)
         pulumi.set(__self__, "path", path)
+        if scopes is not None:
+            pulumi.set(__self__, "scopes", scopes)
+        if skip_auth is not None:
+            pulumi.set(__self__, "skip_auth", skip_auth)
         if throttling is not None:
             pulumi.set(__self__, "throttling", throttling)
 
@@ -2787,6 +2803,30 @@ class HttpApiRouteArgs:
     @path.setter
     def path(self, value: pulumi.Input[_builtins.str]):
         pulumi.set(self, "path", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def scopes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        OAuth scopes required to access this route. API Gateway rejects tokens that do not contain all listed scopes. Only applies when defaultAuthorizerId is set and skipAuth is false. Example: ['read:users', 'write:orders'].
+        """
+        return pulumi.get(self, "scopes")
+
+    @scopes.setter
+    def scopes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "scopes", value)
+
+    @_builtins.property
+    @pulumi.getter(name="skipAuth")
+    def skip_auth(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Explicitly opt this route out of the API-level defaultAuthorizer. Use for health checks, webhook endpoints, or any route that handles its own validation. Has no effect if defaultAuthorizerId is not set.
+        """
+        return pulumi.get(self, "skip_auth")
+
+    @skip_auth.setter
+    def skip_auth(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "skip_auth", value)
 
     @_builtins.property
     @pulumi.getter

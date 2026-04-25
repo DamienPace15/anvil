@@ -120,6 +120,17 @@ type HttpApiRoute struct {
 	// Throttling overrides the API-level throttling for this specific route.
 	// Omit to inherit API-level throttling.
 	Throttling *HttpApiThrottling `pulumi:"throttling,optional"`
+
+	// SkipAuth explicitly opts this route out of the API-level defaultAuthorizer.
+	// Use for health checks, webhook endpoints, or any route that handles its own
+	// validation. Has no effect if defaultAuthorizerId is not set on the API.
+	SkipAuth bool `pulumi:"skipAuth,optional"`
+
+	// Scopes is the list of OAuth scopes required to access this route.
+	// API Gateway rejects tokens that do not contain all listed scopes.
+	// Only applies when defaultAuthorizerId is set and skipAuth is false.
+	// Example: ["read:users", "write:users"]
+	Scopes []string `pulumi:"scopes,optional"`
 }
 
 // ── Throttling ─────────────────────────────────────────────────────────────
@@ -231,6 +242,12 @@ type HttpApiArgs struct {
 	// LogRetention sets the CloudWatch access log retention period.
 	// Presets: "7d" | "30d" | "90d" | "1y" | "3y" | "6y" | "7y". Default: "1y".
 	LogRetention string `pulumi:"logRetention,optional"`
+
+	// DefaultAuthorizerId is the API Gateway authorizer ID to apply to all routes.
+	// Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component.
+	// All routes inherit this authorizer unless skipAuth: true is set on the route.
+	// Omit to leave all routes public (no auth).
+	DefaultAuthorizerId pulumi.StringInput `pulumi:"defaultAuthorizerId,optional"`
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -500,23 +517,23 @@ func NewHttpApi(ctx *pulumi.Context, name string, args HttpApiArgs, opts ...pulu
 
 		switch consumerType {
 		case "lambda":
-			if err := wireLambdaIntegration(ctx, name, routeSuffix, api, apiStage, route, h); err != nil {
+			if err := wireLambdaIntegration(ctx, name, routeSuffix, api, apiStage, route, args.DefaultAuthorizerId, h); err != nil {
 				return nil, err
 			}
 		case "sqs":
-			if err := wireSqsIntegration(ctx, name, routeSuffix, api, apiStage, route, stage, stageId, h); err != nil {
+			if err := wireSqsIntegration(ctx, name, routeSuffix, api, apiStage, route, stage, stageId, args.DefaultAuthorizerId, h); err != nil {
 				return nil, err
 			}
 		case "eventBridge":
-			if err := wireEventBridgeIntegration(ctx, name, routeSuffix, api, apiStage, route, stage, stageId, h); err != nil {
+			if err := wireEventBridgeIntegration(ctx, name, routeSuffix, api, apiStage, route, stage, stageId, args.DefaultAuthorizerId, h); err != nil {
 				return nil, err
 			}
 		case "stepFunctions":
-			if err := wireStepFunctionsIntegration(ctx, name, routeSuffix, api, apiStage, route, stage, stageId, h); err != nil {
+			if err := wireStepFunctionsIntegration(ctx, name, routeSuffix, api, apiStage, route, stage, stageId, args.DefaultAuthorizerId, h); err != nil {
 				return nil, err
 			}
 		case "http":
-			if err := wireHttpIntegration(ctx, name, routeSuffix, api, apiStage, route, h); err != nil {
+			if err := wireHttpIntegration(ctx, name, routeSuffix, api, apiStage, route, args.DefaultAuthorizerId, h); err != nil {
 				return nil, err
 			}
 		}
@@ -580,15 +597,13 @@ func wireLambdaIntegration(
 	api *apigatewayv2.Api,
 	stage *apigatewayv2.Stage,
 	route HttpApiRoute,
+	defaultAuthorizerId pulumi.StringInput,
 	parent pulumi.Resource,
 ) error {
 	lambdaArn := route.Consumer.Lambda.Arn.ToStringOutput()
 
 	// Integration URI for Lambda proxy uses the invocation ARN format.
 	integrationUri := lambdaArn.ApplyT(func(arn string) string {
-		// Convert function ARN to invocation ARN
-		// arn:aws:lambda:region:account:function:name ->
-		// arn:aws:apigateway:region:lambda:path/2015-03-31/functions/arn:.../invocations
 		return arn
 	}).(pulumi.StringOutput)
 
@@ -598,9 +613,7 @@ func wireLambdaIntegration(
 		IntegrationUri:       integrationUri,
 		IntegrationMethod:    pulumi.String("POST"),
 		PayloadFormatVersion: pulumi.String("2.0"),
-		// 1MB payload limit — protects Lambda from large payloads that could
-		// cause memory pressure or unexpected costs. Override via transform.
-		TimeoutMilliseconds: pulumi.Int(29000),
+		TimeoutMilliseconds:  pulumi.Int(29000),
 	}, pulumi.Parent(parent))
 	if err != nil {
 		return fmt.Errorf("failed to create Lambda integration for route %s %s: %w", route.Method, route.Path, err)
@@ -619,7 +632,7 @@ func wireLambdaIntegration(
 		return fmt.Errorf("failed to create Lambda invoke permission for route %s %s: %w", route.Method, route.Path, err)
 	}
 
-	return createRoute(ctx, apiName, routeSuffix, api, stage, route, integration.ID().ToStringOutput(), parent)
+	return createRoute(ctx, apiName, routeSuffix, api, stage, route, integration.ID().ToStringOutput(), defaultAuthorizerId, parent)
 }
 
 // wireSqsIntegration creates a direct SQS integration.
@@ -635,6 +648,7 @@ func wireSqsIntegration(
 	route HttpApiRoute,
 	appStage string,
 	stageId string,
+	defaultAuthorizerId pulumi.StringInput,
 	parent pulumi.Resource,
 ) error {
 	queueArn := route.Consumer.Sqs.Arn.ToStringOutput()
@@ -670,7 +684,7 @@ func wireSqsIntegration(
 		return fmt.Errorf("failed to create SQS integration for route %s %s: %w", route.Method, route.Path, err)
 	}
 
-	return createRoute(ctx, apiName, routeSuffix, api, stage, route, integration.ID().ToStringOutput(), parent)
+	return createRoute(ctx, apiName, routeSuffix, api, stage, route, integration.ID().ToStringOutput(), defaultAuthorizerId, parent)
 }
 
 // wireEventBridgeIntegration creates a direct EventBridge integration.
@@ -685,6 +699,7 @@ func wireEventBridgeIntegration(
 	route HttpApiRoute,
 	appStage string,
 	stageId string,
+	defaultAuthorizerId pulumi.StringInput,
 	parent pulumi.Resource,
 ) error {
 	busName := route.Consumer.EventBridge.Name.ToStringOutput()
@@ -719,7 +734,7 @@ func wireEventBridgeIntegration(
 		return fmt.Errorf("failed to create EventBridge integration for route %s %s: %w", route.Method, route.Path, err)
 	}
 
-	return createRoute(ctx, apiName, routeSuffix, api, stage, route, integration.ID().ToStringOutput(), parent)
+	return createRoute(ctx, apiName, routeSuffix, api, stage, route, integration.ID().ToStringOutput(), defaultAuthorizerId, parent)
 }
 
 // wireStepFunctionsIntegration creates a direct Step Functions integration.
@@ -734,6 +749,7 @@ func wireStepFunctionsIntegration(
 	route HttpApiRoute,
 	appStage string,
 	stageId string,
+	defaultAuthorizerId pulumi.StringInput,
 	parent pulumi.Resource,
 ) error {
 	smArn := route.Consumer.StepFunctions.Arn.ToStringOutput()
@@ -774,7 +790,7 @@ func wireStepFunctionsIntegration(
 		return fmt.Errorf("failed to create Step Functions integration for route %s %s: %w", route.Method, route.Path, err)
 	}
 
-	return createRoute(ctx, apiName, routeSuffix, api, stage, route, integration.ID().ToStringOutput(), parent)
+	return createRoute(ctx, apiName, routeSuffix, api, stage, route, integration.ID().ToStringOutput(), defaultAuthorizerId, parent)
 }
 
 // wireHttpIntegration creates an HTTP_PROXY integration to an external URL.
@@ -786,6 +802,7 @@ func wireHttpIntegration(
 	api *apigatewayv2.Api,
 	stage *apigatewayv2.Stage,
 	route HttpApiRoute,
+	defaultAuthorizerId pulumi.StringInput,
 	parent pulumi.Resource,
 ) error {
 	integration, err := apigatewayv2.NewIntegration(ctx, apiName+"-int-"+routeSuffix, &apigatewayv2.IntegrationArgs{
@@ -800,11 +817,12 @@ func wireHttpIntegration(
 		return fmt.Errorf("failed to create HTTP proxy integration for route %s %s: %w", route.Method, route.Path, err)
 	}
 
-	return createRoute(ctx, apiName, routeSuffix, api, stage, route, integration.ID().ToStringOutput(), parent)
+	return createRoute(ctx, apiName, routeSuffix, api, stage, route, integration.ID().ToStringOutput(), defaultAuthorizerId, parent)
 }
 
 // createRoute creates the API Gateway v2 route resource linking a method+path to an integration.
-// Per-route throttling is applied when configured, otherwise inherits stage defaults.
+// When defaultAuthorizerId is set, all routes inherit JWT auth unless skipAuth is true.
+// Per-route scopes are applied when configured.
 func createRoute(
 	ctx *pulumi.Context,
 	apiName string,
@@ -813,11 +831,12 @@ func createRoute(
 	stage *apigatewayv2.Stage,
 	route HttpApiRoute,
 	integrationId pulumi.StringOutput,
+	defaultAuthorizerId pulumi.StringInput,
 	parent pulumi.Resource,
 ) error {
 	routeKey := fmt.Sprintf("%s %s", route.Method, route.Path)
 	if route.Method == "ANY" {
-		routeKey = fmt.Sprintf("$default")
+		routeKey = "$default"
 	}
 
 	routeArgs := &apigatewayv2.RouteArgs{
@@ -826,6 +845,25 @@ func createRoute(
 		Target: integrationId.ApplyT(func(id string) string {
 			return "integrations/" + id
 		}).(pulumi.StringOutput),
+	}
+
+	if defaultAuthorizerId != nil {
+		if route.SkipAuth {
+			// Explicit opt-out — route is public even though a default authorizer is set.
+			routeArgs.AuthorizationType = pulumi.StringPtr("NONE")
+		} else {
+			// Inherit the default authorizer.
+			routeArgs.AuthorizationType = pulumi.StringPtr("JWT")
+			routeArgs.AuthorizerId = defaultAuthorizerId.ToStringOutput()
+
+			if len(route.Scopes) > 0 {
+				scopes := make(pulumi.StringArray, len(route.Scopes))
+				for i, s := range route.Scopes {
+					scopes[i] = pulumi.String(s)
+				}
+				routeArgs.AuthorizationScopes = scopes
+			}
+		}
 	}
 
 	_, err := apigatewayv2.NewRoute(ctx, apiName+"-route-"+routeSuffix, routeArgs, pulumi.Parent(parent))

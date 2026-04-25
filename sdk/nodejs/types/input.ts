@@ -564,6 +564,14 @@ export namespace aws {
          */
         path: pulumi.Input<string>;
         /**
+         * OAuth scopes required to access this route. API Gateway rejects tokens that do not contain all listed scopes. Only applies when defaultAuthorizerId is set and skipAuth is false. Example: ['read:users', 'write:orders'].
+         */
+        scopes?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Explicitly opt this route out of the API-level defaultAuthorizer. Use for health checks, webhook endpoints, or any route that handles its own validation. Has no effect if defaultAuthorizerId is not set.
+         */
+        skipAuth?: pulumi.Input<boolean>;
+        /**
          * Optional per-route throttling override. Inherits API-level throttling when omitted.
          */
         throttling?: pulumi.Input<inputs.aws.HttpApiThrottlingArgs>;

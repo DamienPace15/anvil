@@ -10,6 +10,11 @@ export type Bucket = import("./bucket").Bucket;
 export const Bucket: typeof import("./bucket").Bucket = null as any;
 utilities.lazyLoad(exports, ["Bucket"], () => require("./bucket"));
 
+export { CognitoAuthArgs } from "./cognitoAuth";
+export type CognitoAuth = import("./cognitoAuth").CognitoAuth;
+export const CognitoAuth: typeof import("./cognitoAuth").CognitoAuth = null as any;
+utilities.lazyLoad(exports, ["CognitoAuth"], () => require("./cognitoAuth"));
+
 export { EventBusArgs } from "./eventBus";
 export type EventBus = import("./eventBus").EventBus;
 export const EventBus: typeof import("./eventBus").EventBus = null as any;
@@ -24,6 +29,11 @@ export { LambdaArgs } from "./lambda";
 export type Lambda = import("./lambda").Lambda;
 export const Lambda: typeof import("./lambda").Lambda = null as any;
 utilities.lazyLoad(exports, ["Lambda"], () => require("./lambda"));
+
+export { OAuthAuthorizerArgs } from "./oauthAuthorizer";
+export type OAuthAuthorizer = import("./oauthAuthorizer").OAuthAuthorizer;
+export const OAuthAuthorizer: typeof import("./oauthAuthorizer").OAuthAuthorizer = null as any;
+utilities.lazyLoad(exports, ["OAuthAuthorizer"], () => require("./oauthAuthorizer"));
 
 export { QueueArgs } from "./queue";
 export type Queue = import("./queue").Queue;
@@ -55,12 +65,16 @@ const _module = {
         switch (type) {
             case "anvil:aws:Bucket":
                 return new Bucket(name, <any>undefined, { urn })
+            case "anvil:aws:CognitoAuth":
+                return new CognitoAuth(name, <any>undefined, { urn })
             case "anvil:aws:EventBus":
                 return new EventBus(name, <any>undefined, { urn })
             case "anvil:aws:HttpApi":
                 return new HttpApi(name, <any>undefined, { urn })
             case "anvil:aws:Lambda":
                 return new Lambda(name, <any>undefined, { urn })
+            case "anvil:aws:OAuthAuthorizer":
+                return new OAuthAuthorizer(name, <any>undefined, { urn })
             case "anvil:aws:Queue":
                 return new Queue(name, <any>undefined, { urn })
             case "anvil:aws:SvelteKitSite":
