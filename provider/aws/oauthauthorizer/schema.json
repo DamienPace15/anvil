@@ -1,0 +1,29 @@
+{
+  "resources": {
+    "anvil:aws:OAuthAuthorizer": {
+      "isComponent": true,
+      "description": "An Anvil-managed JWT authorizer for HTTP API Gateway. Works with any OIDC-compliant identity provider — Auth0, Clerk, Google, Okta, Cognito. API Gateway verifies the JWT signature, issuer, audience, and expiry on every request natively — no Lambda or custom code required. Pass authorizerId to HttpApi defaultAuthorizerId to protect your routes.",
+      "inputProperties": {
+        "issuer": {
+          "type": "string",
+          "description": "The OIDC issuer URL of your identity provider. API Gateway fetches public signing keys from {issuer}/.well-known/jwks.json to verify token signatures. Examples: Auth0: 'https://your-tenant.auth0.com/', Clerk: 'https://your-instance.clerk.accounts.dev', Google: 'https://accounts.google.com'."
+        },
+        "audience": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "The intended recipients of the JWT. API Gateway rejects tokens whose 'aud' claim does not match one of these values. Typically your API's client ID registered with the identity provider."
+        }
+      },
+      "requiredInputs": ["issuer", "audience"],
+      "properties": {
+        "authorizerId": {
+          "type": "string",
+          "description": "The API Gateway authorizer ID. Pass this to HttpApi defaultAuthorizerId to protect your API routes."
+        }
+      },
+      "required": ["authorizerId"]
+    }
+  },
+  "x-upstream-provider": "aws",
+  "x-upstream-version": "v7.23.0"
+}

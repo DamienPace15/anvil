@@ -14,10 +14,12 @@
     },
     "files": [
         "aws/bucket.ts",
+        "aws/cognitoAuth.ts",
         "aws/eventBus.ts",
         "aws/httpApi.ts",
         "aws/index.ts",
         "aws/lambda.ts",
+        "aws/oauthAuthorizer.ts",
         "aws/queue.ts",
         "aws/svelteKitSite.ts",
         "aws/vpc.ts",

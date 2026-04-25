@@ -57,6 +57,7 @@ export class HttpApi extends pulumi.ComponentResource {
                 throw new Error("Missing required property 'routes'");
             }
             resourceInputs["cors"] = args?.cors;
+            resourceInputs["defaultAuthorizerId"] = args?.defaultAuthorizerId;
             resourceInputs["domain"] = args?.domain;
             resourceInputs["logRetention"] = args?.logRetention;
             resourceInputs["routes"] = args?.routes;
@@ -84,6 +85,10 @@ export interface HttpApiArgs {
      * Optional CORS configuration. Opt-in — omit to disable CORS entirely. When enabled, allowOrigins is required and wildcard '*' is blocked as a security measure.
      */
     cors?: pulumi.Input<inputs.aws.HttpApiCorsArgs>;
+    /**
+     * The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
+     */
+    defaultAuthorizerId?: any;
     /**
      * Optional custom domain for the API. When set, Anvil provisions the ACM certificate, API Gateway domain name, and Route 53 DNS record automatically. The raw execute-api endpoint is disabled — all traffic must flow through the custom domain.
      */

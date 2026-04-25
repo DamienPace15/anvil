@@ -5044,6 +5044,10 @@ type HttpApiRoute struct {
 	Method HttpApiMethod `pulumi:"method"`
 	// The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.
 	Path string `pulumi:"path"`
+	// OAuth scopes required to access this route. API Gateway rejects tokens that do not contain all listed scopes. Only applies when defaultAuthorizerId is set and skipAuth is false. Example: ['read:users', 'write:orders'].
+	Scopes []string `pulumi:"scopes"`
+	// Explicitly opt this route out of the API-level defaultAuthorizer. Use for health checks, webhook endpoints, or any route that handles its own validation. Has no effect if defaultAuthorizerId is not set.
+	SkipAuth *bool `pulumi:"skipAuth"`
 	// Optional per-route throttling override. Inherits API-level throttling when omitted.
 	Throttling *HttpApiThrottling `pulumi:"throttling"`
 }
@@ -5067,6 +5071,10 @@ type HttpApiRouteArgs struct {
 	Method HttpApiMethodInput `pulumi:"method"`
 	// The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.
 	Path pulumi.StringInput `pulumi:"path"`
+	// OAuth scopes required to access this route. API Gateway rejects tokens that do not contain all listed scopes. Only applies when defaultAuthorizerId is set and skipAuth is false. Example: ['read:users', 'write:orders'].
+	Scopes pulumi.StringArrayInput `pulumi:"scopes"`
+	// Explicitly opt this route out of the API-level defaultAuthorizer. Use for health checks, webhook endpoints, or any route that handles its own validation. Has no effect if defaultAuthorizerId is not set.
+	SkipAuth pulumi.BoolPtrInput `pulumi:"skipAuth"`
 	// Optional per-route throttling override. Inherits API-level throttling when omitted.
 	Throttling HttpApiThrottlingPtrInput `pulumi:"throttling"`
 }
@@ -5136,6 +5144,16 @@ func (o HttpApiRouteOutput) Method() HttpApiMethodOutput {
 // The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.
 func (o HttpApiRouteOutput) Path() pulumi.StringOutput {
 	return o.ApplyT(func(v HttpApiRoute) string { return v.Path }).(pulumi.StringOutput)
+}
+
+// OAuth scopes required to access this route. API Gateway rejects tokens that do not contain all listed scopes. Only applies when defaultAuthorizerId is set and skipAuth is false. Example: ['read:users', 'write:orders'].
+func (o HttpApiRouteOutput) Scopes() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v HttpApiRoute) []string { return v.Scopes }).(pulumi.StringArrayOutput)
+}
+
+// Explicitly opt this route out of the API-level defaultAuthorizer. Use for health checks, webhook endpoints, or any route that handles its own validation. Has no effect if defaultAuthorizerId is not set.
+func (o HttpApiRouteOutput) SkipAuth() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v HttpApiRoute) *bool { return v.SkipAuth }).(pulumi.BoolPtrOutput)
 }
 
 // Optional per-route throttling override. Inherits API-level throttling when omitted.

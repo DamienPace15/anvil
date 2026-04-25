@@ -4,6 +4,10 @@
       "isComponent": true,
       "description": "An Anvil-managed AWS HTTP API Gateway (API Gateway v2). Route-level consumers support Lambda, SQS, EventBridge, Step Functions, and HTTP proxy integrations. Secure by default: TLS 1.2 minimum enforced on custom domains, execute-api endpoint disabled when a custom domain is set, conservative throttling defaults (1000 rps / 500 burst), CORS opt-in with wildcard origin blocked, per-consumer least-privilege IAM roles, access logs on by default.",
       "inputProperties": {
+        "defaultAuthorizerId": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public."
+        },
         "routes": {
           "type": "array",
           "items": { "$ref": "#/types/anvil:aws:HttpApiRoute" },
@@ -68,6 +72,15 @@
       "type": "object",
       "description": "A single route on the HTTP API mapping a method and path to a consumer target.",
       "properties": {
+        "skipAuth": {
+          "type": "boolean",
+          "description": "Explicitly opt this route out of the API-level defaultAuthorizer. Use for health checks, webhook endpoints, or any route that handles its own validation. Has no effect if defaultAuthorizerId is not set."
+        },
+        "scopes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "OAuth scopes required to access this route. API Gateway rejects tokens that do not contain all listed scopes. Only applies when defaultAuthorizerId is set and skipAuth is false. Example: ['read:users', 'write:orders']."
+        },
         "method": {
           "$ref": "#/types/anvil:aws:HttpApiMethod",
           "description": "The HTTP method for this route."

@@ -125,6 +125,36 @@
       ],
       "requiredInputs": []
     },
+    "anvil:aws:CognitoAuth": {
+      "description": "An Anvil-managed JWT authorizer backed by a Cognito user pool. Derives the issuer URL automatically from the user pool ID — no manual Cognito endpoint construction required. Creates a native API Gateway JWT authorizer; verification is handled entirely by API Gateway with no Lambda or custom code. Pass authorizerId to HttpApi defaultAuthorizerId to protect your API routes.",
+      "inputProperties": {
+        "audience": {
+          "description": "The Cognito app client IDs allowed to access this API. API Gateway rejects tokens whose 'aud' claim does not match one of these values. Pass your Cognito app client ID(s) here.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "userPoolId": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The Cognito user pool ID. Pass pool.userPoolId directly. Accepts Output\u003cstring\u003e. Anvil derives the issuer URL automatically: https://cognito-idp.{region}.amazonaws.com/{userPoolId}."
+        }
+      },
+      "isComponent": true,
+      "properties": {
+        "authorizerId": {
+          "description": "The API Gateway authorizer ID. Pass this to HttpApi defaultAuthorizerId to protect your API routes.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "authorizerId"
+      ],
+      "requiredInputs": [
+        "userPoolId",
+        "audience"
+      ]
+    },
     "anvil:aws:EventBus": {
       "description": "An Anvil-managed EventBridge event bus. Archives events for 7 days by default for replay and debugging. Rules route matching events to Lambda targets.",
       "inputProperties": {
@@ -162,6 +192,10 @@
         "cors": {
           "$ref": "#/types/anvil:aws:HttpApiCors",
           "description": "Optional CORS configuration. Opt-in — omit to disable CORS entirely. When enabled, allowOrigins is required and wildcard '*' is blocked as a security measure."
+        },
+        "defaultAuthorizerId": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public."
         },
         "domain": {
           "$ref": "#/types/anvil:aws:HttpApiDomain",
@@ -307,6 +341,36 @@
       "requiredInputs": [
         "runtime",
         "handler"
+      ]
+    },
+    "anvil:aws:OAuthAuthorizer": {
+      "description": "An Anvil-managed JWT authorizer for HTTP API Gateway. Works with any OIDC-compliant identity provider — Auth0, Clerk, Google, Okta, Cognito. API Gateway verifies the JWT signature, issuer, audience, and expiry on every request natively — no Lambda or custom code required. Pass authorizerId to HttpApi defaultAuthorizerId to protect your routes.",
+      "inputProperties": {
+        "audience": {
+          "description": "The intended recipients of the JWT. API Gateway rejects tokens whose 'aud' claim does not match one of these values. Typically your API's client ID registered with the identity provider.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "issuer": {
+          "description": "The OIDC issuer URL of your identity provider. API Gateway fetches public signing keys from {issuer}/.well-known/jwks.json to verify token signatures. Examples: Auth0: 'https://your-tenant.auth0.com/', Clerk: 'https://your-instance.clerk.accounts.dev', Google: 'https://accounts.google.com'.",
+          "type": "string"
+        }
+      },
+      "isComponent": true,
+      "properties": {
+        "authorizerId": {
+          "description": "The API Gateway authorizer ID. Pass this to HttpApi defaultAuthorizerId to protect your API routes.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "authorizerId"
+      ],
+      "requiredInputs": [
+        "issuer",
+        "audience"
       ]
     },
     "anvil:aws:Queue": {
@@ -1381,6 +1445,17 @@
         "path": {
           "description": "The route path. e.g. '/users' or '/users/{id}'. Use {param} for path parameters and {proxy+} for greedy paths.",
           "type": "string"
+        },
+        "scopes": {
+          "description": "OAuth scopes required to access this route. API Gateway rejects tokens that do not contain all listed scopes. Only applies when defaultAuthorizerId is set and skipAuth is false. Example: ['read:users', 'write:orders'].",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "skipAuth": {
+          "description": "Explicitly opt this route out of the API-level defaultAuthorizer. Use for health checks, webhook endpoints, or any route that handles its own validation. Has no effect if defaultAuthorizerId is not set.",
+          "type": "boolean"
         },
         "throttling": {
           "$ref": "#/types/anvil:aws:HttpApiThrottling",

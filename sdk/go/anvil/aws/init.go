@@ -23,12 +23,16 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 	switch typ {
 	case "anvil:aws:Bucket":
 		r = &Bucket{}
+	case "anvil:aws:CognitoAuth":
+		r = &CognitoAuth{}
 	case "anvil:aws:EventBus":
 		r = &EventBus{}
 	case "anvil:aws:HttpApi":
 		r = &HttpApi{}
 	case "anvil:aws:Lambda":
 		r = &Lambda{}
+	case "anvil:aws:OAuthAuthorizer":
+		r = &OAuthAuthorizer{}
 	case "anvil:aws:Queue":
 		r = &Queue{}
 	case "anvil:aws:SvelteKitSite":

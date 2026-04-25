@@ -8,9 +8,11 @@ import (
 
 	"github.com/pulumi/pulumi-go-provider/infer"
 	awsbucket "github.com/DamienPace15/anvil/provider/aws/bucket"
+	awscognitoAuth "github.com/DamienPace15/anvil/provider/aws/cognitoAuth"
 	awseventBridge "github.com/DamienPace15/anvil/provider/aws/eventBridge"
 	awshttpapi "github.com/DamienPace15/anvil/provider/aws/httpapi"
 	awslambda "github.com/DamienPace15/anvil/provider/aws/lambda"
+	awsoauthauthorizer "github.com/DamienPace15/anvil/provider/aws/oauthauthorizer"
 	awsqueue "github.com/DamienPace15/anvil/provider/aws/queue"
 	awssveltekitsite "github.com/DamienPace15/anvil/provider/aws/sveltekitsite"
 	awsvpc "github.com/DamienPace15/anvil/provider/aws/vpc"
@@ -23,9 +25,11 @@ func main() {
 	p, err := infer.NewProviderBuilder().
 		WithComponents(
 			infer.ComponentF(awsbucket.NewBucket),
+			infer.ComponentF(awscognitoAuth.NewCognitoAuth),
 			infer.ComponentF(awseventBridge.NewEventBus),
 			infer.ComponentF(awshttpapi.NewHttpApi),
 			infer.ComponentF(awslambda.NewLambda),
+			infer.ComponentF(awsoauthauthorizer.NewOAuthAuthorizer),
 			infer.ComponentF(awsqueue.NewQueue),
 			infer.ComponentF(awssveltekitsite.NewSvelteKitSite),
 			infer.ComponentF(awsvpc.NewVpc),

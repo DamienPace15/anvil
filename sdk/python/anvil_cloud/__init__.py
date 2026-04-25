@@ -28,9 +28,11 @@ _utilities.register(
   "fqn": "anvil_cloud.aws",
   "classes": {
    "anvil:aws:Bucket": "Bucket",
+   "anvil:aws:CognitoAuth": "CognitoAuth",
    "anvil:aws:EventBus": "EventBus",
    "anvil:aws:HttpApi": "HttpApi",
    "anvil:aws:Lambda": "Lambda",
+   "anvil:aws:OAuthAuthorizer": "OAuthAuthorizer",
    "anvil:aws:Queue": "Queue",
    "anvil:aws:SvelteKitSite": "SvelteKitSite",
    "anvil:aws:Vpc": "Vpc",
