@@ -45,6 +45,28 @@ __all__ = [
     'BucketVersioningTransformArgsDict',
     'BucketWebsiteConfigurationTransformArgs',
     'BucketWebsiteConfigurationTransformArgsDict',
+    'CognitoUserPoolAppClientArgs',
+    'CognitoUserPoolAppClientArgsDict',
+    'CognitoUserPoolAttributesArgs',
+    'CognitoUserPoolAttributesArgsDict',
+    'CognitoUserPoolCustomAttributeArgs',
+    'CognitoUserPoolCustomAttributeArgsDict',
+    'CognitoUserPoolEmailConfigurationArgs',
+    'CognitoUserPoolEmailConfigurationArgsDict',
+    'CognitoUserPoolHostedUiArgs',
+    'CognitoUserPoolHostedUiArgsDict',
+    'CognitoUserPoolIdentityProviderArgs',
+    'CognitoUserPoolIdentityProviderArgsDict',
+    'CognitoUserPoolMfaArgs',
+    'CognitoUserPoolMfaArgsDict',
+    'CognitoUserPoolOverridesArgs',
+    'CognitoUserPoolOverridesArgsDict',
+    'CognitoUserPoolPasswordPolicyArgs',
+    'CognitoUserPoolPasswordPolicyArgsDict',
+    'CognitoUserPoolTokenValidityArgs',
+    'CognitoUserPoolTokenValidityArgsDict',
+    'CognitoUserPoolTransformArgsArgs',
+    'CognitoUserPoolTransformArgsArgsDict',
     'EventBridgeOverridesArgs',
     'EventBridgeOverridesArgsDict',
     'EventBridgeTransformArgsArgs',
@@ -1843,6 +1865,1498 @@ class BucketWebsiteConfigurationTransformArgs:
     @routing_rules.setter
     def routing_rules(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.s3.BucketWebsiteConfigurationRoutingRuleArgs']]]]):
         pulumi.set(self, "routing_rules", value)
+
+
+class CognitoUserPoolAppClientArgsDict(TypedDict):
+    """
+    Default app client configuration. Covers the 80% case — one client per pool.
+    """
+    callback_urls: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Allowed redirect URLs after successful sign-in. Required when using the hosted UI.
+    """
+    generate_secret: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Generate a client secret. Required for confidential clients (server-side apps). Must NOT be set for SPAs — never expose secrets in browser code. Default: false.
+    """
+    logout_urls: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Allowed redirect URLs after sign-out.
+    """
+    oauth_flows: NotRequired[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolOAuthFlow']]]]
+    """
+    Allowed OAuth flows. Default: [code]. Use code (PKCE) for SPAs and server apps. client_credentials for M2M.
+    """
+    oauth_scopes: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    OAuth scopes to allow. Default: [openid, email, profile].
+    """
+    supported_identity_providers: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Identity providers shown on the hosted UI login page for this client. Default: [COGNITO]. Add provider names from identityProviders here to show social login buttons.
+    """
+    token_validity: NotRequired[pulumi.Input['CognitoUserPoolTokenValidityArgsDict']]
+    """
+    Token validity periods. Anvil defaults: access 1h, id 1h, refresh 30d.
+    """
+
+@pulumi.input_type
+class CognitoUserPoolAppClientArgs:
+    def __init__(__self__, *,
+                 callback_urls: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 generate_secret: Optional[pulumi.Input[_builtins.bool]] = None,
+                 logout_urls: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 oauth_flows: Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolOAuthFlow']]]] = None,
+                 oauth_scopes: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 supported_identity_providers: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 token_validity: Optional[pulumi.Input['CognitoUserPoolTokenValidityArgs']] = None):
+        """
+        Default app client configuration. Covers the 80% case — one client per pool.
+
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] callback_urls: Allowed redirect URLs after successful sign-in. Required when using the hosted UI.
+        :param pulumi.Input[_builtins.bool] generate_secret: Generate a client secret. Required for confidential clients (server-side apps). Must NOT be set for SPAs — never expose secrets in browser code. Default: false.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] logout_urls: Allowed redirect URLs after sign-out.
+        :param pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolOAuthFlow']]] oauth_flows: Allowed OAuth flows. Default: [code]. Use code (PKCE) for SPAs and server apps. client_credentials for M2M.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] oauth_scopes: OAuth scopes to allow. Default: [openid, email, profile].
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] supported_identity_providers: Identity providers shown on the hosted UI login page for this client. Default: [COGNITO]. Add provider names from identityProviders here to show social login buttons.
+        :param pulumi.Input['CognitoUserPoolTokenValidityArgs'] token_validity: Token validity periods. Anvil defaults: access 1h, id 1h, refresh 30d.
+        """
+        if callback_urls is not None:
+            pulumi.set(__self__, "callback_urls", callback_urls)
+        if generate_secret is not None:
+            pulumi.set(__self__, "generate_secret", generate_secret)
+        if logout_urls is not None:
+            pulumi.set(__self__, "logout_urls", logout_urls)
+        if oauth_flows is not None:
+            pulumi.set(__self__, "oauth_flows", oauth_flows)
+        if oauth_scopes is not None:
+            pulumi.set(__self__, "oauth_scopes", oauth_scopes)
+        if supported_identity_providers is not None:
+            pulumi.set(__self__, "supported_identity_providers", supported_identity_providers)
+        if token_validity is not None:
+            pulumi.set(__self__, "token_validity", token_validity)
+
+    @_builtins.property
+    @pulumi.getter(name="callbackUrls")
+    def callback_urls(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Allowed redirect URLs after successful sign-in. Required when using the hosted UI.
+        """
+        return pulumi.get(self, "callback_urls")
+
+    @callback_urls.setter
+    def callback_urls(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "callback_urls", value)
+
+    @_builtins.property
+    @pulumi.getter(name="generateSecret")
+    def generate_secret(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Generate a client secret. Required for confidential clients (server-side apps). Must NOT be set for SPAs — never expose secrets in browser code. Default: false.
+        """
+        return pulumi.get(self, "generate_secret")
+
+    @generate_secret.setter
+    def generate_secret(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "generate_secret", value)
+
+    @_builtins.property
+    @pulumi.getter(name="logoutUrls")
+    def logout_urls(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Allowed redirect URLs after sign-out.
+        """
+        return pulumi.get(self, "logout_urls")
+
+    @logout_urls.setter
+    def logout_urls(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "logout_urls", value)
+
+    @_builtins.property
+    @pulumi.getter(name="oauthFlows")
+    def oauth_flows(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolOAuthFlow']]]]:
+        """
+        Allowed OAuth flows. Default: [code]. Use code (PKCE) for SPAs and server apps. client_credentials for M2M.
+        """
+        return pulumi.get(self, "oauth_flows")
+
+    @oauth_flows.setter
+    def oauth_flows(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolOAuthFlow']]]]):
+        pulumi.set(self, "oauth_flows", value)
+
+    @_builtins.property
+    @pulumi.getter(name="oauthScopes")
+    def oauth_scopes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        OAuth scopes to allow. Default: [openid, email, profile].
+        """
+        return pulumi.get(self, "oauth_scopes")
+
+    @oauth_scopes.setter
+    def oauth_scopes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "oauth_scopes", value)
+
+    @_builtins.property
+    @pulumi.getter(name="supportedIdentityProviders")
+    def supported_identity_providers(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Identity providers shown on the hosted UI login page for this client. Default: [COGNITO]. Add provider names from identityProviders here to show social login buttons.
+        """
+        return pulumi.get(self, "supported_identity_providers")
+
+    @supported_identity_providers.setter
+    def supported_identity_providers(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "supported_identity_providers", value)
+
+    @_builtins.property
+    @pulumi.getter(name="tokenValidity")
+    def token_validity(self) -> Optional[pulumi.Input['CognitoUserPoolTokenValidityArgs']]:
+        """
+        Token validity periods. Anvil defaults: access 1h, id 1h, refresh 30d.
+        """
+        return pulumi.get(self, "token_validity")
+
+    @token_validity.setter
+    def token_validity(self, value: Optional[pulumi.Input['CognitoUserPoolTokenValidityArgs']]):
+        pulumi.set(self, "token_validity", value)
+
+
+class CognitoUserPoolAttributesArgsDict(TypedDict):
+    """
+    User attribute and sign-in configuration.
+    """
+    custom_attributes: NotRequired[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolCustomAttributeArgsDict']]]]
+    """
+    Custom attributes to add to user profiles. Cannot be deleted after pool creation.
+    """
+    required_attributes: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Standard attributes required on sign-up. Default: [email]. Cannot be changed after pool creation.
+    """
+    username_attributes: NotRequired[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolUsernameAttribute']]]]
+    """
+    Attributes users can sign in with. Default: [email]. Set to [phone_number] or [email, phone_number] to allow both. Cannot be changed after pool creation.
+    """
+
+@pulumi.input_type
+class CognitoUserPoolAttributesArgs:
+    def __init__(__self__, *,
+                 custom_attributes: Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolCustomAttributeArgs']]]] = None,
+                 required_attributes: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 username_attributes: Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolUsernameAttribute']]]] = None):
+        """
+        User attribute and sign-in configuration.
+
+        :param pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolCustomAttributeArgs']]] custom_attributes: Custom attributes to add to user profiles. Cannot be deleted after pool creation.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] required_attributes: Standard attributes required on sign-up. Default: [email]. Cannot be changed after pool creation.
+        :param pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolUsernameAttribute']]] username_attributes: Attributes users can sign in with. Default: [email]. Set to [phone_number] or [email, phone_number] to allow both. Cannot be changed after pool creation.
+        """
+        if custom_attributes is not None:
+            pulumi.set(__self__, "custom_attributes", custom_attributes)
+        if required_attributes is not None:
+            pulumi.set(__self__, "required_attributes", required_attributes)
+        if username_attributes is not None:
+            pulumi.set(__self__, "username_attributes", username_attributes)
+
+    @_builtins.property
+    @pulumi.getter(name="customAttributes")
+    def custom_attributes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolCustomAttributeArgs']]]]:
+        """
+        Custom attributes to add to user profiles. Cannot be deleted after pool creation.
+        """
+        return pulumi.get(self, "custom_attributes")
+
+    @custom_attributes.setter
+    def custom_attributes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolCustomAttributeArgs']]]]):
+        pulumi.set(self, "custom_attributes", value)
+
+    @_builtins.property
+    @pulumi.getter(name="requiredAttributes")
+    def required_attributes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Standard attributes required on sign-up. Default: [email]. Cannot be changed after pool creation.
+        """
+        return pulumi.get(self, "required_attributes")
+
+    @required_attributes.setter
+    def required_attributes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "required_attributes", value)
+
+    @_builtins.property
+    @pulumi.getter(name="usernameAttributes")
+    def username_attributes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolUsernameAttribute']]]]:
+        """
+        Attributes users can sign in with. Default: [email]. Set to [phone_number] or [email, phone_number] to allow both. Cannot be changed after pool creation.
+        """
+        return pulumi.get(self, "username_attributes")
+
+    @username_attributes.setter
+    def username_attributes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolUsernameAttribute']]]]):
+        pulumi.set(self, "username_attributes", value)
+
+
+class CognitoUserPoolCustomAttributeArgsDict(TypedDict):
+    """
+    A custom attribute to add to user profiles.
+    """
+    name: pulumi.Input[_builtins.str]
+    """
+    Attribute name. Cognito prefixes this with 'custom:' automatically.
+    """
+    mutable: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Whether the attribute can be changed after a user is created. Default: true.
+    """
+    type: NotRequired[pulumi.Input['CognitoUserPoolCustomAttributeType']]
+    """
+    Attribute data type. Default: String.
+    """
+
+@pulumi.input_type
+class CognitoUserPoolCustomAttributeArgs:
+    def __init__(__self__, *,
+                 name: pulumi.Input[_builtins.str],
+                 mutable: Optional[pulumi.Input[_builtins.bool]] = None,
+                 type: Optional[pulumi.Input['CognitoUserPoolCustomAttributeType']] = None):
+        """
+        A custom attribute to add to user profiles.
+
+        :param pulumi.Input[_builtins.str] name: Attribute name. Cognito prefixes this with 'custom:' automatically.
+        :param pulumi.Input[_builtins.bool] mutable: Whether the attribute can be changed after a user is created. Default: true.
+        :param pulumi.Input['CognitoUserPoolCustomAttributeType'] type: Attribute data type. Default: String.
+        """
+        pulumi.set(__self__, "name", name)
+        if mutable is not None:
+            pulumi.set(__self__, "mutable", mutable)
+        if type is not None:
+            pulumi.set(__self__, "type", type)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> pulumi.Input[_builtins.str]:
+        """
+        Attribute name. Cognito prefixes this with 'custom:' automatically.
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def mutable(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Whether the attribute can be changed after a user is created. Default: true.
+        """
+        return pulumi.get(self, "mutable")
+
+    @mutable.setter
+    def mutable(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "mutable", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> Optional[pulumi.Input['CognitoUserPoolCustomAttributeType']]:
+        """
+        Attribute data type. Default: String.
+        """
+        return pulumi.get(self, "type")
+
+    @type.setter
+    def type(self, value: Optional[pulumi.Input['CognitoUserPoolCustomAttributeType']]):
+        pulumi.set(self, "type", value)
+
+
+class CognitoUserPoolEmailConfigurationArgsDict(TypedDict):
+    """
+    Email delivery configuration. Default uses Cognito-managed email which has a 50 emails/day limit. Configure SES for production workloads.
+    """
+    reply_to_address: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Reply-to address shown in outgoing emails. Optional.
+    """
+    ses_from_address: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Verified SES sender address (e.g. noreply@myapp.com). Setting this switches delivery to SES, removing the 50 emails/day limit. The address must be verified in SES in the same region as the user pool.
+    """
+
+@pulumi.input_type
+class CognitoUserPoolEmailConfigurationArgs:
+    def __init__(__self__, *,
+                 reply_to_address: Optional[pulumi.Input[_builtins.str]] = None,
+                 ses_from_address: Optional[pulumi.Input[_builtins.str]] = None):
+        """
+        Email delivery configuration. Default uses Cognito-managed email which has a 50 emails/day limit. Configure SES for production workloads.
+
+        :param pulumi.Input[_builtins.str] reply_to_address: Reply-to address shown in outgoing emails. Optional.
+        :param pulumi.Input[_builtins.str] ses_from_address: Verified SES sender address (e.g. noreply@myapp.com). Setting this switches delivery to SES, removing the 50 emails/day limit. The address must be verified in SES in the same region as the user pool.
+        """
+        if reply_to_address is not None:
+            pulumi.set(__self__, "reply_to_address", reply_to_address)
+        if ses_from_address is not None:
+            pulumi.set(__self__, "ses_from_address", ses_from_address)
+
+    @_builtins.property
+    @pulumi.getter(name="replyToAddress")
+    def reply_to_address(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Reply-to address shown in outgoing emails. Optional.
+        """
+        return pulumi.get(self, "reply_to_address")
+
+    @reply_to_address.setter
+    def reply_to_address(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "reply_to_address", value)
+
+    @_builtins.property
+    @pulumi.getter(name="sesFromAddress")
+    def ses_from_address(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Verified SES sender address (e.g. noreply@myapp.com). Setting this switches delivery to SES, removing the 50 emails/day limit. The address must be verified in SES in the same region as the user pool.
+        """
+        return pulumi.get(self, "ses_from_address")
+
+    @ses_from_address.setter
+    def ses_from_address(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "ses_from_address", value)
+
+
+class CognitoUserPoolHostedUiArgsDict(TypedDict):
+    """
+    Hosted UI (Managed Login) configuration. Enables the Cognito-hosted sign-in page.
+    """
+    domain: pulumi.Input[_builtins.str]
+    """
+    Domain for the hosted UI. For Cognito-managed domains, provide just the prefix (e.g. 'myapp' → myapp.auth.{region}.amazoncognito.com). For custom domains, provide the fully-qualified domain name (e.g. 'auth.myapp.com'). Required.
+    """
+    acm_certificate_arn: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    ACM certificate ARN for the custom domain. Must be in us-east-1 regardless of user pool region — this is a hard AWS requirement. Required when customDomain is true.
+    """
+    custom_domain: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Set to true when domain is a custom FQDN you own. Requires acmCertificateArn. Anvil creates the CloudFront distribution and wires the alias automatically. Default: false.
+    """
+
+@pulumi.input_type
+class CognitoUserPoolHostedUiArgs:
+    def __init__(__self__, *,
+                 domain: pulumi.Input[_builtins.str],
+                 acm_certificate_arn: Optional[pulumi.Input[_builtins.str]] = None,
+                 custom_domain: Optional[pulumi.Input[_builtins.bool]] = None):
+        """
+        Hosted UI (Managed Login) configuration. Enables the Cognito-hosted sign-in page.
+
+        :param pulumi.Input[_builtins.str] domain: Domain for the hosted UI. For Cognito-managed domains, provide just the prefix (e.g. 'myapp' → myapp.auth.{region}.amazoncognito.com). For custom domains, provide the fully-qualified domain name (e.g. 'auth.myapp.com'). Required.
+        :param pulumi.Input[_builtins.str] acm_certificate_arn: ACM certificate ARN for the custom domain. Must be in us-east-1 regardless of user pool region — this is a hard AWS requirement. Required when customDomain is true.
+        :param pulumi.Input[_builtins.bool] custom_domain: Set to true when domain is a custom FQDN you own. Requires acmCertificateArn. Anvil creates the CloudFront distribution and wires the alias automatically. Default: false.
+        """
+        pulumi.set(__self__, "domain", domain)
+        if acm_certificate_arn is not None:
+            pulumi.set(__self__, "acm_certificate_arn", acm_certificate_arn)
+        if custom_domain is not None:
+            pulumi.set(__self__, "custom_domain", custom_domain)
+
+    @_builtins.property
+    @pulumi.getter
+    def domain(self) -> pulumi.Input[_builtins.str]:
+        """
+        Domain for the hosted UI. For Cognito-managed domains, provide just the prefix (e.g. 'myapp' → myapp.auth.{region}.amazoncognito.com). For custom domains, provide the fully-qualified domain name (e.g. 'auth.myapp.com'). Required.
+        """
+        return pulumi.get(self, "domain")
+
+    @domain.setter
+    def domain(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "domain", value)
+
+    @_builtins.property
+    @pulumi.getter(name="acmCertificateArn")
+    def acm_certificate_arn(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        ACM certificate ARN for the custom domain. Must be in us-east-1 regardless of user pool region — this is a hard AWS requirement. Required when customDomain is true.
+        """
+        return pulumi.get(self, "acm_certificate_arn")
+
+    @acm_certificate_arn.setter
+    def acm_certificate_arn(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "acm_certificate_arn", value)
+
+    @_builtins.property
+    @pulumi.getter(name="customDomain")
+    def custom_domain(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Set to true when domain is a custom FQDN you own. Requires acmCertificateArn. Anvil creates the CloudFront distribution and wires the alias automatically. Default: false.
+        """
+        return pulumi.get(self, "custom_domain")
+
+    @custom_domain.setter
+    def custom_domain(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "custom_domain", value)
+
+
+class CognitoUserPoolIdentityProviderArgsDict(TypedDict):
+    """
+    An external identity provider to federate with this user pool. Discriminated by type — the same schema covers all provider types. Add new providers by extending the identityProviders array, no schema changes required.
+    """
+    type: pulumi.Input['CognitoUserPoolIdentityProviderType']
+    """
+    Provider type. Determines which fields are required. Google/Facebook/LoginWithAmazon/SignInWithApple require clientId and clientSecret. OIDC additionally requires oidcIssuer. SAML requires metadataUrl or metadataContent.
+    """
+    attribute_mapping: NotRequired[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]
+    """
+    Maps Cognito user attributes to provider-specific claim names. Key is the Cognito attribute (e.g. 'email'), value is the provider claim (e.g. 'email' for Google, or the full SAML attribute URI for SAML providers).
+    """
+    client_id: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    OAuth client ID from the identity provider. Required for Google, Facebook, LoginWithAmazon, SignInWithApple, OIDC.
+    """
+    client_secret: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    OAuth client secret from the identity provider. Required for Google, Facebook, LoginWithAmazon, OIDC. Not used for SAML.
+    """
+    metadata_content: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Inline SAML metadata XML. Required for SAML when metadataUrl is not provided.
+    """
+    metadata_url: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    URL of the SAML metadata document. Required for SAML when metadataContent is not provided.
+    """
+    name: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Friendly name for this provider. Required for OIDC and SAML providers. Optional for well-known social providers (Google, Facebook etc.) — defaults to the type name.
+    """
+    oidc_issuer: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    OIDC issuer URL. Required when type is OIDC. Cognito fetches the discovery document from {oidcIssuer}/.well-known/openid-configuration.
+    """
+
+@pulumi.input_type
+class CognitoUserPoolIdentityProviderArgs:
+    def __init__(__self__, *,
+                 type: pulumi.Input['CognitoUserPoolIdentityProviderType'],
+                 attribute_mapping: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 client_id: Optional[pulumi.Input[_builtins.str]] = None,
+                 client_secret: Optional[pulumi.Input[_builtins.str]] = None,
+                 metadata_content: Optional[pulumi.Input[_builtins.str]] = None,
+                 metadata_url: Optional[pulumi.Input[_builtins.str]] = None,
+                 name: Optional[pulumi.Input[_builtins.str]] = None,
+                 oidc_issuer: Optional[pulumi.Input[_builtins.str]] = None):
+        """
+        An external identity provider to federate with this user pool. Discriminated by type — the same schema covers all provider types. Add new providers by extending the identityProviders array, no schema changes required.
+
+        :param pulumi.Input['CognitoUserPoolIdentityProviderType'] type: Provider type. Determines which fields are required. Google/Facebook/LoginWithAmazon/SignInWithApple require clientId and clientSecret. OIDC additionally requires oidcIssuer. SAML requires metadataUrl or metadataContent.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] attribute_mapping: Maps Cognito user attributes to provider-specific claim names. Key is the Cognito attribute (e.g. 'email'), value is the provider claim (e.g. 'email' for Google, or the full SAML attribute URI for SAML providers).
+        :param pulumi.Input[_builtins.str] client_id: OAuth client ID from the identity provider. Required for Google, Facebook, LoginWithAmazon, SignInWithApple, OIDC.
+        :param pulumi.Input[_builtins.str] client_secret: OAuth client secret from the identity provider. Required for Google, Facebook, LoginWithAmazon, OIDC. Not used for SAML.
+        :param pulumi.Input[_builtins.str] metadata_content: Inline SAML metadata XML. Required for SAML when metadataUrl is not provided.
+        :param pulumi.Input[_builtins.str] metadata_url: URL of the SAML metadata document. Required for SAML when metadataContent is not provided.
+        :param pulumi.Input[_builtins.str] name: Friendly name for this provider. Required for OIDC and SAML providers. Optional for well-known social providers (Google, Facebook etc.) — defaults to the type name.
+        :param pulumi.Input[_builtins.str] oidc_issuer: OIDC issuer URL. Required when type is OIDC. Cognito fetches the discovery document from {oidcIssuer}/.well-known/openid-configuration.
+        """
+        pulumi.set(__self__, "type", type)
+        if attribute_mapping is not None:
+            pulumi.set(__self__, "attribute_mapping", attribute_mapping)
+        if client_id is not None:
+            pulumi.set(__self__, "client_id", client_id)
+        if client_secret is not None:
+            pulumi.set(__self__, "client_secret", client_secret)
+        if metadata_content is not None:
+            pulumi.set(__self__, "metadata_content", metadata_content)
+        if metadata_url is not None:
+            pulumi.set(__self__, "metadata_url", metadata_url)
+        if name is not None:
+            pulumi.set(__self__, "name", name)
+        if oidc_issuer is not None:
+            pulumi.set(__self__, "oidc_issuer", oidc_issuer)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> pulumi.Input['CognitoUserPoolIdentityProviderType']:
+        """
+        Provider type. Determines which fields are required. Google/Facebook/LoginWithAmazon/SignInWithApple require clientId and clientSecret. OIDC additionally requires oidcIssuer. SAML requires metadataUrl or metadataContent.
+        """
+        return pulumi.get(self, "type")
+
+    @type.setter
+    def type(self, value: pulumi.Input['CognitoUserPoolIdentityProviderType']):
+        pulumi.set(self, "type", value)
+
+    @_builtins.property
+    @pulumi.getter(name="attributeMapping")
+    def attribute_mapping(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]:
+        """
+        Maps Cognito user attributes to provider-specific claim names. Key is the Cognito attribute (e.g. 'email'), value is the provider claim (e.g. 'email' for Google, or the full SAML attribute URI for SAML providers).
+        """
+        return pulumi.get(self, "attribute_mapping")
+
+    @attribute_mapping.setter
+    def attribute_mapping(self, value: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "attribute_mapping", value)
+
+    @_builtins.property
+    @pulumi.getter(name="clientId")
+    def client_id(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        OAuth client ID from the identity provider. Required for Google, Facebook, LoginWithAmazon, SignInWithApple, OIDC.
+        """
+        return pulumi.get(self, "client_id")
+
+    @client_id.setter
+    def client_id(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "client_id", value)
+
+    @_builtins.property
+    @pulumi.getter(name="clientSecret")
+    def client_secret(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        OAuth client secret from the identity provider. Required for Google, Facebook, LoginWithAmazon, OIDC. Not used for SAML.
+        """
+        return pulumi.get(self, "client_secret")
+
+    @client_secret.setter
+    def client_secret(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "client_secret", value)
+
+    @_builtins.property
+    @pulumi.getter(name="metadataContent")
+    def metadata_content(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Inline SAML metadata XML. Required for SAML when metadataUrl is not provided.
+        """
+        return pulumi.get(self, "metadata_content")
+
+    @metadata_content.setter
+    def metadata_content(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "metadata_content", value)
+
+    @_builtins.property
+    @pulumi.getter(name="metadataUrl")
+    def metadata_url(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        URL of the SAML metadata document. Required for SAML when metadataContent is not provided.
+        """
+        return pulumi.get(self, "metadata_url")
+
+    @metadata_url.setter
+    def metadata_url(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "metadata_url", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Friendly name for this provider. Required for OIDC and SAML providers. Optional for well-known social providers (Google, Facebook etc.) — defaults to the type name.
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter(name="oidcIssuer")
+    def oidc_issuer(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        OIDC issuer URL. Required when type is OIDC. Cognito fetches the discovery document from {oidcIssuer}/.well-known/openid-configuration.
+        """
+        return pulumi.get(self, "oidc_issuer")
+
+    @oidc_issuer.setter
+    def oidc_issuer(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "oidc_issuer", value)
+
+
+class CognitoUserPoolMfaArgsDict(TypedDict):
+    """
+    MFA configuration for the user pool.
+    """
+    methods: NotRequired[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolMfaMethod']]]]
+    """
+    MFA methods to enable. TOTP requires no additional AWS resources. SMS requires snsCallerArn.
+    """
+    mode: NotRequired[pulumi.Input['CognitoUserPoolMfaMode']]
+    """
+    MFA enforcement mode. Default: OFF.
+    """
+    sns_caller_arn: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    ARN of the IAM role Cognito uses to send SMS messages via SNS. Required when methods includes SMS. Anvil will create this role automatically if omitted and SMS is enabled.
+    """
+
+@pulumi.input_type
+class CognitoUserPoolMfaArgs:
+    def __init__(__self__, *,
+                 methods: Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolMfaMethod']]]] = None,
+                 mode: Optional[pulumi.Input['CognitoUserPoolMfaMode']] = None,
+                 sns_caller_arn: Optional[pulumi.Input[_builtins.str]] = None):
+        """
+        MFA configuration for the user pool.
+
+        :param pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolMfaMethod']]] methods: MFA methods to enable. TOTP requires no additional AWS resources. SMS requires snsCallerArn.
+        :param pulumi.Input['CognitoUserPoolMfaMode'] mode: MFA enforcement mode. Default: OFF.
+        :param pulumi.Input[_builtins.str] sns_caller_arn: ARN of the IAM role Cognito uses to send SMS messages via SNS. Required when methods includes SMS. Anvil will create this role automatically if omitted and SMS is enabled.
+        """
+        if methods is not None:
+            pulumi.set(__self__, "methods", methods)
+        if mode is not None:
+            pulumi.set(__self__, "mode", mode)
+        if sns_caller_arn is not None:
+            pulumi.set(__self__, "sns_caller_arn", sns_caller_arn)
+
+    @_builtins.property
+    @pulumi.getter
+    def methods(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolMfaMethod']]]]:
+        """
+        MFA methods to enable. TOTP requires no additional AWS resources. SMS requires snsCallerArn.
+        """
+        return pulumi.get(self, "methods")
+
+    @methods.setter
+    def methods(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolMfaMethod']]]]):
+        pulumi.set(self, "methods", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def mode(self) -> Optional[pulumi.Input['CognitoUserPoolMfaMode']]:
+        """
+        MFA enforcement mode. Default: OFF.
+        """
+        return pulumi.get(self, "mode")
+
+    @mode.setter
+    def mode(self, value: Optional[pulumi.Input['CognitoUserPoolMfaMode']]):
+        pulumi.set(self, "mode", value)
+
+    @_builtins.property
+    @pulumi.getter(name="snsCallerArn")
+    def sns_caller_arn(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        ARN of the IAM role Cognito uses to send SMS messages via SNS. Required when methods includes SMS. Anvil will create this role automatically if omitted and SMS is enabled.
+        """
+        return pulumi.get(self, "sns_caller_arn")
+
+    @sns_caller_arn.setter
+    def sns_caller_arn(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "sns_caller_arn", value)
+
+
+class CognitoUserPoolOverridesArgsDict(TypedDict):
+    account_recovery_setting: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolAccountRecoverySettingArgsDict']]
+    """
+    Configuration block to define which verified available method a user can use to recover their forgotten password. Detailed below.
+    """
+    admin_create_user_config: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolAdminCreateUserConfigArgsDict']]
+    """
+    Configuration block for creating a new user profile. Detailed below.
+    """
+    alias_attributes: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Attributes supported as an alias for this user pool. Valid values: <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>, <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, or <span pulumi-lang-nodejs="`preferredUsername`" pulumi-lang-dotnet="`PreferredUsername`" pulumi-lang-go="`preferredUsername`" pulumi-lang-python="`preferred_username`" pulumi-lang-yaml="`preferredUsername`" pulumi-lang-java="`preferredUsername`">`preferred_username`</span>. Conflicts with <span pulumi-lang-nodejs="`usernameAttributes`" pulumi-lang-dotnet="`UsernameAttributes`" pulumi-lang-go="`usernameAttributes`" pulumi-lang-python="`username_attributes`" pulumi-lang-yaml="`usernameAttributes`" pulumi-lang-java="`usernameAttributes`">`username_attributes`</span>.
+    """
+    auto_verified_attributes: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Attributes to be auto-verified. Valid values: <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>.
+    """
+    deletion_protection: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    When active, DeletionProtection prevents accidental deletion of your user pool. Before you can delete a user pool that you have protected against deletion, you must deactivate this feature. Valid values are `ACTIVE` and `INACTIVE`, Default value is `INACTIVE`.
+    """
+    device_configuration: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolDeviceConfigurationArgsDict']]
+    """
+    Configuration block for the user pool's device tracking. Detailed below.
+    """
+    email_configuration: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolEmailConfigurationArgsDict']]
+    """
+    Configuration block for configuring email. Detailed below.
+    """
+    email_mfa_configuration: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolEmailMfaConfigurationArgsDict']]
+    """
+    Configuration block for configuring email Multi-Factor Authentication (MFA); requires at least 2 <span pulumi-lang-nodejs="`accountRecoverySetting`" pulumi-lang-dotnet="`AccountRecoverySetting`" pulumi-lang-go="`accountRecoverySetting`" pulumi-lang-python="`account_recovery_setting`" pulumi-lang-yaml="`accountRecoverySetting`" pulumi-lang-java="`accountRecoverySetting`">`account_recovery_setting`</span> entries; requires an <span pulumi-lang-nodejs="`emailConfiguration`" pulumi-lang-dotnet="`EmailConfiguration`" pulumi-lang-go="`emailConfiguration`" pulumi-lang-python="`email_configuration`" pulumi-lang-yaml="`emailConfiguration`" pulumi-lang-java="`emailConfiguration`">`email_configuration`</span> configuration block. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+    """
+    email_verification_message: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    String representing the email verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailMessage`" pulumi-lang-dotnet="`EmailMessage`" pulumi-lang-go="`emailMessage`" pulumi-lang-python="`email_message`" pulumi-lang-yaml="`emailMessage`" pulumi-lang-java="`emailMessage`">`email_message`</span> argument.
+    """
+    email_verification_subject: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    String representing the email verification subject. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailSubject`" pulumi-lang-dotnet="`EmailSubject`" pulumi-lang-go="`emailSubject`" pulumi-lang-python="`email_subject`" pulumi-lang-yaml="`emailSubject`" pulumi-lang-java="`emailSubject`">`email_subject`</span> argument.
+    """
+    lambda_config: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolLambdaConfigArgsDict']]
+    """
+    Configuration block for the AWS Lambda triggers associated with the user pool. Detailed below.
+    """
+    mfa_configuration: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Multi-Factor Authentication (MFA) configuration for the User Pool. Defaults of `OFF`. Valid values are `OFF` (MFA Tokens are not required), `ON` (MFA is required for all users to sign in; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured), or `OPTIONAL` (MFA Will be required only for individual users who have MFA Enabled; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured).
+    """
+    name: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Name of the user pool.
+    """
+    password_policy: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolPasswordPolicyArgsDict']]
+    """
+    Configuration block for information about the user pool password policy. Detailed below.
+    """
+    region: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+    """
+    schemas: NotRequired[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.cognito.UserPoolSchemaArgsDict']]]]
+    """
+    Configuration block for the schema attributes of a user pool. Detailed below. Schema attributes from the [standard attribute set](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html#cognito-user-pools-standard-attributes) only need to be specified if they are different from the default configuration. Attributes can be added, but not modified or removed. Maximum of 50 attributes.
+    """
+    sign_in_policy: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolSignInPolicyArgsDict']]
+    """
+    Configuration block for information about the user pool sign in policy. Detailed below.
+    """
+    sms_authentication_message: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    String representing the SMS authentication message. The Message must contain the `{####}` placeholder, which will be replaced with the code.
+    """
+    sms_configuration: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolSmsConfigurationArgsDict']]
+    """
+    Configuration block for Short Message Service (SMS) settings. Detailed below. These settings apply to SMS user verification and SMS Multi-Factor Authentication (MFA). SMS MFA is activated only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is set to `ON` or `OPTIONAL` along with this block. Due to Cognito API restrictions, the SMS configuration cannot be removed without recreating the Cognito User Pool. For user data safety, this resource will ignore the removal of this configuration by disabling drift detection. To force resource recreation after this configuration has been applied, see the <span pulumi-lang-nodejs="`taint`" pulumi-lang-dotnet="`Taint`" pulumi-lang-go="`taint`" pulumi-lang-python="`taint`" pulumi-lang-yaml="`taint`" pulumi-lang-java="`taint`">`taint`</span> command.
+    """
+    sms_verification_message: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    String representing the SMS verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`smsMessage`" pulumi-lang-dotnet="`SmsMessage`" pulumi-lang-go="`smsMessage`" pulumi-lang-python="`sms_message`" pulumi-lang-yaml="`smsMessage`" pulumi-lang-java="`smsMessage`">`sms_message`</span> argument.
+    """
+    software_token_mfa_configuration: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolSoftwareTokenMfaConfigurationArgsDict']]
+    """
+    Configuration block for software token Mult-Factor Authentication (MFA) settings. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+    """
+    tags: NotRequired[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]
+    """
+    Map of tags to assign to the User Pool. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+    """
+    user_attribute_update_settings: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolUserAttributeUpdateSettingsArgsDict']]
+    """
+    Configuration block for user attribute update settings. Detailed below.
+    """
+    user_pool_add_ons: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolUserPoolAddOnsArgsDict']]
+    """
+    Configuration block for user pool add-ons to enable user pool advanced security mode features. Detailed below.
+    """
+    user_pool_tier: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    The user pool [feature plan](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html), or tier. Valid values: `LITE`, `ESSENTIALS`, `PLUS`.
+    """
+    username_attributes: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Whether email addresses or phone numbers can be specified as usernames when a user signs up. Conflicts with <span pulumi-lang-nodejs="`aliasAttributes`" pulumi-lang-dotnet="`AliasAttributes`" pulumi-lang-go="`aliasAttributes`" pulumi-lang-python="`alias_attributes`" pulumi-lang-yaml="`aliasAttributes`" pulumi-lang-java="`aliasAttributes`">`alias_attributes`</span>.
+    """
+    username_configuration: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolUsernameConfigurationArgsDict']]
+    """
+    Configuration block for username configuration. Detailed below.
+    """
+    verification_message_template: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolVerificationMessageTemplateArgsDict']]
+    """
+    Configuration block for verification message templates. Detailed below.
+    """
+    web_authn_configuration: NotRequired[pulumi.Input['pulumi_aws.cognito.UserPoolWebAuthnConfigurationArgsDict']]
+    """
+    Configuration block for web authn configuration. Detailed below.
+    """
+
+@pulumi.input_type
+class CognitoUserPoolOverridesArgs:
+    def __init__(__self__, *,
+                 account_recovery_setting: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolAccountRecoverySettingArgs']] = None,
+                 admin_create_user_config: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolAdminCreateUserConfigArgs']] = None,
+                 alias_attributes: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 auto_verified_attributes: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 deletion_protection: Optional[pulumi.Input[_builtins.str]] = None,
+                 device_configuration: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolDeviceConfigurationArgs']] = None,
+                 email_configuration: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolEmailConfigurationArgs']] = None,
+                 email_mfa_configuration: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolEmailMfaConfigurationArgs']] = None,
+                 email_verification_message: Optional[pulumi.Input[_builtins.str]] = None,
+                 email_verification_subject: Optional[pulumi.Input[_builtins.str]] = None,
+                 lambda_config: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolLambdaConfigArgs']] = None,
+                 mfa_configuration: Optional[pulumi.Input[_builtins.str]] = None,
+                 name: Optional[pulumi.Input[_builtins.str]] = None,
+                 password_policy: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolPasswordPolicyArgs']] = None,
+                 region: Optional[pulumi.Input[_builtins.str]] = None,
+                 schemas: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.cognito.UserPoolSchemaArgs']]]] = None,
+                 sign_in_policy: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolSignInPolicyArgs']] = None,
+                 sms_authentication_message: Optional[pulumi.Input[_builtins.str]] = None,
+                 sms_configuration: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolSmsConfigurationArgs']] = None,
+                 sms_verification_message: Optional[pulumi.Input[_builtins.str]] = None,
+                 software_token_mfa_configuration: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolSoftwareTokenMfaConfigurationArgs']] = None,
+                 tags: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 user_attribute_update_settings: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolUserAttributeUpdateSettingsArgs']] = None,
+                 user_pool_add_ons: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolUserPoolAddOnsArgs']] = None,
+                 user_pool_tier: Optional[pulumi.Input[_builtins.str]] = None,
+                 username_attributes: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 username_configuration: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolUsernameConfigurationArgs']] = None,
+                 verification_message_template: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolVerificationMessageTemplateArgs']] = None,
+                 web_authn_configuration: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolWebAuthnConfigurationArgs']] = None):
+        """
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolAccountRecoverySettingArgs'] account_recovery_setting: Configuration block to define which verified available method a user can use to recover their forgotten password. Detailed below.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolAdminCreateUserConfigArgs'] admin_create_user_config: Configuration block for creating a new user profile. Detailed below.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] alias_attributes: Attributes supported as an alias for this user pool. Valid values: <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>, <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, or <span pulumi-lang-nodejs="`preferredUsername`" pulumi-lang-dotnet="`PreferredUsername`" pulumi-lang-go="`preferredUsername`" pulumi-lang-python="`preferred_username`" pulumi-lang-yaml="`preferredUsername`" pulumi-lang-java="`preferredUsername`">`preferred_username`</span>. Conflicts with <span pulumi-lang-nodejs="`usernameAttributes`" pulumi-lang-dotnet="`UsernameAttributes`" pulumi-lang-go="`usernameAttributes`" pulumi-lang-python="`username_attributes`" pulumi-lang-yaml="`usernameAttributes`" pulumi-lang-java="`usernameAttributes`">`username_attributes`</span>.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] auto_verified_attributes: Attributes to be auto-verified. Valid values: <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>.
+        :param pulumi.Input[_builtins.str] deletion_protection: When active, DeletionProtection prevents accidental deletion of your user pool. Before you can delete a user pool that you have protected against deletion, you must deactivate this feature. Valid values are `ACTIVE` and `INACTIVE`, Default value is `INACTIVE`.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolDeviceConfigurationArgs'] device_configuration: Configuration block for the user pool's device tracking. Detailed below.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolEmailConfigurationArgs'] email_configuration: Configuration block for configuring email. Detailed below.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolEmailMfaConfigurationArgs'] email_mfa_configuration: Configuration block for configuring email Multi-Factor Authentication (MFA); requires at least 2 <span pulumi-lang-nodejs="`accountRecoverySetting`" pulumi-lang-dotnet="`AccountRecoverySetting`" pulumi-lang-go="`accountRecoverySetting`" pulumi-lang-python="`account_recovery_setting`" pulumi-lang-yaml="`accountRecoverySetting`" pulumi-lang-java="`accountRecoverySetting`">`account_recovery_setting`</span> entries; requires an <span pulumi-lang-nodejs="`emailConfiguration`" pulumi-lang-dotnet="`EmailConfiguration`" pulumi-lang-go="`emailConfiguration`" pulumi-lang-python="`email_configuration`" pulumi-lang-yaml="`emailConfiguration`" pulumi-lang-java="`emailConfiguration`">`email_configuration`</span> configuration block. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+        :param pulumi.Input[_builtins.str] email_verification_message: String representing the email verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailMessage`" pulumi-lang-dotnet="`EmailMessage`" pulumi-lang-go="`emailMessage`" pulumi-lang-python="`email_message`" pulumi-lang-yaml="`emailMessage`" pulumi-lang-java="`emailMessage`">`email_message`</span> argument.
+        :param pulumi.Input[_builtins.str] email_verification_subject: String representing the email verification subject. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailSubject`" pulumi-lang-dotnet="`EmailSubject`" pulumi-lang-go="`emailSubject`" pulumi-lang-python="`email_subject`" pulumi-lang-yaml="`emailSubject`" pulumi-lang-java="`emailSubject`">`email_subject`</span> argument.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolLambdaConfigArgs'] lambda_config: Configuration block for the AWS Lambda triggers associated with the user pool. Detailed below.
+        :param pulumi.Input[_builtins.str] mfa_configuration: Multi-Factor Authentication (MFA) configuration for the User Pool. Defaults of `OFF`. Valid values are `OFF` (MFA Tokens are not required), `ON` (MFA is required for all users to sign in; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured), or `OPTIONAL` (MFA Will be required only for individual users who have MFA Enabled; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured).
+        :param pulumi.Input[_builtins.str] name: Name of the user pool.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolPasswordPolicyArgs'] password_policy: Configuration block for information about the user pool password policy. Detailed below.
+        :param pulumi.Input[_builtins.str] region: Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+        :param pulumi.Input[Sequence[pulumi.Input['pulumi_aws.cognito.UserPoolSchemaArgs']]] schemas: Configuration block for the schema attributes of a user pool. Detailed below. Schema attributes from the [standard attribute set](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html#cognito-user-pools-standard-attributes) only need to be specified if they are different from the default configuration. Attributes can be added, but not modified or removed. Maximum of 50 attributes.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolSignInPolicyArgs'] sign_in_policy: Configuration block for information about the user pool sign in policy. Detailed below.
+        :param pulumi.Input[_builtins.str] sms_authentication_message: String representing the SMS authentication message. The Message must contain the `{####}` placeholder, which will be replaced with the code.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolSmsConfigurationArgs'] sms_configuration: Configuration block for Short Message Service (SMS) settings. Detailed below. These settings apply to SMS user verification and SMS Multi-Factor Authentication (MFA). SMS MFA is activated only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is set to `ON` or `OPTIONAL` along with this block. Due to Cognito API restrictions, the SMS configuration cannot be removed without recreating the Cognito User Pool. For user data safety, this resource will ignore the removal of this configuration by disabling drift detection. To force resource recreation after this configuration has been applied, see the <span pulumi-lang-nodejs="`taint`" pulumi-lang-dotnet="`Taint`" pulumi-lang-go="`taint`" pulumi-lang-python="`taint`" pulumi-lang-yaml="`taint`" pulumi-lang-java="`taint`">`taint`</span> command.
+        :param pulumi.Input[_builtins.str] sms_verification_message: String representing the SMS verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`smsMessage`" pulumi-lang-dotnet="`SmsMessage`" pulumi-lang-go="`smsMessage`" pulumi-lang-python="`sms_message`" pulumi-lang-yaml="`smsMessage`" pulumi-lang-java="`smsMessage`">`sms_message`</span> argument.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolSoftwareTokenMfaConfigurationArgs'] software_token_mfa_configuration: Configuration block for software token Mult-Factor Authentication (MFA) settings. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] tags: Map of tags to assign to the User Pool. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolUserAttributeUpdateSettingsArgs'] user_attribute_update_settings: Configuration block for user attribute update settings. Detailed below.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolUserPoolAddOnsArgs'] user_pool_add_ons: Configuration block for user pool add-ons to enable user pool advanced security mode features. Detailed below.
+        :param pulumi.Input[_builtins.str] user_pool_tier: The user pool [feature plan](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html), or tier. Valid values: `LITE`, `ESSENTIALS`, `PLUS`.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] username_attributes: Whether email addresses or phone numbers can be specified as usernames when a user signs up. Conflicts with <span pulumi-lang-nodejs="`aliasAttributes`" pulumi-lang-dotnet="`AliasAttributes`" pulumi-lang-go="`aliasAttributes`" pulumi-lang-python="`alias_attributes`" pulumi-lang-yaml="`aliasAttributes`" pulumi-lang-java="`aliasAttributes`">`alias_attributes`</span>.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolUsernameConfigurationArgs'] username_configuration: Configuration block for username configuration. Detailed below.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolVerificationMessageTemplateArgs'] verification_message_template: Configuration block for verification message templates. Detailed below.
+        :param pulumi.Input['pulumi_aws.cognito.UserPoolWebAuthnConfigurationArgs'] web_authn_configuration: Configuration block for web authn configuration. Detailed below.
+        """
+        if account_recovery_setting is not None:
+            pulumi.set(__self__, "account_recovery_setting", account_recovery_setting)
+        if admin_create_user_config is not None:
+            pulumi.set(__self__, "admin_create_user_config", admin_create_user_config)
+        if alias_attributes is not None:
+            pulumi.set(__self__, "alias_attributes", alias_attributes)
+        if auto_verified_attributes is not None:
+            pulumi.set(__self__, "auto_verified_attributes", auto_verified_attributes)
+        if deletion_protection is not None:
+            pulumi.set(__self__, "deletion_protection", deletion_protection)
+        if device_configuration is not None:
+            pulumi.set(__self__, "device_configuration", device_configuration)
+        if email_configuration is not None:
+            pulumi.set(__self__, "email_configuration", email_configuration)
+        if email_mfa_configuration is not None:
+            pulumi.set(__self__, "email_mfa_configuration", email_mfa_configuration)
+        if email_verification_message is not None:
+            pulumi.set(__self__, "email_verification_message", email_verification_message)
+        if email_verification_subject is not None:
+            pulumi.set(__self__, "email_verification_subject", email_verification_subject)
+        if lambda_config is not None:
+            pulumi.set(__self__, "lambda_config", lambda_config)
+        if mfa_configuration is not None:
+            pulumi.set(__self__, "mfa_configuration", mfa_configuration)
+        if name is not None:
+            pulumi.set(__self__, "name", name)
+        if password_policy is not None:
+            pulumi.set(__self__, "password_policy", password_policy)
+        if region is not None:
+            pulumi.set(__self__, "region", region)
+        if schemas is not None:
+            pulumi.set(__self__, "schemas", schemas)
+        if sign_in_policy is not None:
+            pulumi.set(__self__, "sign_in_policy", sign_in_policy)
+        if sms_authentication_message is not None:
+            pulumi.set(__self__, "sms_authentication_message", sms_authentication_message)
+        if sms_configuration is not None:
+            pulumi.set(__self__, "sms_configuration", sms_configuration)
+        if sms_verification_message is not None:
+            pulumi.set(__self__, "sms_verification_message", sms_verification_message)
+        if software_token_mfa_configuration is not None:
+            pulumi.set(__self__, "software_token_mfa_configuration", software_token_mfa_configuration)
+        if tags is not None:
+            pulumi.set(__self__, "tags", tags)
+        if user_attribute_update_settings is not None:
+            pulumi.set(__self__, "user_attribute_update_settings", user_attribute_update_settings)
+        if user_pool_add_ons is not None:
+            pulumi.set(__self__, "user_pool_add_ons", user_pool_add_ons)
+        if user_pool_tier is not None:
+            pulumi.set(__self__, "user_pool_tier", user_pool_tier)
+        if username_attributes is not None:
+            pulumi.set(__self__, "username_attributes", username_attributes)
+        if username_configuration is not None:
+            pulumi.set(__self__, "username_configuration", username_configuration)
+        if verification_message_template is not None:
+            pulumi.set(__self__, "verification_message_template", verification_message_template)
+        if web_authn_configuration is not None:
+            pulumi.set(__self__, "web_authn_configuration", web_authn_configuration)
+
+    @_builtins.property
+    @pulumi.getter(name="accountRecoverySetting")
+    def account_recovery_setting(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolAccountRecoverySettingArgs']]:
+        """
+        Configuration block to define which verified available method a user can use to recover their forgotten password. Detailed below.
+        """
+        return pulumi.get(self, "account_recovery_setting")
+
+    @account_recovery_setting.setter
+    def account_recovery_setting(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolAccountRecoverySettingArgs']]):
+        pulumi.set(self, "account_recovery_setting", value)
+
+    @_builtins.property
+    @pulumi.getter(name="adminCreateUserConfig")
+    def admin_create_user_config(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolAdminCreateUserConfigArgs']]:
+        """
+        Configuration block for creating a new user profile. Detailed below.
+        """
+        return pulumi.get(self, "admin_create_user_config")
+
+    @admin_create_user_config.setter
+    def admin_create_user_config(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolAdminCreateUserConfigArgs']]):
+        pulumi.set(self, "admin_create_user_config", value)
+
+    @_builtins.property
+    @pulumi.getter(name="aliasAttributes")
+    def alias_attributes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Attributes supported as an alias for this user pool. Valid values: <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>, <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, or <span pulumi-lang-nodejs="`preferredUsername`" pulumi-lang-dotnet="`PreferredUsername`" pulumi-lang-go="`preferredUsername`" pulumi-lang-python="`preferred_username`" pulumi-lang-yaml="`preferredUsername`" pulumi-lang-java="`preferredUsername`">`preferred_username`</span>. Conflicts with <span pulumi-lang-nodejs="`usernameAttributes`" pulumi-lang-dotnet="`UsernameAttributes`" pulumi-lang-go="`usernameAttributes`" pulumi-lang-python="`username_attributes`" pulumi-lang-yaml="`usernameAttributes`" pulumi-lang-java="`usernameAttributes`">`username_attributes`</span>.
+        """
+        return pulumi.get(self, "alias_attributes")
+
+    @alias_attributes.setter
+    def alias_attributes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "alias_attributes", value)
+
+    @_builtins.property
+    @pulumi.getter(name="autoVerifiedAttributes")
+    def auto_verified_attributes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Attributes to be auto-verified. Valid values: <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>.
+        """
+        return pulumi.get(self, "auto_verified_attributes")
+
+    @auto_verified_attributes.setter
+    def auto_verified_attributes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "auto_verified_attributes", value)
+
+    @_builtins.property
+    @pulumi.getter(name="deletionProtection")
+    def deletion_protection(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        When active, DeletionProtection prevents accidental deletion of your user pool. Before you can delete a user pool that you have protected against deletion, you must deactivate this feature. Valid values are `ACTIVE` and `INACTIVE`, Default value is `INACTIVE`.
+        """
+        return pulumi.get(self, "deletion_protection")
+
+    @deletion_protection.setter
+    def deletion_protection(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "deletion_protection", value)
+
+    @_builtins.property
+    @pulumi.getter(name="deviceConfiguration")
+    def device_configuration(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolDeviceConfigurationArgs']]:
+        """
+        Configuration block for the user pool's device tracking. Detailed below.
+        """
+        return pulumi.get(self, "device_configuration")
+
+    @device_configuration.setter
+    def device_configuration(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolDeviceConfigurationArgs']]):
+        pulumi.set(self, "device_configuration", value)
+
+    @_builtins.property
+    @pulumi.getter(name="emailConfiguration")
+    def email_configuration(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolEmailConfigurationArgs']]:
+        """
+        Configuration block for configuring email. Detailed below.
+        """
+        return pulumi.get(self, "email_configuration")
+
+    @email_configuration.setter
+    def email_configuration(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolEmailConfigurationArgs']]):
+        pulumi.set(self, "email_configuration", value)
+
+    @_builtins.property
+    @pulumi.getter(name="emailMfaConfiguration")
+    def email_mfa_configuration(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolEmailMfaConfigurationArgs']]:
+        """
+        Configuration block for configuring email Multi-Factor Authentication (MFA); requires at least 2 <span pulumi-lang-nodejs="`accountRecoverySetting`" pulumi-lang-dotnet="`AccountRecoverySetting`" pulumi-lang-go="`accountRecoverySetting`" pulumi-lang-python="`account_recovery_setting`" pulumi-lang-yaml="`accountRecoverySetting`" pulumi-lang-java="`accountRecoverySetting`">`account_recovery_setting`</span> entries; requires an <span pulumi-lang-nodejs="`emailConfiguration`" pulumi-lang-dotnet="`EmailConfiguration`" pulumi-lang-go="`emailConfiguration`" pulumi-lang-python="`email_configuration`" pulumi-lang-yaml="`emailConfiguration`" pulumi-lang-java="`emailConfiguration`">`email_configuration`</span> configuration block. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+        """
+        return pulumi.get(self, "email_mfa_configuration")
+
+    @email_mfa_configuration.setter
+    def email_mfa_configuration(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolEmailMfaConfigurationArgs']]):
+        pulumi.set(self, "email_mfa_configuration", value)
+
+    @_builtins.property
+    @pulumi.getter(name="emailVerificationMessage")
+    def email_verification_message(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        String representing the email verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailMessage`" pulumi-lang-dotnet="`EmailMessage`" pulumi-lang-go="`emailMessage`" pulumi-lang-python="`email_message`" pulumi-lang-yaml="`emailMessage`" pulumi-lang-java="`emailMessage`">`email_message`</span> argument.
+        """
+        return pulumi.get(self, "email_verification_message")
+
+    @email_verification_message.setter
+    def email_verification_message(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "email_verification_message", value)
+
+    @_builtins.property
+    @pulumi.getter(name="emailVerificationSubject")
+    def email_verification_subject(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        String representing the email verification subject. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailSubject`" pulumi-lang-dotnet="`EmailSubject`" pulumi-lang-go="`emailSubject`" pulumi-lang-python="`email_subject`" pulumi-lang-yaml="`emailSubject`" pulumi-lang-java="`emailSubject`">`email_subject`</span> argument.
+        """
+        return pulumi.get(self, "email_verification_subject")
+
+    @email_verification_subject.setter
+    def email_verification_subject(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "email_verification_subject", value)
+
+    @_builtins.property
+    @pulumi.getter(name="lambdaConfig")
+    def lambda_config(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolLambdaConfigArgs']]:
+        """
+        Configuration block for the AWS Lambda triggers associated with the user pool. Detailed below.
+        """
+        return pulumi.get(self, "lambda_config")
+
+    @lambda_config.setter
+    def lambda_config(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolLambdaConfigArgs']]):
+        pulumi.set(self, "lambda_config", value)
+
+    @_builtins.property
+    @pulumi.getter(name="mfaConfiguration")
+    def mfa_configuration(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Multi-Factor Authentication (MFA) configuration for the User Pool. Defaults of `OFF`. Valid values are `OFF` (MFA Tokens are not required), `ON` (MFA is required for all users to sign in; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured), or `OPTIONAL` (MFA Will be required only for individual users who have MFA Enabled; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured).
+        """
+        return pulumi.get(self, "mfa_configuration")
+
+    @mfa_configuration.setter
+    def mfa_configuration(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "mfa_configuration", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Name of the user pool.
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter(name="passwordPolicy")
+    def password_policy(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolPasswordPolicyArgs']]:
+        """
+        Configuration block for information about the user pool password policy. Detailed below.
+        """
+        return pulumi.get(self, "password_policy")
+
+    @password_policy.setter
+    def password_policy(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolPasswordPolicyArgs']]):
+        pulumi.set(self, "password_policy", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def region(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+        """
+        return pulumi.get(self, "region")
+
+    @region.setter
+    def region(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "region", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def schemas(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.cognito.UserPoolSchemaArgs']]]]:
+        """
+        Configuration block for the schema attributes of a user pool. Detailed below. Schema attributes from the [standard attribute set](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html#cognito-user-pools-standard-attributes) only need to be specified if they are different from the default configuration. Attributes can be added, but not modified or removed. Maximum of 50 attributes.
+        """
+        return pulumi.get(self, "schemas")
+
+    @schemas.setter
+    def schemas(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.cognito.UserPoolSchemaArgs']]]]):
+        pulumi.set(self, "schemas", value)
+
+    @_builtins.property
+    @pulumi.getter(name="signInPolicy")
+    def sign_in_policy(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolSignInPolicyArgs']]:
+        """
+        Configuration block for information about the user pool sign in policy. Detailed below.
+        """
+        return pulumi.get(self, "sign_in_policy")
+
+    @sign_in_policy.setter
+    def sign_in_policy(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolSignInPolicyArgs']]):
+        pulumi.set(self, "sign_in_policy", value)
+
+    @_builtins.property
+    @pulumi.getter(name="smsAuthenticationMessage")
+    def sms_authentication_message(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        String representing the SMS authentication message. The Message must contain the `{####}` placeholder, which will be replaced with the code.
+        """
+        return pulumi.get(self, "sms_authentication_message")
+
+    @sms_authentication_message.setter
+    def sms_authentication_message(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "sms_authentication_message", value)
+
+    @_builtins.property
+    @pulumi.getter(name="smsConfiguration")
+    def sms_configuration(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolSmsConfigurationArgs']]:
+        """
+        Configuration block for Short Message Service (SMS) settings. Detailed below. These settings apply to SMS user verification and SMS Multi-Factor Authentication (MFA). SMS MFA is activated only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is set to `ON` or `OPTIONAL` along with this block. Due to Cognito API restrictions, the SMS configuration cannot be removed without recreating the Cognito User Pool. For user data safety, this resource will ignore the removal of this configuration by disabling drift detection. To force resource recreation after this configuration has been applied, see the <span pulumi-lang-nodejs="`taint`" pulumi-lang-dotnet="`Taint`" pulumi-lang-go="`taint`" pulumi-lang-python="`taint`" pulumi-lang-yaml="`taint`" pulumi-lang-java="`taint`">`taint`</span> command.
+        """
+        return pulumi.get(self, "sms_configuration")
+
+    @sms_configuration.setter
+    def sms_configuration(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolSmsConfigurationArgs']]):
+        pulumi.set(self, "sms_configuration", value)
+
+    @_builtins.property
+    @pulumi.getter(name="smsVerificationMessage")
+    def sms_verification_message(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        String representing the SMS verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`smsMessage`" pulumi-lang-dotnet="`SmsMessage`" pulumi-lang-go="`smsMessage`" pulumi-lang-python="`sms_message`" pulumi-lang-yaml="`smsMessage`" pulumi-lang-java="`smsMessage`">`sms_message`</span> argument.
+        """
+        return pulumi.get(self, "sms_verification_message")
+
+    @sms_verification_message.setter
+    def sms_verification_message(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "sms_verification_message", value)
+
+    @_builtins.property
+    @pulumi.getter(name="softwareTokenMfaConfiguration")
+    def software_token_mfa_configuration(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolSoftwareTokenMfaConfigurationArgs']]:
+        """
+        Configuration block for software token Mult-Factor Authentication (MFA) settings. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+        """
+        return pulumi.get(self, "software_token_mfa_configuration")
+
+    @software_token_mfa_configuration.setter
+    def software_token_mfa_configuration(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolSoftwareTokenMfaConfigurationArgs']]):
+        pulumi.set(self, "software_token_mfa_configuration", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def tags(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]:
+        """
+        Map of tags to assign to the User Pool. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+        """
+        return pulumi.get(self, "tags")
+
+    @tags.setter
+    def tags(self, value: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "tags", value)
+
+    @_builtins.property
+    @pulumi.getter(name="userAttributeUpdateSettings")
+    def user_attribute_update_settings(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolUserAttributeUpdateSettingsArgs']]:
+        """
+        Configuration block for user attribute update settings. Detailed below.
+        """
+        return pulumi.get(self, "user_attribute_update_settings")
+
+    @user_attribute_update_settings.setter
+    def user_attribute_update_settings(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolUserAttributeUpdateSettingsArgs']]):
+        pulumi.set(self, "user_attribute_update_settings", value)
+
+    @_builtins.property
+    @pulumi.getter(name="userPoolAddOns")
+    def user_pool_add_ons(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolUserPoolAddOnsArgs']]:
+        """
+        Configuration block for user pool add-ons to enable user pool advanced security mode features. Detailed below.
+        """
+        return pulumi.get(self, "user_pool_add_ons")
+
+    @user_pool_add_ons.setter
+    def user_pool_add_ons(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolUserPoolAddOnsArgs']]):
+        pulumi.set(self, "user_pool_add_ons", value)
+
+    @_builtins.property
+    @pulumi.getter(name="userPoolTier")
+    def user_pool_tier(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        The user pool [feature plan](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html), or tier. Valid values: `LITE`, `ESSENTIALS`, `PLUS`.
+        """
+        return pulumi.get(self, "user_pool_tier")
+
+    @user_pool_tier.setter
+    def user_pool_tier(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "user_pool_tier", value)
+
+    @_builtins.property
+    @pulumi.getter(name="usernameAttributes")
+    def username_attributes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Whether email addresses or phone numbers can be specified as usernames when a user signs up. Conflicts with <span pulumi-lang-nodejs="`aliasAttributes`" pulumi-lang-dotnet="`AliasAttributes`" pulumi-lang-go="`aliasAttributes`" pulumi-lang-python="`alias_attributes`" pulumi-lang-yaml="`aliasAttributes`" pulumi-lang-java="`aliasAttributes`">`alias_attributes`</span>.
+        """
+        return pulumi.get(self, "username_attributes")
+
+    @username_attributes.setter
+    def username_attributes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "username_attributes", value)
+
+    @_builtins.property
+    @pulumi.getter(name="usernameConfiguration")
+    def username_configuration(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolUsernameConfigurationArgs']]:
+        """
+        Configuration block for username configuration. Detailed below.
+        """
+        return pulumi.get(self, "username_configuration")
+
+    @username_configuration.setter
+    def username_configuration(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolUsernameConfigurationArgs']]):
+        pulumi.set(self, "username_configuration", value)
+
+    @_builtins.property
+    @pulumi.getter(name="verificationMessageTemplate")
+    def verification_message_template(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolVerificationMessageTemplateArgs']]:
+        """
+        Configuration block for verification message templates. Detailed below.
+        """
+        return pulumi.get(self, "verification_message_template")
+
+    @verification_message_template.setter
+    def verification_message_template(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolVerificationMessageTemplateArgs']]):
+        pulumi.set(self, "verification_message_template", value)
+
+    @_builtins.property
+    @pulumi.getter(name="webAuthnConfiguration")
+    def web_authn_configuration(self) -> Optional[pulumi.Input['pulumi_aws.cognito.UserPoolWebAuthnConfigurationArgs']]:
+        """
+        Configuration block for web authn configuration. Detailed below.
+        """
+        return pulumi.get(self, "web_authn_configuration")
+
+    @web_authn_configuration.setter
+    def web_authn_configuration(self, value: Optional[pulumi.Input['pulumi_aws.cognito.UserPoolWebAuthnConfigurationArgs']]):
+        pulumi.set(self, "web_authn_configuration", value)
+
+
+class CognitoUserPoolPasswordPolicyArgsDict(TypedDict):
+    """
+    Password policy for the user pool. Anvil defaults satisfy CIS Benchmarks and SOC 2 baseline.
+    """
+    min_length: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Minimum password length. Default: 12. Minimum allowed: 6.
+    """
+    require_lowercase: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Require at least one lowercase letter. Default: true.
+    """
+    require_numbers: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Require at least one number. Default: true.
+    """
+    require_symbols: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Require at least one symbol. Default: true.
+    """
+    require_uppercase: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Require at least one uppercase letter. Default: true.
+    """
+    temporary_password_validity_days: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Number of days a temporary password is valid. Default: 7.
+    """
+
+@pulumi.input_type
+class CognitoUserPoolPasswordPolicyArgs:
+    def __init__(__self__, *,
+                 min_length: Optional[pulumi.Input[_builtins.int]] = None,
+                 require_lowercase: Optional[pulumi.Input[_builtins.bool]] = None,
+                 require_numbers: Optional[pulumi.Input[_builtins.bool]] = None,
+                 require_symbols: Optional[pulumi.Input[_builtins.bool]] = None,
+                 require_uppercase: Optional[pulumi.Input[_builtins.bool]] = None,
+                 temporary_password_validity_days: Optional[pulumi.Input[_builtins.int]] = None):
+        """
+        Password policy for the user pool. Anvil defaults satisfy CIS Benchmarks and SOC 2 baseline.
+
+        :param pulumi.Input[_builtins.int] min_length: Minimum password length. Default: 12. Minimum allowed: 6.
+        :param pulumi.Input[_builtins.bool] require_lowercase: Require at least one lowercase letter. Default: true.
+        :param pulumi.Input[_builtins.bool] require_numbers: Require at least one number. Default: true.
+        :param pulumi.Input[_builtins.bool] require_symbols: Require at least one symbol. Default: true.
+        :param pulumi.Input[_builtins.bool] require_uppercase: Require at least one uppercase letter. Default: true.
+        :param pulumi.Input[_builtins.int] temporary_password_validity_days: Number of days a temporary password is valid. Default: 7.
+        """
+        if min_length is not None:
+            pulumi.set(__self__, "min_length", min_length)
+        if require_lowercase is not None:
+            pulumi.set(__self__, "require_lowercase", require_lowercase)
+        if require_numbers is not None:
+            pulumi.set(__self__, "require_numbers", require_numbers)
+        if require_symbols is not None:
+            pulumi.set(__self__, "require_symbols", require_symbols)
+        if require_uppercase is not None:
+            pulumi.set(__self__, "require_uppercase", require_uppercase)
+        if temporary_password_validity_days is not None:
+            pulumi.set(__self__, "temporary_password_validity_days", temporary_password_validity_days)
+
+    @_builtins.property
+    @pulumi.getter(name="minLength")
+    def min_length(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Minimum password length. Default: 12. Minimum allowed: 6.
+        """
+        return pulumi.get(self, "min_length")
+
+    @min_length.setter
+    def min_length(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "min_length", value)
+
+    @_builtins.property
+    @pulumi.getter(name="requireLowercase")
+    def require_lowercase(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Require at least one lowercase letter. Default: true.
+        """
+        return pulumi.get(self, "require_lowercase")
+
+    @require_lowercase.setter
+    def require_lowercase(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "require_lowercase", value)
+
+    @_builtins.property
+    @pulumi.getter(name="requireNumbers")
+    def require_numbers(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Require at least one number. Default: true.
+        """
+        return pulumi.get(self, "require_numbers")
+
+    @require_numbers.setter
+    def require_numbers(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "require_numbers", value)
+
+    @_builtins.property
+    @pulumi.getter(name="requireSymbols")
+    def require_symbols(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Require at least one symbol. Default: true.
+        """
+        return pulumi.get(self, "require_symbols")
+
+    @require_symbols.setter
+    def require_symbols(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "require_symbols", value)
+
+    @_builtins.property
+    @pulumi.getter(name="requireUppercase")
+    def require_uppercase(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Require at least one uppercase letter. Default: true.
+        """
+        return pulumi.get(self, "require_uppercase")
+
+    @require_uppercase.setter
+    def require_uppercase(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "require_uppercase", value)
+
+    @_builtins.property
+    @pulumi.getter(name="temporaryPasswordValidityDays")
+    def temporary_password_validity_days(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Number of days a temporary password is valid. Default: 7.
+        """
+        return pulumi.get(self, "temporary_password_validity_days")
+
+    @temporary_password_validity_days.setter
+    def temporary_password_validity_days(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "temporary_password_validity_days", value)
+
+
+class CognitoUserPoolTokenValidityArgsDict(TypedDict):
+    """
+    Token validity configuration.
+    """
+    access_token_validity: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Access token validity in hours. Default: 1.
+    """
+    id_token_validity: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    ID token validity in hours. Default: 1.
+    """
+    refresh_token_validity: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Refresh token validity in days. Default: 30.
+    """
+
+@pulumi.input_type
+class CognitoUserPoolTokenValidityArgs:
+    def __init__(__self__, *,
+                 access_token_validity: Optional[pulumi.Input[_builtins.int]] = None,
+                 id_token_validity: Optional[pulumi.Input[_builtins.int]] = None,
+                 refresh_token_validity: Optional[pulumi.Input[_builtins.int]] = None):
+        """
+        Token validity configuration.
+
+        :param pulumi.Input[_builtins.int] access_token_validity: Access token validity in hours. Default: 1.
+        :param pulumi.Input[_builtins.int] id_token_validity: ID token validity in hours. Default: 1.
+        :param pulumi.Input[_builtins.int] refresh_token_validity: Refresh token validity in days. Default: 30.
+        """
+        if access_token_validity is not None:
+            pulumi.set(__self__, "access_token_validity", access_token_validity)
+        if id_token_validity is not None:
+            pulumi.set(__self__, "id_token_validity", id_token_validity)
+        if refresh_token_validity is not None:
+            pulumi.set(__self__, "refresh_token_validity", refresh_token_validity)
+
+    @_builtins.property
+    @pulumi.getter(name="accessTokenValidity")
+    def access_token_validity(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Access token validity in hours. Default: 1.
+        """
+        return pulumi.get(self, "access_token_validity")
+
+    @access_token_validity.setter
+    def access_token_validity(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "access_token_validity", value)
+
+    @_builtins.property
+    @pulumi.getter(name="idTokenValidity")
+    def id_token_validity(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        ID token validity in hours. Default: 1.
+        """
+        return pulumi.get(self, "id_token_validity")
+
+    @id_token_validity.setter
+    def id_token_validity(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "id_token_validity", value)
+
+    @_builtins.property
+    @pulumi.getter(name="refreshTokenValidity")
+    def refresh_token_validity(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Refresh token validity in days. Default: 30.
+        """
+        return pulumi.get(self, "refresh_token_validity")
+
+    @refresh_token_validity.setter
+    def refresh_token_validity(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "refresh_token_validity", value)
+
+
+class CognitoUserPoolTransformArgsArgsDict(TypedDict):
+    cognito_user_pool: NotRequired[pulumi.Input['CognitoUserPoolOverridesArgsDict']]
+
+@pulumi.input_type
+class CognitoUserPoolTransformArgsArgs:
+    def __init__(__self__, *,
+                 cognito_user_pool: Optional[pulumi.Input['CognitoUserPoolOverridesArgs']] = None):
+        if cognito_user_pool is not None:
+            pulumi.set(__self__, "cognito_user_pool", cognito_user_pool)
+
+    @_builtins.property
+    @pulumi.getter(name="cognitoUserPool")
+    def cognito_user_pool(self) -> Optional[pulumi.Input['CognitoUserPoolOverridesArgs']]:
+        return pulumi.get(self, "cognito_user_pool")
+
+    @cognito_user_pool.setter
+    def cognito_user_pool(self, value: Optional[pulumi.Input['CognitoUserPoolOverridesArgs']]):
+        pulumi.set(self, "cognito_user_pool", value)
 
 
 class EventBridgeOverridesArgsDict(TypedDict):

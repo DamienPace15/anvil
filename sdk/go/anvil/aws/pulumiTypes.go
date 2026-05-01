@@ -9,6 +9,7 @@ import (
 
 	"github.com/DamienPace15/anvil/sdk/go/anvil/internal"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cloudwatch"
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cognito"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/lambda"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/s3"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -3319,6 +3320,2476 @@ func (o BucketWebsiteConfigurationTransformPtrOutput) RoutingRules() s3.BucketWe
 		}
 		return v.RoutingRules
 	}).(s3.BucketWebsiteConfigurationRoutingRuleArrayOutput)
+}
+
+// Default app client configuration. Covers the 80% case — one client per pool.
+type CognitoUserPoolAppClient struct {
+	// Allowed redirect URLs after successful sign-in. Required when using the hosted UI.
+	CallbackUrls []string `pulumi:"callbackUrls"`
+	// Generate a client secret. Required for confidential clients (server-side apps). Must NOT be set for SPAs — never expose secrets in browser code. Default: false.
+	GenerateSecret *bool `pulumi:"generateSecret"`
+	// Allowed redirect URLs after sign-out.
+	LogoutUrls []string `pulumi:"logoutUrls"`
+	// Allowed OAuth flows. Default: [code]. Use code (PKCE) for SPAs and server apps. client_credentials for M2M.
+	OauthFlows []CognitoUserPoolOAuthFlow `pulumi:"oauthFlows"`
+	// OAuth scopes to allow. Default: [openid, email, profile].
+	OauthScopes []string `pulumi:"oauthScopes"`
+	// Identity providers shown on the hosted UI login page for this client. Default: [COGNITO]. Add provider names from identityProviders here to show social login buttons.
+	SupportedIdentityProviders []string `pulumi:"supportedIdentityProviders"`
+	// Token validity periods. Anvil defaults: access 1h, id 1h, refresh 30d.
+	TokenValidity *CognitoUserPoolTokenValidity `pulumi:"tokenValidity"`
+}
+
+// CognitoUserPoolAppClientInput is an input type that accepts CognitoUserPoolAppClientArgs and CognitoUserPoolAppClientOutput values.
+// You can construct a concrete instance of `CognitoUserPoolAppClientInput` via:
+//
+//	CognitoUserPoolAppClientArgs{...}
+type CognitoUserPoolAppClientInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolAppClientOutput() CognitoUserPoolAppClientOutput
+	ToCognitoUserPoolAppClientOutputWithContext(context.Context) CognitoUserPoolAppClientOutput
+}
+
+// Default app client configuration. Covers the 80% case — one client per pool.
+type CognitoUserPoolAppClientArgs struct {
+	// Allowed redirect URLs after successful sign-in. Required when using the hosted UI.
+	CallbackUrls pulumi.StringArrayInput `pulumi:"callbackUrls"`
+	// Generate a client secret. Required for confidential clients (server-side apps). Must NOT be set for SPAs — never expose secrets in browser code. Default: false.
+	GenerateSecret pulumi.BoolPtrInput `pulumi:"generateSecret"`
+	// Allowed redirect URLs after sign-out.
+	LogoutUrls pulumi.StringArrayInput `pulumi:"logoutUrls"`
+	// Allowed OAuth flows. Default: [code]. Use code (PKCE) for SPAs and server apps. client_credentials for M2M.
+	OauthFlows CognitoUserPoolOAuthFlowArrayInput `pulumi:"oauthFlows"`
+	// OAuth scopes to allow. Default: [openid, email, profile].
+	OauthScopes pulumi.StringArrayInput `pulumi:"oauthScopes"`
+	// Identity providers shown on the hosted UI login page for this client. Default: [COGNITO]. Add provider names from identityProviders here to show social login buttons.
+	SupportedIdentityProviders pulumi.StringArrayInput `pulumi:"supportedIdentityProviders"`
+	// Token validity periods. Anvil defaults: access 1h, id 1h, refresh 30d.
+	TokenValidity CognitoUserPoolTokenValidityPtrInput `pulumi:"tokenValidity"`
+}
+
+func (CognitoUserPoolAppClientArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolAppClient)(nil)).Elem()
+}
+
+func (i CognitoUserPoolAppClientArgs) ToCognitoUserPoolAppClientOutput() CognitoUserPoolAppClientOutput {
+	return i.ToCognitoUserPoolAppClientOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolAppClientArgs) ToCognitoUserPoolAppClientOutputWithContext(ctx context.Context) CognitoUserPoolAppClientOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolAppClientOutput)
+}
+
+func (i CognitoUserPoolAppClientArgs) ToCognitoUserPoolAppClientPtrOutput() CognitoUserPoolAppClientPtrOutput {
+	return i.ToCognitoUserPoolAppClientPtrOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolAppClientArgs) ToCognitoUserPoolAppClientPtrOutputWithContext(ctx context.Context) CognitoUserPoolAppClientPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolAppClientOutput).ToCognitoUserPoolAppClientPtrOutputWithContext(ctx)
+}
+
+// CognitoUserPoolAppClientPtrInput is an input type that accepts CognitoUserPoolAppClientArgs, CognitoUserPoolAppClientPtr and CognitoUserPoolAppClientPtrOutput values.
+// You can construct a concrete instance of `CognitoUserPoolAppClientPtrInput` via:
+//
+//	        CognitoUserPoolAppClientArgs{...}
+//
+//	or:
+//
+//	        nil
+type CognitoUserPoolAppClientPtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolAppClientPtrOutput() CognitoUserPoolAppClientPtrOutput
+	ToCognitoUserPoolAppClientPtrOutputWithContext(context.Context) CognitoUserPoolAppClientPtrOutput
+}
+
+type cognitoUserPoolAppClientPtrType CognitoUserPoolAppClientArgs
+
+func CognitoUserPoolAppClientPtr(v *CognitoUserPoolAppClientArgs) CognitoUserPoolAppClientPtrInput {
+	return (*cognitoUserPoolAppClientPtrType)(v)
+}
+
+func (*cognitoUserPoolAppClientPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolAppClient)(nil)).Elem()
+}
+
+func (i *cognitoUserPoolAppClientPtrType) ToCognitoUserPoolAppClientPtrOutput() CognitoUserPoolAppClientPtrOutput {
+	return i.ToCognitoUserPoolAppClientPtrOutputWithContext(context.Background())
+}
+
+func (i *cognitoUserPoolAppClientPtrType) ToCognitoUserPoolAppClientPtrOutputWithContext(ctx context.Context) CognitoUserPoolAppClientPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolAppClientPtrOutput)
+}
+
+// Default app client configuration. Covers the 80% case — one client per pool.
+type CognitoUserPoolAppClientOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolAppClientOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolAppClient)(nil)).Elem()
+}
+
+func (o CognitoUserPoolAppClientOutput) ToCognitoUserPoolAppClientOutput() CognitoUserPoolAppClientOutput {
+	return o
+}
+
+func (o CognitoUserPoolAppClientOutput) ToCognitoUserPoolAppClientOutputWithContext(ctx context.Context) CognitoUserPoolAppClientOutput {
+	return o
+}
+
+func (o CognitoUserPoolAppClientOutput) ToCognitoUserPoolAppClientPtrOutput() CognitoUserPoolAppClientPtrOutput {
+	return o.ToCognitoUserPoolAppClientPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolAppClientOutput) ToCognitoUserPoolAppClientPtrOutputWithContext(ctx context.Context) CognitoUserPoolAppClientPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolAppClient) *CognitoUserPoolAppClient {
+		return &v
+	}).(CognitoUserPoolAppClientPtrOutput)
+}
+
+// Allowed redirect URLs after successful sign-in. Required when using the hosted UI.
+func (o CognitoUserPoolAppClientOutput) CallbackUrls() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolAppClient) []string { return v.CallbackUrls }).(pulumi.StringArrayOutput)
+}
+
+// Generate a client secret. Required for confidential clients (server-side apps). Must NOT be set for SPAs — never expose secrets in browser code. Default: false.
+func (o CognitoUserPoolAppClientOutput) GenerateSecret() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolAppClient) *bool { return v.GenerateSecret }).(pulumi.BoolPtrOutput)
+}
+
+// Allowed redirect URLs after sign-out.
+func (o CognitoUserPoolAppClientOutput) LogoutUrls() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolAppClient) []string { return v.LogoutUrls }).(pulumi.StringArrayOutput)
+}
+
+// Allowed OAuth flows. Default: [code]. Use code (PKCE) for SPAs and server apps. client_credentials for M2M.
+func (o CognitoUserPoolAppClientOutput) OauthFlows() CognitoUserPoolOAuthFlowArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolAppClient) []CognitoUserPoolOAuthFlow { return v.OauthFlows }).(CognitoUserPoolOAuthFlowArrayOutput)
+}
+
+// OAuth scopes to allow. Default: [openid, email, profile].
+func (o CognitoUserPoolAppClientOutput) OauthScopes() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolAppClient) []string { return v.OauthScopes }).(pulumi.StringArrayOutput)
+}
+
+// Identity providers shown on the hosted UI login page for this client. Default: [COGNITO]. Add provider names from identityProviders here to show social login buttons.
+func (o CognitoUserPoolAppClientOutput) SupportedIdentityProviders() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolAppClient) []string { return v.SupportedIdentityProviders }).(pulumi.StringArrayOutput)
+}
+
+// Token validity periods. Anvil defaults: access 1h, id 1h, refresh 30d.
+func (o CognitoUserPoolAppClientOutput) TokenValidity() CognitoUserPoolTokenValidityPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolAppClient) *CognitoUserPoolTokenValidity { return v.TokenValidity }).(CognitoUserPoolTokenValidityPtrOutput)
+}
+
+type CognitoUserPoolAppClientPtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolAppClientPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolAppClient)(nil)).Elem()
+}
+
+func (o CognitoUserPoolAppClientPtrOutput) ToCognitoUserPoolAppClientPtrOutput() CognitoUserPoolAppClientPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolAppClientPtrOutput) ToCognitoUserPoolAppClientPtrOutputWithContext(ctx context.Context) CognitoUserPoolAppClientPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolAppClientPtrOutput) Elem() CognitoUserPoolAppClientOutput {
+	return o.ApplyT(func(v *CognitoUserPoolAppClient) CognitoUserPoolAppClient {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolAppClient
+		return ret
+	}).(CognitoUserPoolAppClientOutput)
+}
+
+// Allowed redirect URLs after successful sign-in. Required when using the hosted UI.
+func (o CognitoUserPoolAppClientPtrOutput) CallbackUrls() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolAppClient) []string {
+		if v == nil {
+			return nil
+		}
+		return v.CallbackUrls
+	}).(pulumi.StringArrayOutput)
+}
+
+// Generate a client secret. Required for confidential clients (server-side apps). Must NOT be set for SPAs — never expose secrets in browser code. Default: false.
+func (o CognitoUserPoolAppClientPtrOutput) GenerateSecret() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolAppClient) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.GenerateSecret
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Allowed redirect URLs after sign-out.
+func (o CognitoUserPoolAppClientPtrOutput) LogoutUrls() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolAppClient) []string {
+		if v == nil {
+			return nil
+		}
+		return v.LogoutUrls
+	}).(pulumi.StringArrayOutput)
+}
+
+// Allowed OAuth flows. Default: [code]. Use code (PKCE) for SPAs and server apps. client_credentials for M2M.
+func (o CognitoUserPoolAppClientPtrOutput) OauthFlows() CognitoUserPoolOAuthFlowArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolAppClient) []CognitoUserPoolOAuthFlow {
+		if v == nil {
+			return nil
+		}
+		return v.OauthFlows
+	}).(CognitoUserPoolOAuthFlowArrayOutput)
+}
+
+// OAuth scopes to allow. Default: [openid, email, profile].
+func (o CognitoUserPoolAppClientPtrOutput) OauthScopes() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolAppClient) []string {
+		if v == nil {
+			return nil
+		}
+		return v.OauthScopes
+	}).(pulumi.StringArrayOutput)
+}
+
+// Identity providers shown on the hosted UI login page for this client. Default: [COGNITO]. Add provider names from identityProviders here to show social login buttons.
+func (o CognitoUserPoolAppClientPtrOutput) SupportedIdentityProviders() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolAppClient) []string {
+		if v == nil {
+			return nil
+		}
+		return v.SupportedIdentityProviders
+	}).(pulumi.StringArrayOutput)
+}
+
+// Token validity periods. Anvil defaults: access 1h, id 1h, refresh 30d.
+func (o CognitoUserPoolAppClientPtrOutput) TokenValidity() CognitoUserPoolTokenValidityPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolAppClient) *CognitoUserPoolTokenValidity {
+		if v == nil {
+			return nil
+		}
+		return v.TokenValidity
+	}).(CognitoUserPoolTokenValidityPtrOutput)
+}
+
+// User attribute and sign-in configuration.
+type CognitoUserPoolAttributes struct {
+	// Custom attributes to add to user profiles. Cannot be deleted after pool creation.
+	CustomAttributes []CognitoUserPoolCustomAttribute `pulumi:"customAttributes"`
+	// Standard attributes required on sign-up. Default: [email]. Cannot be changed after pool creation.
+	RequiredAttributes []string `pulumi:"requiredAttributes"`
+	// Attributes users can sign in with. Default: [email]. Set to [phone_number] or [email, phone_number] to allow both. Cannot be changed after pool creation.
+	UsernameAttributes []CognitoUserPoolUsernameAttribute `pulumi:"usernameAttributes"`
+}
+
+// CognitoUserPoolAttributesInput is an input type that accepts CognitoUserPoolAttributesArgs and CognitoUserPoolAttributesOutput values.
+// You can construct a concrete instance of `CognitoUserPoolAttributesInput` via:
+//
+//	CognitoUserPoolAttributesArgs{...}
+type CognitoUserPoolAttributesInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolAttributesOutput() CognitoUserPoolAttributesOutput
+	ToCognitoUserPoolAttributesOutputWithContext(context.Context) CognitoUserPoolAttributesOutput
+}
+
+// User attribute and sign-in configuration.
+type CognitoUserPoolAttributesArgs struct {
+	// Custom attributes to add to user profiles. Cannot be deleted after pool creation.
+	CustomAttributes CognitoUserPoolCustomAttributeArrayInput `pulumi:"customAttributes"`
+	// Standard attributes required on sign-up. Default: [email]. Cannot be changed after pool creation.
+	RequiredAttributes pulumi.StringArrayInput `pulumi:"requiredAttributes"`
+	// Attributes users can sign in with. Default: [email]. Set to [phone_number] or [email, phone_number] to allow both. Cannot be changed after pool creation.
+	UsernameAttributes CognitoUserPoolUsernameAttributeArrayInput `pulumi:"usernameAttributes"`
+}
+
+func (CognitoUserPoolAttributesArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolAttributes)(nil)).Elem()
+}
+
+func (i CognitoUserPoolAttributesArgs) ToCognitoUserPoolAttributesOutput() CognitoUserPoolAttributesOutput {
+	return i.ToCognitoUserPoolAttributesOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolAttributesArgs) ToCognitoUserPoolAttributesOutputWithContext(ctx context.Context) CognitoUserPoolAttributesOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolAttributesOutput)
+}
+
+func (i CognitoUserPoolAttributesArgs) ToCognitoUserPoolAttributesPtrOutput() CognitoUserPoolAttributesPtrOutput {
+	return i.ToCognitoUserPoolAttributesPtrOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolAttributesArgs) ToCognitoUserPoolAttributesPtrOutputWithContext(ctx context.Context) CognitoUserPoolAttributesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolAttributesOutput).ToCognitoUserPoolAttributesPtrOutputWithContext(ctx)
+}
+
+// CognitoUserPoolAttributesPtrInput is an input type that accepts CognitoUserPoolAttributesArgs, CognitoUserPoolAttributesPtr and CognitoUserPoolAttributesPtrOutput values.
+// You can construct a concrete instance of `CognitoUserPoolAttributesPtrInput` via:
+//
+//	        CognitoUserPoolAttributesArgs{...}
+//
+//	or:
+//
+//	        nil
+type CognitoUserPoolAttributesPtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolAttributesPtrOutput() CognitoUserPoolAttributesPtrOutput
+	ToCognitoUserPoolAttributesPtrOutputWithContext(context.Context) CognitoUserPoolAttributesPtrOutput
+}
+
+type cognitoUserPoolAttributesPtrType CognitoUserPoolAttributesArgs
+
+func CognitoUserPoolAttributesPtr(v *CognitoUserPoolAttributesArgs) CognitoUserPoolAttributesPtrInput {
+	return (*cognitoUserPoolAttributesPtrType)(v)
+}
+
+func (*cognitoUserPoolAttributesPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolAttributes)(nil)).Elem()
+}
+
+func (i *cognitoUserPoolAttributesPtrType) ToCognitoUserPoolAttributesPtrOutput() CognitoUserPoolAttributesPtrOutput {
+	return i.ToCognitoUserPoolAttributesPtrOutputWithContext(context.Background())
+}
+
+func (i *cognitoUserPoolAttributesPtrType) ToCognitoUserPoolAttributesPtrOutputWithContext(ctx context.Context) CognitoUserPoolAttributesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolAttributesPtrOutput)
+}
+
+// User attribute and sign-in configuration.
+type CognitoUserPoolAttributesOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolAttributesOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolAttributes)(nil)).Elem()
+}
+
+func (o CognitoUserPoolAttributesOutput) ToCognitoUserPoolAttributesOutput() CognitoUserPoolAttributesOutput {
+	return o
+}
+
+func (o CognitoUserPoolAttributesOutput) ToCognitoUserPoolAttributesOutputWithContext(ctx context.Context) CognitoUserPoolAttributesOutput {
+	return o
+}
+
+func (o CognitoUserPoolAttributesOutput) ToCognitoUserPoolAttributesPtrOutput() CognitoUserPoolAttributesPtrOutput {
+	return o.ToCognitoUserPoolAttributesPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolAttributesOutput) ToCognitoUserPoolAttributesPtrOutputWithContext(ctx context.Context) CognitoUserPoolAttributesPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolAttributes) *CognitoUserPoolAttributes {
+		return &v
+	}).(CognitoUserPoolAttributesPtrOutput)
+}
+
+// Custom attributes to add to user profiles. Cannot be deleted after pool creation.
+func (o CognitoUserPoolAttributesOutput) CustomAttributes() CognitoUserPoolCustomAttributeArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolAttributes) []CognitoUserPoolCustomAttribute { return v.CustomAttributes }).(CognitoUserPoolCustomAttributeArrayOutput)
+}
+
+// Standard attributes required on sign-up. Default: [email]. Cannot be changed after pool creation.
+func (o CognitoUserPoolAttributesOutput) RequiredAttributes() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolAttributes) []string { return v.RequiredAttributes }).(pulumi.StringArrayOutput)
+}
+
+// Attributes users can sign in with. Default: [email]. Set to [phone_number] or [email, phone_number] to allow both. Cannot be changed after pool creation.
+func (o CognitoUserPoolAttributesOutput) UsernameAttributes() CognitoUserPoolUsernameAttributeArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolAttributes) []CognitoUserPoolUsernameAttribute { return v.UsernameAttributes }).(CognitoUserPoolUsernameAttributeArrayOutput)
+}
+
+type CognitoUserPoolAttributesPtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolAttributesPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolAttributes)(nil)).Elem()
+}
+
+func (o CognitoUserPoolAttributesPtrOutput) ToCognitoUserPoolAttributesPtrOutput() CognitoUserPoolAttributesPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolAttributesPtrOutput) ToCognitoUserPoolAttributesPtrOutputWithContext(ctx context.Context) CognitoUserPoolAttributesPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolAttributesPtrOutput) Elem() CognitoUserPoolAttributesOutput {
+	return o.ApplyT(func(v *CognitoUserPoolAttributes) CognitoUserPoolAttributes {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolAttributes
+		return ret
+	}).(CognitoUserPoolAttributesOutput)
+}
+
+// Custom attributes to add to user profiles. Cannot be deleted after pool creation.
+func (o CognitoUserPoolAttributesPtrOutput) CustomAttributes() CognitoUserPoolCustomAttributeArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolAttributes) []CognitoUserPoolCustomAttribute {
+		if v == nil {
+			return nil
+		}
+		return v.CustomAttributes
+	}).(CognitoUserPoolCustomAttributeArrayOutput)
+}
+
+// Standard attributes required on sign-up. Default: [email]. Cannot be changed after pool creation.
+func (o CognitoUserPoolAttributesPtrOutput) RequiredAttributes() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolAttributes) []string {
+		if v == nil {
+			return nil
+		}
+		return v.RequiredAttributes
+	}).(pulumi.StringArrayOutput)
+}
+
+// Attributes users can sign in with. Default: [email]. Set to [phone_number] or [email, phone_number] to allow both. Cannot be changed after pool creation.
+func (o CognitoUserPoolAttributesPtrOutput) UsernameAttributes() CognitoUserPoolUsernameAttributeArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolAttributes) []CognitoUserPoolUsernameAttribute {
+		if v == nil {
+			return nil
+		}
+		return v.UsernameAttributes
+	}).(CognitoUserPoolUsernameAttributeArrayOutput)
+}
+
+// Low-level overrides passed directly to the underlying aws.cognito.UserPoolClient resource.
+type CognitoUserPoolClientOverrides struct {
+	ExplicitAuthFlows []string `pulumi:"explicitAuthFlows"`
+}
+
+// A custom attribute to add to user profiles.
+type CognitoUserPoolCustomAttribute struct {
+	// Whether the attribute can be changed after a user is created. Default: true.
+	Mutable *bool `pulumi:"mutable"`
+	// Attribute name. Cognito prefixes this with 'custom:' automatically.
+	Name string `pulumi:"name"`
+	// Attribute data type. Default: String.
+	Type *CognitoUserPoolCustomAttributeType `pulumi:"type"`
+}
+
+// CognitoUserPoolCustomAttributeInput is an input type that accepts CognitoUserPoolCustomAttributeArgs and CognitoUserPoolCustomAttributeOutput values.
+// You can construct a concrete instance of `CognitoUserPoolCustomAttributeInput` via:
+//
+//	CognitoUserPoolCustomAttributeArgs{...}
+type CognitoUserPoolCustomAttributeInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolCustomAttributeOutput() CognitoUserPoolCustomAttributeOutput
+	ToCognitoUserPoolCustomAttributeOutputWithContext(context.Context) CognitoUserPoolCustomAttributeOutput
+}
+
+// A custom attribute to add to user profiles.
+type CognitoUserPoolCustomAttributeArgs struct {
+	// Whether the attribute can be changed after a user is created. Default: true.
+	Mutable pulumi.BoolPtrInput `pulumi:"mutable"`
+	// Attribute name. Cognito prefixes this with 'custom:' automatically.
+	Name pulumi.StringInput `pulumi:"name"`
+	// Attribute data type. Default: String.
+	Type CognitoUserPoolCustomAttributeTypePtrInput `pulumi:"type"`
+}
+
+func (CognitoUserPoolCustomAttributeArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolCustomAttribute)(nil)).Elem()
+}
+
+func (i CognitoUserPoolCustomAttributeArgs) ToCognitoUserPoolCustomAttributeOutput() CognitoUserPoolCustomAttributeOutput {
+	return i.ToCognitoUserPoolCustomAttributeOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolCustomAttributeArgs) ToCognitoUserPoolCustomAttributeOutputWithContext(ctx context.Context) CognitoUserPoolCustomAttributeOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolCustomAttributeOutput)
+}
+
+// CognitoUserPoolCustomAttributeArrayInput is an input type that accepts CognitoUserPoolCustomAttributeArray and CognitoUserPoolCustomAttributeArrayOutput values.
+// You can construct a concrete instance of `CognitoUserPoolCustomAttributeArrayInput` via:
+//
+//	CognitoUserPoolCustomAttributeArray{ CognitoUserPoolCustomAttributeArgs{...} }
+type CognitoUserPoolCustomAttributeArrayInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolCustomAttributeArrayOutput() CognitoUserPoolCustomAttributeArrayOutput
+	ToCognitoUserPoolCustomAttributeArrayOutputWithContext(context.Context) CognitoUserPoolCustomAttributeArrayOutput
+}
+
+type CognitoUserPoolCustomAttributeArray []CognitoUserPoolCustomAttributeInput
+
+func (CognitoUserPoolCustomAttributeArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CognitoUserPoolCustomAttribute)(nil)).Elem()
+}
+
+func (i CognitoUserPoolCustomAttributeArray) ToCognitoUserPoolCustomAttributeArrayOutput() CognitoUserPoolCustomAttributeArrayOutput {
+	return i.ToCognitoUserPoolCustomAttributeArrayOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolCustomAttributeArray) ToCognitoUserPoolCustomAttributeArrayOutputWithContext(ctx context.Context) CognitoUserPoolCustomAttributeArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolCustomAttributeArrayOutput)
+}
+
+// A custom attribute to add to user profiles.
+type CognitoUserPoolCustomAttributeOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolCustomAttributeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolCustomAttribute)(nil)).Elem()
+}
+
+func (o CognitoUserPoolCustomAttributeOutput) ToCognitoUserPoolCustomAttributeOutput() CognitoUserPoolCustomAttributeOutput {
+	return o
+}
+
+func (o CognitoUserPoolCustomAttributeOutput) ToCognitoUserPoolCustomAttributeOutputWithContext(ctx context.Context) CognitoUserPoolCustomAttributeOutput {
+	return o
+}
+
+// Whether the attribute can be changed after a user is created. Default: true.
+func (o CognitoUserPoolCustomAttributeOutput) Mutable() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolCustomAttribute) *bool { return v.Mutable }).(pulumi.BoolPtrOutput)
+}
+
+// Attribute name. Cognito prefixes this with 'custom:' automatically.
+func (o CognitoUserPoolCustomAttributeOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v CognitoUserPoolCustomAttribute) string { return v.Name }).(pulumi.StringOutput)
+}
+
+// Attribute data type. Default: String.
+func (o CognitoUserPoolCustomAttributeOutput) Type() CognitoUserPoolCustomAttributeTypePtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolCustomAttribute) *CognitoUserPoolCustomAttributeType { return v.Type }).(CognitoUserPoolCustomAttributeTypePtrOutput)
+}
+
+type CognitoUserPoolCustomAttributeArrayOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolCustomAttributeArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CognitoUserPoolCustomAttribute)(nil)).Elem()
+}
+
+func (o CognitoUserPoolCustomAttributeArrayOutput) ToCognitoUserPoolCustomAttributeArrayOutput() CognitoUserPoolCustomAttributeArrayOutput {
+	return o
+}
+
+func (o CognitoUserPoolCustomAttributeArrayOutput) ToCognitoUserPoolCustomAttributeArrayOutputWithContext(ctx context.Context) CognitoUserPoolCustomAttributeArrayOutput {
+	return o
+}
+
+func (o CognitoUserPoolCustomAttributeArrayOutput) Index(i pulumi.IntInput) CognitoUserPoolCustomAttributeOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) CognitoUserPoolCustomAttribute {
+		return vs[0].([]CognitoUserPoolCustomAttribute)[vs[1].(int)]
+	}).(CognitoUserPoolCustomAttributeOutput)
+}
+
+// Low-level overrides passed directly to the underlying aws.cognito.UserPoolDomain resource.
+type CognitoUserPoolDomainOverrides struct {
+	// 1 = classic hosted UI, 2 = managed login (default).
+	ManagedLoginVersion *int `pulumi:"managedLoginVersion"`
+}
+
+// Email delivery configuration. Default uses Cognito-managed email which has a 50 emails/day limit. Configure SES for production workloads.
+type CognitoUserPoolEmailConfiguration struct {
+	// Reply-to address shown in outgoing emails. Optional.
+	ReplyToAddress *string `pulumi:"replyToAddress"`
+	// Verified SES sender address (e.g. noreply@myapp.com). Setting this switches delivery to SES, removing the 50 emails/day limit. The address must be verified in SES in the same region as the user pool.
+	SesFromAddress *string `pulumi:"sesFromAddress"`
+}
+
+// CognitoUserPoolEmailConfigurationInput is an input type that accepts CognitoUserPoolEmailConfigurationArgs and CognitoUserPoolEmailConfigurationOutput values.
+// You can construct a concrete instance of `CognitoUserPoolEmailConfigurationInput` via:
+//
+//	CognitoUserPoolEmailConfigurationArgs{...}
+type CognitoUserPoolEmailConfigurationInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolEmailConfigurationOutput() CognitoUserPoolEmailConfigurationOutput
+	ToCognitoUserPoolEmailConfigurationOutputWithContext(context.Context) CognitoUserPoolEmailConfigurationOutput
+}
+
+// Email delivery configuration. Default uses Cognito-managed email which has a 50 emails/day limit. Configure SES for production workloads.
+type CognitoUserPoolEmailConfigurationArgs struct {
+	// Reply-to address shown in outgoing emails. Optional.
+	ReplyToAddress pulumi.StringPtrInput `pulumi:"replyToAddress"`
+	// Verified SES sender address (e.g. noreply@myapp.com). Setting this switches delivery to SES, removing the 50 emails/day limit. The address must be verified in SES in the same region as the user pool.
+	SesFromAddress pulumi.StringPtrInput `pulumi:"sesFromAddress"`
+}
+
+func (CognitoUserPoolEmailConfigurationArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolEmailConfiguration)(nil)).Elem()
+}
+
+func (i CognitoUserPoolEmailConfigurationArgs) ToCognitoUserPoolEmailConfigurationOutput() CognitoUserPoolEmailConfigurationOutput {
+	return i.ToCognitoUserPoolEmailConfigurationOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolEmailConfigurationArgs) ToCognitoUserPoolEmailConfigurationOutputWithContext(ctx context.Context) CognitoUserPoolEmailConfigurationOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolEmailConfigurationOutput)
+}
+
+func (i CognitoUserPoolEmailConfigurationArgs) ToCognitoUserPoolEmailConfigurationPtrOutput() CognitoUserPoolEmailConfigurationPtrOutput {
+	return i.ToCognitoUserPoolEmailConfigurationPtrOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolEmailConfigurationArgs) ToCognitoUserPoolEmailConfigurationPtrOutputWithContext(ctx context.Context) CognitoUserPoolEmailConfigurationPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolEmailConfigurationOutput).ToCognitoUserPoolEmailConfigurationPtrOutputWithContext(ctx)
+}
+
+// CognitoUserPoolEmailConfigurationPtrInput is an input type that accepts CognitoUserPoolEmailConfigurationArgs, CognitoUserPoolEmailConfigurationPtr and CognitoUserPoolEmailConfigurationPtrOutput values.
+// You can construct a concrete instance of `CognitoUserPoolEmailConfigurationPtrInput` via:
+//
+//	        CognitoUserPoolEmailConfigurationArgs{...}
+//
+//	or:
+//
+//	        nil
+type CognitoUserPoolEmailConfigurationPtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolEmailConfigurationPtrOutput() CognitoUserPoolEmailConfigurationPtrOutput
+	ToCognitoUserPoolEmailConfigurationPtrOutputWithContext(context.Context) CognitoUserPoolEmailConfigurationPtrOutput
+}
+
+type cognitoUserPoolEmailConfigurationPtrType CognitoUserPoolEmailConfigurationArgs
+
+func CognitoUserPoolEmailConfigurationPtr(v *CognitoUserPoolEmailConfigurationArgs) CognitoUserPoolEmailConfigurationPtrInput {
+	return (*cognitoUserPoolEmailConfigurationPtrType)(v)
+}
+
+func (*cognitoUserPoolEmailConfigurationPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolEmailConfiguration)(nil)).Elem()
+}
+
+func (i *cognitoUserPoolEmailConfigurationPtrType) ToCognitoUserPoolEmailConfigurationPtrOutput() CognitoUserPoolEmailConfigurationPtrOutput {
+	return i.ToCognitoUserPoolEmailConfigurationPtrOutputWithContext(context.Background())
+}
+
+func (i *cognitoUserPoolEmailConfigurationPtrType) ToCognitoUserPoolEmailConfigurationPtrOutputWithContext(ctx context.Context) CognitoUserPoolEmailConfigurationPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolEmailConfigurationPtrOutput)
+}
+
+// Email delivery configuration. Default uses Cognito-managed email which has a 50 emails/day limit. Configure SES for production workloads.
+type CognitoUserPoolEmailConfigurationOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolEmailConfigurationOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolEmailConfiguration)(nil)).Elem()
+}
+
+func (o CognitoUserPoolEmailConfigurationOutput) ToCognitoUserPoolEmailConfigurationOutput() CognitoUserPoolEmailConfigurationOutput {
+	return o
+}
+
+func (o CognitoUserPoolEmailConfigurationOutput) ToCognitoUserPoolEmailConfigurationOutputWithContext(ctx context.Context) CognitoUserPoolEmailConfigurationOutput {
+	return o
+}
+
+func (o CognitoUserPoolEmailConfigurationOutput) ToCognitoUserPoolEmailConfigurationPtrOutput() CognitoUserPoolEmailConfigurationPtrOutput {
+	return o.ToCognitoUserPoolEmailConfigurationPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolEmailConfigurationOutput) ToCognitoUserPoolEmailConfigurationPtrOutputWithContext(ctx context.Context) CognitoUserPoolEmailConfigurationPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolEmailConfiguration) *CognitoUserPoolEmailConfiguration {
+		return &v
+	}).(CognitoUserPoolEmailConfigurationPtrOutput)
+}
+
+// Reply-to address shown in outgoing emails. Optional.
+func (o CognitoUserPoolEmailConfigurationOutput) ReplyToAddress() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolEmailConfiguration) *string { return v.ReplyToAddress }).(pulumi.StringPtrOutput)
+}
+
+// Verified SES sender address (e.g. noreply@myapp.com). Setting this switches delivery to SES, removing the 50 emails/day limit. The address must be verified in SES in the same region as the user pool.
+func (o CognitoUserPoolEmailConfigurationOutput) SesFromAddress() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolEmailConfiguration) *string { return v.SesFromAddress }).(pulumi.StringPtrOutput)
+}
+
+type CognitoUserPoolEmailConfigurationPtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolEmailConfigurationPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolEmailConfiguration)(nil)).Elem()
+}
+
+func (o CognitoUserPoolEmailConfigurationPtrOutput) ToCognitoUserPoolEmailConfigurationPtrOutput() CognitoUserPoolEmailConfigurationPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolEmailConfigurationPtrOutput) ToCognitoUserPoolEmailConfigurationPtrOutputWithContext(ctx context.Context) CognitoUserPoolEmailConfigurationPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolEmailConfigurationPtrOutput) Elem() CognitoUserPoolEmailConfigurationOutput {
+	return o.ApplyT(func(v *CognitoUserPoolEmailConfiguration) CognitoUserPoolEmailConfiguration {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolEmailConfiguration
+		return ret
+	}).(CognitoUserPoolEmailConfigurationOutput)
+}
+
+// Reply-to address shown in outgoing emails. Optional.
+func (o CognitoUserPoolEmailConfigurationPtrOutput) ReplyToAddress() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolEmailConfiguration) *string {
+		if v == nil {
+			return nil
+		}
+		return v.ReplyToAddress
+	}).(pulumi.StringPtrOutput)
+}
+
+// Verified SES sender address (e.g. noreply@myapp.com). Setting this switches delivery to SES, removing the 50 emails/day limit. The address must be verified in SES in the same region as the user pool.
+func (o CognitoUserPoolEmailConfigurationPtrOutput) SesFromAddress() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolEmailConfiguration) *string {
+		if v == nil {
+			return nil
+		}
+		return v.SesFromAddress
+	}).(pulumi.StringPtrOutput)
+}
+
+// Hosted UI (Managed Login) configuration. Enables the Cognito-hosted sign-in page.
+type CognitoUserPoolHostedUi struct {
+	// ACM certificate ARN for the custom domain. Must be in us-east-1 regardless of user pool region — this is a hard AWS requirement. Required when customDomain is true.
+	AcmCertificateArn *string `pulumi:"acmCertificateArn"`
+	// Set to true when domain is a custom FQDN you own. Requires acmCertificateArn. Anvil creates the CloudFront distribution and wires the alias automatically. Default: false.
+	CustomDomain *bool `pulumi:"customDomain"`
+	// Domain for the hosted UI. For Cognito-managed domains, provide just the prefix (e.g. 'myapp' → myapp.auth.{region}.amazoncognito.com). For custom domains, provide the fully-qualified domain name (e.g. 'auth.myapp.com'). Required.
+	Domain string `pulumi:"domain"`
+}
+
+// CognitoUserPoolHostedUiInput is an input type that accepts CognitoUserPoolHostedUiArgs and CognitoUserPoolHostedUiOutput values.
+// You can construct a concrete instance of `CognitoUserPoolHostedUiInput` via:
+//
+//	CognitoUserPoolHostedUiArgs{...}
+type CognitoUserPoolHostedUiInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolHostedUiOutput() CognitoUserPoolHostedUiOutput
+	ToCognitoUserPoolHostedUiOutputWithContext(context.Context) CognitoUserPoolHostedUiOutput
+}
+
+// Hosted UI (Managed Login) configuration. Enables the Cognito-hosted sign-in page.
+type CognitoUserPoolHostedUiArgs struct {
+	// ACM certificate ARN for the custom domain. Must be in us-east-1 regardless of user pool region — this is a hard AWS requirement. Required when customDomain is true.
+	AcmCertificateArn pulumi.StringPtrInput `pulumi:"acmCertificateArn"`
+	// Set to true when domain is a custom FQDN you own. Requires acmCertificateArn. Anvil creates the CloudFront distribution and wires the alias automatically. Default: false.
+	CustomDomain pulumi.BoolPtrInput `pulumi:"customDomain"`
+	// Domain for the hosted UI. For Cognito-managed domains, provide just the prefix (e.g. 'myapp' → myapp.auth.{region}.amazoncognito.com). For custom domains, provide the fully-qualified domain name (e.g. 'auth.myapp.com'). Required.
+	Domain pulumi.StringInput `pulumi:"domain"`
+}
+
+func (CognitoUserPoolHostedUiArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolHostedUi)(nil)).Elem()
+}
+
+func (i CognitoUserPoolHostedUiArgs) ToCognitoUserPoolHostedUiOutput() CognitoUserPoolHostedUiOutput {
+	return i.ToCognitoUserPoolHostedUiOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolHostedUiArgs) ToCognitoUserPoolHostedUiOutputWithContext(ctx context.Context) CognitoUserPoolHostedUiOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolHostedUiOutput)
+}
+
+func (i CognitoUserPoolHostedUiArgs) ToCognitoUserPoolHostedUiPtrOutput() CognitoUserPoolHostedUiPtrOutput {
+	return i.ToCognitoUserPoolHostedUiPtrOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolHostedUiArgs) ToCognitoUserPoolHostedUiPtrOutputWithContext(ctx context.Context) CognitoUserPoolHostedUiPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolHostedUiOutput).ToCognitoUserPoolHostedUiPtrOutputWithContext(ctx)
+}
+
+// CognitoUserPoolHostedUiPtrInput is an input type that accepts CognitoUserPoolHostedUiArgs, CognitoUserPoolHostedUiPtr and CognitoUserPoolHostedUiPtrOutput values.
+// You can construct a concrete instance of `CognitoUserPoolHostedUiPtrInput` via:
+//
+//	        CognitoUserPoolHostedUiArgs{...}
+//
+//	or:
+//
+//	        nil
+type CognitoUserPoolHostedUiPtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolHostedUiPtrOutput() CognitoUserPoolHostedUiPtrOutput
+	ToCognitoUserPoolHostedUiPtrOutputWithContext(context.Context) CognitoUserPoolHostedUiPtrOutput
+}
+
+type cognitoUserPoolHostedUiPtrType CognitoUserPoolHostedUiArgs
+
+func CognitoUserPoolHostedUiPtr(v *CognitoUserPoolHostedUiArgs) CognitoUserPoolHostedUiPtrInput {
+	return (*cognitoUserPoolHostedUiPtrType)(v)
+}
+
+func (*cognitoUserPoolHostedUiPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolHostedUi)(nil)).Elem()
+}
+
+func (i *cognitoUserPoolHostedUiPtrType) ToCognitoUserPoolHostedUiPtrOutput() CognitoUserPoolHostedUiPtrOutput {
+	return i.ToCognitoUserPoolHostedUiPtrOutputWithContext(context.Background())
+}
+
+func (i *cognitoUserPoolHostedUiPtrType) ToCognitoUserPoolHostedUiPtrOutputWithContext(ctx context.Context) CognitoUserPoolHostedUiPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolHostedUiPtrOutput)
+}
+
+// Hosted UI (Managed Login) configuration. Enables the Cognito-hosted sign-in page.
+type CognitoUserPoolHostedUiOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolHostedUiOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolHostedUi)(nil)).Elem()
+}
+
+func (o CognitoUserPoolHostedUiOutput) ToCognitoUserPoolHostedUiOutput() CognitoUserPoolHostedUiOutput {
+	return o
+}
+
+func (o CognitoUserPoolHostedUiOutput) ToCognitoUserPoolHostedUiOutputWithContext(ctx context.Context) CognitoUserPoolHostedUiOutput {
+	return o
+}
+
+func (o CognitoUserPoolHostedUiOutput) ToCognitoUserPoolHostedUiPtrOutput() CognitoUserPoolHostedUiPtrOutput {
+	return o.ToCognitoUserPoolHostedUiPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolHostedUiOutput) ToCognitoUserPoolHostedUiPtrOutputWithContext(ctx context.Context) CognitoUserPoolHostedUiPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolHostedUi) *CognitoUserPoolHostedUi {
+		return &v
+	}).(CognitoUserPoolHostedUiPtrOutput)
+}
+
+// ACM certificate ARN for the custom domain. Must be in us-east-1 regardless of user pool region — this is a hard AWS requirement. Required when customDomain is true.
+func (o CognitoUserPoolHostedUiOutput) AcmCertificateArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolHostedUi) *string { return v.AcmCertificateArn }).(pulumi.StringPtrOutput)
+}
+
+// Set to true when domain is a custom FQDN you own. Requires acmCertificateArn. Anvil creates the CloudFront distribution and wires the alias automatically. Default: false.
+func (o CognitoUserPoolHostedUiOutput) CustomDomain() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolHostedUi) *bool { return v.CustomDomain }).(pulumi.BoolPtrOutput)
+}
+
+// Domain for the hosted UI. For Cognito-managed domains, provide just the prefix (e.g. 'myapp' → myapp.auth.{region}.amazoncognito.com). For custom domains, provide the fully-qualified domain name (e.g. 'auth.myapp.com'). Required.
+func (o CognitoUserPoolHostedUiOutput) Domain() pulumi.StringOutput {
+	return o.ApplyT(func(v CognitoUserPoolHostedUi) string { return v.Domain }).(pulumi.StringOutput)
+}
+
+type CognitoUserPoolHostedUiPtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolHostedUiPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolHostedUi)(nil)).Elem()
+}
+
+func (o CognitoUserPoolHostedUiPtrOutput) ToCognitoUserPoolHostedUiPtrOutput() CognitoUserPoolHostedUiPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolHostedUiPtrOutput) ToCognitoUserPoolHostedUiPtrOutputWithContext(ctx context.Context) CognitoUserPoolHostedUiPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolHostedUiPtrOutput) Elem() CognitoUserPoolHostedUiOutput {
+	return o.ApplyT(func(v *CognitoUserPoolHostedUi) CognitoUserPoolHostedUi {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolHostedUi
+		return ret
+	}).(CognitoUserPoolHostedUiOutput)
+}
+
+// ACM certificate ARN for the custom domain. Must be in us-east-1 regardless of user pool region — this is a hard AWS requirement. Required when customDomain is true.
+func (o CognitoUserPoolHostedUiPtrOutput) AcmCertificateArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolHostedUi) *string {
+		if v == nil {
+			return nil
+		}
+		return v.AcmCertificateArn
+	}).(pulumi.StringPtrOutput)
+}
+
+// Set to true when domain is a custom FQDN you own. Requires acmCertificateArn. Anvil creates the CloudFront distribution and wires the alias automatically. Default: false.
+func (o CognitoUserPoolHostedUiPtrOutput) CustomDomain() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolHostedUi) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.CustomDomain
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Domain for the hosted UI. For Cognito-managed domains, provide just the prefix (e.g. 'myapp' → myapp.auth.{region}.amazoncognito.com). For custom domains, provide the fully-qualified domain name (e.g. 'auth.myapp.com'). Required.
+func (o CognitoUserPoolHostedUiPtrOutput) Domain() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolHostedUi) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Domain
+	}).(pulumi.StringPtrOutput)
+}
+
+// An external identity provider to federate with this user pool. Discriminated by type — the same schema covers all provider types. Add new providers by extending the identityProviders array, no schema changes required.
+type CognitoUserPoolIdentityProvider struct {
+	// Maps Cognito user attributes to provider-specific claim names. Key is the Cognito attribute (e.g. 'email'), value is the provider claim (e.g. 'email' for Google, or the full SAML attribute URI for SAML providers).
+	AttributeMapping map[string]string `pulumi:"attributeMapping"`
+	// OAuth client ID from the identity provider. Required for Google, Facebook, LoginWithAmazon, SignInWithApple, OIDC.
+	ClientId *string `pulumi:"clientId"`
+	// OAuth client secret from the identity provider. Required for Google, Facebook, LoginWithAmazon, OIDC. Not used for SAML.
+	ClientSecret *string `pulumi:"clientSecret"`
+	// Inline SAML metadata XML. Required for SAML when metadataUrl is not provided.
+	MetadataContent *string `pulumi:"metadataContent"`
+	// URL of the SAML metadata document. Required for SAML when metadataContent is not provided.
+	MetadataUrl *string `pulumi:"metadataUrl"`
+	// Friendly name for this provider. Required for OIDC and SAML providers. Optional for well-known social providers (Google, Facebook etc.) — defaults to the type name.
+	Name *string `pulumi:"name"`
+	// OIDC issuer URL. Required when type is OIDC. Cognito fetches the discovery document from {oidcIssuer}/.well-known/openid-configuration.
+	OidcIssuer *string `pulumi:"oidcIssuer"`
+	// Provider type. Determines which fields are required. Google/Facebook/LoginWithAmazon/SignInWithApple require clientId and clientSecret. OIDC additionally requires oidcIssuer. SAML requires metadataUrl or metadataContent.
+	Type CognitoUserPoolIdentityProviderType `pulumi:"type"`
+}
+
+// CognitoUserPoolIdentityProviderInput is an input type that accepts CognitoUserPoolIdentityProviderArgs and CognitoUserPoolIdentityProviderOutput values.
+// You can construct a concrete instance of `CognitoUserPoolIdentityProviderInput` via:
+//
+//	CognitoUserPoolIdentityProviderArgs{...}
+type CognitoUserPoolIdentityProviderInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolIdentityProviderOutput() CognitoUserPoolIdentityProviderOutput
+	ToCognitoUserPoolIdentityProviderOutputWithContext(context.Context) CognitoUserPoolIdentityProviderOutput
+}
+
+// An external identity provider to federate with this user pool. Discriminated by type — the same schema covers all provider types. Add new providers by extending the identityProviders array, no schema changes required.
+type CognitoUserPoolIdentityProviderArgs struct {
+	// Maps Cognito user attributes to provider-specific claim names. Key is the Cognito attribute (e.g. 'email'), value is the provider claim (e.g. 'email' for Google, or the full SAML attribute URI for SAML providers).
+	AttributeMapping pulumi.StringMapInput `pulumi:"attributeMapping"`
+	// OAuth client ID from the identity provider. Required for Google, Facebook, LoginWithAmazon, SignInWithApple, OIDC.
+	ClientId pulumi.StringPtrInput `pulumi:"clientId"`
+	// OAuth client secret from the identity provider. Required for Google, Facebook, LoginWithAmazon, OIDC. Not used for SAML.
+	ClientSecret pulumi.StringPtrInput `pulumi:"clientSecret"`
+	// Inline SAML metadata XML. Required for SAML when metadataUrl is not provided.
+	MetadataContent pulumi.StringPtrInput `pulumi:"metadataContent"`
+	// URL of the SAML metadata document. Required for SAML when metadataContent is not provided.
+	MetadataUrl pulumi.StringPtrInput `pulumi:"metadataUrl"`
+	// Friendly name for this provider. Required for OIDC and SAML providers. Optional for well-known social providers (Google, Facebook etc.) — defaults to the type name.
+	Name pulumi.StringPtrInput `pulumi:"name"`
+	// OIDC issuer URL. Required when type is OIDC. Cognito fetches the discovery document from {oidcIssuer}/.well-known/openid-configuration.
+	OidcIssuer pulumi.StringPtrInput `pulumi:"oidcIssuer"`
+	// Provider type. Determines which fields are required. Google/Facebook/LoginWithAmazon/SignInWithApple require clientId and clientSecret. OIDC additionally requires oidcIssuer. SAML requires metadataUrl or metadataContent.
+	Type CognitoUserPoolIdentityProviderTypeInput `pulumi:"type"`
+}
+
+func (CognitoUserPoolIdentityProviderArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolIdentityProvider)(nil)).Elem()
+}
+
+func (i CognitoUserPoolIdentityProviderArgs) ToCognitoUserPoolIdentityProviderOutput() CognitoUserPoolIdentityProviderOutput {
+	return i.ToCognitoUserPoolIdentityProviderOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolIdentityProviderArgs) ToCognitoUserPoolIdentityProviderOutputWithContext(ctx context.Context) CognitoUserPoolIdentityProviderOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolIdentityProviderOutput)
+}
+
+// CognitoUserPoolIdentityProviderArrayInput is an input type that accepts CognitoUserPoolIdentityProviderArray and CognitoUserPoolIdentityProviderArrayOutput values.
+// You can construct a concrete instance of `CognitoUserPoolIdentityProviderArrayInput` via:
+//
+//	CognitoUserPoolIdentityProviderArray{ CognitoUserPoolIdentityProviderArgs{...} }
+type CognitoUserPoolIdentityProviderArrayInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolIdentityProviderArrayOutput() CognitoUserPoolIdentityProviderArrayOutput
+	ToCognitoUserPoolIdentityProviderArrayOutputWithContext(context.Context) CognitoUserPoolIdentityProviderArrayOutput
+}
+
+type CognitoUserPoolIdentityProviderArray []CognitoUserPoolIdentityProviderInput
+
+func (CognitoUserPoolIdentityProviderArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CognitoUserPoolIdentityProvider)(nil)).Elem()
+}
+
+func (i CognitoUserPoolIdentityProviderArray) ToCognitoUserPoolIdentityProviderArrayOutput() CognitoUserPoolIdentityProviderArrayOutput {
+	return i.ToCognitoUserPoolIdentityProviderArrayOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolIdentityProviderArray) ToCognitoUserPoolIdentityProviderArrayOutputWithContext(ctx context.Context) CognitoUserPoolIdentityProviderArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolIdentityProviderArrayOutput)
+}
+
+// An external identity provider to federate with this user pool. Discriminated by type — the same schema covers all provider types. Add new providers by extending the identityProviders array, no schema changes required.
+type CognitoUserPoolIdentityProviderOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolIdentityProviderOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolIdentityProvider)(nil)).Elem()
+}
+
+func (o CognitoUserPoolIdentityProviderOutput) ToCognitoUserPoolIdentityProviderOutput() CognitoUserPoolIdentityProviderOutput {
+	return o
+}
+
+func (o CognitoUserPoolIdentityProviderOutput) ToCognitoUserPoolIdentityProviderOutputWithContext(ctx context.Context) CognitoUserPoolIdentityProviderOutput {
+	return o
+}
+
+// Maps Cognito user attributes to provider-specific claim names. Key is the Cognito attribute (e.g. 'email'), value is the provider claim (e.g. 'email' for Google, or the full SAML attribute URI for SAML providers).
+func (o CognitoUserPoolIdentityProviderOutput) AttributeMapping() pulumi.StringMapOutput {
+	return o.ApplyT(func(v CognitoUserPoolIdentityProvider) map[string]string { return v.AttributeMapping }).(pulumi.StringMapOutput)
+}
+
+// OAuth client ID from the identity provider. Required for Google, Facebook, LoginWithAmazon, SignInWithApple, OIDC.
+func (o CognitoUserPoolIdentityProviderOutput) ClientId() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolIdentityProvider) *string { return v.ClientId }).(pulumi.StringPtrOutput)
+}
+
+// OAuth client secret from the identity provider. Required for Google, Facebook, LoginWithAmazon, OIDC. Not used for SAML.
+func (o CognitoUserPoolIdentityProviderOutput) ClientSecret() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolIdentityProvider) *string { return v.ClientSecret }).(pulumi.StringPtrOutput)
+}
+
+// Inline SAML metadata XML. Required for SAML when metadataUrl is not provided.
+func (o CognitoUserPoolIdentityProviderOutput) MetadataContent() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolIdentityProvider) *string { return v.MetadataContent }).(pulumi.StringPtrOutput)
+}
+
+// URL of the SAML metadata document. Required for SAML when metadataContent is not provided.
+func (o CognitoUserPoolIdentityProviderOutput) MetadataUrl() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolIdentityProvider) *string { return v.MetadataUrl }).(pulumi.StringPtrOutput)
+}
+
+// Friendly name for this provider. Required for OIDC and SAML providers. Optional for well-known social providers (Google, Facebook etc.) — defaults to the type name.
+func (o CognitoUserPoolIdentityProviderOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolIdentityProvider) *string { return v.Name }).(pulumi.StringPtrOutput)
+}
+
+// OIDC issuer URL. Required when type is OIDC. Cognito fetches the discovery document from {oidcIssuer}/.well-known/openid-configuration.
+func (o CognitoUserPoolIdentityProviderOutput) OidcIssuer() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolIdentityProvider) *string { return v.OidcIssuer }).(pulumi.StringPtrOutput)
+}
+
+// Provider type. Determines which fields are required. Google/Facebook/LoginWithAmazon/SignInWithApple require clientId and clientSecret. OIDC additionally requires oidcIssuer. SAML requires metadataUrl or metadataContent.
+func (o CognitoUserPoolIdentityProviderOutput) Type() CognitoUserPoolIdentityProviderTypeOutput {
+	return o.ApplyT(func(v CognitoUserPoolIdentityProvider) CognitoUserPoolIdentityProviderType { return v.Type }).(CognitoUserPoolIdentityProviderTypeOutput)
+}
+
+type CognitoUserPoolIdentityProviderArrayOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolIdentityProviderArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CognitoUserPoolIdentityProvider)(nil)).Elem()
+}
+
+func (o CognitoUserPoolIdentityProviderArrayOutput) ToCognitoUserPoolIdentityProviderArrayOutput() CognitoUserPoolIdentityProviderArrayOutput {
+	return o
+}
+
+func (o CognitoUserPoolIdentityProviderArrayOutput) ToCognitoUserPoolIdentityProviderArrayOutputWithContext(ctx context.Context) CognitoUserPoolIdentityProviderArrayOutput {
+	return o
+}
+
+func (o CognitoUserPoolIdentityProviderArrayOutput) Index(i pulumi.IntInput) CognitoUserPoolIdentityProviderOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) CognitoUserPoolIdentityProvider {
+		return vs[0].([]CognitoUserPoolIdentityProvider)[vs[1].(int)]
+	}).(CognitoUserPoolIdentityProviderOutput)
+}
+
+// MFA configuration for the user pool.
+type CognitoUserPoolMfa struct {
+	// MFA methods to enable. TOTP requires no additional AWS resources. SMS requires snsCallerArn.
+	Methods []CognitoUserPoolMfaMethod `pulumi:"methods"`
+	// MFA enforcement mode. Default: OFF.
+	Mode *CognitoUserPoolMfaMode `pulumi:"mode"`
+	// ARN of the IAM role Cognito uses to send SMS messages via SNS. Required when methods includes SMS. Anvil will create this role automatically if omitted and SMS is enabled.
+	SnsCallerArn *string `pulumi:"snsCallerArn"`
+}
+
+// CognitoUserPoolMfaInput is an input type that accepts CognitoUserPoolMfaArgs and CognitoUserPoolMfaOutput values.
+// You can construct a concrete instance of `CognitoUserPoolMfaInput` via:
+//
+//	CognitoUserPoolMfaArgs{...}
+type CognitoUserPoolMfaInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolMfaOutput() CognitoUserPoolMfaOutput
+	ToCognitoUserPoolMfaOutputWithContext(context.Context) CognitoUserPoolMfaOutput
+}
+
+// MFA configuration for the user pool.
+type CognitoUserPoolMfaArgs struct {
+	// MFA methods to enable. TOTP requires no additional AWS resources. SMS requires snsCallerArn.
+	Methods CognitoUserPoolMfaMethodArrayInput `pulumi:"methods"`
+	// MFA enforcement mode. Default: OFF.
+	Mode CognitoUserPoolMfaModePtrInput `pulumi:"mode"`
+	// ARN of the IAM role Cognito uses to send SMS messages via SNS. Required when methods includes SMS. Anvil will create this role automatically if omitted and SMS is enabled.
+	SnsCallerArn pulumi.StringPtrInput `pulumi:"snsCallerArn"`
+}
+
+func (CognitoUserPoolMfaArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolMfa)(nil)).Elem()
+}
+
+func (i CognitoUserPoolMfaArgs) ToCognitoUserPoolMfaOutput() CognitoUserPoolMfaOutput {
+	return i.ToCognitoUserPoolMfaOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolMfaArgs) ToCognitoUserPoolMfaOutputWithContext(ctx context.Context) CognitoUserPoolMfaOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolMfaOutput)
+}
+
+func (i CognitoUserPoolMfaArgs) ToCognitoUserPoolMfaPtrOutput() CognitoUserPoolMfaPtrOutput {
+	return i.ToCognitoUserPoolMfaPtrOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolMfaArgs) ToCognitoUserPoolMfaPtrOutputWithContext(ctx context.Context) CognitoUserPoolMfaPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolMfaOutput).ToCognitoUserPoolMfaPtrOutputWithContext(ctx)
+}
+
+// CognitoUserPoolMfaPtrInput is an input type that accepts CognitoUserPoolMfaArgs, CognitoUserPoolMfaPtr and CognitoUserPoolMfaPtrOutput values.
+// You can construct a concrete instance of `CognitoUserPoolMfaPtrInput` via:
+//
+//	        CognitoUserPoolMfaArgs{...}
+//
+//	or:
+//
+//	        nil
+type CognitoUserPoolMfaPtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolMfaPtrOutput() CognitoUserPoolMfaPtrOutput
+	ToCognitoUserPoolMfaPtrOutputWithContext(context.Context) CognitoUserPoolMfaPtrOutput
+}
+
+type cognitoUserPoolMfaPtrType CognitoUserPoolMfaArgs
+
+func CognitoUserPoolMfaPtr(v *CognitoUserPoolMfaArgs) CognitoUserPoolMfaPtrInput {
+	return (*cognitoUserPoolMfaPtrType)(v)
+}
+
+func (*cognitoUserPoolMfaPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolMfa)(nil)).Elem()
+}
+
+func (i *cognitoUserPoolMfaPtrType) ToCognitoUserPoolMfaPtrOutput() CognitoUserPoolMfaPtrOutput {
+	return i.ToCognitoUserPoolMfaPtrOutputWithContext(context.Background())
+}
+
+func (i *cognitoUserPoolMfaPtrType) ToCognitoUserPoolMfaPtrOutputWithContext(ctx context.Context) CognitoUserPoolMfaPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolMfaPtrOutput)
+}
+
+// MFA configuration for the user pool.
+type CognitoUserPoolMfaOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolMfaOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolMfa)(nil)).Elem()
+}
+
+func (o CognitoUserPoolMfaOutput) ToCognitoUserPoolMfaOutput() CognitoUserPoolMfaOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaOutput) ToCognitoUserPoolMfaOutputWithContext(ctx context.Context) CognitoUserPoolMfaOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaOutput) ToCognitoUserPoolMfaPtrOutput() CognitoUserPoolMfaPtrOutput {
+	return o.ToCognitoUserPoolMfaPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolMfaOutput) ToCognitoUserPoolMfaPtrOutputWithContext(ctx context.Context) CognitoUserPoolMfaPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolMfa) *CognitoUserPoolMfa {
+		return &v
+	}).(CognitoUserPoolMfaPtrOutput)
+}
+
+// MFA methods to enable. TOTP requires no additional AWS resources. SMS requires snsCallerArn.
+func (o CognitoUserPoolMfaOutput) Methods() CognitoUserPoolMfaMethodArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolMfa) []CognitoUserPoolMfaMethod { return v.Methods }).(CognitoUserPoolMfaMethodArrayOutput)
+}
+
+// MFA enforcement mode. Default: OFF.
+func (o CognitoUserPoolMfaOutput) Mode() CognitoUserPoolMfaModePtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolMfa) *CognitoUserPoolMfaMode { return v.Mode }).(CognitoUserPoolMfaModePtrOutput)
+}
+
+// ARN of the IAM role Cognito uses to send SMS messages via SNS. Required when methods includes SMS. Anvil will create this role automatically if omitted and SMS is enabled.
+func (o CognitoUserPoolMfaOutput) SnsCallerArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolMfa) *string { return v.SnsCallerArn }).(pulumi.StringPtrOutput)
+}
+
+type CognitoUserPoolMfaPtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolMfaPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolMfa)(nil)).Elem()
+}
+
+func (o CognitoUserPoolMfaPtrOutput) ToCognitoUserPoolMfaPtrOutput() CognitoUserPoolMfaPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaPtrOutput) ToCognitoUserPoolMfaPtrOutputWithContext(ctx context.Context) CognitoUserPoolMfaPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaPtrOutput) Elem() CognitoUserPoolMfaOutput {
+	return o.ApplyT(func(v *CognitoUserPoolMfa) CognitoUserPoolMfa {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolMfa
+		return ret
+	}).(CognitoUserPoolMfaOutput)
+}
+
+// MFA methods to enable. TOTP requires no additional AWS resources. SMS requires snsCallerArn.
+func (o CognitoUserPoolMfaPtrOutput) Methods() CognitoUserPoolMfaMethodArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolMfa) []CognitoUserPoolMfaMethod {
+		if v == nil {
+			return nil
+		}
+		return v.Methods
+	}).(CognitoUserPoolMfaMethodArrayOutput)
+}
+
+// MFA enforcement mode. Default: OFF.
+func (o CognitoUserPoolMfaPtrOutput) Mode() CognitoUserPoolMfaModePtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolMfa) *CognitoUserPoolMfaMode {
+		if v == nil {
+			return nil
+		}
+		return v.Mode
+	}).(CognitoUserPoolMfaModePtrOutput)
+}
+
+// ARN of the IAM role Cognito uses to send SMS messages via SNS. Required when methods includes SMS. Anvil will create this role automatically if omitted and SMS is enabled.
+func (o CognitoUserPoolMfaPtrOutput) SnsCallerArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolMfa) *string {
+		if v == nil {
+			return nil
+		}
+		return v.SnsCallerArn
+	}).(pulumi.StringPtrOutput)
+}
+
+type CognitoUserPoolOverrides struct {
+	// Configuration block to define which verified available method a user can use to recover their forgotten password. Detailed below.
+	AccountRecoverySetting *cognito.UserPoolAccountRecoverySetting `pulumi:"accountRecoverySetting"`
+	// Configuration block for creating a new user profile. Detailed below.
+	AdminCreateUserConfig *cognito.UserPoolAdminCreateUserConfig `pulumi:"adminCreateUserConfig"`
+	// Attributes supported as an alias for this user pool. Valid values: <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>, <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, or <span pulumi-lang-nodejs="`preferredUsername`" pulumi-lang-dotnet="`PreferredUsername`" pulumi-lang-go="`preferredUsername`" pulumi-lang-python="`preferred_username`" pulumi-lang-yaml="`preferredUsername`" pulumi-lang-java="`preferredUsername`">`preferred_username`</span>. Conflicts with <span pulumi-lang-nodejs="`usernameAttributes`" pulumi-lang-dotnet="`UsernameAttributes`" pulumi-lang-go="`usernameAttributes`" pulumi-lang-python="`username_attributes`" pulumi-lang-yaml="`usernameAttributes`" pulumi-lang-java="`usernameAttributes`">`username_attributes`</span>.
+	AliasAttributes []string `pulumi:"aliasAttributes"`
+	// Attributes to be auto-verified. Valid values: <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>.
+	AutoVerifiedAttributes []string `pulumi:"autoVerifiedAttributes"`
+	// When active, DeletionProtection prevents accidental deletion of your user pool. Before you can delete a user pool that you have protected against deletion, you must deactivate this feature. Valid values are `ACTIVE` and `INACTIVE`, Default value is `INACTIVE`.
+	DeletionProtection *string `pulumi:"deletionProtection"`
+	// Configuration block for the user pool's device tracking. Detailed below.
+	DeviceConfiguration *cognito.UserPoolDeviceConfiguration `pulumi:"deviceConfiguration"`
+	// Configuration block for configuring email. Detailed below.
+	EmailConfiguration *cognito.UserPoolEmailConfiguration `pulumi:"emailConfiguration"`
+	// Configuration block for configuring email Multi-Factor Authentication (MFA); requires at least 2 <span pulumi-lang-nodejs="`accountRecoverySetting`" pulumi-lang-dotnet="`AccountRecoverySetting`" pulumi-lang-go="`accountRecoverySetting`" pulumi-lang-python="`account_recovery_setting`" pulumi-lang-yaml="`accountRecoverySetting`" pulumi-lang-java="`accountRecoverySetting`">`account_recovery_setting`</span> entries; requires an <span pulumi-lang-nodejs="`emailConfiguration`" pulumi-lang-dotnet="`EmailConfiguration`" pulumi-lang-go="`emailConfiguration`" pulumi-lang-python="`email_configuration`" pulumi-lang-yaml="`emailConfiguration`" pulumi-lang-java="`emailConfiguration`">`email_configuration`</span> configuration block. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+	EmailMfaConfiguration *cognito.UserPoolEmailMfaConfiguration `pulumi:"emailMfaConfiguration"`
+	// String representing the email verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailMessage`" pulumi-lang-dotnet="`EmailMessage`" pulumi-lang-go="`emailMessage`" pulumi-lang-python="`email_message`" pulumi-lang-yaml="`emailMessage`" pulumi-lang-java="`emailMessage`">`email_message`</span> argument.
+	EmailVerificationMessage *string `pulumi:"emailVerificationMessage"`
+	// String representing the email verification subject. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailSubject`" pulumi-lang-dotnet="`EmailSubject`" pulumi-lang-go="`emailSubject`" pulumi-lang-python="`email_subject`" pulumi-lang-yaml="`emailSubject`" pulumi-lang-java="`emailSubject`">`email_subject`</span> argument.
+	EmailVerificationSubject *string `pulumi:"emailVerificationSubject"`
+	// Configuration block for the AWS Lambda triggers associated with the user pool. Detailed below.
+	LambdaConfig *cognito.UserPoolLambdaConfig `pulumi:"lambdaConfig"`
+	// Multi-Factor Authentication (MFA) configuration for the User Pool. Defaults of `OFF`. Valid values are `OFF` (MFA Tokens are not required), `ON` (MFA is required for all users to sign in; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured), or `OPTIONAL` (MFA Will be required only for individual users who have MFA Enabled; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured).
+	MfaConfiguration *string `pulumi:"mfaConfiguration"`
+	// Name of the user pool.
+	Name *string `pulumi:"name"`
+	// Configuration block for information about the user pool password policy. Detailed below.
+	PasswordPolicy *cognito.UserPoolPasswordPolicy `pulumi:"passwordPolicy"`
+	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+	Region *string `pulumi:"region"`
+	// Configuration block for the schema attributes of a user pool. Detailed below. Schema attributes from the [standard attribute set](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html#cognito-user-pools-standard-attributes) only need to be specified if they are different from the default configuration. Attributes can be added, but not modified or removed. Maximum of 50 attributes.
+	Schemas []cognito.UserPoolSchema `pulumi:"schemas"`
+	// Configuration block for information about the user pool sign in policy. Detailed below.
+	SignInPolicy *cognito.UserPoolSignInPolicy `pulumi:"signInPolicy"`
+	// String representing the SMS authentication message. The Message must contain the `{####}` placeholder, which will be replaced with the code.
+	SmsAuthenticationMessage *string `pulumi:"smsAuthenticationMessage"`
+	// Configuration block for Short Message Service (SMS) settings. Detailed below. These settings apply to SMS user verification and SMS Multi-Factor Authentication (MFA). SMS MFA is activated only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is set to `ON` or `OPTIONAL` along with this block. Due to Cognito API restrictions, the SMS configuration cannot be removed without recreating the Cognito User Pool. For user data safety, this resource will ignore the removal of this configuration by disabling drift detection. To force resource recreation after this configuration has been applied, see the <span pulumi-lang-nodejs="`taint`" pulumi-lang-dotnet="`Taint`" pulumi-lang-go="`taint`" pulumi-lang-python="`taint`" pulumi-lang-yaml="`taint`" pulumi-lang-java="`taint`">`taint`</span> command.
+	SmsConfiguration *cognito.UserPoolSmsConfiguration `pulumi:"smsConfiguration"`
+	// String representing the SMS verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`smsMessage`" pulumi-lang-dotnet="`SmsMessage`" pulumi-lang-go="`smsMessage`" pulumi-lang-python="`sms_message`" pulumi-lang-yaml="`smsMessage`" pulumi-lang-java="`smsMessage`">`sms_message`</span> argument.
+	SmsVerificationMessage *string `pulumi:"smsVerificationMessage"`
+	// Configuration block for software token Mult-Factor Authentication (MFA) settings. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+	SoftwareTokenMfaConfiguration *cognito.UserPoolSoftwareTokenMfaConfiguration `pulumi:"softwareTokenMfaConfiguration"`
+	// Map of tags to assign to the User Pool. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+	Tags map[string]string `pulumi:"tags"`
+	// Configuration block for user attribute update settings. Detailed below.
+	UserAttributeUpdateSettings *cognito.UserPoolUserAttributeUpdateSettings `pulumi:"userAttributeUpdateSettings"`
+	// Configuration block for user pool add-ons to enable user pool advanced security mode features. Detailed below.
+	UserPoolAddOns *cognito.UserPoolUserPoolAddOns `pulumi:"userPoolAddOns"`
+	// The user pool [feature plan](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html), or tier. Valid values: `LITE`, `ESSENTIALS`, `PLUS`.
+	UserPoolTier *string `pulumi:"userPoolTier"`
+	// Whether email addresses or phone numbers can be specified as usernames when a user signs up. Conflicts with <span pulumi-lang-nodejs="`aliasAttributes`" pulumi-lang-dotnet="`AliasAttributes`" pulumi-lang-go="`aliasAttributes`" pulumi-lang-python="`alias_attributes`" pulumi-lang-yaml="`aliasAttributes`" pulumi-lang-java="`aliasAttributes`">`alias_attributes`</span>.
+	UsernameAttributes []string `pulumi:"usernameAttributes"`
+	// Configuration block for username configuration. Detailed below.
+	UsernameConfiguration *cognito.UserPoolUsernameConfiguration `pulumi:"usernameConfiguration"`
+	// Configuration block for verification message templates. Detailed below.
+	VerificationMessageTemplate *cognito.UserPoolVerificationMessageTemplate `pulumi:"verificationMessageTemplate"`
+	// Configuration block for web authn configuration. Detailed below.
+	WebAuthnConfiguration *cognito.UserPoolWebAuthnConfiguration `pulumi:"webAuthnConfiguration"`
+}
+
+// CognitoUserPoolOverridesInput is an input type that accepts CognitoUserPoolOverridesArgs and CognitoUserPoolOverridesOutput values.
+// You can construct a concrete instance of `CognitoUserPoolOverridesInput` via:
+//
+//	CognitoUserPoolOverridesArgs{...}
+type CognitoUserPoolOverridesInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolOverridesOutput() CognitoUserPoolOverridesOutput
+	ToCognitoUserPoolOverridesOutputWithContext(context.Context) CognitoUserPoolOverridesOutput
+}
+
+type CognitoUserPoolOverridesArgs struct {
+	// Configuration block to define which verified available method a user can use to recover their forgotten password. Detailed below.
+	AccountRecoverySetting cognito.UserPoolAccountRecoverySettingPtrInput `pulumi:"accountRecoverySetting"`
+	// Configuration block for creating a new user profile. Detailed below.
+	AdminCreateUserConfig cognito.UserPoolAdminCreateUserConfigPtrInput `pulumi:"adminCreateUserConfig"`
+	// Attributes supported as an alias for this user pool. Valid values: <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>, <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, or <span pulumi-lang-nodejs="`preferredUsername`" pulumi-lang-dotnet="`PreferredUsername`" pulumi-lang-go="`preferredUsername`" pulumi-lang-python="`preferred_username`" pulumi-lang-yaml="`preferredUsername`" pulumi-lang-java="`preferredUsername`">`preferred_username`</span>. Conflicts with <span pulumi-lang-nodejs="`usernameAttributes`" pulumi-lang-dotnet="`UsernameAttributes`" pulumi-lang-go="`usernameAttributes`" pulumi-lang-python="`username_attributes`" pulumi-lang-yaml="`usernameAttributes`" pulumi-lang-java="`usernameAttributes`">`username_attributes`</span>.
+	AliasAttributes pulumi.StringArrayInput `pulumi:"aliasAttributes"`
+	// Attributes to be auto-verified. Valid values: <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>.
+	AutoVerifiedAttributes pulumi.StringArrayInput `pulumi:"autoVerifiedAttributes"`
+	// When active, DeletionProtection prevents accidental deletion of your user pool. Before you can delete a user pool that you have protected against deletion, you must deactivate this feature. Valid values are `ACTIVE` and `INACTIVE`, Default value is `INACTIVE`.
+	DeletionProtection pulumi.StringPtrInput `pulumi:"deletionProtection"`
+	// Configuration block for the user pool's device tracking. Detailed below.
+	DeviceConfiguration cognito.UserPoolDeviceConfigurationPtrInput `pulumi:"deviceConfiguration"`
+	// Configuration block for configuring email. Detailed below.
+	EmailConfiguration cognito.UserPoolEmailConfigurationPtrInput `pulumi:"emailConfiguration"`
+	// Configuration block for configuring email Multi-Factor Authentication (MFA); requires at least 2 <span pulumi-lang-nodejs="`accountRecoverySetting`" pulumi-lang-dotnet="`AccountRecoverySetting`" pulumi-lang-go="`accountRecoverySetting`" pulumi-lang-python="`account_recovery_setting`" pulumi-lang-yaml="`accountRecoverySetting`" pulumi-lang-java="`accountRecoverySetting`">`account_recovery_setting`</span> entries; requires an <span pulumi-lang-nodejs="`emailConfiguration`" pulumi-lang-dotnet="`EmailConfiguration`" pulumi-lang-go="`emailConfiguration`" pulumi-lang-python="`email_configuration`" pulumi-lang-yaml="`emailConfiguration`" pulumi-lang-java="`emailConfiguration`">`email_configuration`</span> configuration block. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+	EmailMfaConfiguration cognito.UserPoolEmailMfaConfigurationPtrInput `pulumi:"emailMfaConfiguration"`
+	// String representing the email verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailMessage`" pulumi-lang-dotnet="`EmailMessage`" pulumi-lang-go="`emailMessage`" pulumi-lang-python="`email_message`" pulumi-lang-yaml="`emailMessage`" pulumi-lang-java="`emailMessage`">`email_message`</span> argument.
+	EmailVerificationMessage pulumi.StringPtrInput `pulumi:"emailVerificationMessage"`
+	// String representing the email verification subject. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailSubject`" pulumi-lang-dotnet="`EmailSubject`" pulumi-lang-go="`emailSubject`" pulumi-lang-python="`email_subject`" pulumi-lang-yaml="`emailSubject`" pulumi-lang-java="`emailSubject`">`email_subject`</span> argument.
+	EmailVerificationSubject pulumi.StringPtrInput `pulumi:"emailVerificationSubject"`
+	// Configuration block for the AWS Lambda triggers associated with the user pool. Detailed below.
+	LambdaConfig cognito.UserPoolLambdaConfigPtrInput `pulumi:"lambdaConfig"`
+	// Multi-Factor Authentication (MFA) configuration for the User Pool. Defaults of `OFF`. Valid values are `OFF` (MFA Tokens are not required), `ON` (MFA is required for all users to sign in; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured), or `OPTIONAL` (MFA Will be required only for individual users who have MFA Enabled; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured).
+	MfaConfiguration pulumi.StringPtrInput `pulumi:"mfaConfiguration"`
+	// Name of the user pool.
+	Name pulumi.StringPtrInput `pulumi:"name"`
+	// Configuration block for information about the user pool password policy. Detailed below.
+	PasswordPolicy cognito.UserPoolPasswordPolicyPtrInput `pulumi:"passwordPolicy"`
+	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+	Region pulumi.StringPtrInput `pulumi:"region"`
+	// Configuration block for the schema attributes of a user pool. Detailed below. Schema attributes from the [standard attribute set](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html#cognito-user-pools-standard-attributes) only need to be specified if they are different from the default configuration. Attributes can be added, but not modified or removed. Maximum of 50 attributes.
+	Schemas cognito.UserPoolSchemaArrayInput `pulumi:"schemas"`
+	// Configuration block for information about the user pool sign in policy. Detailed below.
+	SignInPolicy cognito.UserPoolSignInPolicyPtrInput `pulumi:"signInPolicy"`
+	// String representing the SMS authentication message. The Message must contain the `{####}` placeholder, which will be replaced with the code.
+	SmsAuthenticationMessage pulumi.StringPtrInput `pulumi:"smsAuthenticationMessage"`
+	// Configuration block for Short Message Service (SMS) settings. Detailed below. These settings apply to SMS user verification and SMS Multi-Factor Authentication (MFA). SMS MFA is activated only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is set to `ON` or `OPTIONAL` along with this block. Due to Cognito API restrictions, the SMS configuration cannot be removed without recreating the Cognito User Pool. For user data safety, this resource will ignore the removal of this configuration by disabling drift detection. To force resource recreation after this configuration has been applied, see the <span pulumi-lang-nodejs="`taint`" pulumi-lang-dotnet="`Taint`" pulumi-lang-go="`taint`" pulumi-lang-python="`taint`" pulumi-lang-yaml="`taint`" pulumi-lang-java="`taint`">`taint`</span> command.
+	SmsConfiguration cognito.UserPoolSmsConfigurationPtrInput `pulumi:"smsConfiguration"`
+	// String representing the SMS verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`smsMessage`" pulumi-lang-dotnet="`SmsMessage`" pulumi-lang-go="`smsMessage`" pulumi-lang-python="`sms_message`" pulumi-lang-yaml="`smsMessage`" pulumi-lang-java="`smsMessage`">`sms_message`</span> argument.
+	SmsVerificationMessage pulumi.StringPtrInput `pulumi:"smsVerificationMessage"`
+	// Configuration block for software token Mult-Factor Authentication (MFA) settings. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+	SoftwareTokenMfaConfiguration cognito.UserPoolSoftwareTokenMfaConfigurationPtrInput `pulumi:"softwareTokenMfaConfiguration"`
+	// Map of tags to assign to the User Pool. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+	Tags pulumi.StringMapInput `pulumi:"tags"`
+	// Configuration block for user attribute update settings. Detailed below.
+	UserAttributeUpdateSettings cognito.UserPoolUserAttributeUpdateSettingsPtrInput `pulumi:"userAttributeUpdateSettings"`
+	// Configuration block for user pool add-ons to enable user pool advanced security mode features. Detailed below.
+	UserPoolAddOns cognito.UserPoolUserPoolAddOnsPtrInput `pulumi:"userPoolAddOns"`
+	// The user pool [feature plan](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html), or tier. Valid values: `LITE`, `ESSENTIALS`, `PLUS`.
+	UserPoolTier pulumi.StringPtrInput `pulumi:"userPoolTier"`
+	// Whether email addresses or phone numbers can be specified as usernames when a user signs up. Conflicts with <span pulumi-lang-nodejs="`aliasAttributes`" pulumi-lang-dotnet="`AliasAttributes`" pulumi-lang-go="`aliasAttributes`" pulumi-lang-python="`alias_attributes`" pulumi-lang-yaml="`aliasAttributes`" pulumi-lang-java="`aliasAttributes`">`alias_attributes`</span>.
+	UsernameAttributes pulumi.StringArrayInput `pulumi:"usernameAttributes"`
+	// Configuration block for username configuration. Detailed below.
+	UsernameConfiguration cognito.UserPoolUsernameConfigurationPtrInput `pulumi:"usernameConfiguration"`
+	// Configuration block for verification message templates. Detailed below.
+	VerificationMessageTemplate cognito.UserPoolVerificationMessageTemplatePtrInput `pulumi:"verificationMessageTemplate"`
+	// Configuration block for web authn configuration. Detailed below.
+	WebAuthnConfiguration cognito.UserPoolWebAuthnConfigurationPtrInput `pulumi:"webAuthnConfiguration"`
+}
+
+func (CognitoUserPoolOverridesArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolOverrides)(nil)).Elem()
+}
+
+func (i CognitoUserPoolOverridesArgs) ToCognitoUserPoolOverridesOutput() CognitoUserPoolOverridesOutput {
+	return i.ToCognitoUserPoolOverridesOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolOverridesArgs) ToCognitoUserPoolOverridesOutputWithContext(ctx context.Context) CognitoUserPoolOverridesOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolOverridesOutput)
+}
+
+func (i CognitoUserPoolOverridesArgs) ToCognitoUserPoolOverridesPtrOutput() CognitoUserPoolOverridesPtrOutput {
+	return i.ToCognitoUserPoolOverridesPtrOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolOverridesArgs) ToCognitoUserPoolOverridesPtrOutputWithContext(ctx context.Context) CognitoUserPoolOverridesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolOverridesOutput).ToCognitoUserPoolOverridesPtrOutputWithContext(ctx)
+}
+
+// CognitoUserPoolOverridesPtrInput is an input type that accepts CognitoUserPoolOverridesArgs, CognitoUserPoolOverridesPtr and CognitoUserPoolOverridesPtrOutput values.
+// You can construct a concrete instance of `CognitoUserPoolOverridesPtrInput` via:
+//
+//	        CognitoUserPoolOverridesArgs{...}
+//
+//	or:
+//
+//	        nil
+type CognitoUserPoolOverridesPtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolOverridesPtrOutput() CognitoUserPoolOverridesPtrOutput
+	ToCognitoUserPoolOverridesPtrOutputWithContext(context.Context) CognitoUserPoolOverridesPtrOutput
+}
+
+type cognitoUserPoolOverridesPtrType CognitoUserPoolOverridesArgs
+
+func CognitoUserPoolOverridesPtr(v *CognitoUserPoolOverridesArgs) CognitoUserPoolOverridesPtrInput {
+	return (*cognitoUserPoolOverridesPtrType)(v)
+}
+
+func (*cognitoUserPoolOverridesPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolOverrides)(nil)).Elem()
+}
+
+func (i *cognitoUserPoolOverridesPtrType) ToCognitoUserPoolOverridesPtrOutput() CognitoUserPoolOverridesPtrOutput {
+	return i.ToCognitoUserPoolOverridesPtrOutputWithContext(context.Background())
+}
+
+func (i *cognitoUserPoolOverridesPtrType) ToCognitoUserPoolOverridesPtrOutputWithContext(ctx context.Context) CognitoUserPoolOverridesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolOverridesPtrOutput)
+}
+
+type CognitoUserPoolOverridesOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolOverridesOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolOverrides)(nil)).Elem()
+}
+
+func (o CognitoUserPoolOverridesOutput) ToCognitoUserPoolOverridesOutput() CognitoUserPoolOverridesOutput {
+	return o
+}
+
+func (o CognitoUserPoolOverridesOutput) ToCognitoUserPoolOverridesOutputWithContext(ctx context.Context) CognitoUserPoolOverridesOutput {
+	return o
+}
+
+func (o CognitoUserPoolOverridesOutput) ToCognitoUserPoolOverridesPtrOutput() CognitoUserPoolOverridesPtrOutput {
+	return o.ToCognitoUserPoolOverridesPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolOverridesOutput) ToCognitoUserPoolOverridesPtrOutputWithContext(ctx context.Context) CognitoUserPoolOverridesPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolOverrides) *CognitoUserPoolOverrides {
+		return &v
+	}).(CognitoUserPoolOverridesPtrOutput)
+}
+
+// Configuration block to define which verified available method a user can use to recover their forgotten password. Detailed below.
+func (o CognitoUserPoolOverridesOutput) AccountRecoverySetting() cognito.UserPoolAccountRecoverySettingPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolAccountRecoverySetting {
+		return v.AccountRecoverySetting
+	}).(cognito.UserPoolAccountRecoverySettingPtrOutput)
+}
+
+// Configuration block for creating a new user profile. Detailed below.
+func (o CognitoUserPoolOverridesOutput) AdminCreateUserConfig() cognito.UserPoolAdminCreateUserConfigPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolAdminCreateUserConfig {
+		return v.AdminCreateUserConfig
+	}).(cognito.UserPoolAdminCreateUserConfigPtrOutput)
+}
+
+// Attributes supported as an alias for this user pool. Valid values: <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>, <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, or <span pulumi-lang-nodejs="`preferredUsername`" pulumi-lang-dotnet="`PreferredUsername`" pulumi-lang-go="`preferredUsername`" pulumi-lang-python="`preferred_username`" pulumi-lang-yaml="`preferredUsername`" pulumi-lang-java="`preferredUsername`">`preferred_username`</span>. Conflicts with <span pulumi-lang-nodejs="`usernameAttributes`" pulumi-lang-dotnet="`UsernameAttributes`" pulumi-lang-go="`usernameAttributes`" pulumi-lang-python="`username_attributes`" pulumi-lang-yaml="`usernameAttributes`" pulumi-lang-java="`usernameAttributes`">`username_attributes`</span>.
+func (o CognitoUserPoolOverridesOutput) AliasAttributes() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) []string { return v.AliasAttributes }).(pulumi.StringArrayOutput)
+}
+
+// Attributes to be auto-verified. Valid values: <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>.
+func (o CognitoUserPoolOverridesOutput) AutoVerifiedAttributes() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) []string { return v.AutoVerifiedAttributes }).(pulumi.StringArrayOutput)
+}
+
+// When active, DeletionProtection prevents accidental deletion of your user pool. Before you can delete a user pool that you have protected against deletion, you must deactivate this feature. Valid values are `ACTIVE` and `INACTIVE`, Default value is `INACTIVE`.
+func (o CognitoUserPoolOverridesOutput) DeletionProtection() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *string { return v.DeletionProtection }).(pulumi.StringPtrOutput)
+}
+
+// Configuration block for the user pool's device tracking. Detailed below.
+func (o CognitoUserPoolOverridesOutput) DeviceConfiguration() cognito.UserPoolDeviceConfigurationPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolDeviceConfiguration { return v.DeviceConfiguration }).(cognito.UserPoolDeviceConfigurationPtrOutput)
+}
+
+// Configuration block for configuring email. Detailed below.
+func (o CognitoUserPoolOverridesOutput) EmailConfiguration() cognito.UserPoolEmailConfigurationPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolEmailConfiguration { return v.EmailConfiguration }).(cognito.UserPoolEmailConfigurationPtrOutput)
+}
+
+// Configuration block for configuring email Multi-Factor Authentication (MFA); requires at least 2 <span pulumi-lang-nodejs="`accountRecoverySetting`" pulumi-lang-dotnet="`AccountRecoverySetting`" pulumi-lang-go="`accountRecoverySetting`" pulumi-lang-python="`account_recovery_setting`" pulumi-lang-yaml="`accountRecoverySetting`" pulumi-lang-java="`accountRecoverySetting`">`account_recovery_setting`</span> entries; requires an <span pulumi-lang-nodejs="`emailConfiguration`" pulumi-lang-dotnet="`EmailConfiguration`" pulumi-lang-go="`emailConfiguration`" pulumi-lang-python="`email_configuration`" pulumi-lang-yaml="`emailConfiguration`" pulumi-lang-java="`emailConfiguration`">`email_configuration`</span> configuration block. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+func (o CognitoUserPoolOverridesOutput) EmailMfaConfiguration() cognito.UserPoolEmailMfaConfigurationPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolEmailMfaConfiguration {
+		return v.EmailMfaConfiguration
+	}).(cognito.UserPoolEmailMfaConfigurationPtrOutput)
+}
+
+// String representing the email verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailMessage`" pulumi-lang-dotnet="`EmailMessage`" pulumi-lang-go="`emailMessage`" pulumi-lang-python="`email_message`" pulumi-lang-yaml="`emailMessage`" pulumi-lang-java="`emailMessage`">`email_message`</span> argument.
+func (o CognitoUserPoolOverridesOutput) EmailVerificationMessage() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *string { return v.EmailVerificationMessage }).(pulumi.StringPtrOutput)
+}
+
+// String representing the email verification subject. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailSubject`" pulumi-lang-dotnet="`EmailSubject`" pulumi-lang-go="`emailSubject`" pulumi-lang-python="`email_subject`" pulumi-lang-yaml="`emailSubject`" pulumi-lang-java="`emailSubject`">`email_subject`</span> argument.
+func (o CognitoUserPoolOverridesOutput) EmailVerificationSubject() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *string { return v.EmailVerificationSubject }).(pulumi.StringPtrOutput)
+}
+
+// Configuration block for the AWS Lambda triggers associated with the user pool. Detailed below.
+func (o CognitoUserPoolOverridesOutput) LambdaConfig() cognito.UserPoolLambdaConfigPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolLambdaConfig { return v.LambdaConfig }).(cognito.UserPoolLambdaConfigPtrOutput)
+}
+
+// Multi-Factor Authentication (MFA) configuration for the User Pool. Defaults of `OFF`. Valid values are `OFF` (MFA Tokens are not required), `ON` (MFA is required for all users to sign in; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured), or `OPTIONAL` (MFA Will be required only for individual users who have MFA Enabled; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured).
+func (o CognitoUserPoolOverridesOutput) MfaConfiguration() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *string { return v.MfaConfiguration }).(pulumi.StringPtrOutput)
+}
+
+// Name of the user pool.
+func (o CognitoUserPoolOverridesOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *string { return v.Name }).(pulumi.StringPtrOutput)
+}
+
+// Configuration block for information about the user pool password policy. Detailed below.
+func (o CognitoUserPoolOverridesOutput) PasswordPolicy() cognito.UserPoolPasswordPolicyPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolPasswordPolicy { return v.PasswordPolicy }).(cognito.UserPoolPasswordPolicyPtrOutput)
+}
+
+// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+func (o CognitoUserPoolOverridesOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *string { return v.Region }).(pulumi.StringPtrOutput)
+}
+
+// Configuration block for the schema attributes of a user pool. Detailed below. Schema attributes from the [standard attribute set](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html#cognito-user-pools-standard-attributes) only need to be specified if they are different from the default configuration. Attributes can be added, but not modified or removed. Maximum of 50 attributes.
+func (o CognitoUserPoolOverridesOutput) Schemas() cognito.UserPoolSchemaArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) []cognito.UserPoolSchema { return v.Schemas }).(cognito.UserPoolSchemaArrayOutput)
+}
+
+// Configuration block for information about the user pool sign in policy. Detailed below.
+func (o CognitoUserPoolOverridesOutput) SignInPolicy() cognito.UserPoolSignInPolicyPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolSignInPolicy { return v.SignInPolicy }).(cognito.UserPoolSignInPolicyPtrOutput)
+}
+
+// String representing the SMS authentication message. The Message must contain the `{####}` placeholder, which will be replaced with the code.
+func (o CognitoUserPoolOverridesOutput) SmsAuthenticationMessage() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *string { return v.SmsAuthenticationMessage }).(pulumi.StringPtrOutput)
+}
+
+// Configuration block for Short Message Service (SMS) settings. Detailed below. These settings apply to SMS user verification and SMS Multi-Factor Authentication (MFA). SMS MFA is activated only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is set to `ON` or `OPTIONAL` along with this block. Due to Cognito API restrictions, the SMS configuration cannot be removed without recreating the Cognito User Pool. For user data safety, this resource will ignore the removal of this configuration by disabling drift detection. To force resource recreation after this configuration has been applied, see the <span pulumi-lang-nodejs="`taint`" pulumi-lang-dotnet="`Taint`" pulumi-lang-go="`taint`" pulumi-lang-python="`taint`" pulumi-lang-yaml="`taint`" pulumi-lang-java="`taint`">`taint`</span> command.
+func (o CognitoUserPoolOverridesOutput) SmsConfiguration() cognito.UserPoolSmsConfigurationPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolSmsConfiguration { return v.SmsConfiguration }).(cognito.UserPoolSmsConfigurationPtrOutput)
+}
+
+// String representing the SMS verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`smsMessage`" pulumi-lang-dotnet="`SmsMessage`" pulumi-lang-go="`smsMessage`" pulumi-lang-python="`sms_message`" pulumi-lang-yaml="`smsMessage`" pulumi-lang-java="`smsMessage`">`sms_message`</span> argument.
+func (o CognitoUserPoolOverridesOutput) SmsVerificationMessage() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *string { return v.SmsVerificationMessage }).(pulumi.StringPtrOutput)
+}
+
+// Configuration block for software token Mult-Factor Authentication (MFA) settings. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+func (o CognitoUserPoolOverridesOutput) SoftwareTokenMfaConfiguration() cognito.UserPoolSoftwareTokenMfaConfigurationPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolSoftwareTokenMfaConfiguration {
+		return v.SoftwareTokenMfaConfiguration
+	}).(cognito.UserPoolSoftwareTokenMfaConfigurationPtrOutput)
+}
+
+// Map of tags to assign to the User Pool. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+func (o CognitoUserPoolOverridesOutput) Tags() pulumi.StringMapOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) map[string]string { return v.Tags }).(pulumi.StringMapOutput)
+}
+
+// Configuration block for user attribute update settings. Detailed below.
+func (o CognitoUserPoolOverridesOutput) UserAttributeUpdateSettings() cognito.UserPoolUserAttributeUpdateSettingsPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolUserAttributeUpdateSettings {
+		return v.UserAttributeUpdateSettings
+	}).(cognito.UserPoolUserAttributeUpdateSettingsPtrOutput)
+}
+
+// Configuration block for user pool add-ons to enable user pool advanced security mode features. Detailed below.
+func (o CognitoUserPoolOverridesOutput) UserPoolAddOns() cognito.UserPoolUserPoolAddOnsPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolUserPoolAddOns { return v.UserPoolAddOns }).(cognito.UserPoolUserPoolAddOnsPtrOutput)
+}
+
+// The user pool [feature plan](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html), or tier. Valid values: `LITE`, `ESSENTIALS`, `PLUS`.
+func (o CognitoUserPoolOverridesOutput) UserPoolTier() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *string { return v.UserPoolTier }).(pulumi.StringPtrOutput)
+}
+
+// Whether email addresses or phone numbers can be specified as usernames when a user signs up. Conflicts with <span pulumi-lang-nodejs="`aliasAttributes`" pulumi-lang-dotnet="`AliasAttributes`" pulumi-lang-go="`aliasAttributes`" pulumi-lang-python="`alias_attributes`" pulumi-lang-yaml="`aliasAttributes`" pulumi-lang-java="`aliasAttributes`">`alias_attributes`</span>.
+func (o CognitoUserPoolOverridesOutput) UsernameAttributes() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) []string { return v.UsernameAttributes }).(pulumi.StringArrayOutput)
+}
+
+// Configuration block for username configuration. Detailed below.
+func (o CognitoUserPoolOverridesOutput) UsernameConfiguration() cognito.UserPoolUsernameConfigurationPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolUsernameConfiguration {
+		return v.UsernameConfiguration
+	}).(cognito.UserPoolUsernameConfigurationPtrOutput)
+}
+
+// Configuration block for verification message templates. Detailed below.
+func (o CognitoUserPoolOverridesOutput) VerificationMessageTemplate() cognito.UserPoolVerificationMessageTemplatePtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolVerificationMessageTemplate {
+		return v.VerificationMessageTemplate
+	}).(cognito.UserPoolVerificationMessageTemplatePtrOutput)
+}
+
+// Configuration block for web authn configuration. Detailed below.
+func (o CognitoUserPoolOverridesOutput) WebAuthnConfiguration() cognito.UserPoolWebAuthnConfigurationPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolOverrides) *cognito.UserPoolWebAuthnConfiguration {
+		return v.WebAuthnConfiguration
+	}).(cognito.UserPoolWebAuthnConfigurationPtrOutput)
+}
+
+type CognitoUserPoolOverridesPtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolOverridesPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolOverrides)(nil)).Elem()
+}
+
+func (o CognitoUserPoolOverridesPtrOutput) ToCognitoUserPoolOverridesPtrOutput() CognitoUserPoolOverridesPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolOverridesPtrOutput) ToCognitoUserPoolOverridesPtrOutputWithContext(ctx context.Context) CognitoUserPoolOverridesPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolOverridesPtrOutput) Elem() CognitoUserPoolOverridesOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) CognitoUserPoolOverrides {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolOverrides
+		return ret
+	}).(CognitoUserPoolOverridesOutput)
+}
+
+// Configuration block to define which verified available method a user can use to recover their forgotten password. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) AccountRecoverySetting() cognito.UserPoolAccountRecoverySettingPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolAccountRecoverySetting {
+		if v == nil {
+			return nil
+		}
+		return v.AccountRecoverySetting
+	}).(cognito.UserPoolAccountRecoverySettingPtrOutput)
+}
+
+// Configuration block for creating a new user profile. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) AdminCreateUserConfig() cognito.UserPoolAdminCreateUserConfigPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolAdminCreateUserConfig {
+		if v == nil {
+			return nil
+		}
+		return v.AdminCreateUserConfig
+	}).(cognito.UserPoolAdminCreateUserConfigPtrOutput)
+}
+
+// Attributes supported as an alias for this user pool. Valid values: <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>, <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, or <span pulumi-lang-nodejs="`preferredUsername`" pulumi-lang-dotnet="`PreferredUsername`" pulumi-lang-go="`preferredUsername`" pulumi-lang-python="`preferred_username`" pulumi-lang-yaml="`preferredUsername`" pulumi-lang-java="`preferredUsername`">`preferred_username`</span>. Conflicts with <span pulumi-lang-nodejs="`usernameAttributes`" pulumi-lang-dotnet="`UsernameAttributes`" pulumi-lang-go="`usernameAttributes`" pulumi-lang-python="`username_attributes`" pulumi-lang-yaml="`usernameAttributes`" pulumi-lang-java="`usernameAttributes`">`username_attributes`</span>.
+func (o CognitoUserPoolOverridesPtrOutput) AliasAttributes() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) []string {
+		if v == nil {
+			return nil
+		}
+		return v.AliasAttributes
+	}).(pulumi.StringArrayOutput)
+}
+
+// Attributes to be auto-verified. Valid values: <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>.
+func (o CognitoUserPoolOverridesPtrOutput) AutoVerifiedAttributes() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) []string {
+		if v == nil {
+			return nil
+		}
+		return v.AutoVerifiedAttributes
+	}).(pulumi.StringArrayOutput)
+}
+
+// When active, DeletionProtection prevents accidental deletion of your user pool. Before you can delete a user pool that you have protected against deletion, you must deactivate this feature. Valid values are `ACTIVE` and `INACTIVE`, Default value is `INACTIVE`.
+func (o CognitoUserPoolOverridesPtrOutput) DeletionProtection() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.DeletionProtection
+	}).(pulumi.StringPtrOutput)
+}
+
+// Configuration block for the user pool's device tracking. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) DeviceConfiguration() cognito.UserPoolDeviceConfigurationPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolDeviceConfiguration {
+		if v == nil {
+			return nil
+		}
+		return v.DeviceConfiguration
+	}).(cognito.UserPoolDeviceConfigurationPtrOutput)
+}
+
+// Configuration block for configuring email. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) EmailConfiguration() cognito.UserPoolEmailConfigurationPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolEmailConfiguration {
+		if v == nil {
+			return nil
+		}
+		return v.EmailConfiguration
+	}).(cognito.UserPoolEmailConfigurationPtrOutput)
+}
+
+// Configuration block for configuring email Multi-Factor Authentication (MFA); requires at least 2 <span pulumi-lang-nodejs="`accountRecoverySetting`" pulumi-lang-dotnet="`AccountRecoverySetting`" pulumi-lang-go="`accountRecoverySetting`" pulumi-lang-python="`account_recovery_setting`" pulumi-lang-yaml="`accountRecoverySetting`" pulumi-lang-java="`accountRecoverySetting`">`account_recovery_setting`</span> entries; requires an <span pulumi-lang-nodejs="`emailConfiguration`" pulumi-lang-dotnet="`EmailConfiguration`" pulumi-lang-go="`emailConfiguration`" pulumi-lang-python="`email_configuration`" pulumi-lang-yaml="`emailConfiguration`" pulumi-lang-java="`emailConfiguration`">`email_configuration`</span> configuration block. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) EmailMfaConfiguration() cognito.UserPoolEmailMfaConfigurationPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolEmailMfaConfiguration {
+		if v == nil {
+			return nil
+		}
+		return v.EmailMfaConfiguration
+	}).(cognito.UserPoolEmailMfaConfigurationPtrOutput)
+}
+
+// String representing the email verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailMessage`" pulumi-lang-dotnet="`EmailMessage`" pulumi-lang-go="`emailMessage`" pulumi-lang-python="`email_message`" pulumi-lang-yaml="`emailMessage`" pulumi-lang-java="`emailMessage`">`email_message`</span> argument.
+func (o CognitoUserPoolOverridesPtrOutput) EmailVerificationMessage() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.EmailVerificationMessage
+	}).(pulumi.StringPtrOutput)
+}
+
+// String representing the email verification subject. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailSubject`" pulumi-lang-dotnet="`EmailSubject`" pulumi-lang-go="`emailSubject`" pulumi-lang-python="`email_subject`" pulumi-lang-yaml="`emailSubject`" pulumi-lang-java="`emailSubject`">`email_subject`</span> argument.
+func (o CognitoUserPoolOverridesPtrOutput) EmailVerificationSubject() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.EmailVerificationSubject
+	}).(pulumi.StringPtrOutput)
+}
+
+// Configuration block for the AWS Lambda triggers associated with the user pool. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) LambdaConfig() cognito.UserPoolLambdaConfigPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolLambdaConfig {
+		if v == nil {
+			return nil
+		}
+		return v.LambdaConfig
+	}).(cognito.UserPoolLambdaConfigPtrOutput)
+}
+
+// Multi-Factor Authentication (MFA) configuration for the User Pool. Defaults of `OFF`. Valid values are `OFF` (MFA Tokens are not required), `ON` (MFA is required for all users to sign in; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured), or `OPTIONAL` (MFA Will be required only for individual users who have MFA Enabled; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured).
+func (o CognitoUserPoolOverridesPtrOutput) MfaConfiguration() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.MfaConfiguration
+	}).(pulumi.StringPtrOutput)
+}
+
+// Name of the user pool.
+func (o CognitoUserPoolOverridesPtrOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Name
+	}).(pulumi.StringPtrOutput)
+}
+
+// Configuration block for information about the user pool password policy. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) PasswordPolicy() cognito.UserPoolPasswordPolicyPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolPasswordPolicy {
+		if v == nil {
+			return nil
+		}
+		return v.PasswordPolicy
+	}).(cognito.UserPoolPasswordPolicyPtrOutput)
+}
+
+// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+func (o CognitoUserPoolOverridesPtrOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Region
+	}).(pulumi.StringPtrOutput)
+}
+
+// Configuration block for the schema attributes of a user pool. Detailed below. Schema attributes from the [standard attribute set](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html#cognito-user-pools-standard-attributes) only need to be specified if they are different from the default configuration. Attributes can be added, but not modified or removed. Maximum of 50 attributes.
+func (o CognitoUserPoolOverridesPtrOutput) Schemas() cognito.UserPoolSchemaArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) []cognito.UserPoolSchema {
+		if v == nil {
+			return nil
+		}
+		return v.Schemas
+	}).(cognito.UserPoolSchemaArrayOutput)
+}
+
+// Configuration block for information about the user pool sign in policy. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) SignInPolicy() cognito.UserPoolSignInPolicyPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolSignInPolicy {
+		if v == nil {
+			return nil
+		}
+		return v.SignInPolicy
+	}).(cognito.UserPoolSignInPolicyPtrOutput)
+}
+
+// String representing the SMS authentication message. The Message must contain the `{####}` placeholder, which will be replaced with the code.
+func (o CognitoUserPoolOverridesPtrOutput) SmsAuthenticationMessage() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.SmsAuthenticationMessage
+	}).(pulumi.StringPtrOutput)
+}
+
+// Configuration block for Short Message Service (SMS) settings. Detailed below. These settings apply to SMS user verification and SMS Multi-Factor Authentication (MFA). SMS MFA is activated only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is set to `ON` or `OPTIONAL` along with this block. Due to Cognito API restrictions, the SMS configuration cannot be removed without recreating the Cognito User Pool. For user data safety, this resource will ignore the removal of this configuration by disabling drift detection. To force resource recreation after this configuration has been applied, see the <span pulumi-lang-nodejs="`taint`" pulumi-lang-dotnet="`Taint`" pulumi-lang-go="`taint`" pulumi-lang-python="`taint`" pulumi-lang-yaml="`taint`" pulumi-lang-java="`taint`">`taint`</span> command.
+func (o CognitoUserPoolOverridesPtrOutput) SmsConfiguration() cognito.UserPoolSmsConfigurationPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolSmsConfiguration {
+		if v == nil {
+			return nil
+		}
+		return v.SmsConfiguration
+	}).(cognito.UserPoolSmsConfigurationPtrOutput)
+}
+
+// String representing the SMS verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`smsMessage`" pulumi-lang-dotnet="`SmsMessage`" pulumi-lang-go="`smsMessage`" pulumi-lang-python="`sms_message`" pulumi-lang-yaml="`smsMessage`" pulumi-lang-java="`smsMessage`">`sms_message`</span> argument.
+func (o CognitoUserPoolOverridesPtrOutput) SmsVerificationMessage() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.SmsVerificationMessage
+	}).(pulumi.StringPtrOutput)
+}
+
+// Configuration block for software token Mult-Factor Authentication (MFA) settings. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) SoftwareTokenMfaConfiguration() cognito.UserPoolSoftwareTokenMfaConfigurationPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolSoftwareTokenMfaConfiguration {
+		if v == nil {
+			return nil
+		}
+		return v.SoftwareTokenMfaConfiguration
+	}).(cognito.UserPoolSoftwareTokenMfaConfigurationPtrOutput)
+}
+
+// Map of tags to assign to the User Pool. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+func (o CognitoUserPoolOverridesPtrOutput) Tags() pulumi.StringMapOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) map[string]string {
+		if v == nil {
+			return nil
+		}
+		return v.Tags
+	}).(pulumi.StringMapOutput)
+}
+
+// Configuration block for user attribute update settings. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) UserAttributeUpdateSettings() cognito.UserPoolUserAttributeUpdateSettingsPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolUserAttributeUpdateSettings {
+		if v == nil {
+			return nil
+		}
+		return v.UserAttributeUpdateSettings
+	}).(cognito.UserPoolUserAttributeUpdateSettingsPtrOutput)
+}
+
+// Configuration block for user pool add-ons to enable user pool advanced security mode features. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) UserPoolAddOns() cognito.UserPoolUserPoolAddOnsPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolUserPoolAddOns {
+		if v == nil {
+			return nil
+		}
+		return v.UserPoolAddOns
+	}).(cognito.UserPoolUserPoolAddOnsPtrOutput)
+}
+
+// The user pool [feature plan](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html), or tier. Valid values: `LITE`, `ESSENTIALS`, `PLUS`.
+func (o CognitoUserPoolOverridesPtrOutput) UserPoolTier() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.UserPoolTier
+	}).(pulumi.StringPtrOutput)
+}
+
+// Whether email addresses or phone numbers can be specified as usernames when a user signs up. Conflicts with <span pulumi-lang-nodejs="`aliasAttributes`" pulumi-lang-dotnet="`AliasAttributes`" pulumi-lang-go="`aliasAttributes`" pulumi-lang-python="`alias_attributes`" pulumi-lang-yaml="`aliasAttributes`" pulumi-lang-java="`aliasAttributes`">`alias_attributes`</span>.
+func (o CognitoUserPoolOverridesPtrOutput) UsernameAttributes() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) []string {
+		if v == nil {
+			return nil
+		}
+		return v.UsernameAttributes
+	}).(pulumi.StringArrayOutput)
+}
+
+// Configuration block for username configuration. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) UsernameConfiguration() cognito.UserPoolUsernameConfigurationPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolUsernameConfiguration {
+		if v == nil {
+			return nil
+		}
+		return v.UsernameConfiguration
+	}).(cognito.UserPoolUsernameConfigurationPtrOutput)
+}
+
+// Configuration block for verification message templates. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) VerificationMessageTemplate() cognito.UserPoolVerificationMessageTemplatePtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolVerificationMessageTemplate {
+		if v == nil {
+			return nil
+		}
+		return v.VerificationMessageTemplate
+	}).(cognito.UserPoolVerificationMessageTemplatePtrOutput)
+}
+
+// Configuration block for web authn configuration. Detailed below.
+func (o CognitoUserPoolOverridesPtrOutput) WebAuthnConfiguration() cognito.UserPoolWebAuthnConfigurationPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOverrides) *cognito.UserPoolWebAuthnConfiguration {
+		if v == nil {
+			return nil
+		}
+		return v.WebAuthnConfiguration
+	}).(cognito.UserPoolWebAuthnConfigurationPtrOutput)
+}
+
+// Password policy for the user pool. Anvil defaults satisfy CIS Benchmarks and SOC 2 baseline.
+type CognitoUserPoolPasswordPolicy struct {
+	// Minimum password length. Default: 12. Minimum allowed: 6.
+	MinLength *int `pulumi:"minLength"`
+	// Require at least one lowercase letter. Default: true.
+	RequireLowercase *bool `pulumi:"requireLowercase"`
+	// Require at least one number. Default: true.
+	RequireNumbers *bool `pulumi:"requireNumbers"`
+	// Require at least one symbol. Default: true.
+	RequireSymbols *bool `pulumi:"requireSymbols"`
+	// Require at least one uppercase letter. Default: true.
+	RequireUppercase *bool `pulumi:"requireUppercase"`
+	// Number of days a temporary password is valid. Default: 7.
+	TemporaryPasswordValidityDays *int `pulumi:"temporaryPasswordValidityDays"`
+}
+
+// CognitoUserPoolPasswordPolicyInput is an input type that accepts CognitoUserPoolPasswordPolicyArgs and CognitoUserPoolPasswordPolicyOutput values.
+// You can construct a concrete instance of `CognitoUserPoolPasswordPolicyInput` via:
+//
+//	CognitoUserPoolPasswordPolicyArgs{...}
+type CognitoUserPoolPasswordPolicyInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolPasswordPolicyOutput() CognitoUserPoolPasswordPolicyOutput
+	ToCognitoUserPoolPasswordPolicyOutputWithContext(context.Context) CognitoUserPoolPasswordPolicyOutput
+}
+
+// Password policy for the user pool. Anvil defaults satisfy CIS Benchmarks and SOC 2 baseline.
+type CognitoUserPoolPasswordPolicyArgs struct {
+	// Minimum password length. Default: 12. Minimum allowed: 6.
+	MinLength pulumi.IntPtrInput `pulumi:"minLength"`
+	// Require at least one lowercase letter. Default: true.
+	RequireLowercase pulumi.BoolPtrInput `pulumi:"requireLowercase"`
+	// Require at least one number. Default: true.
+	RequireNumbers pulumi.BoolPtrInput `pulumi:"requireNumbers"`
+	// Require at least one symbol. Default: true.
+	RequireSymbols pulumi.BoolPtrInput `pulumi:"requireSymbols"`
+	// Require at least one uppercase letter. Default: true.
+	RequireUppercase pulumi.BoolPtrInput `pulumi:"requireUppercase"`
+	// Number of days a temporary password is valid. Default: 7.
+	TemporaryPasswordValidityDays pulumi.IntPtrInput `pulumi:"temporaryPasswordValidityDays"`
+}
+
+func (CognitoUserPoolPasswordPolicyArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolPasswordPolicy)(nil)).Elem()
+}
+
+func (i CognitoUserPoolPasswordPolicyArgs) ToCognitoUserPoolPasswordPolicyOutput() CognitoUserPoolPasswordPolicyOutput {
+	return i.ToCognitoUserPoolPasswordPolicyOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolPasswordPolicyArgs) ToCognitoUserPoolPasswordPolicyOutputWithContext(ctx context.Context) CognitoUserPoolPasswordPolicyOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolPasswordPolicyOutput)
+}
+
+func (i CognitoUserPoolPasswordPolicyArgs) ToCognitoUserPoolPasswordPolicyPtrOutput() CognitoUserPoolPasswordPolicyPtrOutput {
+	return i.ToCognitoUserPoolPasswordPolicyPtrOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolPasswordPolicyArgs) ToCognitoUserPoolPasswordPolicyPtrOutputWithContext(ctx context.Context) CognitoUserPoolPasswordPolicyPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolPasswordPolicyOutput).ToCognitoUserPoolPasswordPolicyPtrOutputWithContext(ctx)
+}
+
+// CognitoUserPoolPasswordPolicyPtrInput is an input type that accepts CognitoUserPoolPasswordPolicyArgs, CognitoUserPoolPasswordPolicyPtr and CognitoUserPoolPasswordPolicyPtrOutput values.
+// You can construct a concrete instance of `CognitoUserPoolPasswordPolicyPtrInput` via:
+//
+//	        CognitoUserPoolPasswordPolicyArgs{...}
+//
+//	or:
+//
+//	        nil
+type CognitoUserPoolPasswordPolicyPtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolPasswordPolicyPtrOutput() CognitoUserPoolPasswordPolicyPtrOutput
+	ToCognitoUserPoolPasswordPolicyPtrOutputWithContext(context.Context) CognitoUserPoolPasswordPolicyPtrOutput
+}
+
+type cognitoUserPoolPasswordPolicyPtrType CognitoUserPoolPasswordPolicyArgs
+
+func CognitoUserPoolPasswordPolicyPtr(v *CognitoUserPoolPasswordPolicyArgs) CognitoUserPoolPasswordPolicyPtrInput {
+	return (*cognitoUserPoolPasswordPolicyPtrType)(v)
+}
+
+func (*cognitoUserPoolPasswordPolicyPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolPasswordPolicy)(nil)).Elem()
+}
+
+func (i *cognitoUserPoolPasswordPolicyPtrType) ToCognitoUserPoolPasswordPolicyPtrOutput() CognitoUserPoolPasswordPolicyPtrOutput {
+	return i.ToCognitoUserPoolPasswordPolicyPtrOutputWithContext(context.Background())
+}
+
+func (i *cognitoUserPoolPasswordPolicyPtrType) ToCognitoUserPoolPasswordPolicyPtrOutputWithContext(ctx context.Context) CognitoUserPoolPasswordPolicyPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolPasswordPolicyPtrOutput)
+}
+
+// Password policy for the user pool. Anvil defaults satisfy CIS Benchmarks and SOC 2 baseline.
+type CognitoUserPoolPasswordPolicyOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolPasswordPolicyOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolPasswordPolicy)(nil)).Elem()
+}
+
+func (o CognitoUserPoolPasswordPolicyOutput) ToCognitoUserPoolPasswordPolicyOutput() CognitoUserPoolPasswordPolicyOutput {
+	return o
+}
+
+func (o CognitoUserPoolPasswordPolicyOutput) ToCognitoUserPoolPasswordPolicyOutputWithContext(ctx context.Context) CognitoUserPoolPasswordPolicyOutput {
+	return o
+}
+
+func (o CognitoUserPoolPasswordPolicyOutput) ToCognitoUserPoolPasswordPolicyPtrOutput() CognitoUserPoolPasswordPolicyPtrOutput {
+	return o.ToCognitoUserPoolPasswordPolicyPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolPasswordPolicyOutput) ToCognitoUserPoolPasswordPolicyPtrOutputWithContext(ctx context.Context) CognitoUserPoolPasswordPolicyPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolPasswordPolicy) *CognitoUserPoolPasswordPolicy {
+		return &v
+	}).(CognitoUserPoolPasswordPolicyPtrOutput)
+}
+
+// Minimum password length. Default: 12. Minimum allowed: 6.
+func (o CognitoUserPoolPasswordPolicyOutput) MinLength() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolPasswordPolicy) *int { return v.MinLength }).(pulumi.IntPtrOutput)
+}
+
+// Require at least one lowercase letter. Default: true.
+func (o CognitoUserPoolPasswordPolicyOutput) RequireLowercase() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolPasswordPolicy) *bool { return v.RequireLowercase }).(pulumi.BoolPtrOutput)
+}
+
+// Require at least one number. Default: true.
+func (o CognitoUserPoolPasswordPolicyOutput) RequireNumbers() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolPasswordPolicy) *bool { return v.RequireNumbers }).(pulumi.BoolPtrOutput)
+}
+
+// Require at least one symbol. Default: true.
+func (o CognitoUserPoolPasswordPolicyOutput) RequireSymbols() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolPasswordPolicy) *bool { return v.RequireSymbols }).(pulumi.BoolPtrOutput)
+}
+
+// Require at least one uppercase letter. Default: true.
+func (o CognitoUserPoolPasswordPolicyOutput) RequireUppercase() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolPasswordPolicy) *bool { return v.RequireUppercase }).(pulumi.BoolPtrOutput)
+}
+
+// Number of days a temporary password is valid. Default: 7.
+func (o CognitoUserPoolPasswordPolicyOutput) TemporaryPasswordValidityDays() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolPasswordPolicy) *int { return v.TemporaryPasswordValidityDays }).(pulumi.IntPtrOutput)
+}
+
+type CognitoUserPoolPasswordPolicyPtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolPasswordPolicyPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolPasswordPolicy)(nil)).Elem()
+}
+
+func (o CognitoUserPoolPasswordPolicyPtrOutput) ToCognitoUserPoolPasswordPolicyPtrOutput() CognitoUserPoolPasswordPolicyPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolPasswordPolicyPtrOutput) ToCognitoUserPoolPasswordPolicyPtrOutputWithContext(ctx context.Context) CognitoUserPoolPasswordPolicyPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolPasswordPolicyPtrOutput) Elem() CognitoUserPoolPasswordPolicyOutput {
+	return o.ApplyT(func(v *CognitoUserPoolPasswordPolicy) CognitoUserPoolPasswordPolicy {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolPasswordPolicy
+		return ret
+	}).(CognitoUserPoolPasswordPolicyOutput)
+}
+
+// Minimum password length. Default: 12. Minimum allowed: 6.
+func (o CognitoUserPoolPasswordPolicyPtrOutput) MinLength() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolPasswordPolicy) *int {
+		if v == nil {
+			return nil
+		}
+		return v.MinLength
+	}).(pulumi.IntPtrOutput)
+}
+
+// Require at least one lowercase letter. Default: true.
+func (o CognitoUserPoolPasswordPolicyPtrOutput) RequireLowercase() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolPasswordPolicy) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.RequireLowercase
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Require at least one number. Default: true.
+func (o CognitoUserPoolPasswordPolicyPtrOutput) RequireNumbers() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolPasswordPolicy) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.RequireNumbers
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Require at least one symbol. Default: true.
+func (o CognitoUserPoolPasswordPolicyPtrOutput) RequireSymbols() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolPasswordPolicy) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.RequireSymbols
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Require at least one uppercase letter. Default: true.
+func (o CognitoUserPoolPasswordPolicyPtrOutput) RequireUppercase() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolPasswordPolicy) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.RequireUppercase
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Number of days a temporary password is valid. Default: 7.
+func (o CognitoUserPoolPasswordPolicyPtrOutput) TemporaryPasswordValidityDays() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolPasswordPolicy) *int {
+		if v == nil {
+			return nil
+		}
+		return v.TemporaryPasswordValidityDays
+	}).(pulumi.IntPtrOutput)
+}
+
+// Token validity configuration.
+type CognitoUserPoolTokenValidity struct {
+	// Access token validity in hours. Default: 1.
+	AccessTokenValidity *int `pulumi:"accessTokenValidity"`
+	// ID token validity in hours. Default: 1.
+	IdTokenValidity *int `pulumi:"idTokenValidity"`
+	// Refresh token validity in days. Default: 30.
+	RefreshTokenValidity *int `pulumi:"refreshTokenValidity"`
+}
+
+// CognitoUserPoolTokenValidityInput is an input type that accepts CognitoUserPoolTokenValidityArgs and CognitoUserPoolTokenValidityOutput values.
+// You can construct a concrete instance of `CognitoUserPoolTokenValidityInput` via:
+//
+//	CognitoUserPoolTokenValidityArgs{...}
+type CognitoUserPoolTokenValidityInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolTokenValidityOutput() CognitoUserPoolTokenValidityOutput
+	ToCognitoUserPoolTokenValidityOutputWithContext(context.Context) CognitoUserPoolTokenValidityOutput
+}
+
+// Token validity configuration.
+type CognitoUserPoolTokenValidityArgs struct {
+	// Access token validity in hours. Default: 1.
+	AccessTokenValidity pulumi.IntPtrInput `pulumi:"accessTokenValidity"`
+	// ID token validity in hours. Default: 1.
+	IdTokenValidity pulumi.IntPtrInput `pulumi:"idTokenValidity"`
+	// Refresh token validity in days. Default: 30.
+	RefreshTokenValidity pulumi.IntPtrInput `pulumi:"refreshTokenValidity"`
+}
+
+func (CognitoUserPoolTokenValidityArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolTokenValidity)(nil)).Elem()
+}
+
+func (i CognitoUserPoolTokenValidityArgs) ToCognitoUserPoolTokenValidityOutput() CognitoUserPoolTokenValidityOutput {
+	return i.ToCognitoUserPoolTokenValidityOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolTokenValidityArgs) ToCognitoUserPoolTokenValidityOutputWithContext(ctx context.Context) CognitoUserPoolTokenValidityOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolTokenValidityOutput)
+}
+
+func (i CognitoUserPoolTokenValidityArgs) ToCognitoUserPoolTokenValidityPtrOutput() CognitoUserPoolTokenValidityPtrOutput {
+	return i.ToCognitoUserPoolTokenValidityPtrOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolTokenValidityArgs) ToCognitoUserPoolTokenValidityPtrOutputWithContext(ctx context.Context) CognitoUserPoolTokenValidityPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolTokenValidityOutput).ToCognitoUserPoolTokenValidityPtrOutputWithContext(ctx)
+}
+
+// CognitoUserPoolTokenValidityPtrInput is an input type that accepts CognitoUserPoolTokenValidityArgs, CognitoUserPoolTokenValidityPtr and CognitoUserPoolTokenValidityPtrOutput values.
+// You can construct a concrete instance of `CognitoUserPoolTokenValidityPtrInput` via:
+//
+//	        CognitoUserPoolTokenValidityArgs{...}
+//
+//	or:
+//
+//	        nil
+type CognitoUserPoolTokenValidityPtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolTokenValidityPtrOutput() CognitoUserPoolTokenValidityPtrOutput
+	ToCognitoUserPoolTokenValidityPtrOutputWithContext(context.Context) CognitoUserPoolTokenValidityPtrOutput
+}
+
+type cognitoUserPoolTokenValidityPtrType CognitoUserPoolTokenValidityArgs
+
+func CognitoUserPoolTokenValidityPtr(v *CognitoUserPoolTokenValidityArgs) CognitoUserPoolTokenValidityPtrInput {
+	return (*cognitoUserPoolTokenValidityPtrType)(v)
+}
+
+func (*cognitoUserPoolTokenValidityPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolTokenValidity)(nil)).Elem()
+}
+
+func (i *cognitoUserPoolTokenValidityPtrType) ToCognitoUserPoolTokenValidityPtrOutput() CognitoUserPoolTokenValidityPtrOutput {
+	return i.ToCognitoUserPoolTokenValidityPtrOutputWithContext(context.Background())
+}
+
+func (i *cognitoUserPoolTokenValidityPtrType) ToCognitoUserPoolTokenValidityPtrOutputWithContext(ctx context.Context) CognitoUserPoolTokenValidityPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolTokenValidityPtrOutput)
+}
+
+// Token validity configuration.
+type CognitoUserPoolTokenValidityOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolTokenValidityOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolTokenValidity)(nil)).Elem()
+}
+
+func (o CognitoUserPoolTokenValidityOutput) ToCognitoUserPoolTokenValidityOutput() CognitoUserPoolTokenValidityOutput {
+	return o
+}
+
+func (o CognitoUserPoolTokenValidityOutput) ToCognitoUserPoolTokenValidityOutputWithContext(ctx context.Context) CognitoUserPoolTokenValidityOutput {
+	return o
+}
+
+func (o CognitoUserPoolTokenValidityOutput) ToCognitoUserPoolTokenValidityPtrOutput() CognitoUserPoolTokenValidityPtrOutput {
+	return o.ToCognitoUserPoolTokenValidityPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolTokenValidityOutput) ToCognitoUserPoolTokenValidityPtrOutputWithContext(ctx context.Context) CognitoUserPoolTokenValidityPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolTokenValidity) *CognitoUserPoolTokenValidity {
+		return &v
+	}).(CognitoUserPoolTokenValidityPtrOutput)
+}
+
+// Access token validity in hours. Default: 1.
+func (o CognitoUserPoolTokenValidityOutput) AccessTokenValidity() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolTokenValidity) *int { return v.AccessTokenValidity }).(pulumi.IntPtrOutput)
+}
+
+// ID token validity in hours. Default: 1.
+func (o CognitoUserPoolTokenValidityOutput) IdTokenValidity() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolTokenValidity) *int { return v.IdTokenValidity }).(pulumi.IntPtrOutput)
+}
+
+// Refresh token validity in days. Default: 30.
+func (o CognitoUserPoolTokenValidityOutput) RefreshTokenValidity() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolTokenValidity) *int { return v.RefreshTokenValidity }).(pulumi.IntPtrOutput)
+}
+
+type CognitoUserPoolTokenValidityPtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolTokenValidityPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolTokenValidity)(nil)).Elem()
+}
+
+func (o CognitoUserPoolTokenValidityPtrOutput) ToCognitoUserPoolTokenValidityPtrOutput() CognitoUserPoolTokenValidityPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolTokenValidityPtrOutput) ToCognitoUserPoolTokenValidityPtrOutputWithContext(ctx context.Context) CognitoUserPoolTokenValidityPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolTokenValidityPtrOutput) Elem() CognitoUserPoolTokenValidityOutput {
+	return o.ApplyT(func(v *CognitoUserPoolTokenValidity) CognitoUserPoolTokenValidity {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolTokenValidity
+		return ret
+	}).(CognitoUserPoolTokenValidityOutput)
+}
+
+// Access token validity in hours. Default: 1.
+func (o CognitoUserPoolTokenValidityPtrOutput) AccessTokenValidity() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolTokenValidity) *int {
+		if v == nil {
+			return nil
+		}
+		return v.AccessTokenValidity
+	}).(pulumi.IntPtrOutput)
+}
+
+// ID token validity in hours. Default: 1.
+func (o CognitoUserPoolTokenValidityPtrOutput) IdTokenValidity() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolTokenValidity) *int {
+		if v == nil {
+			return nil
+		}
+		return v.IdTokenValidity
+	}).(pulumi.IntPtrOutput)
+}
+
+// Refresh token validity in days. Default: 30.
+func (o CognitoUserPoolTokenValidityPtrOutput) RefreshTokenValidity() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolTokenValidity) *int {
+		if v == nil {
+			return nil
+		}
+		return v.RefreshTokenValidity
+	}).(pulumi.IntPtrOutput)
+}
+
+type CognitoUserPoolTransformArgs struct {
+	CognitoUserPool *CognitoUserPoolOverrides `pulumi:"cognitoUserPool"`
+}
+
+// CognitoUserPoolTransformArgsInput is an input type that accepts CognitoUserPoolTransformArgsArgs and CognitoUserPoolTransformArgsOutput values.
+// You can construct a concrete instance of `CognitoUserPoolTransformArgsInput` via:
+//
+//	CognitoUserPoolTransformArgsArgs{...}
+type CognitoUserPoolTransformArgsInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolTransformArgsOutput() CognitoUserPoolTransformArgsOutput
+	ToCognitoUserPoolTransformArgsOutputWithContext(context.Context) CognitoUserPoolTransformArgsOutput
+}
+
+type CognitoUserPoolTransformArgsArgs struct {
+	CognitoUserPool CognitoUserPoolOverridesPtrInput `pulumi:"cognitoUserPool"`
+}
+
+func (CognitoUserPoolTransformArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolTransformArgs)(nil)).Elem()
+}
+
+func (i CognitoUserPoolTransformArgsArgs) ToCognitoUserPoolTransformArgsOutput() CognitoUserPoolTransformArgsOutput {
+	return i.ToCognitoUserPoolTransformArgsOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolTransformArgsArgs) ToCognitoUserPoolTransformArgsOutputWithContext(ctx context.Context) CognitoUserPoolTransformArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolTransformArgsOutput)
+}
+
+func (i CognitoUserPoolTransformArgsArgs) ToCognitoUserPoolTransformArgsPtrOutput() CognitoUserPoolTransformArgsPtrOutput {
+	return i.ToCognitoUserPoolTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolTransformArgsArgs) ToCognitoUserPoolTransformArgsPtrOutputWithContext(ctx context.Context) CognitoUserPoolTransformArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolTransformArgsOutput).ToCognitoUserPoolTransformArgsPtrOutputWithContext(ctx)
+}
+
+// CognitoUserPoolTransformArgsPtrInput is an input type that accepts CognitoUserPoolTransformArgsArgs, CognitoUserPoolTransformArgsPtr and CognitoUserPoolTransformArgsPtrOutput values.
+// You can construct a concrete instance of `CognitoUserPoolTransformArgsPtrInput` via:
+//
+//	        CognitoUserPoolTransformArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type CognitoUserPoolTransformArgsPtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolTransformArgsPtrOutput() CognitoUserPoolTransformArgsPtrOutput
+	ToCognitoUserPoolTransformArgsPtrOutputWithContext(context.Context) CognitoUserPoolTransformArgsPtrOutput
+}
+
+type cognitoUserPoolTransformArgsPtrType CognitoUserPoolTransformArgsArgs
+
+func CognitoUserPoolTransformArgsPtr(v *CognitoUserPoolTransformArgsArgs) CognitoUserPoolTransformArgsPtrInput {
+	return (*cognitoUserPoolTransformArgsPtrType)(v)
+}
+
+func (*cognitoUserPoolTransformArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolTransformArgs)(nil)).Elem()
+}
+
+func (i *cognitoUserPoolTransformArgsPtrType) ToCognitoUserPoolTransformArgsPtrOutput() CognitoUserPoolTransformArgsPtrOutput {
+	return i.ToCognitoUserPoolTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *cognitoUserPoolTransformArgsPtrType) ToCognitoUserPoolTransformArgsPtrOutputWithContext(ctx context.Context) CognitoUserPoolTransformArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolTransformArgsPtrOutput)
+}
+
+type CognitoUserPoolTransformArgsOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolTransformArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolTransformArgs)(nil)).Elem()
+}
+
+func (o CognitoUserPoolTransformArgsOutput) ToCognitoUserPoolTransformArgsOutput() CognitoUserPoolTransformArgsOutput {
+	return o
+}
+
+func (o CognitoUserPoolTransformArgsOutput) ToCognitoUserPoolTransformArgsOutputWithContext(ctx context.Context) CognitoUserPoolTransformArgsOutput {
+	return o
+}
+
+func (o CognitoUserPoolTransformArgsOutput) ToCognitoUserPoolTransformArgsPtrOutput() CognitoUserPoolTransformArgsPtrOutput {
+	return o.ToCognitoUserPoolTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolTransformArgsOutput) ToCognitoUserPoolTransformArgsPtrOutputWithContext(ctx context.Context) CognitoUserPoolTransformArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolTransformArgs) *CognitoUserPoolTransformArgs {
+		return &v
+	}).(CognitoUserPoolTransformArgsPtrOutput)
+}
+
+func (o CognitoUserPoolTransformArgsOutput) CognitoUserPool() CognitoUserPoolOverridesPtrOutput {
+	return o.ApplyT(func(v CognitoUserPoolTransformArgs) *CognitoUserPoolOverrides { return v.CognitoUserPool }).(CognitoUserPoolOverridesPtrOutput)
+}
+
+type CognitoUserPoolTransformArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolTransformArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolTransformArgs)(nil)).Elem()
+}
+
+func (o CognitoUserPoolTransformArgsPtrOutput) ToCognitoUserPoolTransformArgsPtrOutput() CognitoUserPoolTransformArgsPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolTransformArgsPtrOutput) ToCognitoUserPoolTransformArgsPtrOutputWithContext(ctx context.Context) CognitoUserPoolTransformArgsPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolTransformArgsPtrOutput) Elem() CognitoUserPoolTransformArgsOutput {
+	return o.ApplyT(func(v *CognitoUserPoolTransformArgs) CognitoUserPoolTransformArgs {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolTransformArgs
+		return ret
+	}).(CognitoUserPoolTransformArgsOutput)
+}
+
+func (o CognitoUserPoolTransformArgsPtrOutput) CognitoUserPool() CognitoUserPoolOverridesPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolTransformArgs) *CognitoUserPoolOverrides {
+		if v == nil {
+			return nil
+		}
+		return v.CognitoUserPool
+	}).(CognitoUserPoolOverridesPtrOutput)
 }
 
 // Direct overrides for the underlying aws.cloudwatch.EventArchive resource. Use retentionDays to change the default 7 day retention.
@@ -9717,6 +12188,28 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketVersioningTransformPtrInput)(nil)).Elem(), BucketVersioningTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketWebsiteConfigurationTransformInput)(nil)).Elem(), BucketWebsiteConfigurationTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketWebsiteConfigurationTransformPtrInput)(nil)).Elem(), BucketWebsiteConfigurationTransformArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolAppClientInput)(nil)).Elem(), CognitoUserPoolAppClientArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolAppClientPtrInput)(nil)).Elem(), CognitoUserPoolAppClientArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolAttributesInput)(nil)).Elem(), CognitoUserPoolAttributesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolAttributesPtrInput)(nil)).Elem(), CognitoUserPoolAttributesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolCustomAttributeInput)(nil)).Elem(), CognitoUserPoolCustomAttributeArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolCustomAttributeArrayInput)(nil)).Elem(), CognitoUserPoolCustomAttributeArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolEmailConfigurationInput)(nil)).Elem(), CognitoUserPoolEmailConfigurationArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolEmailConfigurationPtrInput)(nil)).Elem(), CognitoUserPoolEmailConfigurationArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolHostedUiInput)(nil)).Elem(), CognitoUserPoolHostedUiArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolHostedUiPtrInput)(nil)).Elem(), CognitoUserPoolHostedUiArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolIdentityProviderInput)(nil)).Elem(), CognitoUserPoolIdentityProviderArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolIdentityProviderArrayInput)(nil)).Elem(), CognitoUserPoolIdentityProviderArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolMfaInput)(nil)).Elem(), CognitoUserPoolMfaArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolMfaPtrInput)(nil)).Elem(), CognitoUserPoolMfaArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolOverridesInput)(nil)).Elem(), CognitoUserPoolOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolOverridesPtrInput)(nil)).Elem(), CognitoUserPoolOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolPasswordPolicyInput)(nil)).Elem(), CognitoUserPoolPasswordPolicyArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolPasswordPolicyPtrInput)(nil)).Elem(), CognitoUserPoolPasswordPolicyArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTokenValidityInput)(nil)).Elem(), CognitoUserPoolTokenValidityArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTokenValidityPtrInput)(nil)).Elem(), CognitoUserPoolTokenValidityArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTransformArgsInput)(nil)).Elem(), CognitoUserPoolTransformArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTransformArgsPtrInput)(nil)).Elem(), CognitoUserPoolTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*EventBridgeOverridesInput)(nil)).Elem(), EventBridgeOverridesArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*EventBridgeOverridesPtrInput)(nil)).Elem(), EventBridgeOverridesArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*EventBridgeTransformArgsInput)(nil)).Elem(), EventBridgeTransformArgsArgs{})
@@ -9812,6 +12305,28 @@ func init() {
 	pulumi.RegisterOutputType(BucketVersioningTransformPtrOutput{})
 	pulumi.RegisterOutputType(BucketWebsiteConfigurationTransformOutput{})
 	pulumi.RegisterOutputType(BucketWebsiteConfigurationTransformPtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolAppClientOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolAppClientPtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolAttributesOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolAttributesPtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolCustomAttributeOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolCustomAttributeArrayOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolEmailConfigurationOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolEmailConfigurationPtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolHostedUiOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolHostedUiPtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolIdentityProviderOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolIdentityProviderArrayOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolMfaOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolMfaPtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolOverridesOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolOverridesPtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolPasswordPolicyOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolPasswordPolicyPtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolTokenValidityOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolTokenValidityPtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolTransformArgsOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolTransformArgsPtrOutput{})
 	pulumi.RegisterOutputType(EventBridgeOverridesOutput{})
 	pulumi.RegisterOutputType(EventBridgeOverridesPtrOutput{})
 	pulumi.RegisterOutputType(EventBridgeTransformArgsOutput{})

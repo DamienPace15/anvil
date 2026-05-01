@@ -7,6 +7,12 @@ import pulumi
 from enum import Enum
 
 __all__ = [
+    'CognitoUserPoolCustomAttributeType',
+    'CognitoUserPoolIdentityProviderType',
+    'CognitoUserPoolMfaMethod',
+    'CognitoUserPoolMfaMode',
+    'CognitoUserPoolOAuthFlow',
+    'CognitoUserPoolUsernameAttribute',
     'HttpApiMethod',
     'LambdaArchitecture',
     'LambdaLogRetention',
@@ -15,6 +21,98 @@ __all__ = [
     'SiteOriginProtectionProvider',
     'VpcNatType',
 ]
+
+
+@pulumi.type_token("anvil:aws:CognitoUserPoolCustomAttributeType")
+class CognitoUserPoolCustomAttributeType(_builtins.str, Enum):
+    STRING = "String"
+    NUMBER = "Number"
+    DATE_TIME = "DateTime"
+    BOOLEAN = "Boolean"
+
+
+@pulumi.type_token("anvil:aws:CognitoUserPoolIdentityProviderType")
+class CognitoUserPoolIdentityProviderType(_builtins.str, Enum):
+    GOOGLE = "Google"
+    """
+    Google OAuth 2.0. Requires clientId and clientSecret.
+    """
+    FACEBOOK = "Facebook"
+    """
+    Facebook OAuth 2.0. Requires clientId and clientSecret.
+    """
+    LOGIN_WITH_AMAZON = "LoginWithAmazon"
+    """
+    Login with Amazon. Requires clientId and clientSecret.
+    """
+    SIGN_IN_WITH_APPLE = "SignInWithApple"
+    """
+    Sign in with Apple. Requires clientId and clientSecret.
+    """
+    OIDC = "OIDC"
+    """
+    Generic OIDC provider (Okta, Auth0, Microsoft Entra, etc.). Requires clientId, clientSecret, and oidcIssuer.
+    """
+    SAML = "SAML"
+    """
+    SAML 2.0 provider (corporate SSO, Active Directory Federation Services etc.). Requires metadataUrl or metadataContent.
+    """
+
+
+@pulumi.type_token("anvil:aws:CognitoUserPoolMfaMethod")
+class CognitoUserPoolMfaMethod(_builtins.str, Enum):
+    TOTP = "TOTP"
+    """
+    Time-based one-time password (authenticator app). No additional AWS resources required.
+    """
+    SMS = "SMS"
+    """
+    SMS one-time password via SNS. Requires snsCallerArn.
+    """
+
+
+@pulumi.type_token("anvil:aws:CognitoUserPoolMfaMode")
+class CognitoUserPoolMfaMode(_builtins.str, Enum):
+    OFF = "OFF"
+    """
+    MFA disabled. Default.
+    """
+    OPTIONAL = "OPTIONAL"
+    """
+    MFA available but not required. Users opt in.
+    """
+    REQUIRED = "REQUIRED"
+    """
+    MFA required for all users.
+    """
+
+
+@pulumi.type_token("anvil:aws:CognitoUserPoolOAuthFlow")
+class CognitoUserPoolOAuthFlow(_builtins.str, Enum):
+    CODE = "code"
+    """
+    Authorization code grant (PKCE). Most secure — use for all browser and server apps.
+    """
+    IMPLICIT = "implicit"
+    """
+    Implicit grant. Deprecated — tokens visible in browser URL. Avoid for new applications.
+    """
+    CLIENT_CREDENTIALS = "client_credentials"
+    """
+    Client credentials grant. M2M only — no user interaction.
+    """
+
+
+@pulumi.type_token("anvil:aws:CognitoUserPoolUsernameAttribute")
+class CognitoUserPoolUsernameAttribute(_builtins.str, Enum):
+    EMAIL = "email"
+    """
+    Users sign in with their email address.
+    """
+    PHONE_NUMBER = "phone_number"
+    """
+    Users sign in with their phone number.
+    """
 
 
 @pulumi.type_token("anvil:aws:HttpApiMethod")

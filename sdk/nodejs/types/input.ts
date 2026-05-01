@@ -364,6 +364,335 @@ export namespace aws {
         routingRules?: pulumi.Input<pulumi.Input<pulumiAws.types.input.s3.BucketWebsiteConfigurationRoutingRule>[]>;
     }
 
+    /**
+     * Default app client configuration. Covers the 80% case — one client per pool.
+     */
+    export interface CognitoUserPoolAppClientArgs {
+        /**
+         * Allowed redirect URLs after successful sign-in. Required when using the hosted UI.
+         */
+        callbackUrls?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Generate a client secret. Required for confidential clients (server-side apps). Must NOT be set for SPAs — never expose secrets in browser code. Default: false.
+         */
+        generateSecret?: pulumi.Input<boolean>;
+        /**
+         * Allowed redirect URLs after sign-out.
+         */
+        logoutUrls?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Allowed OAuth flows. Default: [code]. Use code (PKCE) for SPAs and server apps. client_credentials for M2M.
+         */
+        oauthFlows?: pulumi.Input<pulumi.Input<enums.aws.CognitoUserPoolOAuthFlow>[]>;
+        /**
+         * OAuth scopes to allow. Default: [openid, email, profile].
+         */
+        oauthScopes?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Identity providers shown on the hosted UI login page for this client. Default: [COGNITO]. Add provider names from identityProviders here to show social login buttons.
+         */
+        supportedIdentityProviders?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Token validity periods. Anvil defaults: access 1h, id 1h, refresh 30d.
+         */
+        tokenValidity?: pulumi.Input<inputs.aws.CognitoUserPoolTokenValidityArgs>;
+    }
+
+    /**
+     * User attribute and sign-in configuration.
+     */
+    export interface CognitoUserPoolAttributesArgs {
+        /**
+         * Custom attributes to add to user profiles. Cannot be deleted after pool creation.
+         */
+        customAttributes?: pulumi.Input<pulumi.Input<inputs.aws.CognitoUserPoolCustomAttributeArgs>[]>;
+        /**
+         * Standard attributes required on sign-up. Default: [email]. Cannot be changed after pool creation.
+         */
+        requiredAttributes?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Attributes users can sign in with. Default: [email]. Set to [phone_number] or [email, phone_number] to allow both. Cannot be changed after pool creation.
+         */
+        usernameAttributes?: pulumi.Input<pulumi.Input<enums.aws.CognitoUserPoolUsernameAttribute>[]>;
+    }
+
+    /**
+     * A custom attribute to add to user profiles.
+     */
+    export interface CognitoUserPoolCustomAttributeArgs {
+        /**
+         * Whether the attribute can be changed after a user is created. Default: true.
+         */
+        mutable?: pulumi.Input<boolean>;
+        /**
+         * Attribute name. Cognito prefixes this with 'custom:' automatically.
+         */
+        name: pulumi.Input<string>;
+        /**
+         * Attribute data type. Default: String.
+         */
+        type?: pulumi.Input<enums.aws.CognitoUserPoolCustomAttributeType>;
+    }
+
+    /**
+     * Email delivery configuration. Default uses Cognito-managed email which has a 50 emails/day limit. Configure SES for production workloads.
+     */
+    export interface CognitoUserPoolEmailConfigurationArgs {
+        /**
+         * Reply-to address shown in outgoing emails. Optional.
+         */
+        replyToAddress?: pulumi.Input<string>;
+        /**
+         * Verified SES sender address (e.g. noreply@myapp.com). Setting this switches delivery to SES, removing the 50 emails/day limit. The address must be verified in SES in the same region as the user pool.
+         */
+        sesFromAddress?: pulumi.Input<string>;
+    }
+
+    /**
+     * Hosted UI (Managed Login) configuration. Enables the Cognito-hosted sign-in page.
+     */
+    export interface CognitoUserPoolHostedUiArgs {
+        /**
+         * ACM certificate ARN for the custom domain. Must be in us-east-1 regardless of user pool region — this is a hard AWS requirement. Required when customDomain is true.
+         */
+        acmCertificateArn?: pulumi.Input<string>;
+        /**
+         * Set to true when domain is a custom FQDN you own. Requires acmCertificateArn. Anvil creates the CloudFront distribution and wires the alias automatically. Default: false.
+         */
+        customDomain?: pulumi.Input<boolean>;
+        /**
+         * Domain for the hosted UI. For Cognito-managed domains, provide just the prefix (e.g. 'myapp' → myapp.auth.{region}.amazoncognito.com). For custom domains, provide the fully-qualified domain name (e.g. 'auth.myapp.com'). Required.
+         */
+        domain: pulumi.Input<string>;
+    }
+
+    /**
+     * An external identity provider to federate with this user pool. Discriminated by type — the same schema covers all provider types. Add new providers by extending the identityProviders array, no schema changes required.
+     */
+    export interface CognitoUserPoolIdentityProviderArgs {
+        /**
+         * Maps Cognito user attributes to provider-specific claim names. Key is the Cognito attribute (e.g. 'email'), value is the provider claim (e.g. 'email' for Google, or the full SAML attribute URI for SAML providers).
+         */
+        attributeMapping?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+        /**
+         * OAuth client ID from the identity provider. Required for Google, Facebook, LoginWithAmazon, SignInWithApple, OIDC.
+         */
+        clientId?: pulumi.Input<string>;
+        /**
+         * OAuth client secret from the identity provider. Required for Google, Facebook, LoginWithAmazon, OIDC. Not used for SAML.
+         */
+        clientSecret?: pulumi.Input<string>;
+        /**
+         * Inline SAML metadata XML. Required for SAML when metadataUrl is not provided.
+         */
+        metadataContent?: pulumi.Input<string>;
+        /**
+         * URL of the SAML metadata document. Required for SAML when metadataContent is not provided.
+         */
+        metadataUrl?: pulumi.Input<string>;
+        /**
+         * Friendly name for this provider. Required for OIDC and SAML providers. Optional for well-known social providers (Google, Facebook etc.) — defaults to the type name.
+         */
+        name?: pulumi.Input<string>;
+        /**
+         * OIDC issuer URL. Required when type is OIDC. Cognito fetches the discovery document from {oidcIssuer}/.well-known/openid-configuration.
+         */
+        oidcIssuer?: pulumi.Input<string>;
+        /**
+         * Provider type. Determines which fields are required. Google/Facebook/LoginWithAmazon/SignInWithApple require clientId and clientSecret. OIDC additionally requires oidcIssuer. SAML requires metadataUrl or metadataContent.
+         */
+        type: pulumi.Input<enums.aws.CognitoUserPoolIdentityProviderType>;
+    }
+
+    /**
+     * MFA configuration for the user pool.
+     */
+    export interface CognitoUserPoolMfaArgs {
+        /**
+         * MFA methods to enable. TOTP requires no additional AWS resources. SMS requires snsCallerArn.
+         */
+        methods?: pulumi.Input<pulumi.Input<enums.aws.CognitoUserPoolMfaMethod>[]>;
+        /**
+         * MFA enforcement mode. Default: OFF.
+         */
+        mode?: pulumi.Input<enums.aws.CognitoUserPoolMfaMode>;
+        /**
+         * ARN of the IAM role Cognito uses to send SMS messages via SNS. Required when methods includes SMS. Anvil will create this role automatically if omitted and SMS is enabled.
+         */
+        snsCallerArn?: pulumi.Input<string>;
+    }
+
+    export interface CognitoUserPoolOverridesArgs {
+        /**
+         * Configuration block to define which verified available method a user can use to recover their forgotten password. Detailed below.
+         */
+        accountRecoverySetting?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolAccountRecoverySetting>;
+        /**
+         * Configuration block for creating a new user profile. Detailed below.
+         */
+        adminCreateUserConfig?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolAdminCreateUserConfig>;
+        /**
+         * Attributes supported as an alias for this user pool. Valid values: <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>, <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, or <span pulumi-lang-nodejs="`preferredUsername`" pulumi-lang-dotnet="`PreferredUsername`" pulumi-lang-go="`preferredUsername`" pulumi-lang-python="`preferred_username`" pulumi-lang-yaml="`preferredUsername`" pulumi-lang-java="`preferredUsername`">`preferred_username`</span>. Conflicts with <span pulumi-lang-nodejs="`usernameAttributes`" pulumi-lang-dotnet="`UsernameAttributes`" pulumi-lang-go="`usernameAttributes`" pulumi-lang-python="`username_attributes`" pulumi-lang-yaml="`usernameAttributes`" pulumi-lang-java="`usernameAttributes`">`username_attributes`</span>.
+         */
+        aliasAttributes?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Attributes to be auto-verified. Valid values: <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>.
+         */
+        autoVerifiedAttributes?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * When active, DeletionProtection prevents accidental deletion of your user pool. Before you can delete a user pool that you have protected against deletion, you must deactivate this feature. Valid values are `ACTIVE` and `INACTIVE`, Default value is `INACTIVE`.
+         */
+        deletionProtection?: pulumi.Input<string>;
+        /**
+         * Configuration block for the user pool's device tracking. Detailed below.
+         */
+        deviceConfiguration?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolDeviceConfiguration>;
+        /**
+         * Configuration block for configuring email. Detailed below.
+         */
+        emailConfiguration?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolEmailConfiguration>;
+        /**
+         * Configuration block for configuring email Multi-Factor Authentication (MFA); requires at least 2 <span pulumi-lang-nodejs="`accountRecoverySetting`" pulumi-lang-dotnet="`AccountRecoverySetting`" pulumi-lang-go="`accountRecoverySetting`" pulumi-lang-python="`account_recovery_setting`" pulumi-lang-yaml="`accountRecoverySetting`" pulumi-lang-java="`accountRecoverySetting`">`account_recovery_setting`</span> entries; requires an <span pulumi-lang-nodejs="`emailConfiguration`" pulumi-lang-dotnet="`EmailConfiguration`" pulumi-lang-go="`emailConfiguration`" pulumi-lang-python="`email_configuration`" pulumi-lang-yaml="`emailConfiguration`" pulumi-lang-java="`emailConfiguration`">`email_configuration`</span> configuration block. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+         */
+        emailMfaConfiguration?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolEmailMfaConfiguration>;
+        /**
+         * String representing the email verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailMessage`" pulumi-lang-dotnet="`EmailMessage`" pulumi-lang-go="`emailMessage`" pulumi-lang-python="`email_message`" pulumi-lang-yaml="`emailMessage`" pulumi-lang-java="`emailMessage`">`email_message`</span> argument.
+         */
+        emailVerificationMessage?: pulumi.Input<string>;
+        /**
+         * String representing the email verification subject. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailSubject`" pulumi-lang-dotnet="`EmailSubject`" pulumi-lang-go="`emailSubject`" pulumi-lang-python="`email_subject`" pulumi-lang-yaml="`emailSubject`" pulumi-lang-java="`emailSubject`">`email_subject`</span> argument.
+         */
+        emailVerificationSubject?: pulumi.Input<string>;
+        /**
+         * Configuration block for the AWS Lambda triggers associated with the user pool. Detailed below.
+         */
+        lambdaConfig?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolLambdaConfig>;
+        /**
+         * Multi-Factor Authentication (MFA) configuration for the User Pool. Defaults of `OFF`. Valid values are `OFF` (MFA Tokens are not required), `ON` (MFA is required for all users to sign in; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured), or `OPTIONAL` (MFA Will be required only for individual users who have MFA Enabled; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured).
+         */
+        mfaConfiguration?: pulumi.Input<string>;
+        /**
+         * Name of the user pool.
+         */
+        name?: pulumi.Input<string>;
+        /**
+         * Configuration block for information about the user pool password policy. Detailed below.
+         */
+        passwordPolicy?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolPasswordPolicy>;
+        /**
+         * Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+         */
+        region?: pulumi.Input<string>;
+        /**
+         * Configuration block for the schema attributes of a user pool. Detailed below. Schema attributes from the [standard attribute set](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html#cognito-user-pools-standard-attributes) only need to be specified if they are different from the default configuration. Attributes can be added, but not modified or removed. Maximum of 50 attributes.
+         */
+        schemas?: pulumi.Input<pulumi.Input<pulumiAws.types.input.cognito.UserPoolSchema>[]>;
+        /**
+         * Configuration block for information about the user pool sign in policy. Detailed below.
+         */
+        signInPolicy?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolSignInPolicy>;
+        /**
+         * String representing the SMS authentication message. The Message must contain the `{####}` placeholder, which will be replaced with the code.
+         */
+        smsAuthenticationMessage?: pulumi.Input<string>;
+        /**
+         * Configuration block for Short Message Service (SMS) settings. Detailed below. These settings apply to SMS user verification and SMS Multi-Factor Authentication (MFA). SMS MFA is activated only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is set to `ON` or `OPTIONAL` along with this block. Due to Cognito API restrictions, the SMS configuration cannot be removed without recreating the Cognito User Pool. For user data safety, this resource will ignore the removal of this configuration by disabling drift detection. To force resource recreation after this configuration has been applied, see the <span pulumi-lang-nodejs="`taint`" pulumi-lang-dotnet="`Taint`" pulumi-lang-go="`taint`" pulumi-lang-python="`taint`" pulumi-lang-yaml="`taint`" pulumi-lang-java="`taint`">`taint`</span> command.
+         */
+        smsConfiguration?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolSmsConfiguration>;
+        /**
+         * String representing the SMS verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`smsMessage`" pulumi-lang-dotnet="`SmsMessage`" pulumi-lang-go="`smsMessage`" pulumi-lang-python="`sms_message`" pulumi-lang-yaml="`smsMessage`" pulumi-lang-java="`smsMessage`">`sms_message`</span> argument.
+         */
+        smsVerificationMessage?: pulumi.Input<string>;
+        /**
+         * Configuration block for software token Mult-Factor Authentication (MFA) settings. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+         */
+        softwareTokenMfaConfiguration?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolSoftwareTokenMfaConfiguration>;
+        /**
+         * Map of tags to assign to the User Pool. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+         */
+        tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+        /**
+         * Configuration block for user attribute update settings. Detailed below.
+         */
+        userAttributeUpdateSettings?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolUserAttributeUpdateSettings>;
+        /**
+         * Configuration block for user pool add-ons to enable user pool advanced security mode features. Detailed below.
+         */
+        userPoolAddOns?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolUserPoolAddOns>;
+        /**
+         * The user pool [feature plan](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-sign-in-feature-plans.html), or tier. Valid values: `LITE`, `ESSENTIALS`, `PLUS`.
+         */
+        userPoolTier?: pulumi.Input<string>;
+        /**
+         * Whether email addresses or phone numbers can be specified as usernames when a user signs up. Conflicts with <span pulumi-lang-nodejs="`aliasAttributes`" pulumi-lang-dotnet="`AliasAttributes`" pulumi-lang-go="`aliasAttributes`" pulumi-lang-python="`alias_attributes`" pulumi-lang-yaml="`aliasAttributes`" pulumi-lang-java="`aliasAttributes`">`alias_attributes`</span>.
+         */
+        usernameAttributes?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Configuration block for username configuration. Detailed below.
+         */
+        usernameConfiguration?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolUsernameConfiguration>;
+        /**
+         * Configuration block for verification message templates. Detailed below.
+         */
+        verificationMessageTemplate?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolVerificationMessageTemplate>;
+        /**
+         * Configuration block for web authn configuration. Detailed below.
+         */
+        webAuthnConfiguration?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolWebAuthnConfiguration>;
+    }
+
+    /**
+     * Password policy for the user pool. Anvil defaults satisfy CIS Benchmarks and SOC 2 baseline.
+     */
+    export interface CognitoUserPoolPasswordPolicyArgs {
+        /**
+         * Minimum password length. Default: 12. Minimum allowed: 6.
+         */
+        minLength?: pulumi.Input<number>;
+        /**
+         * Require at least one lowercase letter. Default: true.
+         */
+        requireLowercase?: pulumi.Input<boolean>;
+        /**
+         * Require at least one number. Default: true.
+         */
+        requireNumbers?: pulumi.Input<boolean>;
+        /**
+         * Require at least one symbol. Default: true.
+         */
+        requireSymbols?: pulumi.Input<boolean>;
+        /**
+         * Require at least one uppercase letter. Default: true.
+         */
+        requireUppercase?: pulumi.Input<boolean>;
+        /**
+         * Number of days a temporary password is valid. Default: 7.
+         */
+        temporaryPasswordValidityDays?: pulumi.Input<number>;
+    }
+
+    /**
+     * Token validity configuration.
+     */
+    export interface CognitoUserPoolTokenValidityArgs {
+        /**
+         * Access token validity in hours. Default: 1.
+         */
+        accessTokenValidity?: pulumi.Input<number>;
+        /**
+         * ID token validity in hours. Default: 1.
+         */
+        idTokenValidity?: pulumi.Input<number>;
+        /**
+         * Refresh token validity in days. Default: 30.
+         */
+        refreshTokenValidity?: pulumi.Input<number>;
+    }
+
+    export interface CognitoUserPoolTransformArgsArgs {
+        cognitoUserPool?: pulumi.Input<inputs.aws.CognitoUserPoolOverridesArgs>;
+    }
+
     export interface EventBridgeOverridesArgs {
         /**
          * Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ). This block supports the following arguments:

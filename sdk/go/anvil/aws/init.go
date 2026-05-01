@@ -25,6 +25,8 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &Bucket{}
 	case "anvil:aws:CognitoAuth":
 		r = &CognitoAuth{}
+	case "anvil:aws:CognitoUserPool":
+		r = &CognitoUserPool{}
 	case "anvil:aws:EventBus":
 		r = &EventBus{}
 	case "anvil:aws:HttpApi":
