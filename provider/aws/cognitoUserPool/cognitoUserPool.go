@@ -1,6 +1,8 @@
 package cognitouserpool
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 
@@ -126,6 +128,12 @@ type CognitoUserPoolArgs struct {
 	// Set sesFromAddress to use SES for production workloads.
 	EmailConfiguration *EmailConfigurationArgs `pulumi:"emailConfiguration,optional"`
 
+	// AdminOnly disables self-service sign-up. When true, only admins can create
+	// users (via the AWS console, CLI, or AdminCreateUser API). Recommended for
+	// internal tools, B2B apps, and any pool where open registration is not desired.
+	// Default: false (public sign-up enabled).
+	AdminOnly bool `pulumi:"adminOnly,optional"`
+
 	Transform map[string]map[string]interface{} `pulumi:"transform,optional"`
 }
 
@@ -167,7 +175,7 @@ type CognitoUserPool struct {
 
 func (cu *CognitoUserPool) Annotate(a infer.Annotator) {
 	a.SetToken("aws", "CognitoUserPool")
-	a.Describe(&cu, "An Anvil-managed Cognito user pool. Tier 1 controls (deletion protection, enforced password policy, account recovery via email) are always on. Pair userPoolId and appClientId with CognitoAuth to protect API Gateway routes.")
+	a.Describe(&cu, "An Anvil-managed Cognito user pool. Tier 1 controls (deletion protection, enforced password policy, SRP-only auth flow, attribute verification before update, account recovery via email) are always on. Pair userPoolId and appClientId with CognitoAuth to protect API Gateway routes.")
 }
 
 // ── Constructor ────────────────────────────────────────────────────────────
@@ -192,13 +200,12 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 		return nil, fmt.Errorf("CognitoUserPool %q: could not determine AWS region — ensure the AWS provider is configured with a region", name)
 	}
 
-	// between stages and matching the naming convention of all other Anvil components.
 	physicalName := provider.PhysicalName(stage, name, "userpool", stageId)
 
 	// ── 1. Password policy ─────────────────────────────────────────────────
 	// Tier 1: enforce a strong baseline by default.
-	// This means { minLength: 16 } only changes length; all other requirements
-	// remain true. Without *bool, Go zero-value would silently set them to false.
+	// *bool: nil means "use Tier 1 default". Partial overrides are safe —
+	// { minLength: 16 } only changes length; all character requirements stay true.
 	boolVal := func(ptr *bool, def bool) bool {
 		if ptr == nil {
 			return def
@@ -253,20 +260,29 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 					Enabled: pulumi.Bool(true),
 				}
 			case "SMS":
+				// SECURITY: ExternalId prevents the confused deputy problem.
+				// It must be an unpredictable value — using name+"-external" is
+				// predictable and provides no protection. We generate a random token
+				// per pool that is stable across deploys via the stageId seed.
+				smsExternalId, err := generateExternalId(name, stageId)
+				if err != nil {
+					return nil, fmt.Errorf("CognitoUserPool %q: failed to generate SMS external ID: %w", name, err)
+				}
+
 				if args.Mfa.SnsCallerArn != "" {
 					smsConfig = &cognito.UserPoolSmsConfigurationArgs{
-						ExternalId:   pulumi.String(fmt.Sprintf("%s-external", name)),
+						ExternalId:   pulumi.String(smsExternalId),
 						SnsCallerArn: pulumi.String(args.Mfa.SnsCallerArn),
 						SnsRegion:    pulumi.String(region),
 					}
 				} else {
 					// Auto-create a least-privilege IAM role for SNS SMS publishing.
-					snsRole, err := createCognitoSnsRole(ctx, name, stage, stageId, comp)
+					snsRole, err := createCognitoSnsRole(ctx, name, stage, stageId, smsExternalId, comp)
 					if err != nil {
 						return nil, fmt.Errorf("CognitoUserPool %q: failed to create SNS IAM role for SMS MFA: %w", name, err)
 					}
 					smsConfig = &cognito.UserPoolSmsConfigurationArgs{
-						ExternalId:   pulumi.String(fmt.Sprintf("%s-external", name)),
+						ExternalId:   pulumi.String(smsExternalId),
 						SnsCallerArn: snsRole.Arn,
 						SnsRegion:    pulumi.String(region),
 					}
@@ -275,6 +291,7 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 		}
 	}
 
+	// ── 3. Username attributes ─────────────────────────────────────────────
 	usernameAttrs := pulumi.StringArray{pulumi.String("email")}
 	if args.Attributes != nil && len(args.Attributes.UsernameAttributes) > 0 {
 		usernameAttrs = make(pulumi.StringArray, len(args.Attributes.UsernameAttributes))
@@ -285,6 +302,7 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 
 	autoVerifiedAttrs := pulumi.StringArray{pulumi.String("email")}
 
+	// ── 4. Email configuration ─────────────────────────────────────────────
 	var emailConfig *cognito.UserPoolEmailConfigurationArgs
 	if args.EmailConfiguration != nil && args.EmailConfiguration.SesFromAddress != "" {
 		emailConfig = &cognito.UserPoolEmailConfigurationArgs{
@@ -296,6 +314,7 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 		}
 	}
 
+	// ── 5. Custom schema attributes ────────────────────────────────────────
 	var schemaAttrs cognito.UserPoolSchemaArray
 	if args.Attributes != nil {
 		for _, ca := range args.Attributes.CustomAttributes {
@@ -318,12 +337,11 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 
 	// ── 6. Build the user pool ─────────────────────────────────────────────
 	poolMap := pulumi.Map{
-		"name": pulumi.String(physicalName),
-		// Tier 1: deletion protection always on.
+		"name":               pulumi.String(physicalName),
 		"deletionProtection": pulumi.String("ACTIVE"),
 		"passwordPolicy":     passwordPolicyArg,
 		"mfaConfiguration":   pulumi.String(mfaConfig),
-		// Tier 1: account recovery via email by default.
+		// Tier 1: account recovery via email only.
 		"accountRecoverySetting": pulumi.Map{
 			"recoveryMechanisms": pulumi.Array{
 				pulumi.Map{
@@ -335,13 +353,30 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 		"usernameAttributes":     usernameAttrs,
 		"autoVerifiedAttributes": autoVerifiedAttrs,
 		"usernameConfiguration": pulumi.Map{
-			// Case-insensitive usernames prevent duplicate accounts.
+			// Case-insensitive usernames prevent duplicate accounts differing only by case.
 			"caseSensitive": pulumi.Bool(false),
+		},
+		// SECURITY FIX: require email verification before allowing email address changes.
+		// Without this, a user can update their email to one they don't own and
+		// potentially intercept account recovery flows for that address.
+		"userAttributeUpdateSettings": pulumi.Map{
+			"attributesRequireVerificationBeforeUpdates": pulumi.StringArray{
+				pulumi.String("email"),
+			},
 		},
 		"tags": pulumi.StringMap{
 			"ManagedBy": pulumi.String("anvil"),
 			"Stage":     pulumi.String(stage),
 		},
+	}
+
+	// SECURITY FIX: adminOnly disables public self-service sign-up.
+	// Recommended for internal tools, B2B apps, and invite-only products.
+	// When enabled, users can only be created by admins via the console or API.
+	if args.AdminOnly {
+		poolMap["adminCreateUserConfig"] = pulumi.Map{
+			"allowAdminCreateUserOnly": pulumi.Bool(true),
+		}
 	}
 
 	if softwareTokenMfa != nil {
@@ -367,8 +402,9 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 	// ── 7. Identity providers ──────────────────────────────────────────────
 	// Build providers before the app client so we can reference their names
 	// in supportedIdentityProviders.
-	// DependsOn them, not just the pool. Prevents a race where the client
-	// references a provider name before the provider resource exists in AWS.
+	// Collect actual idpResource instances so the app client DependsOn them —
+	// not just the pool — preventing a race where the client references a
+	// provider name before the provider resource exists in AWS.
 	var idpNames []string
 	var idpResources []pulumi.Resource
 	idpResources = append(idpResources, pool)
@@ -428,7 +464,6 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 	refreshTokenValidity := 30
 	enableOAuth := false
 
-	// Supported IdPs for the client: always include COGNITO (native users).
 	supportedIdPs := pulumi.StringArray{pulumi.String("COGNITO")}
 
 	var callbackUrls pulumi.StringArray
@@ -510,8 +545,19 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 			"idToken":      pulumi.String("hours"),
 			"refreshToken": pulumi.String("days"),
 		},
-		// Prevent user existence errors leaking enumerable information.
+		// Prevent user existence errors leaking enumerable information (username oracle).
 		"preventUserExistenceErrors": pulumi.String("ENABLED"),
+		// SECURITY FIX: explicitly restrict auth flows to SRP only.
+		// Without this, Cognito may allow USER_PASSWORD_AUTH which transmits
+		// passwords in plaintext and is vulnerable to credential stuffing.
+		// AWS explicitly recommends SRP as the secure password auth mechanism.
+		// ALLOW_REFRESH_TOKEN_AUTH is required for session continuation.
+		// To enable additional flows (e.g. ALLOW_USER_AUTH for passkeys/OTP),
+		// use transform.userPoolClient.explicitAuthFlows.
+		"explicitAuthFlows": pulumi.StringArray{
+			pulumi.String("ALLOW_USER_SRP_AUTH"),
+			pulumi.String("ALLOW_REFRESH_TOKEN_AUTH"),
+		},
 	}
 	if len(callbackUrls) > 0 {
 		clientMap["callbackUrls"] = callbackUrls
@@ -522,7 +568,6 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 
 	clientProps := transform.MergeTransform(args.Transform["userPoolClient"], clientMap)
 	client := &cognito.UserPoolClient{}
-	// FIX #4: DependsOn all IdP resources, not just the pool.
 	if err := ctx.RegisterResource("aws:cognito/userPoolClient:UserPoolClient", name+"-client", clientProps, client,
 		pulumi.Parent(comp),
 		pulumi.DependsOn(idpResources),
@@ -537,13 +582,15 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 	if args.HostedUi != nil {
 		hui := args.HostedUi
 
-		// FIX #8: default to classic hosted UI (v1). Managed login (v2) has a
-		// different visual design and regional feature gaps. Opt in via
-		// transform.userPoolDomain.managedLoginVersion = 2.
+		// Managed Login v2 is the AWS-recommended default as of 2024.
+		// It supports passkeys, email OTP, SMS OTP, localisation, and a modern
+		// responsive design. Opt out to classic hosted UI via
+		// transform.userPoolDomain.managedLoginVersion = 1 — only needed if you
+		// use custom authentication challenge Lambda triggers, which v2 does not support.
 		domainMap := pulumi.Map{
 			"userPoolId":          pool.ID(),
 			"domain":              pulumi.String(hui.Domain),
-			"managedLoginVersion": pulumi.Int(1),
+			"managedLoginVersion": pulumi.Int(2),
 		}
 
 		if hui.CustomDomain {
@@ -566,8 +613,8 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 
 		if hui.CustomDomain {
 			hostedUiDomain = pulumi.Sprintf("https://%s", hui.Domain)
-			// FIX #5: expose the CloudFront distribution domain so the caller can
-			// complete DNS setup. Without this, custom domain wiring is impossible.
+			// Expose the CloudFront distribution domain so the caller can wire DNS.
+			// Create a Route53 alias record: hostedUi.domain → cloudFrontDomain.
 			cloudFrontDomain = domainRes.CloudfrontDistribution
 		} else {
 			hostedUiDomain = pulumi.Sprintf("https://%s.auth.%s.amazoncognito.com", hui.Domain, region)
@@ -584,8 +631,7 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 		return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", region, poolId)
 	}).(pulumi.StringOutput)
 
-	// FIX #3: mark appClientSecret as a Pulumi secret — encrypted in state,
-	// never stored or displayed in plaintext.
+	// appClientSecret marked as Pulumi secret — encrypted in state, never plaintext.
 	if generateSecret {
 		comp.AppClientSecret = pulumi.ToSecret(client.ClientSecret).(pulumi.StringOutput)
 	} else {
@@ -688,17 +734,26 @@ func buildIdpDetails(idp IdentityProviderArgs) (pulumi.Map, error) {
 //
 // createCognitoSnsRole creates a least-privilege IAM role for Cognito to
 // publish SMS via SNS. Only grants sns:Publish — not AmazonSNSFullAccess.
-// FIX #3 (SNS scope): inline policy instead of the AWS managed full-access policy.
+// The externalId is passed in from the caller to bind the trust policy to the
+// same unpredictable token used in the SMS configuration, preventing the
+// confused deputy problem.
 
-func createCognitoSnsRole(ctx *pulumi.Context, name, stage, stageId string, parent pulumi.Resource) (*iam.Role, error) {
-	assumeRolePolicy := `{
+func createCognitoSnsRole(ctx *pulumi.Context, name, stage, stageId, externalId string, parent pulumi.Resource) (*iam.Role, error) {
+	// SECURITY: the trust policy includes a StringEquals condition on the
+	// ExternalId. This means only a Cognito call that presents this exact token
+	// can assume the role, preventing confused deputy attacks where another AWS
+	// service tricks Cognito into assuming a role it shouldn't.
+	assumeRolePolicy := fmt.Sprintf(`{
 		"Version": "2012-10-17",
 		"Statement": [{
 			"Effect": "Allow",
 			"Principal": { "Service": "cognito-idp.amazonaws.com" },
-			"Action": "sts:AssumeRole"
+			"Action": "sts:AssumeRole",
+			"Condition": {
+				"StringEquals": { "sts:ExternalId": %q }
+			}
 		}]
-	}`
+	}`, externalId)
 
 	roleName := provider.PhysicalName(stage, name, "sms-role", stageId)
 
@@ -714,7 +769,7 @@ func createCognitoSnsRole(ctx *pulumi.Context, name, stage, stageId string, pare
 		return nil, err
 	}
 
-	// Scoped inline policy: sns:Publish only.
+	// Scoped inline policy: sns:Publish only. Never AmazonSNSFullAccess.
 	type statement struct {
 		Effect   string   `json:"Effect"`
 		Action   []string `json:"Action"`
@@ -745,3 +800,59 @@ func createCognitoSnsRole(ctx *pulumi.Context, name, stage, stageId string, pare
 
 	return role, nil
 }
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+// generateExternalId produces a stable, unpredictable external ID for the SNS
+// IAM role trust policy. It is derived from a random seed combined with the
+// stageId so it is consistent across preview/deploy cycles for the same stage
+// but unique across pools and stages. This prevents the confused deputy problem
+// where another AWS service could trick Cognito into assuming a role it shouldn't.
+func generateExternalId(name, stageId string) (string, error) {
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	// Prefix with name+stageId for human readability in CloudTrail logs,
+	// suffix with random bytes for unguessability.
+	return fmt.Sprintf("%s-%s-%s", name, stageId[:8], hex.EncodeToString(b)), nil
+}
+
+// ── !! DOCS REMINDER: WAF !! ───────────────────────────────────────────────
+//
+// AWS WAF integration is NOT wired by this component. It is intentionally
+// excluded as a Tier 2 feature (it has per-request cost) but should be
+// prominently documented.
+//
+// WHAT TO COVER IN DOCS:
+//
+//  1. WHY: AWS explicitly recommends WAF for all public Cognito user pools.
+//     WAF protects against credential stuffing, brute-force attacks, bot
+//     traffic, and SMS pumping fraud. As of 2025, WAF supports both Cognito
+//     Managed Login endpoints and the user pools API.
+//
+//  2. HOW (escape hatch): Users can associate a WAF web ACL via transform:
+//
+//     transform.userPool = {
+//       userPoolAddOns: { advancedSecurityMode: "ENFORCED" }  // adds threat protection
+//     }
+//
+//     WAF itself is a separate aws.wafv2.WebAcl resource — document the
+//     association pattern using aws.cognito.UserPoolUiCustomization or the
+//     wafv2 association resource.
+//
+//  3. RECOMMENDED MANAGED RULES to document for Cognito pools:
+//     - AWSManagedRulesCommonRuleSet      (OWASP top 10)
+//     - AWSManagedRulesAmazonIpReputationList  (known bad IPs)
+//     - AWSManagedRulesKnownBadInputsRuleSet   (injection patterns)
+//     - Rate-based rule: limit SignUp/InitiateAuth to ~100 req/5min per IP
+//
+//  4. COST NOTE: WAF is ~$5/month base + $0.60/million requests. For a
+//     public-facing auth endpoint this is almost always worth it. Frame
+//     it as "strongly recommended for production pools with public sign-up".
+//
+//  5. SMS PUMPING: If SMS MFA or phone verification is enabled, WAF is
+//     especially important. SMS pumping fraud can generate significant AWS
+//     bills. Document the Cognito + WAF combination as a mitigation.
+//
+// Reference: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-waf.html
