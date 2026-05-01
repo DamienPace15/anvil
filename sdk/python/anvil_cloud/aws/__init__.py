@@ -9,6 +9,7 @@ import typing
 from ._enums import *
 from .bucket import *
 from .cognito_auth import *
+from .cognito_user_pool import *
 from .event_bus import *
 from .http_api import *
 from .lambda_ import *

@@ -10,6 +10,1163 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+type CognitoUserPoolCustomAttributeType string
+
+const (
+	CognitoUserPoolCustomAttributeTypeString   = CognitoUserPoolCustomAttributeType("String")
+	CognitoUserPoolCustomAttributeTypeNumber   = CognitoUserPoolCustomAttributeType("Number")
+	CognitoUserPoolCustomAttributeTypeDateTime = CognitoUserPoolCustomAttributeType("DateTime")
+	CognitoUserPoolCustomAttributeTypeBoolean  = CognitoUserPoolCustomAttributeType("Boolean")
+)
+
+func (CognitoUserPoolCustomAttributeType) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolCustomAttributeType)(nil)).Elem()
+}
+
+func (e CognitoUserPoolCustomAttributeType) ToCognitoUserPoolCustomAttributeTypeOutput() CognitoUserPoolCustomAttributeTypeOutput {
+	return pulumi.ToOutput(e).(CognitoUserPoolCustomAttributeTypeOutput)
+}
+
+func (e CognitoUserPoolCustomAttributeType) ToCognitoUserPoolCustomAttributeTypeOutputWithContext(ctx context.Context) CognitoUserPoolCustomAttributeTypeOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(CognitoUserPoolCustomAttributeTypeOutput)
+}
+
+func (e CognitoUserPoolCustomAttributeType) ToCognitoUserPoolCustomAttributeTypePtrOutput() CognitoUserPoolCustomAttributeTypePtrOutput {
+	return e.ToCognitoUserPoolCustomAttributeTypePtrOutputWithContext(context.Background())
+}
+
+func (e CognitoUserPoolCustomAttributeType) ToCognitoUserPoolCustomAttributeTypePtrOutputWithContext(ctx context.Context) CognitoUserPoolCustomAttributeTypePtrOutput {
+	return CognitoUserPoolCustomAttributeType(e).ToCognitoUserPoolCustomAttributeTypeOutputWithContext(ctx).ToCognitoUserPoolCustomAttributeTypePtrOutputWithContext(ctx)
+}
+
+func (e CognitoUserPoolCustomAttributeType) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e CognitoUserPoolCustomAttributeType) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e CognitoUserPoolCustomAttributeType) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e CognitoUserPoolCustomAttributeType) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type CognitoUserPoolCustomAttributeTypeOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolCustomAttributeTypeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolCustomAttributeType)(nil)).Elem()
+}
+
+func (o CognitoUserPoolCustomAttributeTypeOutput) ToCognitoUserPoolCustomAttributeTypeOutput() CognitoUserPoolCustomAttributeTypeOutput {
+	return o
+}
+
+func (o CognitoUserPoolCustomAttributeTypeOutput) ToCognitoUserPoolCustomAttributeTypeOutputWithContext(ctx context.Context) CognitoUserPoolCustomAttributeTypeOutput {
+	return o
+}
+
+func (o CognitoUserPoolCustomAttributeTypeOutput) ToCognitoUserPoolCustomAttributeTypePtrOutput() CognitoUserPoolCustomAttributeTypePtrOutput {
+	return o.ToCognitoUserPoolCustomAttributeTypePtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolCustomAttributeTypeOutput) ToCognitoUserPoolCustomAttributeTypePtrOutputWithContext(ctx context.Context) CognitoUserPoolCustomAttributeTypePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolCustomAttributeType) *CognitoUserPoolCustomAttributeType {
+		return &v
+	}).(CognitoUserPoolCustomAttributeTypePtrOutput)
+}
+
+func (o CognitoUserPoolCustomAttributeTypeOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolCustomAttributeTypeOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e CognitoUserPoolCustomAttributeType) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o CognitoUserPoolCustomAttributeTypeOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolCustomAttributeTypeOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e CognitoUserPoolCustomAttributeType) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type CognitoUserPoolCustomAttributeTypePtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolCustomAttributeTypePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolCustomAttributeType)(nil)).Elem()
+}
+
+func (o CognitoUserPoolCustomAttributeTypePtrOutput) ToCognitoUserPoolCustomAttributeTypePtrOutput() CognitoUserPoolCustomAttributeTypePtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolCustomAttributeTypePtrOutput) ToCognitoUserPoolCustomAttributeTypePtrOutputWithContext(ctx context.Context) CognitoUserPoolCustomAttributeTypePtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolCustomAttributeTypePtrOutput) Elem() CognitoUserPoolCustomAttributeTypeOutput {
+	return o.ApplyT(func(v *CognitoUserPoolCustomAttributeType) CognitoUserPoolCustomAttributeType {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolCustomAttributeType
+		return ret
+	}).(CognitoUserPoolCustomAttributeTypeOutput)
+}
+
+func (o CognitoUserPoolCustomAttributeTypePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolCustomAttributeTypePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *CognitoUserPoolCustomAttributeType) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// CognitoUserPoolCustomAttributeTypeInput is an input type that accepts values of the CognitoUserPoolCustomAttributeType enum
+// A concrete instance of `CognitoUserPoolCustomAttributeTypeInput` can be one of the following:
+//
+//	CognitoUserPoolCustomAttributeTypeString
+//	CognitoUserPoolCustomAttributeTypeNumber
+//	CognitoUserPoolCustomAttributeTypeDateTime
+//	CognitoUserPoolCustomAttributeTypeBoolean
+type CognitoUserPoolCustomAttributeTypeInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolCustomAttributeTypeOutput() CognitoUserPoolCustomAttributeTypeOutput
+	ToCognitoUserPoolCustomAttributeTypeOutputWithContext(context.Context) CognitoUserPoolCustomAttributeTypeOutput
+}
+
+var cognitoUserPoolCustomAttributeTypePtrType = reflect.TypeOf((**CognitoUserPoolCustomAttributeType)(nil)).Elem()
+
+type CognitoUserPoolCustomAttributeTypePtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolCustomAttributeTypePtrOutput() CognitoUserPoolCustomAttributeTypePtrOutput
+	ToCognitoUserPoolCustomAttributeTypePtrOutputWithContext(context.Context) CognitoUserPoolCustomAttributeTypePtrOutput
+}
+
+type cognitoUserPoolCustomAttributeTypePtr string
+
+func CognitoUserPoolCustomAttributeTypePtr(v string) CognitoUserPoolCustomAttributeTypePtrInput {
+	return (*cognitoUserPoolCustomAttributeTypePtr)(&v)
+}
+
+func (*cognitoUserPoolCustomAttributeTypePtr) ElementType() reflect.Type {
+	return cognitoUserPoolCustomAttributeTypePtrType
+}
+
+func (in *cognitoUserPoolCustomAttributeTypePtr) ToCognitoUserPoolCustomAttributeTypePtrOutput() CognitoUserPoolCustomAttributeTypePtrOutput {
+	return pulumi.ToOutput(in).(CognitoUserPoolCustomAttributeTypePtrOutput)
+}
+
+func (in *cognitoUserPoolCustomAttributeTypePtr) ToCognitoUserPoolCustomAttributeTypePtrOutputWithContext(ctx context.Context) CognitoUserPoolCustomAttributeTypePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(CognitoUserPoolCustomAttributeTypePtrOutput)
+}
+
+type CognitoUserPoolIdentityProviderType string
+
+const (
+	// Google OAuth 2.0. Requires clientId and clientSecret.
+	CognitoUserPoolIdentityProviderTypeGoogle = CognitoUserPoolIdentityProviderType("Google")
+	// Facebook OAuth 2.0. Requires clientId and clientSecret.
+	CognitoUserPoolIdentityProviderTypeFacebook = CognitoUserPoolIdentityProviderType("Facebook")
+	// Login with Amazon. Requires clientId and clientSecret.
+	CognitoUserPoolIdentityProviderTypeLoginWithAmazon = CognitoUserPoolIdentityProviderType("LoginWithAmazon")
+	// Sign in with Apple. Requires clientId and clientSecret.
+	CognitoUserPoolIdentityProviderTypeSignInWithApple = CognitoUserPoolIdentityProviderType("SignInWithApple")
+	// Generic OIDC provider (Okta, Auth0, Microsoft Entra, etc.). Requires clientId, clientSecret, and oidcIssuer.
+	CognitoUserPoolIdentityProviderTypeOIDC = CognitoUserPoolIdentityProviderType("OIDC")
+	// SAML 2.0 provider (corporate SSO, Active Directory Federation Services etc.). Requires metadataUrl or metadataContent.
+	CognitoUserPoolIdentityProviderTypeSAML = CognitoUserPoolIdentityProviderType("SAML")
+)
+
+func (CognitoUserPoolIdentityProviderType) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolIdentityProviderType)(nil)).Elem()
+}
+
+func (e CognitoUserPoolIdentityProviderType) ToCognitoUserPoolIdentityProviderTypeOutput() CognitoUserPoolIdentityProviderTypeOutput {
+	return pulumi.ToOutput(e).(CognitoUserPoolIdentityProviderTypeOutput)
+}
+
+func (e CognitoUserPoolIdentityProviderType) ToCognitoUserPoolIdentityProviderTypeOutputWithContext(ctx context.Context) CognitoUserPoolIdentityProviderTypeOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(CognitoUserPoolIdentityProviderTypeOutput)
+}
+
+func (e CognitoUserPoolIdentityProviderType) ToCognitoUserPoolIdentityProviderTypePtrOutput() CognitoUserPoolIdentityProviderTypePtrOutput {
+	return e.ToCognitoUserPoolIdentityProviderTypePtrOutputWithContext(context.Background())
+}
+
+func (e CognitoUserPoolIdentityProviderType) ToCognitoUserPoolIdentityProviderTypePtrOutputWithContext(ctx context.Context) CognitoUserPoolIdentityProviderTypePtrOutput {
+	return CognitoUserPoolIdentityProviderType(e).ToCognitoUserPoolIdentityProviderTypeOutputWithContext(ctx).ToCognitoUserPoolIdentityProviderTypePtrOutputWithContext(ctx)
+}
+
+func (e CognitoUserPoolIdentityProviderType) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e CognitoUserPoolIdentityProviderType) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e CognitoUserPoolIdentityProviderType) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e CognitoUserPoolIdentityProviderType) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type CognitoUserPoolIdentityProviderTypeOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolIdentityProviderTypeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolIdentityProviderType)(nil)).Elem()
+}
+
+func (o CognitoUserPoolIdentityProviderTypeOutput) ToCognitoUserPoolIdentityProviderTypeOutput() CognitoUserPoolIdentityProviderTypeOutput {
+	return o
+}
+
+func (o CognitoUserPoolIdentityProviderTypeOutput) ToCognitoUserPoolIdentityProviderTypeOutputWithContext(ctx context.Context) CognitoUserPoolIdentityProviderTypeOutput {
+	return o
+}
+
+func (o CognitoUserPoolIdentityProviderTypeOutput) ToCognitoUserPoolIdentityProviderTypePtrOutput() CognitoUserPoolIdentityProviderTypePtrOutput {
+	return o.ToCognitoUserPoolIdentityProviderTypePtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolIdentityProviderTypeOutput) ToCognitoUserPoolIdentityProviderTypePtrOutputWithContext(ctx context.Context) CognitoUserPoolIdentityProviderTypePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolIdentityProviderType) *CognitoUserPoolIdentityProviderType {
+		return &v
+	}).(CognitoUserPoolIdentityProviderTypePtrOutput)
+}
+
+func (o CognitoUserPoolIdentityProviderTypeOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolIdentityProviderTypeOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e CognitoUserPoolIdentityProviderType) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o CognitoUserPoolIdentityProviderTypeOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolIdentityProviderTypeOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e CognitoUserPoolIdentityProviderType) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type CognitoUserPoolIdentityProviderTypePtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolIdentityProviderTypePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolIdentityProviderType)(nil)).Elem()
+}
+
+func (o CognitoUserPoolIdentityProviderTypePtrOutput) ToCognitoUserPoolIdentityProviderTypePtrOutput() CognitoUserPoolIdentityProviderTypePtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolIdentityProviderTypePtrOutput) ToCognitoUserPoolIdentityProviderTypePtrOutputWithContext(ctx context.Context) CognitoUserPoolIdentityProviderTypePtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolIdentityProviderTypePtrOutput) Elem() CognitoUserPoolIdentityProviderTypeOutput {
+	return o.ApplyT(func(v *CognitoUserPoolIdentityProviderType) CognitoUserPoolIdentityProviderType {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolIdentityProviderType
+		return ret
+	}).(CognitoUserPoolIdentityProviderTypeOutput)
+}
+
+func (o CognitoUserPoolIdentityProviderTypePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolIdentityProviderTypePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *CognitoUserPoolIdentityProviderType) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// CognitoUserPoolIdentityProviderTypeInput is an input type that accepts values of the CognitoUserPoolIdentityProviderType enum
+// A concrete instance of `CognitoUserPoolIdentityProviderTypeInput` can be one of the following:
+//
+//	CognitoUserPoolIdentityProviderTypeGoogle
+//	CognitoUserPoolIdentityProviderTypeFacebook
+//	CognitoUserPoolIdentityProviderTypeLoginWithAmazon
+//	CognitoUserPoolIdentityProviderTypeSignInWithApple
+//	CognitoUserPoolIdentityProviderTypeOIDC
+//	CognitoUserPoolIdentityProviderTypeSAML
+type CognitoUserPoolIdentityProviderTypeInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolIdentityProviderTypeOutput() CognitoUserPoolIdentityProviderTypeOutput
+	ToCognitoUserPoolIdentityProviderTypeOutputWithContext(context.Context) CognitoUserPoolIdentityProviderTypeOutput
+}
+
+var cognitoUserPoolIdentityProviderTypePtrType = reflect.TypeOf((**CognitoUserPoolIdentityProviderType)(nil)).Elem()
+
+type CognitoUserPoolIdentityProviderTypePtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolIdentityProviderTypePtrOutput() CognitoUserPoolIdentityProviderTypePtrOutput
+	ToCognitoUserPoolIdentityProviderTypePtrOutputWithContext(context.Context) CognitoUserPoolIdentityProviderTypePtrOutput
+}
+
+type cognitoUserPoolIdentityProviderTypePtr string
+
+func CognitoUserPoolIdentityProviderTypePtr(v string) CognitoUserPoolIdentityProviderTypePtrInput {
+	return (*cognitoUserPoolIdentityProviderTypePtr)(&v)
+}
+
+func (*cognitoUserPoolIdentityProviderTypePtr) ElementType() reflect.Type {
+	return cognitoUserPoolIdentityProviderTypePtrType
+}
+
+func (in *cognitoUserPoolIdentityProviderTypePtr) ToCognitoUserPoolIdentityProviderTypePtrOutput() CognitoUserPoolIdentityProviderTypePtrOutput {
+	return pulumi.ToOutput(in).(CognitoUserPoolIdentityProviderTypePtrOutput)
+}
+
+func (in *cognitoUserPoolIdentityProviderTypePtr) ToCognitoUserPoolIdentityProviderTypePtrOutputWithContext(ctx context.Context) CognitoUserPoolIdentityProviderTypePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(CognitoUserPoolIdentityProviderTypePtrOutput)
+}
+
+type CognitoUserPoolMfaMethod string
+
+const (
+	// Time-based one-time password (authenticator app). No additional AWS resources required.
+	CognitoUserPoolMfaMethodTOTP = CognitoUserPoolMfaMethod("TOTP")
+	// SMS one-time password via SNS. Requires snsCallerArn.
+	CognitoUserPoolMfaMethodSMS = CognitoUserPoolMfaMethod("SMS")
+)
+
+func (CognitoUserPoolMfaMethod) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolMfaMethod)(nil)).Elem()
+}
+
+func (e CognitoUserPoolMfaMethod) ToCognitoUserPoolMfaMethodOutput() CognitoUserPoolMfaMethodOutput {
+	return pulumi.ToOutput(e).(CognitoUserPoolMfaMethodOutput)
+}
+
+func (e CognitoUserPoolMfaMethod) ToCognitoUserPoolMfaMethodOutputWithContext(ctx context.Context) CognitoUserPoolMfaMethodOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(CognitoUserPoolMfaMethodOutput)
+}
+
+func (e CognitoUserPoolMfaMethod) ToCognitoUserPoolMfaMethodPtrOutput() CognitoUserPoolMfaMethodPtrOutput {
+	return e.ToCognitoUserPoolMfaMethodPtrOutputWithContext(context.Background())
+}
+
+func (e CognitoUserPoolMfaMethod) ToCognitoUserPoolMfaMethodPtrOutputWithContext(ctx context.Context) CognitoUserPoolMfaMethodPtrOutput {
+	return CognitoUserPoolMfaMethod(e).ToCognitoUserPoolMfaMethodOutputWithContext(ctx).ToCognitoUserPoolMfaMethodPtrOutputWithContext(ctx)
+}
+
+func (e CognitoUserPoolMfaMethod) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e CognitoUserPoolMfaMethod) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e CognitoUserPoolMfaMethod) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e CognitoUserPoolMfaMethod) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type CognitoUserPoolMfaMethodOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolMfaMethodOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolMfaMethod)(nil)).Elem()
+}
+
+func (o CognitoUserPoolMfaMethodOutput) ToCognitoUserPoolMfaMethodOutput() CognitoUserPoolMfaMethodOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaMethodOutput) ToCognitoUserPoolMfaMethodOutputWithContext(ctx context.Context) CognitoUserPoolMfaMethodOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaMethodOutput) ToCognitoUserPoolMfaMethodPtrOutput() CognitoUserPoolMfaMethodPtrOutput {
+	return o.ToCognitoUserPoolMfaMethodPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolMfaMethodOutput) ToCognitoUserPoolMfaMethodPtrOutputWithContext(ctx context.Context) CognitoUserPoolMfaMethodPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolMfaMethod) *CognitoUserPoolMfaMethod {
+		return &v
+	}).(CognitoUserPoolMfaMethodPtrOutput)
+}
+
+func (o CognitoUserPoolMfaMethodOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolMfaMethodOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e CognitoUserPoolMfaMethod) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o CognitoUserPoolMfaMethodOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolMfaMethodOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e CognitoUserPoolMfaMethod) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type CognitoUserPoolMfaMethodPtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolMfaMethodPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolMfaMethod)(nil)).Elem()
+}
+
+func (o CognitoUserPoolMfaMethodPtrOutput) ToCognitoUserPoolMfaMethodPtrOutput() CognitoUserPoolMfaMethodPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaMethodPtrOutput) ToCognitoUserPoolMfaMethodPtrOutputWithContext(ctx context.Context) CognitoUserPoolMfaMethodPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaMethodPtrOutput) Elem() CognitoUserPoolMfaMethodOutput {
+	return o.ApplyT(func(v *CognitoUserPoolMfaMethod) CognitoUserPoolMfaMethod {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolMfaMethod
+		return ret
+	}).(CognitoUserPoolMfaMethodOutput)
+}
+
+func (o CognitoUserPoolMfaMethodPtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolMfaMethodPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *CognitoUserPoolMfaMethod) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// CognitoUserPoolMfaMethodInput is an input type that accepts values of the CognitoUserPoolMfaMethod enum
+// A concrete instance of `CognitoUserPoolMfaMethodInput` can be one of the following:
+//
+//	CognitoUserPoolMfaMethodTOTP
+//	CognitoUserPoolMfaMethodSMS
+type CognitoUserPoolMfaMethodInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolMfaMethodOutput() CognitoUserPoolMfaMethodOutput
+	ToCognitoUserPoolMfaMethodOutputWithContext(context.Context) CognitoUserPoolMfaMethodOutput
+}
+
+var cognitoUserPoolMfaMethodPtrType = reflect.TypeOf((**CognitoUserPoolMfaMethod)(nil)).Elem()
+
+type CognitoUserPoolMfaMethodPtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolMfaMethodPtrOutput() CognitoUserPoolMfaMethodPtrOutput
+	ToCognitoUserPoolMfaMethodPtrOutputWithContext(context.Context) CognitoUserPoolMfaMethodPtrOutput
+}
+
+type cognitoUserPoolMfaMethodPtr string
+
+func CognitoUserPoolMfaMethodPtr(v string) CognitoUserPoolMfaMethodPtrInput {
+	return (*cognitoUserPoolMfaMethodPtr)(&v)
+}
+
+func (*cognitoUserPoolMfaMethodPtr) ElementType() reflect.Type {
+	return cognitoUserPoolMfaMethodPtrType
+}
+
+func (in *cognitoUserPoolMfaMethodPtr) ToCognitoUserPoolMfaMethodPtrOutput() CognitoUserPoolMfaMethodPtrOutput {
+	return pulumi.ToOutput(in).(CognitoUserPoolMfaMethodPtrOutput)
+}
+
+func (in *cognitoUserPoolMfaMethodPtr) ToCognitoUserPoolMfaMethodPtrOutputWithContext(ctx context.Context) CognitoUserPoolMfaMethodPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(CognitoUserPoolMfaMethodPtrOutput)
+}
+
+// CognitoUserPoolMfaMethodArrayInput is an input type that accepts CognitoUserPoolMfaMethodArray and CognitoUserPoolMfaMethodArrayOutput values.
+// You can construct a concrete instance of `CognitoUserPoolMfaMethodArrayInput` via:
+//
+//	CognitoUserPoolMfaMethodArray{ CognitoUserPoolMfaMethodArgs{...} }
+type CognitoUserPoolMfaMethodArrayInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolMfaMethodArrayOutput() CognitoUserPoolMfaMethodArrayOutput
+	ToCognitoUserPoolMfaMethodArrayOutputWithContext(context.Context) CognitoUserPoolMfaMethodArrayOutput
+}
+
+type CognitoUserPoolMfaMethodArray []CognitoUserPoolMfaMethod
+
+func (CognitoUserPoolMfaMethodArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CognitoUserPoolMfaMethod)(nil)).Elem()
+}
+
+func (i CognitoUserPoolMfaMethodArray) ToCognitoUserPoolMfaMethodArrayOutput() CognitoUserPoolMfaMethodArrayOutput {
+	return i.ToCognitoUserPoolMfaMethodArrayOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolMfaMethodArray) ToCognitoUserPoolMfaMethodArrayOutputWithContext(ctx context.Context) CognitoUserPoolMfaMethodArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolMfaMethodArrayOutput)
+}
+
+type CognitoUserPoolMfaMethodArrayOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolMfaMethodArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CognitoUserPoolMfaMethod)(nil)).Elem()
+}
+
+func (o CognitoUserPoolMfaMethodArrayOutput) ToCognitoUserPoolMfaMethodArrayOutput() CognitoUserPoolMfaMethodArrayOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaMethodArrayOutput) ToCognitoUserPoolMfaMethodArrayOutputWithContext(ctx context.Context) CognitoUserPoolMfaMethodArrayOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaMethodArrayOutput) Index(i pulumi.IntInput) CognitoUserPoolMfaMethodOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) CognitoUserPoolMfaMethod {
+		return vs[0].([]CognitoUserPoolMfaMethod)[vs[1].(int)]
+	}).(CognitoUserPoolMfaMethodOutput)
+}
+
+type CognitoUserPoolMfaMode string
+
+const (
+	// MFA disabled. Default.
+	CognitoUserPoolMfaModeOFF = CognitoUserPoolMfaMode("OFF")
+	// MFA available but not required. Users opt in.
+	CognitoUserPoolMfaModeOPTIONAL = CognitoUserPoolMfaMode("OPTIONAL")
+	// MFA required for all users.
+	CognitoUserPoolMfaModeREQUIRED = CognitoUserPoolMfaMode("REQUIRED")
+)
+
+func (CognitoUserPoolMfaMode) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolMfaMode)(nil)).Elem()
+}
+
+func (e CognitoUserPoolMfaMode) ToCognitoUserPoolMfaModeOutput() CognitoUserPoolMfaModeOutput {
+	return pulumi.ToOutput(e).(CognitoUserPoolMfaModeOutput)
+}
+
+func (e CognitoUserPoolMfaMode) ToCognitoUserPoolMfaModeOutputWithContext(ctx context.Context) CognitoUserPoolMfaModeOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(CognitoUserPoolMfaModeOutput)
+}
+
+func (e CognitoUserPoolMfaMode) ToCognitoUserPoolMfaModePtrOutput() CognitoUserPoolMfaModePtrOutput {
+	return e.ToCognitoUserPoolMfaModePtrOutputWithContext(context.Background())
+}
+
+func (e CognitoUserPoolMfaMode) ToCognitoUserPoolMfaModePtrOutputWithContext(ctx context.Context) CognitoUserPoolMfaModePtrOutput {
+	return CognitoUserPoolMfaMode(e).ToCognitoUserPoolMfaModeOutputWithContext(ctx).ToCognitoUserPoolMfaModePtrOutputWithContext(ctx)
+}
+
+func (e CognitoUserPoolMfaMode) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e CognitoUserPoolMfaMode) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e CognitoUserPoolMfaMode) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e CognitoUserPoolMfaMode) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type CognitoUserPoolMfaModeOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolMfaModeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolMfaMode)(nil)).Elem()
+}
+
+func (o CognitoUserPoolMfaModeOutput) ToCognitoUserPoolMfaModeOutput() CognitoUserPoolMfaModeOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaModeOutput) ToCognitoUserPoolMfaModeOutputWithContext(ctx context.Context) CognitoUserPoolMfaModeOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaModeOutput) ToCognitoUserPoolMfaModePtrOutput() CognitoUserPoolMfaModePtrOutput {
+	return o.ToCognitoUserPoolMfaModePtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolMfaModeOutput) ToCognitoUserPoolMfaModePtrOutputWithContext(ctx context.Context) CognitoUserPoolMfaModePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolMfaMode) *CognitoUserPoolMfaMode {
+		return &v
+	}).(CognitoUserPoolMfaModePtrOutput)
+}
+
+func (o CognitoUserPoolMfaModeOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolMfaModeOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e CognitoUserPoolMfaMode) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o CognitoUserPoolMfaModeOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolMfaModeOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e CognitoUserPoolMfaMode) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type CognitoUserPoolMfaModePtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolMfaModePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolMfaMode)(nil)).Elem()
+}
+
+func (o CognitoUserPoolMfaModePtrOutput) ToCognitoUserPoolMfaModePtrOutput() CognitoUserPoolMfaModePtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaModePtrOutput) ToCognitoUserPoolMfaModePtrOutputWithContext(ctx context.Context) CognitoUserPoolMfaModePtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolMfaModePtrOutput) Elem() CognitoUserPoolMfaModeOutput {
+	return o.ApplyT(func(v *CognitoUserPoolMfaMode) CognitoUserPoolMfaMode {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolMfaMode
+		return ret
+	}).(CognitoUserPoolMfaModeOutput)
+}
+
+func (o CognitoUserPoolMfaModePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolMfaModePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *CognitoUserPoolMfaMode) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// CognitoUserPoolMfaModeInput is an input type that accepts values of the CognitoUserPoolMfaMode enum
+// A concrete instance of `CognitoUserPoolMfaModeInput` can be one of the following:
+//
+//	CognitoUserPoolMfaModeOFF
+//	CognitoUserPoolMfaModeOPTIONAL
+//	CognitoUserPoolMfaModeREQUIRED
+type CognitoUserPoolMfaModeInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolMfaModeOutput() CognitoUserPoolMfaModeOutput
+	ToCognitoUserPoolMfaModeOutputWithContext(context.Context) CognitoUserPoolMfaModeOutput
+}
+
+var cognitoUserPoolMfaModePtrType = reflect.TypeOf((**CognitoUserPoolMfaMode)(nil)).Elem()
+
+type CognitoUserPoolMfaModePtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolMfaModePtrOutput() CognitoUserPoolMfaModePtrOutput
+	ToCognitoUserPoolMfaModePtrOutputWithContext(context.Context) CognitoUserPoolMfaModePtrOutput
+}
+
+type cognitoUserPoolMfaModePtr string
+
+func CognitoUserPoolMfaModePtr(v string) CognitoUserPoolMfaModePtrInput {
+	return (*cognitoUserPoolMfaModePtr)(&v)
+}
+
+func (*cognitoUserPoolMfaModePtr) ElementType() reflect.Type {
+	return cognitoUserPoolMfaModePtrType
+}
+
+func (in *cognitoUserPoolMfaModePtr) ToCognitoUserPoolMfaModePtrOutput() CognitoUserPoolMfaModePtrOutput {
+	return pulumi.ToOutput(in).(CognitoUserPoolMfaModePtrOutput)
+}
+
+func (in *cognitoUserPoolMfaModePtr) ToCognitoUserPoolMfaModePtrOutputWithContext(ctx context.Context) CognitoUserPoolMfaModePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(CognitoUserPoolMfaModePtrOutput)
+}
+
+type CognitoUserPoolOAuthFlow string
+
+const (
+	// Authorization code grant (PKCE). Most secure — use for all browser and server apps.
+	CognitoUserPoolOAuthFlowCode = CognitoUserPoolOAuthFlow("code")
+	// Implicit grant. Deprecated — tokens visible in browser URL. Avoid for new applications.
+	CognitoUserPoolOAuthFlowImplicit = CognitoUserPoolOAuthFlow("implicit")
+	// Client credentials grant. M2M only — no user interaction.
+	CognitoUserPoolOAuthFlow_Client_credentials = CognitoUserPoolOAuthFlow("client_credentials")
+)
+
+func (CognitoUserPoolOAuthFlow) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolOAuthFlow)(nil)).Elem()
+}
+
+func (e CognitoUserPoolOAuthFlow) ToCognitoUserPoolOAuthFlowOutput() CognitoUserPoolOAuthFlowOutput {
+	return pulumi.ToOutput(e).(CognitoUserPoolOAuthFlowOutput)
+}
+
+func (e CognitoUserPoolOAuthFlow) ToCognitoUserPoolOAuthFlowOutputWithContext(ctx context.Context) CognitoUserPoolOAuthFlowOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(CognitoUserPoolOAuthFlowOutput)
+}
+
+func (e CognitoUserPoolOAuthFlow) ToCognitoUserPoolOAuthFlowPtrOutput() CognitoUserPoolOAuthFlowPtrOutput {
+	return e.ToCognitoUserPoolOAuthFlowPtrOutputWithContext(context.Background())
+}
+
+func (e CognitoUserPoolOAuthFlow) ToCognitoUserPoolOAuthFlowPtrOutputWithContext(ctx context.Context) CognitoUserPoolOAuthFlowPtrOutput {
+	return CognitoUserPoolOAuthFlow(e).ToCognitoUserPoolOAuthFlowOutputWithContext(ctx).ToCognitoUserPoolOAuthFlowPtrOutputWithContext(ctx)
+}
+
+func (e CognitoUserPoolOAuthFlow) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e CognitoUserPoolOAuthFlow) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e CognitoUserPoolOAuthFlow) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e CognitoUserPoolOAuthFlow) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type CognitoUserPoolOAuthFlowOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolOAuthFlowOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolOAuthFlow)(nil)).Elem()
+}
+
+func (o CognitoUserPoolOAuthFlowOutput) ToCognitoUserPoolOAuthFlowOutput() CognitoUserPoolOAuthFlowOutput {
+	return o
+}
+
+func (o CognitoUserPoolOAuthFlowOutput) ToCognitoUserPoolOAuthFlowOutputWithContext(ctx context.Context) CognitoUserPoolOAuthFlowOutput {
+	return o
+}
+
+func (o CognitoUserPoolOAuthFlowOutput) ToCognitoUserPoolOAuthFlowPtrOutput() CognitoUserPoolOAuthFlowPtrOutput {
+	return o.ToCognitoUserPoolOAuthFlowPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolOAuthFlowOutput) ToCognitoUserPoolOAuthFlowPtrOutputWithContext(ctx context.Context) CognitoUserPoolOAuthFlowPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolOAuthFlow) *CognitoUserPoolOAuthFlow {
+		return &v
+	}).(CognitoUserPoolOAuthFlowPtrOutput)
+}
+
+func (o CognitoUserPoolOAuthFlowOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolOAuthFlowOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e CognitoUserPoolOAuthFlow) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o CognitoUserPoolOAuthFlowOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolOAuthFlowOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e CognitoUserPoolOAuthFlow) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type CognitoUserPoolOAuthFlowPtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolOAuthFlowPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolOAuthFlow)(nil)).Elem()
+}
+
+func (o CognitoUserPoolOAuthFlowPtrOutput) ToCognitoUserPoolOAuthFlowPtrOutput() CognitoUserPoolOAuthFlowPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolOAuthFlowPtrOutput) ToCognitoUserPoolOAuthFlowPtrOutputWithContext(ctx context.Context) CognitoUserPoolOAuthFlowPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolOAuthFlowPtrOutput) Elem() CognitoUserPoolOAuthFlowOutput {
+	return o.ApplyT(func(v *CognitoUserPoolOAuthFlow) CognitoUserPoolOAuthFlow {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolOAuthFlow
+		return ret
+	}).(CognitoUserPoolOAuthFlowOutput)
+}
+
+func (o CognitoUserPoolOAuthFlowPtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolOAuthFlowPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *CognitoUserPoolOAuthFlow) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// CognitoUserPoolOAuthFlowInput is an input type that accepts values of the CognitoUserPoolOAuthFlow enum
+// A concrete instance of `CognitoUserPoolOAuthFlowInput` can be one of the following:
+//
+//	CognitoUserPoolOAuthFlowCode
+//	CognitoUserPoolOAuthFlowImplicit
+//	CognitoUserPoolOAuthFlow_Client_credentials
+type CognitoUserPoolOAuthFlowInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolOAuthFlowOutput() CognitoUserPoolOAuthFlowOutput
+	ToCognitoUserPoolOAuthFlowOutputWithContext(context.Context) CognitoUserPoolOAuthFlowOutput
+}
+
+var cognitoUserPoolOAuthFlowPtrType = reflect.TypeOf((**CognitoUserPoolOAuthFlow)(nil)).Elem()
+
+type CognitoUserPoolOAuthFlowPtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolOAuthFlowPtrOutput() CognitoUserPoolOAuthFlowPtrOutput
+	ToCognitoUserPoolOAuthFlowPtrOutputWithContext(context.Context) CognitoUserPoolOAuthFlowPtrOutput
+}
+
+type cognitoUserPoolOAuthFlowPtr string
+
+func CognitoUserPoolOAuthFlowPtr(v string) CognitoUserPoolOAuthFlowPtrInput {
+	return (*cognitoUserPoolOAuthFlowPtr)(&v)
+}
+
+func (*cognitoUserPoolOAuthFlowPtr) ElementType() reflect.Type {
+	return cognitoUserPoolOAuthFlowPtrType
+}
+
+func (in *cognitoUserPoolOAuthFlowPtr) ToCognitoUserPoolOAuthFlowPtrOutput() CognitoUserPoolOAuthFlowPtrOutput {
+	return pulumi.ToOutput(in).(CognitoUserPoolOAuthFlowPtrOutput)
+}
+
+func (in *cognitoUserPoolOAuthFlowPtr) ToCognitoUserPoolOAuthFlowPtrOutputWithContext(ctx context.Context) CognitoUserPoolOAuthFlowPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(CognitoUserPoolOAuthFlowPtrOutput)
+}
+
+// CognitoUserPoolOAuthFlowArrayInput is an input type that accepts CognitoUserPoolOAuthFlowArray and CognitoUserPoolOAuthFlowArrayOutput values.
+// You can construct a concrete instance of `CognitoUserPoolOAuthFlowArrayInput` via:
+//
+//	CognitoUserPoolOAuthFlowArray{ CognitoUserPoolOAuthFlowArgs{...} }
+type CognitoUserPoolOAuthFlowArrayInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolOAuthFlowArrayOutput() CognitoUserPoolOAuthFlowArrayOutput
+	ToCognitoUserPoolOAuthFlowArrayOutputWithContext(context.Context) CognitoUserPoolOAuthFlowArrayOutput
+}
+
+type CognitoUserPoolOAuthFlowArray []CognitoUserPoolOAuthFlow
+
+func (CognitoUserPoolOAuthFlowArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CognitoUserPoolOAuthFlow)(nil)).Elem()
+}
+
+func (i CognitoUserPoolOAuthFlowArray) ToCognitoUserPoolOAuthFlowArrayOutput() CognitoUserPoolOAuthFlowArrayOutput {
+	return i.ToCognitoUserPoolOAuthFlowArrayOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolOAuthFlowArray) ToCognitoUserPoolOAuthFlowArrayOutputWithContext(ctx context.Context) CognitoUserPoolOAuthFlowArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolOAuthFlowArrayOutput)
+}
+
+type CognitoUserPoolOAuthFlowArrayOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolOAuthFlowArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CognitoUserPoolOAuthFlow)(nil)).Elem()
+}
+
+func (o CognitoUserPoolOAuthFlowArrayOutput) ToCognitoUserPoolOAuthFlowArrayOutput() CognitoUserPoolOAuthFlowArrayOutput {
+	return o
+}
+
+func (o CognitoUserPoolOAuthFlowArrayOutput) ToCognitoUserPoolOAuthFlowArrayOutputWithContext(ctx context.Context) CognitoUserPoolOAuthFlowArrayOutput {
+	return o
+}
+
+func (o CognitoUserPoolOAuthFlowArrayOutput) Index(i pulumi.IntInput) CognitoUserPoolOAuthFlowOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) CognitoUserPoolOAuthFlow {
+		return vs[0].([]CognitoUserPoolOAuthFlow)[vs[1].(int)]
+	}).(CognitoUserPoolOAuthFlowOutput)
+}
+
+type CognitoUserPoolUsernameAttribute string
+
+const (
+	// Users sign in with their email address.
+	CognitoUserPoolUsernameAttributeEmail = CognitoUserPoolUsernameAttribute("email")
+	// Users sign in with their phone number.
+	CognitoUserPoolUsernameAttribute_Phone_number = CognitoUserPoolUsernameAttribute("phone_number")
+)
+
+func (CognitoUserPoolUsernameAttribute) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolUsernameAttribute)(nil)).Elem()
+}
+
+func (e CognitoUserPoolUsernameAttribute) ToCognitoUserPoolUsernameAttributeOutput() CognitoUserPoolUsernameAttributeOutput {
+	return pulumi.ToOutput(e).(CognitoUserPoolUsernameAttributeOutput)
+}
+
+func (e CognitoUserPoolUsernameAttribute) ToCognitoUserPoolUsernameAttributeOutputWithContext(ctx context.Context) CognitoUserPoolUsernameAttributeOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(CognitoUserPoolUsernameAttributeOutput)
+}
+
+func (e CognitoUserPoolUsernameAttribute) ToCognitoUserPoolUsernameAttributePtrOutput() CognitoUserPoolUsernameAttributePtrOutput {
+	return e.ToCognitoUserPoolUsernameAttributePtrOutputWithContext(context.Background())
+}
+
+func (e CognitoUserPoolUsernameAttribute) ToCognitoUserPoolUsernameAttributePtrOutputWithContext(ctx context.Context) CognitoUserPoolUsernameAttributePtrOutput {
+	return CognitoUserPoolUsernameAttribute(e).ToCognitoUserPoolUsernameAttributeOutputWithContext(ctx).ToCognitoUserPoolUsernameAttributePtrOutputWithContext(ctx)
+}
+
+func (e CognitoUserPoolUsernameAttribute) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e CognitoUserPoolUsernameAttribute) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e CognitoUserPoolUsernameAttribute) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e CognitoUserPoolUsernameAttribute) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type CognitoUserPoolUsernameAttributeOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolUsernameAttributeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolUsernameAttribute)(nil)).Elem()
+}
+
+func (o CognitoUserPoolUsernameAttributeOutput) ToCognitoUserPoolUsernameAttributeOutput() CognitoUserPoolUsernameAttributeOutput {
+	return o
+}
+
+func (o CognitoUserPoolUsernameAttributeOutput) ToCognitoUserPoolUsernameAttributeOutputWithContext(ctx context.Context) CognitoUserPoolUsernameAttributeOutput {
+	return o
+}
+
+func (o CognitoUserPoolUsernameAttributeOutput) ToCognitoUserPoolUsernameAttributePtrOutput() CognitoUserPoolUsernameAttributePtrOutput {
+	return o.ToCognitoUserPoolUsernameAttributePtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolUsernameAttributeOutput) ToCognitoUserPoolUsernameAttributePtrOutputWithContext(ctx context.Context) CognitoUserPoolUsernameAttributePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolUsernameAttribute) *CognitoUserPoolUsernameAttribute {
+		return &v
+	}).(CognitoUserPoolUsernameAttributePtrOutput)
+}
+
+func (o CognitoUserPoolUsernameAttributeOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolUsernameAttributeOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e CognitoUserPoolUsernameAttribute) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o CognitoUserPoolUsernameAttributeOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolUsernameAttributeOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e CognitoUserPoolUsernameAttribute) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type CognitoUserPoolUsernameAttributePtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolUsernameAttributePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolUsernameAttribute)(nil)).Elem()
+}
+
+func (o CognitoUserPoolUsernameAttributePtrOutput) ToCognitoUserPoolUsernameAttributePtrOutput() CognitoUserPoolUsernameAttributePtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolUsernameAttributePtrOutput) ToCognitoUserPoolUsernameAttributePtrOutputWithContext(ctx context.Context) CognitoUserPoolUsernameAttributePtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolUsernameAttributePtrOutput) Elem() CognitoUserPoolUsernameAttributeOutput {
+	return o.ApplyT(func(v *CognitoUserPoolUsernameAttribute) CognitoUserPoolUsernameAttribute {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolUsernameAttribute
+		return ret
+	}).(CognitoUserPoolUsernameAttributeOutput)
+}
+
+func (o CognitoUserPoolUsernameAttributePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolUsernameAttributePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *CognitoUserPoolUsernameAttribute) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// CognitoUserPoolUsernameAttributeInput is an input type that accepts values of the CognitoUserPoolUsernameAttribute enum
+// A concrete instance of `CognitoUserPoolUsernameAttributeInput` can be one of the following:
+//
+//	CognitoUserPoolUsernameAttributeEmail
+//	CognitoUserPoolUsernameAttribute_Phone_number
+type CognitoUserPoolUsernameAttributeInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolUsernameAttributeOutput() CognitoUserPoolUsernameAttributeOutput
+	ToCognitoUserPoolUsernameAttributeOutputWithContext(context.Context) CognitoUserPoolUsernameAttributeOutput
+}
+
+var cognitoUserPoolUsernameAttributePtrType = reflect.TypeOf((**CognitoUserPoolUsernameAttribute)(nil)).Elem()
+
+type CognitoUserPoolUsernameAttributePtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolUsernameAttributePtrOutput() CognitoUserPoolUsernameAttributePtrOutput
+	ToCognitoUserPoolUsernameAttributePtrOutputWithContext(context.Context) CognitoUserPoolUsernameAttributePtrOutput
+}
+
+type cognitoUserPoolUsernameAttributePtr string
+
+func CognitoUserPoolUsernameAttributePtr(v string) CognitoUserPoolUsernameAttributePtrInput {
+	return (*cognitoUserPoolUsernameAttributePtr)(&v)
+}
+
+func (*cognitoUserPoolUsernameAttributePtr) ElementType() reflect.Type {
+	return cognitoUserPoolUsernameAttributePtrType
+}
+
+func (in *cognitoUserPoolUsernameAttributePtr) ToCognitoUserPoolUsernameAttributePtrOutput() CognitoUserPoolUsernameAttributePtrOutput {
+	return pulumi.ToOutput(in).(CognitoUserPoolUsernameAttributePtrOutput)
+}
+
+func (in *cognitoUserPoolUsernameAttributePtr) ToCognitoUserPoolUsernameAttributePtrOutputWithContext(ctx context.Context) CognitoUserPoolUsernameAttributePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(CognitoUserPoolUsernameAttributePtrOutput)
+}
+
+// CognitoUserPoolUsernameAttributeArrayInput is an input type that accepts CognitoUserPoolUsernameAttributeArray and CognitoUserPoolUsernameAttributeArrayOutput values.
+// You can construct a concrete instance of `CognitoUserPoolUsernameAttributeArrayInput` via:
+//
+//	CognitoUserPoolUsernameAttributeArray{ CognitoUserPoolUsernameAttributeArgs{...} }
+type CognitoUserPoolUsernameAttributeArrayInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolUsernameAttributeArrayOutput() CognitoUserPoolUsernameAttributeArrayOutput
+	ToCognitoUserPoolUsernameAttributeArrayOutputWithContext(context.Context) CognitoUserPoolUsernameAttributeArrayOutput
+}
+
+type CognitoUserPoolUsernameAttributeArray []CognitoUserPoolUsernameAttribute
+
+func (CognitoUserPoolUsernameAttributeArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CognitoUserPoolUsernameAttribute)(nil)).Elem()
+}
+
+func (i CognitoUserPoolUsernameAttributeArray) ToCognitoUserPoolUsernameAttributeArrayOutput() CognitoUserPoolUsernameAttributeArrayOutput {
+	return i.ToCognitoUserPoolUsernameAttributeArrayOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolUsernameAttributeArray) ToCognitoUserPoolUsernameAttributeArrayOutputWithContext(ctx context.Context) CognitoUserPoolUsernameAttributeArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolUsernameAttributeArrayOutput)
+}
+
+type CognitoUserPoolUsernameAttributeArrayOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolUsernameAttributeArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]CognitoUserPoolUsernameAttribute)(nil)).Elem()
+}
+
+func (o CognitoUserPoolUsernameAttributeArrayOutput) ToCognitoUserPoolUsernameAttributeArrayOutput() CognitoUserPoolUsernameAttributeArrayOutput {
+	return o
+}
+
+func (o CognitoUserPoolUsernameAttributeArrayOutput) ToCognitoUserPoolUsernameAttributeArrayOutputWithContext(ctx context.Context) CognitoUserPoolUsernameAttributeArrayOutput {
+	return o
+}
+
+func (o CognitoUserPoolUsernameAttributeArrayOutput) Index(i pulumi.IntInput) CognitoUserPoolUsernameAttributeOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) CognitoUserPoolUsernameAttribute {
+		return vs[0].([]CognitoUserPoolUsernameAttribute)[vs[1].(int)]
+	}).(CognitoUserPoolUsernameAttributeOutput)
+}
+
 // HTTP method for an API route.
 type HttpApiMethod string
 
@@ -1203,6 +2360,21 @@ func (in *vpcNatTypePtr) ToVpcNatTypePtrOutputWithContext(ctx context.Context) V
 }
 
 func init() {
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolCustomAttributeTypeInput)(nil)).Elem(), CognitoUserPoolCustomAttributeType("String"))
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolCustomAttributeTypePtrInput)(nil)).Elem(), CognitoUserPoolCustomAttributeType("String"))
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolIdentityProviderTypeInput)(nil)).Elem(), CognitoUserPoolIdentityProviderType("Google"))
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolIdentityProviderTypePtrInput)(nil)).Elem(), CognitoUserPoolIdentityProviderType("Google"))
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolMfaMethodInput)(nil)).Elem(), CognitoUserPoolMfaMethod("TOTP"))
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolMfaMethodPtrInput)(nil)).Elem(), CognitoUserPoolMfaMethod("TOTP"))
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolMfaMethodArrayInput)(nil)).Elem(), CognitoUserPoolMfaMethodArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolMfaModeInput)(nil)).Elem(), CognitoUserPoolMfaMode("OFF"))
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolMfaModePtrInput)(nil)).Elem(), CognitoUserPoolMfaMode("OFF"))
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolOAuthFlowInput)(nil)).Elem(), CognitoUserPoolOAuthFlow("code"))
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolOAuthFlowPtrInput)(nil)).Elem(), CognitoUserPoolOAuthFlow("code"))
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolOAuthFlowArrayInput)(nil)).Elem(), CognitoUserPoolOAuthFlowArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolUsernameAttributeInput)(nil)).Elem(), CognitoUserPoolUsernameAttribute("email"))
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolUsernameAttributePtrInput)(nil)).Elem(), CognitoUserPoolUsernameAttribute("email"))
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolUsernameAttributeArrayInput)(nil)).Elem(), CognitoUserPoolUsernameAttributeArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiMethodInput)(nil)).Elem(), HttpApiMethod("GET"))
 	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiMethodPtrInput)(nil)).Elem(), HttpApiMethod("GET"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaArchitectureInput)(nil)).Elem(), LambdaArchitecture("arm64"))
@@ -1217,6 +2389,21 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*SiteOriginProtectionProviderPtrInput)(nil)).Elem(), SiteOriginProtectionProvider("cloudflare"))
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypeInput)(nil)).Elem(), VpcNatType("gateway"))
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypePtrInput)(nil)).Elem(), VpcNatType("gateway"))
+	pulumi.RegisterOutputType(CognitoUserPoolCustomAttributeTypeOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolCustomAttributeTypePtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolIdentityProviderTypeOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolIdentityProviderTypePtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolMfaMethodOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolMfaMethodPtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolMfaMethodArrayOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolMfaModeOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolMfaModePtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolOAuthFlowOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolOAuthFlowPtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolOAuthFlowArrayOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolUsernameAttributeOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolUsernameAttributePtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolUsernameAttributeArrayOutput{})
 	pulumi.RegisterOutputType(HttpApiMethodOutput{})
 	pulumi.RegisterOutputType(HttpApiMethodPtrOutput{})
 	pulumi.RegisterOutputType(LambdaArchitectureOutput{})

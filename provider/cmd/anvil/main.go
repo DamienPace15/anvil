@@ -9,6 +9,7 @@ import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 	awsbucket "github.com/DamienPace15/anvil/provider/aws/bucket"
 	awscognitoAuth "github.com/DamienPace15/anvil/provider/aws/cognitoAuth"
+	awscognitoUserPool "github.com/DamienPace15/anvil/provider/aws/cognitoUserPool"
 	awseventBridge "github.com/DamienPace15/anvil/provider/aws/eventBridge"
 	awshttpapi "github.com/DamienPace15/anvil/provider/aws/httpapi"
 	awslambda "github.com/DamienPace15/anvil/provider/aws/lambda"
@@ -26,6 +27,7 @@ func main() {
 		WithComponents(
 			infer.ComponentF(awsbucket.NewBucket),
 			infer.ComponentF(awscognitoAuth.NewCognitoAuth),
+			infer.ComponentF(awscognitoUserPool.NewCognitoUserPool),
 			infer.ComponentF(awseventBridge.NewEventBus),
 			infer.ComponentF(awshttpapi.NewHttpApi),
 			infer.ComponentF(awslambda.NewLambda),

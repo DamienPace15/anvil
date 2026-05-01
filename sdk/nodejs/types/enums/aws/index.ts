@@ -2,6 +2,104 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 
+export const CognitoUserPoolCustomAttributeType = {
+    String: "String",
+    Number: "Number",
+    DateTime: "DateTime",
+    Boolean: "Boolean",
+} as const;
+
+export type CognitoUserPoolCustomAttributeType = (typeof CognitoUserPoolCustomAttributeType)[keyof typeof CognitoUserPoolCustomAttributeType];
+
+export const CognitoUserPoolIdentityProviderType = {
+    /**
+     * Google OAuth 2.0. Requires clientId and clientSecret.
+     */
+    Google: "Google",
+    /**
+     * Facebook OAuth 2.0. Requires clientId and clientSecret.
+     */
+    Facebook: "Facebook",
+    /**
+     * Login with Amazon. Requires clientId and clientSecret.
+     */
+    LoginWithAmazon: "LoginWithAmazon",
+    /**
+     * Sign in with Apple. Requires clientId and clientSecret.
+     */
+    SignInWithApple: "SignInWithApple",
+    /**
+     * Generic OIDC provider (Okta, Auth0, Microsoft Entra, etc.). Requires clientId, clientSecret, and oidcIssuer.
+     */
+    OIDC: "OIDC",
+    /**
+     * SAML 2.0 provider (corporate SSO, Active Directory Federation Services etc.). Requires metadataUrl or metadataContent.
+     */
+    SAML: "SAML",
+} as const;
+
+export type CognitoUserPoolIdentityProviderType = (typeof CognitoUserPoolIdentityProviderType)[keyof typeof CognitoUserPoolIdentityProviderType];
+
+export const CognitoUserPoolMfaMethod = {
+    /**
+     * Time-based one-time password (authenticator app). No additional AWS resources required.
+     */
+    TOTP: "TOTP",
+    /**
+     * SMS one-time password via SNS. Requires snsCallerArn.
+     */
+    SMS: "SMS",
+} as const;
+
+export type CognitoUserPoolMfaMethod = (typeof CognitoUserPoolMfaMethod)[keyof typeof CognitoUserPoolMfaMethod];
+
+export const CognitoUserPoolMfaMode = {
+    /**
+     * MFA disabled. Default.
+     */
+    OFF: "OFF",
+    /**
+     * MFA available but not required. Users opt in.
+     */
+    OPTIONAL: "OPTIONAL",
+    /**
+     * MFA required for all users.
+     */
+    REQUIRED: "REQUIRED",
+} as const;
+
+export type CognitoUserPoolMfaMode = (typeof CognitoUserPoolMfaMode)[keyof typeof CognitoUserPoolMfaMode];
+
+export const CognitoUserPoolOAuthFlow = {
+    /**
+     * Authorization code grant (PKCE). Most secure — use for all browser and server apps.
+     */
+    Code: "code",
+    /**
+     * Implicit grant. Deprecated — tokens visible in browser URL. Avoid for new applications.
+     */
+    Implicit: "implicit",
+    /**
+     * Client credentials grant. M2M only — no user interaction.
+     */
+    Client_credentials: "client_credentials",
+} as const;
+
+export type CognitoUserPoolOAuthFlow = (typeof CognitoUserPoolOAuthFlow)[keyof typeof CognitoUserPoolOAuthFlow];
+
+export const CognitoUserPoolUsernameAttribute = {
+    /**
+     * Users sign in with their email address.
+     */
+    Email: "email",
+    /**
+     * Users sign in with their phone number.
+     */
+    Phone_number: "phone_number",
+} as const;
+
+export type CognitoUserPoolUsernameAttribute = (typeof CognitoUserPoolUsernameAttribute)[keyof typeof CognitoUserPoolUsernameAttribute];
+
 export const HttpApiMethod = {
     /**
      * HTTP GET — read operations.
