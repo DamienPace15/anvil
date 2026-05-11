@@ -233,6 +233,63 @@
         "cloudFrontDomain"
       ]
     },
+    "anvil:aws:DynamoDB": {
+      "description": "Serverless key-value and document store. Secure-by-default DynamoDB table with GSI support, optional streams, and Lambda/EventBridge consumers. First data layer component — pairs naturally with anvil.aws.Lambda.",
+      "inputProperties": {
+        "globalSecondaryIndexes": {
+          "description": "Global Secondary Indexes. All GSI key types must be explicitly declared — Anvil derives attributeDefinitions automatically from all declared keys.",
+          "items": {
+            "$ref": "#/types/anvil:aws:DynamoDBGlobalSecondaryIndex"
+          },
+          "type": "array"
+        },
+        "hashKey": {
+          "$ref": "#/types/anvil:aws:DynamoDBKeyAttribute",
+          "description": "Primary hash (partition) key. Required."
+        },
+        "kmsKeyArn": {
+          "description": "Tier 2 opt-in. ARN of a KMS CMK for encryption at rest. If omitted, AWS_OWNED_KMS is used (Tier 1 default — always on, zero cost). Use this for compliance workloads requiring key rotation control, audit trail, or the ability to revoke access by disabling the key.",
+          "type": "string"
+        },
+        "rangeKey": {
+          "$ref": "#/types/anvil:aws:DynamoDBKeyAttribute",
+          "description": "Primary range (sort) key. Optional."
+        },
+        "stream": {
+          "$ref": "#/types/anvil:aws:DynamoDBStream",
+          "description": "DynamoDB Streams configuration. Opt-in. Enables change data capture on the table."
+        },
+        "transform": {
+          "$ref": "#/types/anvil:aws:DynamoTransformArgs"
+        },
+        "ttlAttribute": {
+          "description": "Name of the attribute used for TTL (time-to-live). Items with this attribute set to a past Unix timestamp are automatically deleted by DynamoDB.",
+          "type": "string"
+        }
+      },
+      "isComponent": true,
+      "properties": {
+        "streamArn": {
+          "description": "The ARN of the DynamoDB stream. Only present when stream is enabled.",
+          "type": "string"
+        },
+        "tableArn": {
+          "description": "The ARN of the DynamoDB table.",
+          "type": "string"
+        },
+        "tableName": {
+          "description": "The physical DynamoDB table name. Scoped as {name}-{stage}.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tableName",
+        "tableArn"
+      ],
+      "requiredInputs": [
+        "hashKey"
+      ]
+    },
     "anvil:aws:EventBus": {
       "description": "An Anvil-managed EventBridge event bus. Archives events for 7 days by default for replay and debugging. Rules route matching events to Lambda targets.",
       "inputProperties": {
@@ -1728,6 +1785,343 @@
         }
       ],
       "type": "string"
+    },
+    "anvil:aws:DynamoDBAttributeType": {
+      "enum": [
+        {
+          "description": "String",
+          "value": "S"
+        },
+        {
+          "description": "Number",
+          "value": "N"
+        },
+        {
+          "description": "Binary",
+          "value": "B"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:DynamoDBGlobalSecondaryIndex": {
+      "description": "A Global Secondary Index. All key attributes must use the explicit { name, type } shape — Anvil merges these into the table attributeDefinitions automatically.",
+      "properties": {
+        "hashKey": {
+          "$ref": "#/types/anvil:aws:DynamoDBKeyAttribute",
+          "description": "GSI hash key. Must include name and type explicitly."
+        },
+        "name": {
+          "description": "GSI name.",
+          "type": "string"
+        },
+        "nonKeyAttributes": {
+          "description": "Non-key attributes to project. Only valid when projectionType is INCLUDE.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "projectionType": {
+          "$ref": "#/types/anvil:aws:DynamoDBProjectionType",
+          "description": "Projection type. Defaults to ALL."
+        },
+        "rangeKey": {
+          "$ref": "#/types/anvil:aws:DynamoDBKeyAttribute",
+          "description": "GSI range key. Optional. Must include name and type explicitly."
+        }
+      },
+      "required": [
+        "name",
+        "hashKey"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:DynamoDBKeyAttribute": {
+      "description": "A DynamoDB key attribute with an explicit name and type. All keys — table and GSI — must use this shape. Anvil derives attributeDefinitions automatically.",
+      "properties": {
+        "name": {
+          "description": "Attribute name.",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/types/anvil:aws:DynamoDBAttributeType",
+          "description": "Attribute type. S = String, N = Number, B = Binary."
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:DynamoDBProjectionType": {
+      "enum": [
+        {
+          "description": "All attributes are projected. Default.",
+          "value": "ALL"
+        },
+        {
+          "description": "Only the table and GSI key attributes are projected.",
+          "value": "KEYS_ONLY"
+        },
+        {
+          "description": "Only the specified nonKeyAttributes are projected in addition to keys.",
+          "value": "INCLUDE"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:DynamoDBStream": {
+      "description": "DynamoDB Streams configuration. Opt-in.",
+      "properties": {
+        "batchSize": {
+          "description": "Number of stream records to send to the consumer per batch. Defaults to 100.",
+          "type": "integer"
+        },
+        "consumer": {
+          "$ref": "#/types/anvil:aws:DynamoDBStreamConsumer",
+          "description": "The consumer of the stream. Discriminated union — exactly one of lambda or eventBridge."
+        },
+        "startingPosition": {
+          "$ref": "#/types/anvil:aws:DynamoDBStreamStartingPosition",
+          "description": "Where to start reading the stream. Defaults to TRIM_HORIZON (AWS default — replays all existing records). Set to LATEST to only receive new events from the point of consumer creation."
+        },
+        "viewType": {
+          "$ref": "#/types/anvil:aws:DynamoDBStreamViewType",
+          "description": "The stream view type. Controls what data is written to the stream on item changes."
+        }
+      },
+      "required": [
+        "viewType",
+        "consumer"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:DynamoDBStreamConsumer": {
+      "description": "Discriminated union for the stream consumer. Exactly one of lambda or eventBridge must be set.",
+      "properties": {
+        "eventBridge": {
+          "$ref": "#/types/anvil:aws:DynamoDBStreamEventBridgeConsumer",
+          "description": "Wire an EventBridge bus as the stream consumer via an EventBridge Pipe. Use this for fanout — the bus routes to multiple targets via rules. Bypasses the 2-consumer-per-shard limit of direct Lambda ESM."
+        },
+        "lambda": {
+          "$ref": "#/types/anvil:aws:DynamoDBStreamLambdaConsumer",
+          "description": "Wire a Lambda function as the stream consumer via AWS-managed Event Source Mapping."
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:DynamoDBStreamEventBridgeConsumer": {
+      "description": "EventBridge Pipe consumer. Anvil creates the Pipe, a scoped IAM role for the Pipe, and wires the stream to the target bus. Use this for fanout to multiple targets via EventBridge rules.",
+      "properties": {
+        "busArn": {
+          "description": "ARN of the target EventBridge event bus.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the target EventBridge event bus (anvil.aws.EventBus).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "busArn"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:DynamoDBStreamLambdaConsumer": {
+      "description": "Lambda stream consumer. Anvil creates the ESM, lambda:InvokeFunction permission, and attaches stream read permissions to the Lambda role. Does not grant table read/write access — call grantRead/Write separately if needed.",
+      "properties": {
+        "arn": {
+          "description": "ARN of the Lambda function.",
+          "type": "string"
+        },
+        "lambdaRoleArn": {
+          "description": "ARN of the Lambda execution role. Anvil attaches an inline policy granting stream read permissions (GetRecords, GetShardIterator, DescribeStream, ListStreams).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "arn",
+        "lambdaRoleArn"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:DynamoDBStreamStartingPosition": {
+      "enum": [
+        {
+          "description": "Start reading from the oldest available record in the stream. Replays all existing records up to 24hr retention window. AWS default.",
+          "value": "TRIM_HORIZON"
+        },
+        {
+          "description": "Start reading from the most recent record. Only processes new events from the point of consumer creation.",
+          "value": "LATEST"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:DynamoDBStreamViewType": {
+      "enum": [
+        {
+          "description": "Only the new item image is written to the stream.",
+          "value": "NEW_IMAGE"
+        },
+        {
+          "description": "Only the old item image is written to the stream.",
+          "value": "OLD_IMAGE"
+        },
+        {
+          "description": "Both old and new item images are written to the stream.",
+          "value": "NEW_AND_OLD_IMAGES"
+        },
+        {
+          "description": "Only the key attributes are written to the stream.",
+          "value": "KEYS_ONLY"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:DynamoOverrides": {
+      "properties": {
+        "attributes": {
+          "description": "Set of nested attribute definitions. Only required for \u003cspan pulumi-lang-nodejs=\"`hashKey`\" pulumi-lang-dotnet=\"`HashKey`\" pulumi-lang-go=\"`hashKey`\" pulumi-lang-python=\"`hash_key`\" pulumi-lang-yaml=\"`hashKey`\" pulumi-lang-java=\"`hashKey`\"\u003e`hash_key`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`rangeKey`\" pulumi-lang-dotnet=\"`RangeKey`\" pulumi-lang-go=\"`rangeKey`\" pulumi-lang-python=\"`range_key`\" pulumi-lang-yaml=\"`rangeKey`\" pulumi-lang-java=\"`rangeKey`\"\u003e`range_key`\u003c/span\u003e attributes. See below.\n",
+          "items": {
+            "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableAttribute:TableAttribute"
+          },
+          "type": "array"
+        },
+        "billingMode": {
+          "description": "Controls how you are charged for read and write throughput and how you manage capacity. The valid values are `PROVISIONED` and `PAY_PER_REQUEST`. Defaults to `PROVISIONED`.\n",
+          "type": "string"
+        },
+        "deletionProtectionEnabled": {
+          "description": "Enables deletion protection for table. Defaults to \u003cspan pulumi-lang-nodejs=\"`false`\" pulumi-lang-dotnet=\"`False`\" pulumi-lang-go=\"`false`\" pulumi-lang-python=\"`false`\" pulumi-lang-yaml=\"`false`\" pulumi-lang-java=\"`false`\"\u003e`false`\u003c/span\u003e.\n",
+          "type": "boolean"
+        },
+        "globalSecondaryIndexes": {
+          "description": "Describe a GSI for the table; subject to the normal limits on the number of GSIs, projected attributes, etc. See below.\n",
+          "items": {
+            "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableGlobalSecondaryIndex:TableGlobalSecondaryIndex"
+          },
+          "type": "array"
+        },
+        "globalTableWitness": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableGlobalTableWitness:TableGlobalTableWitness",
+          "description": "Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single \u003cspan pulumi-lang-nodejs=\"`replica`\" pulumi-lang-dotnet=\"`Replica`\" pulumi-lang-go=\"`replica`\" pulumi-lang-python=\"`replica`\" pulumi-lang-yaml=\"`replica`\" pulumi-lang-java=\"`replica`\"\u003e`replica`\u003c/span\u003e with \u003cspan pulumi-lang-nodejs=\"`consistencyMode`\" pulumi-lang-dotnet=\"`ConsistencyMode`\" pulumi-lang-go=\"`consistencyMode`\" pulumi-lang-python=\"`consistency_mode`\" pulumi-lang-yaml=\"`consistencyMode`\" pulumi-lang-java=\"`consistencyMode`\"\u003e`consistency_mode`\u003c/span\u003e set to `STRONG`. Other combinations will fail to provision. See below.\n"
+        },
+        "hashKey": {
+          "description": "Attribute to use as the hash (partition) key. Must also be defined as an \u003cspan pulumi-lang-nodejs=\"`attribute`\" pulumi-lang-dotnet=\"`Attribute`\" pulumi-lang-go=\"`attribute`\" pulumi-lang-python=\"`attribute`\" pulumi-lang-yaml=\"`attribute`\" pulumi-lang-java=\"`attribute`\"\u003e`attribute`\u003c/span\u003e. See below.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "importTable": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableImportTable:TableImportTable",
+          "description": "Import Amazon S3 data into a new table. See below.\n"
+        },
+        "localSecondaryIndexes": {
+          "description": "Describe an LSI on the table; these can only be allocated _at creation_ so you cannot change this definition after you have created the resource. See below.\n",
+          "items": {
+            "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableLocalSecondaryIndex:TableLocalSecondaryIndex"
+          },
+          "type": "array",
+          "willReplaceOnChanges": true
+        },
+        "name": {
+          "description": "Unique within a region name of the table.\n\nThe following arguments are optional:\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "onDemandThroughput": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableOnDemandThroughput:TableOnDemandThroughput",
+          "description": "Sets the maximum number of read and write units for the specified on-demand table. See below.\n"
+        },
+        "pointInTimeRecovery": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TablePointInTimeRecovery:TablePointInTimeRecovery",
+          "description": "Enable point-in-time recovery options. See below.\n"
+        },
+        "rangeKey": {
+          "description": "Attribute to use as the range (sort) key. Must also be defined as an \u003cspan pulumi-lang-nodejs=\"`attribute`\" pulumi-lang-dotnet=\"`Attribute`\" pulumi-lang-go=\"`attribute`\" pulumi-lang-python=\"`attribute`\" pulumi-lang-yaml=\"`attribute`\" pulumi-lang-java=\"`attribute`\"\u003e`attribute`\u003c/span\u003e, see below.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "readCapacity": {
+          "description": "Number of read units for this table. If the \u003cspan pulumi-lang-nodejs=\"`billingMode`\" pulumi-lang-dotnet=\"`BillingMode`\" pulumi-lang-go=\"`billingMode`\" pulumi-lang-python=\"`billing_mode`\" pulumi-lang-yaml=\"`billingMode`\" pulumi-lang-java=\"`billingMode`\"\u003e`billing_mode`\u003c/span\u003e is `PROVISIONED`, this field is required.\n",
+          "type": "integer"
+        },
+        "region": {
+          "description": "Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.\n",
+          "type": "string"
+        },
+        "replicas": {
+          "description": "Configuration block(s) with [DynamoDB Global Tables V2 (version 2019.11.21)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html) replication configurations. See below.\n",
+          "items": {
+            "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableReplica:TableReplica"
+          },
+          "type": "array"
+        },
+        "restoreDateTime": {
+          "description": "Time of the point-in-time recovery point to restore.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "restoreSourceName": {
+          "description": "Name of the table to restore. Must match the name of an existing table.\n",
+          "type": "string"
+        },
+        "restoreSourceTableArn": {
+          "description": "ARN of the source table to restore. Must be supplied for cross-region restores.\n",
+          "type": "string"
+        },
+        "restoreToLatestTime": {
+          "description": "If set, restores table to the most recent point-in-time recovery point.\n",
+          "type": "boolean",
+          "willReplaceOnChanges": true
+        },
+        "serverSideEncryption": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableServerSideEncryption:TableServerSideEncryption",
+          "description": "Encryption at rest options. AWS DynamoDB tables are automatically encrypted at rest with an AWS-owned Customer Master Key if this argument isn't specified. Must be supplied for cross-region restores. See below.\n"
+        },
+        "streamEnabled": {
+          "description": "Whether Streams are enabled.\n",
+          "type": "boolean"
+        },
+        "streamViewType": {
+          "description": "When an item in the table is modified, StreamViewType determines what information is written to the table's stream.\nValid values are `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`.\nOnly valid when \u003cspan pulumi-lang-nodejs=\"`streamEnabled`\" pulumi-lang-dotnet=\"`StreamEnabled`\" pulumi-lang-go=\"`streamEnabled`\" pulumi-lang-python=\"`stream_enabled`\" pulumi-lang-yaml=\"`streamEnabled`\" pulumi-lang-java=\"`streamEnabled`\"\u003e`stream_enabled`\u003c/span\u003e is true.\n",
+          "type": "string"
+        },
+        "tableClass": {
+          "description": "Storage class of the table.\nValid values are `STANDARD` and `STANDARD_INFREQUENT_ACCESS`.\nDefault value is `STANDARD`.\n",
+          "type": "string"
+        },
+        "tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A map of tags to populate on the created table. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`default_tags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n",
+          "type": "object"
+        },
+        "ttl": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableTtl:TableTtl",
+          "description": "Configuration block for TTL. See below.\n"
+        },
+        "warmThroughput": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableWarmThroughput:TableWarmThroughput",
+          "description": "Sets the number of warm read and write units for the specified table. See below.\n"
+        },
+        "writeCapacity": {
+          "description": "Number of write units for this table. If the \u003cspan pulumi-lang-nodejs=\"`billingMode`\" pulumi-lang-dotnet=\"`BillingMode`\" pulumi-lang-go=\"`billingMode`\" pulumi-lang-python=\"`billing_mode`\" pulumi-lang-yaml=\"`billingMode`\" pulumi-lang-java=\"`billingMode`\"\u003e`billing_mode`\u003c/span\u003e is `PROVISIONED`, this field is required.\n",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:DynamoTransformArgs": {
+      "properties": {
+        "dynamo": {
+          "$ref": "#/types/anvil:aws:DynamoOverrides"
+        }
+      },
+      "type": "object"
     },
     "anvil:aws:EventArchiveOverrides": {
       "description": "Direct overrides for the underlying aws.cloudwatch.EventArchive resource. Use retentionDays to change the default 7 day retention.",

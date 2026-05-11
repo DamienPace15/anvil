@@ -18,8 +18,14 @@ export interface GrantConfig {
   arnProperty: string;
   /** Whether grant methods accept path scoping, e.g. ["uploads/*"] */
   supportsPaths: boolean;
+  supportsIndexes?: boolean;
   /** Grant methods to inject on this resource */
   grants: Grant[];
+}
+
+export interface DynamoGrantOptions {
+  indexes?: string[];
+  justification?: string;
 }
 
 export interface GrantTargetConfig {

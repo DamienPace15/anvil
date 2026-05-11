@@ -10,6 +10,7 @@ import (
 	awsbucket "github.com/DamienPace15/anvil/provider/aws/bucket"
 	awscognitoAuth "github.com/DamienPace15/anvil/provider/aws/cognitoAuth"
 	awscognitoUserPool "github.com/DamienPace15/anvil/provider/aws/cognitoUserPool"
+	awsdynamo "github.com/DamienPace15/anvil/provider/aws/dynamo"
 	awseventBridge "github.com/DamienPace15/anvil/provider/aws/eventBridge"
 	awshttpapi "github.com/DamienPace15/anvil/provider/aws/httpapi"
 	awslambda "github.com/DamienPace15/anvil/provider/aws/lambda"
@@ -28,6 +29,7 @@ func main() {
 			infer.ComponentF(awsbucket.NewBucket),
 			infer.ComponentF(awscognitoAuth.NewCognitoAuth),
 			infer.ComponentF(awscognitoUserPool.NewCognitoUserPool),
+			infer.ComponentF(awsdynamo.NewDynamoDB),
 			infer.ComponentF(awseventBridge.NewEventBus),
 			infer.ComponentF(awshttpapi.NewHttpApi),
 			infer.ComponentF(awslambda.NewLambda),

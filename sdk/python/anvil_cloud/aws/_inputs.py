@@ -67,6 +67,22 @@ __all__ = [
     'CognitoUserPoolTokenValidityArgsDict',
     'CognitoUserPoolTransformArgsArgs',
     'CognitoUserPoolTransformArgsArgsDict',
+    'DynamoDBGlobalSecondaryIndexArgs',
+    'DynamoDBGlobalSecondaryIndexArgsDict',
+    'DynamoDBKeyAttributeArgs',
+    'DynamoDBKeyAttributeArgsDict',
+    'DynamoDBStreamConsumerArgs',
+    'DynamoDBStreamConsumerArgsDict',
+    'DynamoDBStreamEventBridgeConsumerArgs',
+    'DynamoDBStreamEventBridgeConsumerArgsDict',
+    'DynamoDBStreamLambdaConsumerArgs',
+    'DynamoDBStreamLambdaConsumerArgsDict',
+    'DynamoDBStreamArgs',
+    'DynamoDBStreamArgsDict',
+    'DynamoOverridesArgs',
+    'DynamoOverridesArgsDict',
+    'DynamoTransformArgsArgs',
+    'DynamoTransformArgsArgsDict',
     'EventBridgeOverridesArgs',
     'EventBridgeOverridesArgsDict',
     'EventBridgeTransformArgsArgs',
@@ -3357,6 +3373,1007 @@ class CognitoUserPoolTransformArgsArgs:
     @cognito_user_pool.setter
     def cognito_user_pool(self, value: Optional[pulumi.Input['CognitoUserPoolOverridesArgs']]):
         pulumi.set(self, "cognito_user_pool", value)
+
+
+class DynamoDBGlobalSecondaryIndexArgsDict(TypedDict):
+    """
+    A Global Secondary Index. All key attributes must use the explicit { name, type } shape — Anvil merges these into the table attributeDefinitions automatically.
+    """
+    hash_key: pulumi.Input['DynamoDBKeyAttributeArgsDict']
+    """
+    GSI hash key. Must include name and type explicitly.
+    """
+    name: pulumi.Input[_builtins.str]
+    """
+    GSI name.
+    """
+    non_key_attributes: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Non-key attributes to project. Only valid when projectionType is INCLUDE.
+    """
+    projection_type: NotRequired[pulumi.Input['DynamoDBProjectionType']]
+    """
+    Projection type. Defaults to ALL.
+    """
+    range_key: NotRequired[pulumi.Input['DynamoDBKeyAttributeArgsDict']]
+    """
+    GSI range key. Optional. Must include name and type explicitly.
+    """
+
+@pulumi.input_type
+class DynamoDBGlobalSecondaryIndexArgs:
+    def __init__(__self__, *,
+                 hash_key: pulumi.Input['DynamoDBKeyAttributeArgs'],
+                 name: pulumi.Input[_builtins.str],
+                 non_key_attributes: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 projection_type: Optional[pulumi.Input['DynamoDBProjectionType']] = None,
+                 range_key: Optional[pulumi.Input['DynamoDBKeyAttributeArgs']] = None):
+        """
+        A Global Secondary Index. All key attributes must use the explicit { name, type } shape — Anvil merges these into the table attributeDefinitions automatically.
+
+        :param pulumi.Input['DynamoDBKeyAttributeArgs'] hash_key: GSI hash key. Must include name and type explicitly.
+        :param pulumi.Input[_builtins.str] name: GSI name.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] non_key_attributes: Non-key attributes to project. Only valid when projectionType is INCLUDE.
+        :param pulumi.Input['DynamoDBProjectionType'] projection_type: Projection type. Defaults to ALL.
+        :param pulumi.Input['DynamoDBKeyAttributeArgs'] range_key: GSI range key. Optional. Must include name and type explicitly.
+        """
+        pulumi.set(__self__, "hash_key", hash_key)
+        pulumi.set(__self__, "name", name)
+        if non_key_attributes is not None:
+            pulumi.set(__self__, "non_key_attributes", non_key_attributes)
+        if projection_type is not None:
+            pulumi.set(__self__, "projection_type", projection_type)
+        if range_key is not None:
+            pulumi.set(__self__, "range_key", range_key)
+
+    @_builtins.property
+    @pulumi.getter(name="hashKey")
+    def hash_key(self) -> pulumi.Input['DynamoDBKeyAttributeArgs']:
+        """
+        GSI hash key. Must include name and type explicitly.
+        """
+        return pulumi.get(self, "hash_key")
+
+    @hash_key.setter
+    def hash_key(self, value: pulumi.Input['DynamoDBKeyAttributeArgs']):
+        pulumi.set(self, "hash_key", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> pulumi.Input[_builtins.str]:
+        """
+        GSI name.
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter(name="nonKeyAttributes")
+    def non_key_attributes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Non-key attributes to project. Only valid when projectionType is INCLUDE.
+        """
+        return pulumi.get(self, "non_key_attributes")
+
+    @non_key_attributes.setter
+    def non_key_attributes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "non_key_attributes", value)
+
+    @_builtins.property
+    @pulumi.getter(name="projectionType")
+    def projection_type(self) -> Optional[pulumi.Input['DynamoDBProjectionType']]:
+        """
+        Projection type. Defaults to ALL.
+        """
+        return pulumi.get(self, "projection_type")
+
+    @projection_type.setter
+    def projection_type(self, value: Optional[pulumi.Input['DynamoDBProjectionType']]):
+        pulumi.set(self, "projection_type", value)
+
+    @_builtins.property
+    @pulumi.getter(name="rangeKey")
+    def range_key(self) -> Optional[pulumi.Input['DynamoDBKeyAttributeArgs']]:
+        """
+        GSI range key. Optional. Must include name and type explicitly.
+        """
+        return pulumi.get(self, "range_key")
+
+    @range_key.setter
+    def range_key(self, value: Optional[pulumi.Input['DynamoDBKeyAttributeArgs']]):
+        pulumi.set(self, "range_key", value)
+
+
+class DynamoDBKeyAttributeArgsDict(TypedDict):
+    """
+    A DynamoDB key attribute with an explicit name and type. All keys — table and GSI — must use this shape. Anvil derives attributeDefinitions automatically.
+    """
+    name: pulumi.Input[_builtins.str]
+    """
+    Attribute name.
+    """
+    type: pulumi.Input['DynamoDBAttributeType']
+    """
+    Attribute type. S = String, N = Number, B = Binary.
+    """
+
+@pulumi.input_type
+class DynamoDBKeyAttributeArgs:
+    def __init__(__self__, *,
+                 name: pulumi.Input[_builtins.str],
+                 type: pulumi.Input['DynamoDBAttributeType']):
+        """
+        A DynamoDB key attribute with an explicit name and type. All keys — table and GSI — must use this shape. Anvil derives attributeDefinitions automatically.
+
+        :param pulumi.Input[_builtins.str] name: Attribute name.
+        :param pulumi.Input['DynamoDBAttributeType'] type: Attribute type. S = String, N = Number, B = Binary.
+        """
+        pulumi.set(__self__, "name", name)
+        pulumi.set(__self__, "type", type)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> pulumi.Input[_builtins.str]:
+        """
+        Attribute name.
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> pulumi.Input['DynamoDBAttributeType']:
+        """
+        Attribute type. S = String, N = Number, B = Binary.
+        """
+        return pulumi.get(self, "type")
+
+    @type.setter
+    def type(self, value: pulumi.Input['DynamoDBAttributeType']):
+        pulumi.set(self, "type", value)
+
+
+class DynamoDBStreamConsumerArgsDict(TypedDict):
+    """
+    Discriminated union for the stream consumer. Exactly one of lambda or eventBridge must be set.
+    """
+    event_bridge: NotRequired[pulumi.Input['DynamoDBStreamEventBridgeConsumerArgsDict']]
+    """
+    Wire an EventBridge bus as the stream consumer via an EventBridge Pipe. Use this for fanout — the bus routes to multiple targets via rules. Bypasses the 2-consumer-per-shard limit of direct Lambda ESM.
+    """
+    lambda_: NotRequired[pulumi.Input['DynamoDBStreamLambdaConsumerArgsDict']]
+    """
+    Wire a Lambda function as the stream consumer via AWS-managed Event Source Mapping.
+    """
+
+@pulumi.input_type
+class DynamoDBStreamConsumerArgs:
+    def __init__(__self__, *,
+                 event_bridge: Optional[pulumi.Input['DynamoDBStreamEventBridgeConsumerArgs']] = None,
+                 lambda_: Optional[pulumi.Input['DynamoDBStreamLambdaConsumerArgs']] = None):
+        """
+        Discriminated union for the stream consumer. Exactly one of lambda or eventBridge must be set.
+
+        :param pulumi.Input['DynamoDBStreamEventBridgeConsumerArgs'] event_bridge: Wire an EventBridge bus as the stream consumer via an EventBridge Pipe. Use this for fanout — the bus routes to multiple targets via rules. Bypasses the 2-consumer-per-shard limit of direct Lambda ESM.
+        :param pulumi.Input['DynamoDBStreamLambdaConsumerArgs'] lambda_: Wire a Lambda function as the stream consumer via AWS-managed Event Source Mapping.
+        """
+        if event_bridge is not None:
+            pulumi.set(__self__, "event_bridge", event_bridge)
+        if lambda_ is not None:
+            pulumi.set(__self__, "lambda_", lambda_)
+
+    @_builtins.property
+    @pulumi.getter(name="eventBridge")
+    def event_bridge(self) -> Optional[pulumi.Input['DynamoDBStreamEventBridgeConsumerArgs']]:
+        """
+        Wire an EventBridge bus as the stream consumer via an EventBridge Pipe. Use this for fanout — the bus routes to multiple targets via rules. Bypasses the 2-consumer-per-shard limit of direct Lambda ESM.
+        """
+        return pulumi.get(self, "event_bridge")
+
+    @event_bridge.setter
+    def event_bridge(self, value: Optional[pulumi.Input['DynamoDBStreamEventBridgeConsumerArgs']]):
+        pulumi.set(self, "event_bridge", value)
+
+    @_builtins.property
+    @pulumi.getter(name="lambda")
+    def lambda_(self) -> Optional[pulumi.Input['DynamoDBStreamLambdaConsumerArgs']]:
+        """
+        Wire a Lambda function as the stream consumer via AWS-managed Event Source Mapping.
+        """
+        return pulumi.get(self, "lambda_")
+
+    @lambda_.setter
+    def lambda_(self, value: Optional[pulumi.Input['DynamoDBStreamLambdaConsumerArgs']]):
+        pulumi.set(self, "lambda_", value)
+
+
+class DynamoDBStreamEventBridgeConsumerArgsDict(TypedDict):
+    """
+    EventBridge Pipe consumer. Anvil creates the Pipe, a scoped IAM role for the Pipe, and wires the stream to the target bus. Use this for fanout to multiple targets via EventBridge rules.
+    """
+    bus_arn: pulumi.Input[_builtins.str]
+    """
+    ARN of the target EventBridge event bus.
+    """
+    name: pulumi.Input[_builtins.str]
+    """
+    Name of the target EventBridge event bus (anvil.aws.EventBus).
+    """
+
+@pulumi.input_type
+class DynamoDBStreamEventBridgeConsumerArgs:
+    def __init__(__self__, *,
+                 bus_arn: pulumi.Input[_builtins.str],
+                 name: pulumi.Input[_builtins.str]):
+        """
+        EventBridge Pipe consumer. Anvil creates the Pipe, a scoped IAM role for the Pipe, and wires the stream to the target bus. Use this for fanout to multiple targets via EventBridge rules.
+
+        :param pulumi.Input[_builtins.str] bus_arn: ARN of the target EventBridge event bus.
+        :param pulumi.Input[_builtins.str] name: Name of the target EventBridge event bus (anvil.aws.EventBus).
+        """
+        pulumi.set(__self__, "bus_arn", bus_arn)
+        pulumi.set(__self__, "name", name)
+
+    @_builtins.property
+    @pulumi.getter(name="busArn")
+    def bus_arn(self) -> pulumi.Input[_builtins.str]:
+        """
+        ARN of the target EventBridge event bus.
+        """
+        return pulumi.get(self, "bus_arn")
+
+    @bus_arn.setter
+    def bus_arn(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "bus_arn", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> pulumi.Input[_builtins.str]:
+        """
+        Name of the target EventBridge event bus (anvil.aws.EventBus).
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "name", value)
+
+
+class DynamoDBStreamLambdaConsumerArgsDict(TypedDict):
+    """
+    Lambda stream consumer. Anvil creates the ESM, lambda:InvokeFunction permission, and attaches stream read permissions to the Lambda role. Does not grant table read/write access — call grantRead/Write separately if needed.
+    """
+    arn: pulumi.Input[_builtins.str]
+    """
+    ARN of the Lambda function.
+    """
+    lambda_role_arn: pulumi.Input[_builtins.str]
+    """
+    ARN of the Lambda execution role. Anvil attaches an inline policy granting stream read permissions (GetRecords, GetShardIterator, DescribeStream, ListStreams).
+    """
+
+@pulumi.input_type
+class DynamoDBStreamLambdaConsumerArgs:
+    def __init__(__self__, *,
+                 arn: pulumi.Input[_builtins.str],
+                 lambda_role_arn: pulumi.Input[_builtins.str]):
+        """
+        Lambda stream consumer. Anvil creates the ESM, lambda:InvokeFunction permission, and attaches stream read permissions to the Lambda role. Does not grant table read/write access — call grantRead/Write separately if needed.
+
+        :param pulumi.Input[_builtins.str] arn: ARN of the Lambda function.
+        :param pulumi.Input[_builtins.str] lambda_role_arn: ARN of the Lambda execution role. Anvil attaches an inline policy granting stream read permissions (GetRecords, GetShardIterator, DescribeStream, ListStreams).
+        """
+        pulumi.set(__self__, "arn", arn)
+        pulumi.set(__self__, "lambda_role_arn", lambda_role_arn)
+
+    @_builtins.property
+    @pulumi.getter
+    def arn(self) -> pulumi.Input[_builtins.str]:
+        """
+        ARN of the Lambda function.
+        """
+        return pulumi.get(self, "arn")
+
+    @arn.setter
+    def arn(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "arn", value)
+
+    @_builtins.property
+    @pulumi.getter(name="lambdaRoleArn")
+    def lambda_role_arn(self) -> pulumi.Input[_builtins.str]:
+        """
+        ARN of the Lambda execution role. Anvil attaches an inline policy granting stream read permissions (GetRecords, GetShardIterator, DescribeStream, ListStreams).
+        """
+        return pulumi.get(self, "lambda_role_arn")
+
+    @lambda_role_arn.setter
+    def lambda_role_arn(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "lambda_role_arn", value)
+
+
+class DynamoDBStreamArgsDict(TypedDict):
+    """
+    DynamoDB Streams configuration. Opt-in.
+    """
+    consumer: pulumi.Input['DynamoDBStreamConsumerArgsDict']
+    """
+    The consumer of the stream. Discriminated union — exactly one of lambda or eventBridge.
+    """
+    view_type: pulumi.Input['DynamoDBStreamViewType']
+    """
+    The stream view type. Controls what data is written to the stream on item changes.
+    """
+    batch_size: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Number of stream records to send to the consumer per batch. Defaults to 100.
+    """
+    starting_position: NotRequired[pulumi.Input['DynamoDBStreamStartingPosition']]
+    """
+    Where to start reading the stream. Defaults to TRIM_HORIZON (AWS default — replays all existing records). Set to LATEST to only receive new events from the point of consumer creation.
+    """
+
+@pulumi.input_type
+class DynamoDBStreamArgs:
+    def __init__(__self__, *,
+                 consumer: pulumi.Input['DynamoDBStreamConsumerArgs'],
+                 view_type: pulumi.Input['DynamoDBStreamViewType'],
+                 batch_size: Optional[pulumi.Input[_builtins.int]] = None,
+                 starting_position: Optional[pulumi.Input['DynamoDBStreamStartingPosition']] = None):
+        """
+        DynamoDB Streams configuration. Opt-in.
+
+        :param pulumi.Input['DynamoDBStreamConsumerArgs'] consumer: The consumer of the stream. Discriminated union — exactly one of lambda or eventBridge.
+        :param pulumi.Input['DynamoDBStreamViewType'] view_type: The stream view type. Controls what data is written to the stream on item changes.
+        :param pulumi.Input[_builtins.int] batch_size: Number of stream records to send to the consumer per batch. Defaults to 100.
+        :param pulumi.Input['DynamoDBStreamStartingPosition'] starting_position: Where to start reading the stream. Defaults to TRIM_HORIZON (AWS default — replays all existing records). Set to LATEST to only receive new events from the point of consumer creation.
+        """
+        pulumi.set(__self__, "consumer", consumer)
+        pulumi.set(__self__, "view_type", view_type)
+        if batch_size is not None:
+            pulumi.set(__self__, "batch_size", batch_size)
+        if starting_position is not None:
+            pulumi.set(__self__, "starting_position", starting_position)
+
+    @_builtins.property
+    @pulumi.getter
+    def consumer(self) -> pulumi.Input['DynamoDBStreamConsumerArgs']:
+        """
+        The consumer of the stream. Discriminated union — exactly one of lambda or eventBridge.
+        """
+        return pulumi.get(self, "consumer")
+
+    @consumer.setter
+    def consumer(self, value: pulumi.Input['DynamoDBStreamConsumerArgs']):
+        pulumi.set(self, "consumer", value)
+
+    @_builtins.property
+    @pulumi.getter(name="viewType")
+    def view_type(self) -> pulumi.Input['DynamoDBStreamViewType']:
+        """
+        The stream view type. Controls what data is written to the stream on item changes.
+        """
+        return pulumi.get(self, "view_type")
+
+    @view_type.setter
+    def view_type(self, value: pulumi.Input['DynamoDBStreamViewType']):
+        pulumi.set(self, "view_type", value)
+
+    @_builtins.property
+    @pulumi.getter(name="batchSize")
+    def batch_size(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Number of stream records to send to the consumer per batch. Defaults to 100.
+        """
+        return pulumi.get(self, "batch_size")
+
+    @batch_size.setter
+    def batch_size(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "batch_size", value)
+
+    @_builtins.property
+    @pulumi.getter(name="startingPosition")
+    def starting_position(self) -> Optional[pulumi.Input['DynamoDBStreamStartingPosition']]:
+        """
+        Where to start reading the stream. Defaults to TRIM_HORIZON (AWS default — replays all existing records). Set to LATEST to only receive new events from the point of consumer creation.
+        """
+        return pulumi.get(self, "starting_position")
+
+    @starting_position.setter
+    def starting_position(self, value: Optional[pulumi.Input['DynamoDBStreamStartingPosition']]):
+        pulumi.set(self, "starting_position", value)
+
+
+class DynamoOverridesArgsDict(TypedDict):
+    attributes: NotRequired[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableAttributeArgsDict']]]]
+    """
+    Set of nested attribute definitions. Only required for <span pulumi-lang-nodejs="`hashKey`" pulumi-lang-dotnet="`HashKey`" pulumi-lang-go="`hashKey`" pulumi-lang-python="`hash_key`" pulumi-lang-yaml="`hashKey`" pulumi-lang-java="`hashKey`">`hash_key`</span> and <span pulumi-lang-nodejs="`rangeKey`" pulumi-lang-dotnet="`RangeKey`" pulumi-lang-go="`rangeKey`" pulumi-lang-python="`range_key`" pulumi-lang-yaml="`rangeKey`" pulumi-lang-java="`rangeKey`">`range_key`</span> attributes. See below.
+    """
+    billing_mode: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Controls how you are charged for read and write throughput and how you manage capacity. The valid values are `PROVISIONED` and `PAY_PER_REQUEST`. Defaults to `PROVISIONED`.
+    """
+    deletion_protection_enabled: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Enables deletion protection for table. Defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+    """
+    global_secondary_indexes: NotRequired[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableGlobalSecondaryIndexArgsDict']]]]
+    """
+    Describe a GSI for the table; subject to the normal limits on the number of GSIs, projected attributes, etc. See below.
+    """
+    global_table_witness: NotRequired[pulumi.Input['pulumi_aws.dynamodb.TableGlobalTableWitnessArgsDict']]
+    """
+    Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single <span pulumi-lang-nodejs="`replica`" pulumi-lang-dotnet="`Replica`" pulumi-lang-go="`replica`" pulumi-lang-python="`replica`" pulumi-lang-yaml="`replica`" pulumi-lang-java="`replica`">`replica`</span> with <span pulumi-lang-nodejs="`consistencyMode`" pulumi-lang-dotnet="`ConsistencyMode`" pulumi-lang-go="`consistencyMode`" pulumi-lang-python="`consistency_mode`" pulumi-lang-yaml="`consistencyMode`" pulumi-lang-java="`consistencyMode`">`consistency_mode`</span> set to `STRONG`. Other combinations will fail to provision. See below.
+    """
+    hash_key: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Attribute to use as the hash (partition) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>. See below.
+    """
+    import_table: NotRequired[pulumi.Input['pulumi_aws.dynamodb.TableImportTableArgsDict']]
+    """
+    Import Amazon S3 data into a new table. See below.
+    """
+    local_secondary_indexes: NotRequired[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableLocalSecondaryIndexArgsDict']]]]
+    """
+    Describe an LSI on the table; these can only be allocated _at creation_ so you cannot change this definition after you have created the resource. See below.
+    """
+    name: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Unique within a region name of the table.
+
+    The following arguments are optional:
+    """
+    on_demand_throughput: NotRequired[pulumi.Input['pulumi_aws.dynamodb.TableOnDemandThroughputArgsDict']]
+    """
+    Sets the maximum number of read and write units for the specified on-demand table. See below.
+    """
+    point_in_time_recovery: NotRequired[pulumi.Input['pulumi_aws.dynamodb.TablePointInTimeRecoveryArgsDict']]
+    """
+    Enable point-in-time recovery options. See below.
+    """
+    range_key: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Attribute to use as the range (sort) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>, see below.
+    """
+    read_capacity: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Number of read units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+    """
+    region: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+    """
+    replicas: NotRequired[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableReplicaArgsDict']]]]
+    """
+    Configuration block(s) with [DynamoDB Global Tables V2 (version 2019.11.21)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html) replication configurations. See below.
+    """
+    restore_date_time: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Time of the point-in-time recovery point to restore.
+    """
+    restore_source_name: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Name of the table to restore. Must match the name of an existing table.
+    """
+    restore_source_table_arn: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    ARN of the source table to restore. Must be supplied for cross-region restores.
+    """
+    restore_to_latest_time: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    If set, restores table to the most recent point-in-time recovery point.
+    """
+    server_side_encryption: NotRequired[pulumi.Input['pulumi_aws.dynamodb.TableServerSideEncryptionArgsDict']]
+    """
+    Encryption at rest options. AWS DynamoDB tables are automatically encrypted at rest with an AWS-owned Customer Master Key if this argument isn't specified. Must be supplied for cross-region restores. See below.
+    """
+    stream_enabled: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Whether Streams are enabled.
+    """
+    stream_view_type: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    When an item in the table is modified, StreamViewType determines what information is written to the table's stream.
+    Valid values are `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`.
+    Only valid when <span pulumi-lang-nodejs="`streamEnabled`" pulumi-lang-dotnet="`StreamEnabled`" pulumi-lang-go="`streamEnabled`" pulumi-lang-python="`stream_enabled`" pulumi-lang-yaml="`streamEnabled`" pulumi-lang-java="`streamEnabled`">`stream_enabled`</span> is true.
+    """
+    table_class: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Storage class of the table.
+    Valid values are `STANDARD` and `STANDARD_INFREQUENT_ACCESS`.
+    Default value is `STANDARD`.
+    """
+    tags: NotRequired[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]
+    """
+    A map of tags to populate on the created table. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+    """
+    ttl: NotRequired[pulumi.Input['pulumi_aws.dynamodb.TableTtlArgsDict']]
+    """
+    Configuration block for TTL. See below.
+    """
+    warm_throughput: NotRequired[pulumi.Input['pulumi_aws.dynamodb.TableWarmThroughputArgsDict']]
+    """
+    Sets the number of warm read and write units for the specified table. See below.
+    """
+    write_capacity: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Number of write units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+    """
+
+@pulumi.input_type
+class DynamoOverridesArgs:
+    def __init__(__self__, *,
+                 attributes: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableAttributeArgs']]]] = None,
+                 billing_mode: Optional[pulumi.Input[_builtins.str]] = None,
+                 deletion_protection_enabled: Optional[pulumi.Input[_builtins.bool]] = None,
+                 global_secondary_indexes: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableGlobalSecondaryIndexArgs']]]] = None,
+                 global_table_witness: Optional[pulumi.Input['pulumi_aws.dynamodb.TableGlobalTableWitnessArgs']] = None,
+                 hash_key: Optional[pulumi.Input[_builtins.str]] = None,
+                 import_table: Optional[pulumi.Input['pulumi_aws.dynamodb.TableImportTableArgs']] = None,
+                 local_secondary_indexes: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableLocalSecondaryIndexArgs']]]] = None,
+                 name: Optional[pulumi.Input[_builtins.str]] = None,
+                 on_demand_throughput: Optional[pulumi.Input['pulumi_aws.dynamodb.TableOnDemandThroughputArgs']] = None,
+                 point_in_time_recovery: Optional[pulumi.Input['pulumi_aws.dynamodb.TablePointInTimeRecoveryArgs']] = None,
+                 range_key: Optional[pulumi.Input[_builtins.str]] = None,
+                 read_capacity: Optional[pulumi.Input[_builtins.int]] = None,
+                 region: Optional[pulumi.Input[_builtins.str]] = None,
+                 replicas: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableReplicaArgs']]]] = None,
+                 restore_date_time: Optional[pulumi.Input[_builtins.str]] = None,
+                 restore_source_name: Optional[pulumi.Input[_builtins.str]] = None,
+                 restore_source_table_arn: Optional[pulumi.Input[_builtins.str]] = None,
+                 restore_to_latest_time: Optional[pulumi.Input[_builtins.bool]] = None,
+                 server_side_encryption: Optional[pulumi.Input['pulumi_aws.dynamodb.TableServerSideEncryptionArgs']] = None,
+                 stream_enabled: Optional[pulumi.Input[_builtins.bool]] = None,
+                 stream_view_type: Optional[pulumi.Input[_builtins.str]] = None,
+                 table_class: Optional[pulumi.Input[_builtins.str]] = None,
+                 tags: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 ttl: Optional[pulumi.Input['pulumi_aws.dynamodb.TableTtlArgs']] = None,
+                 warm_throughput: Optional[pulumi.Input['pulumi_aws.dynamodb.TableWarmThroughputArgs']] = None,
+                 write_capacity: Optional[pulumi.Input[_builtins.int]] = None):
+        """
+        :param pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableAttributeArgs']]] attributes: Set of nested attribute definitions. Only required for <span pulumi-lang-nodejs="`hashKey`" pulumi-lang-dotnet="`HashKey`" pulumi-lang-go="`hashKey`" pulumi-lang-python="`hash_key`" pulumi-lang-yaml="`hashKey`" pulumi-lang-java="`hashKey`">`hash_key`</span> and <span pulumi-lang-nodejs="`rangeKey`" pulumi-lang-dotnet="`RangeKey`" pulumi-lang-go="`rangeKey`" pulumi-lang-python="`range_key`" pulumi-lang-yaml="`rangeKey`" pulumi-lang-java="`rangeKey`">`range_key`</span> attributes. See below.
+        :param pulumi.Input[_builtins.str] billing_mode: Controls how you are charged for read and write throughput and how you manage capacity. The valid values are `PROVISIONED` and `PAY_PER_REQUEST`. Defaults to `PROVISIONED`.
+        :param pulumi.Input[_builtins.bool] deletion_protection_enabled: Enables deletion protection for table. Defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+        :param pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableGlobalSecondaryIndexArgs']]] global_secondary_indexes: Describe a GSI for the table; subject to the normal limits on the number of GSIs, projected attributes, etc. See below.
+        :param pulumi.Input['pulumi_aws.dynamodb.TableGlobalTableWitnessArgs'] global_table_witness: Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single <span pulumi-lang-nodejs="`replica`" pulumi-lang-dotnet="`Replica`" pulumi-lang-go="`replica`" pulumi-lang-python="`replica`" pulumi-lang-yaml="`replica`" pulumi-lang-java="`replica`">`replica`</span> with <span pulumi-lang-nodejs="`consistencyMode`" pulumi-lang-dotnet="`ConsistencyMode`" pulumi-lang-go="`consistencyMode`" pulumi-lang-python="`consistency_mode`" pulumi-lang-yaml="`consistencyMode`" pulumi-lang-java="`consistencyMode`">`consistency_mode`</span> set to `STRONG`. Other combinations will fail to provision. See below.
+        :param pulumi.Input[_builtins.str] hash_key: Attribute to use as the hash (partition) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>. See below.
+        :param pulumi.Input['pulumi_aws.dynamodb.TableImportTableArgs'] import_table: Import Amazon S3 data into a new table. See below.
+        :param pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableLocalSecondaryIndexArgs']]] local_secondary_indexes: Describe an LSI on the table; these can only be allocated _at creation_ so you cannot change this definition after you have created the resource. See below.
+        :param pulumi.Input[_builtins.str] name: Unique within a region name of the table.
+               
+               The following arguments are optional:
+        :param pulumi.Input['pulumi_aws.dynamodb.TableOnDemandThroughputArgs'] on_demand_throughput: Sets the maximum number of read and write units for the specified on-demand table. See below.
+        :param pulumi.Input['pulumi_aws.dynamodb.TablePointInTimeRecoveryArgs'] point_in_time_recovery: Enable point-in-time recovery options. See below.
+        :param pulumi.Input[_builtins.str] range_key: Attribute to use as the range (sort) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>, see below.
+        :param pulumi.Input[_builtins.int] read_capacity: Number of read units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+        :param pulumi.Input[_builtins.str] region: Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+        :param pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableReplicaArgs']]] replicas: Configuration block(s) with [DynamoDB Global Tables V2 (version 2019.11.21)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html) replication configurations. See below.
+        :param pulumi.Input[_builtins.str] restore_date_time: Time of the point-in-time recovery point to restore.
+        :param pulumi.Input[_builtins.str] restore_source_name: Name of the table to restore. Must match the name of an existing table.
+        :param pulumi.Input[_builtins.str] restore_source_table_arn: ARN of the source table to restore. Must be supplied for cross-region restores.
+        :param pulumi.Input[_builtins.bool] restore_to_latest_time: If set, restores table to the most recent point-in-time recovery point.
+        :param pulumi.Input['pulumi_aws.dynamodb.TableServerSideEncryptionArgs'] server_side_encryption: Encryption at rest options. AWS DynamoDB tables are automatically encrypted at rest with an AWS-owned Customer Master Key if this argument isn't specified. Must be supplied for cross-region restores. See below.
+        :param pulumi.Input[_builtins.bool] stream_enabled: Whether Streams are enabled.
+        :param pulumi.Input[_builtins.str] stream_view_type: When an item in the table is modified, StreamViewType determines what information is written to the table's stream.
+               Valid values are `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`.
+               Only valid when <span pulumi-lang-nodejs="`streamEnabled`" pulumi-lang-dotnet="`StreamEnabled`" pulumi-lang-go="`streamEnabled`" pulumi-lang-python="`stream_enabled`" pulumi-lang-yaml="`streamEnabled`" pulumi-lang-java="`streamEnabled`">`stream_enabled`</span> is true.
+        :param pulumi.Input[_builtins.str] table_class: Storage class of the table.
+               Valid values are `STANDARD` and `STANDARD_INFREQUENT_ACCESS`.
+               Default value is `STANDARD`.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] tags: A map of tags to populate on the created table. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+        :param pulumi.Input['pulumi_aws.dynamodb.TableTtlArgs'] ttl: Configuration block for TTL. See below.
+        :param pulumi.Input['pulumi_aws.dynamodb.TableWarmThroughputArgs'] warm_throughput: Sets the number of warm read and write units for the specified table. See below.
+        :param pulumi.Input[_builtins.int] write_capacity: Number of write units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+        """
+        if attributes is not None:
+            pulumi.set(__self__, "attributes", attributes)
+        if billing_mode is not None:
+            pulumi.set(__self__, "billing_mode", billing_mode)
+        if deletion_protection_enabled is not None:
+            pulumi.set(__self__, "deletion_protection_enabled", deletion_protection_enabled)
+        if global_secondary_indexes is not None:
+            pulumi.set(__self__, "global_secondary_indexes", global_secondary_indexes)
+        if global_table_witness is not None:
+            pulumi.set(__self__, "global_table_witness", global_table_witness)
+        if hash_key is not None:
+            pulumi.set(__self__, "hash_key", hash_key)
+        if import_table is not None:
+            pulumi.set(__self__, "import_table", import_table)
+        if local_secondary_indexes is not None:
+            pulumi.set(__self__, "local_secondary_indexes", local_secondary_indexes)
+        if name is not None:
+            pulumi.set(__self__, "name", name)
+        if on_demand_throughput is not None:
+            pulumi.set(__self__, "on_demand_throughput", on_demand_throughput)
+        if point_in_time_recovery is not None:
+            pulumi.set(__self__, "point_in_time_recovery", point_in_time_recovery)
+        if range_key is not None:
+            pulumi.set(__self__, "range_key", range_key)
+        if read_capacity is not None:
+            pulumi.set(__self__, "read_capacity", read_capacity)
+        if region is not None:
+            pulumi.set(__self__, "region", region)
+        if replicas is not None:
+            pulumi.set(__self__, "replicas", replicas)
+        if restore_date_time is not None:
+            pulumi.set(__self__, "restore_date_time", restore_date_time)
+        if restore_source_name is not None:
+            pulumi.set(__self__, "restore_source_name", restore_source_name)
+        if restore_source_table_arn is not None:
+            pulumi.set(__self__, "restore_source_table_arn", restore_source_table_arn)
+        if restore_to_latest_time is not None:
+            pulumi.set(__self__, "restore_to_latest_time", restore_to_latest_time)
+        if server_side_encryption is not None:
+            pulumi.set(__self__, "server_side_encryption", server_side_encryption)
+        if stream_enabled is not None:
+            pulumi.set(__self__, "stream_enabled", stream_enabled)
+        if stream_view_type is not None:
+            pulumi.set(__self__, "stream_view_type", stream_view_type)
+        if table_class is not None:
+            pulumi.set(__self__, "table_class", table_class)
+        if tags is not None:
+            pulumi.set(__self__, "tags", tags)
+        if ttl is not None:
+            pulumi.set(__self__, "ttl", ttl)
+        if warm_throughput is not None:
+            pulumi.set(__self__, "warm_throughput", warm_throughput)
+        if write_capacity is not None:
+            pulumi.set(__self__, "write_capacity", write_capacity)
+
+    @_builtins.property
+    @pulumi.getter
+    def attributes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableAttributeArgs']]]]:
+        """
+        Set of nested attribute definitions. Only required for <span pulumi-lang-nodejs="`hashKey`" pulumi-lang-dotnet="`HashKey`" pulumi-lang-go="`hashKey`" pulumi-lang-python="`hash_key`" pulumi-lang-yaml="`hashKey`" pulumi-lang-java="`hashKey`">`hash_key`</span> and <span pulumi-lang-nodejs="`rangeKey`" pulumi-lang-dotnet="`RangeKey`" pulumi-lang-go="`rangeKey`" pulumi-lang-python="`range_key`" pulumi-lang-yaml="`rangeKey`" pulumi-lang-java="`rangeKey`">`range_key`</span> attributes. See below.
+        """
+        return pulumi.get(self, "attributes")
+
+    @attributes.setter
+    def attributes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableAttributeArgs']]]]):
+        pulumi.set(self, "attributes", value)
+
+    @_builtins.property
+    @pulumi.getter(name="billingMode")
+    def billing_mode(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Controls how you are charged for read and write throughput and how you manage capacity. The valid values are `PROVISIONED` and `PAY_PER_REQUEST`. Defaults to `PROVISIONED`.
+        """
+        return pulumi.get(self, "billing_mode")
+
+    @billing_mode.setter
+    def billing_mode(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "billing_mode", value)
+
+    @_builtins.property
+    @pulumi.getter(name="deletionProtectionEnabled")
+    def deletion_protection_enabled(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Enables deletion protection for table. Defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+        """
+        return pulumi.get(self, "deletion_protection_enabled")
+
+    @deletion_protection_enabled.setter
+    def deletion_protection_enabled(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "deletion_protection_enabled", value)
+
+    @_builtins.property
+    @pulumi.getter(name="globalSecondaryIndexes")
+    def global_secondary_indexes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableGlobalSecondaryIndexArgs']]]]:
+        """
+        Describe a GSI for the table; subject to the normal limits on the number of GSIs, projected attributes, etc. See below.
+        """
+        return pulumi.get(self, "global_secondary_indexes")
+
+    @global_secondary_indexes.setter
+    def global_secondary_indexes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableGlobalSecondaryIndexArgs']]]]):
+        pulumi.set(self, "global_secondary_indexes", value)
+
+    @_builtins.property
+    @pulumi.getter(name="globalTableWitness")
+    def global_table_witness(self) -> Optional[pulumi.Input['pulumi_aws.dynamodb.TableGlobalTableWitnessArgs']]:
+        """
+        Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single <span pulumi-lang-nodejs="`replica`" pulumi-lang-dotnet="`Replica`" pulumi-lang-go="`replica`" pulumi-lang-python="`replica`" pulumi-lang-yaml="`replica`" pulumi-lang-java="`replica`">`replica`</span> with <span pulumi-lang-nodejs="`consistencyMode`" pulumi-lang-dotnet="`ConsistencyMode`" pulumi-lang-go="`consistencyMode`" pulumi-lang-python="`consistency_mode`" pulumi-lang-yaml="`consistencyMode`" pulumi-lang-java="`consistencyMode`">`consistency_mode`</span> set to `STRONG`. Other combinations will fail to provision. See below.
+        """
+        return pulumi.get(self, "global_table_witness")
+
+    @global_table_witness.setter
+    def global_table_witness(self, value: Optional[pulumi.Input['pulumi_aws.dynamodb.TableGlobalTableWitnessArgs']]):
+        pulumi.set(self, "global_table_witness", value)
+
+    @_builtins.property
+    @pulumi.getter(name="hashKey")
+    def hash_key(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Attribute to use as the hash (partition) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>. See below.
+        """
+        return pulumi.get(self, "hash_key")
+
+    @hash_key.setter
+    def hash_key(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "hash_key", value)
+
+    @_builtins.property
+    @pulumi.getter(name="importTable")
+    def import_table(self) -> Optional[pulumi.Input['pulumi_aws.dynamodb.TableImportTableArgs']]:
+        """
+        Import Amazon S3 data into a new table. See below.
+        """
+        return pulumi.get(self, "import_table")
+
+    @import_table.setter
+    def import_table(self, value: Optional[pulumi.Input['pulumi_aws.dynamodb.TableImportTableArgs']]):
+        pulumi.set(self, "import_table", value)
+
+    @_builtins.property
+    @pulumi.getter(name="localSecondaryIndexes")
+    def local_secondary_indexes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableLocalSecondaryIndexArgs']]]]:
+        """
+        Describe an LSI on the table; these can only be allocated _at creation_ so you cannot change this definition after you have created the resource. See below.
+        """
+        return pulumi.get(self, "local_secondary_indexes")
+
+    @local_secondary_indexes.setter
+    def local_secondary_indexes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableLocalSecondaryIndexArgs']]]]):
+        pulumi.set(self, "local_secondary_indexes", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Unique within a region name of the table.
+
+        The following arguments are optional:
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter(name="onDemandThroughput")
+    def on_demand_throughput(self) -> Optional[pulumi.Input['pulumi_aws.dynamodb.TableOnDemandThroughputArgs']]:
+        """
+        Sets the maximum number of read and write units for the specified on-demand table. See below.
+        """
+        return pulumi.get(self, "on_demand_throughput")
+
+    @on_demand_throughput.setter
+    def on_demand_throughput(self, value: Optional[pulumi.Input['pulumi_aws.dynamodb.TableOnDemandThroughputArgs']]):
+        pulumi.set(self, "on_demand_throughput", value)
+
+    @_builtins.property
+    @pulumi.getter(name="pointInTimeRecovery")
+    def point_in_time_recovery(self) -> Optional[pulumi.Input['pulumi_aws.dynamodb.TablePointInTimeRecoveryArgs']]:
+        """
+        Enable point-in-time recovery options. See below.
+        """
+        return pulumi.get(self, "point_in_time_recovery")
+
+    @point_in_time_recovery.setter
+    def point_in_time_recovery(self, value: Optional[pulumi.Input['pulumi_aws.dynamodb.TablePointInTimeRecoveryArgs']]):
+        pulumi.set(self, "point_in_time_recovery", value)
+
+    @_builtins.property
+    @pulumi.getter(name="rangeKey")
+    def range_key(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Attribute to use as the range (sort) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>, see below.
+        """
+        return pulumi.get(self, "range_key")
+
+    @range_key.setter
+    def range_key(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "range_key", value)
+
+    @_builtins.property
+    @pulumi.getter(name="readCapacity")
+    def read_capacity(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Number of read units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+        """
+        return pulumi.get(self, "read_capacity")
+
+    @read_capacity.setter
+    def read_capacity(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "read_capacity", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def region(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+        """
+        return pulumi.get(self, "region")
+
+    @region.setter
+    def region(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "region", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def replicas(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableReplicaArgs']]]]:
+        """
+        Configuration block(s) with [DynamoDB Global Tables V2 (version 2019.11.21)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html) replication configurations. See below.
+        """
+        return pulumi.get(self, "replicas")
+
+    @replicas.setter
+    def replicas(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.dynamodb.TableReplicaArgs']]]]):
+        pulumi.set(self, "replicas", value)
+
+    @_builtins.property
+    @pulumi.getter(name="restoreDateTime")
+    def restore_date_time(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Time of the point-in-time recovery point to restore.
+        """
+        return pulumi.get(self, "restore_date_time")
+
+    @restore_date_time.setter
+    def restore_date_time(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "restore_date_time", value)
+
+    @_builtins.property
+    @pulumi.getter(name="restoreSourceName")
+    def restore_source_name(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Name of the table to restore. Must match the name of an existing table.
+        """
+        return pulumi.get(self, "restore_source_name")
+
+    @restore_source_name.setter
+    def restore_source_name(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "restore_source_name", value)
+
+    @_builtins.property
+    @pulumi.getter(name="restoreSourceTableArn")
+    def restore_source_table_arn(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        ARN of the source table to restore. Must be supplied for cross-region restores.
+        """
+        return pulumi.get(self, "restore_source_table_arn")
+
+    @restore_source_table_arn.setter
+    def restore_source_table_arn(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "restore_source_table_arn", value)
+
+    @_builtins.property
+    @pulumi.getter(name="restoreToLatestTime")
+    def restore_to_latest_time(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        If set, restores table to the most recent point-in-time recovery point.
+        """
+        return pulumi.get(self, "restore_to_latest_time")
+
+    @restore_to_latest_time.setter
+    def restore_to_latest_time(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "restore_to_latest_time", value)
+
+    @_builtins.property
+    @pulumi.getter(name="serverSideEncryption")
+    def server_side_encryption(self) -> Optional[pulumi.Input['pulumi_aws.dynamodb.TableServerSideEncryptionArgs']]:
+        """
+        Encryption at rest options. AWS DynamoDB tables are automatically encrypted at rest with an AWS-owned Customer Master Key if this argument isn't specified. Must be supplied for cross-region restores. See below.
+        """
+        return pulumi.get(self, "server_side_encryption")
+
+    @server_side_encryption.setter
+    def server_side_encryption(self, value: Optional[pulumi.Input['pulumi_aws.dynamodb.TableServerSideEncryptionArgs']]):
+        pulumi.set(self, "server_side_encryption", value)
+
+    @_builtins.property
+    @pulumi.getter(name="streamEnabled")
+    def stream_enabled(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Whether Streams are enabled.
+        """
+        return pulumi.get(self, "stream_enabled")
+
+    @stream_enabled.setter
+    def stream_enabled(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "stream_enabled", value)
+
+    @_builtins.property
+    @pulumi.getter(name="streamViewType")
+    def stream_view_type(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        When an item in the table is modified, StreamViewType determines what information is written to the table's stream.
+        Valid values are `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`.
+        Only valid when <span pulumi-lang-nodejs="`streamEnabled`" pulumi-lang-dotnet="`StreamEnabled`" pulumi-lang-go="`streamEnabled`" pulumi-lang-python="`stream_enabled`" pulumi-lang-yaml="`streamEnabled`" pulumi-lang-java="`streamEnabled`">`stream_enabled`</span> is true.
+        """
+        return pulumi.get(self, "stream_view_type")
+
+    @stream_view_type.setter
+    def stream_view_type(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "stream_view_type", value)
+
+    @_builtins.property
+    @pulumi.getter(name="tableClass")
+    def table_class(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Storage class of the table.
+        Valid values are `STANDARD` and `STANDARD_INFREQUENT_ACCESS`.
+        Default value is `STANDARD`.
+        """
+        return pulumi.get(self, "table_class")
+
+    @table_class.setter
+    def table_class(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "table_class", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def tags(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]:
+        """
+        A map of tags to populate on the created table. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+        """
+        return pulumi.get(self, "tags")
+
+    @tags.setter
+    def tags(self, value: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "tags", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def ttl(self) -> Optional[pulumi.Input['pulumi_aws.dynamodb.TableTtlArgs']]:
+        """
+        Configuration block for TTL. See below.
+        """
+        return pulumi.get(self, "ttl")
+
+    @ttl.setter
+    def ttl(self, value: Optional[pulumi.Input['pulumi_aws.dynamodb.TableTtlArgs']]):
+        pulumi.set(self, "ttl", value)
+
+    @_builtins.property
+    @pulumi.getter(name="warmThroughput")
+    def warm_throughput(self) -> Optional[pulumi.Input['pulumi_aws.dynamodb.TableWarmThroughputArgs']]:
+        """
+        Sets the number of warm read and write units for the specified table. See below.
+        """
+        return pulumi.get(self, "warm_throughput")
+
+    @warm_throughput.setter
+    def warm_throughput(self, value: Optional[pulumi.Input['pulumi_aws.dynamodb.TableWarmThroughputArgs']]):
+        pulumi.set(self, "warm_throughput", value)
+
+    @_builtins.property
+    @pulumi.getter(name="writeCapacity")
+    def write_capacity(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Number of write units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+        """
+        return pulumi.get(self, "write_capacity")
+
+    @write_capacity.setter
+    def write_capacity(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "write_capacity", value)
+
+
+class DynamoTransformArgsArgsDict(TypedDict):
+    dynamo: NotRequired[pulumi.Input['DynamoOverridesArgsDict']]
+
+@pulumi.input_type
+class DynamoTransformArgsArgs:
+    def __init__(__self__, *,
+                 dynamo: Optional[pulumi.Input['DynamoOverridesArgs']] = None):
+        if dynamo is not None:
+            pulumi.set(__self__, "dynamo", dynamo)
+
+    @_builtins.property
+    @pulumi.getter
+    def dynamo(self) -> Optional[pulumi.Input['DynamoOverridesArgs']]:
+        return pulumi.get(self, "dynamo")
+
+    @dynamo.setter
+    def dynamo(self, value: Optional[pulumi.Input['DynamoOverridesArgs']]):
+        pulumi.set(self, "dynamo", value)
 
 
 class EventBridgeOverridesArgsDict(TypedDict):

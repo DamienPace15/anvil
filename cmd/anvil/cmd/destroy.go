@@ -58,7 +58,10 @@ func runDestroy(cmd *cobra.Command, args []string) error {
 		}
 	}()
 
-	_, err = s.Destroy(ctx, optdestroy.EventStreams(eventCh))
+	_, err = s.Destroy(ctx,
+		optdestroy.EventStreams(eventCh),
+		optdestroy.Parallel(10),
+	)
 
 	handler.PrintSummary(destroyStage)
 

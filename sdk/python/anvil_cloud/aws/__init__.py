@@ -10,6 +10,7 @@ from ._enums import *
 from .bucket import *
 from .cognito_auth import *
 from .cognito_user_pool import *
+from .dynamo_db import *
 from .event_bus import *
 from .http_api import *
 from .lambda_ import *

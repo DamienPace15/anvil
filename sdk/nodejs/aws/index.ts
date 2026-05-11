@@ -20,6 +20,11 @@ export type CognitoUserPool = import("./cognitoUserPool").CognitoUserPool;
 export const CognitoUserPool: typeof import("./cognitoUserPool").CognitoUserPool = null as any;
 utilities.lazyLoad(exports, ["CognitoUserPool"], () => require("./cognitoUserPool"));
 
+export { DynamoDBArgs } from "./dynamoDB";
+export type DynamoDB = import("./dynamoDB").DynamoDB;
+export const DynamoDB: typeof import("./dynamoDB").DynamoDB = null as any;
+utilities.lazyLoad(exports, ["DynamoDB"], () => require("./dynamoDB"));
+
 export { EventBusArgs } from "./eventBus";
 export type EventBus = import("./eventBus").EventBus;
 export const EventBus: typeof import("./eventBus").EventBus = null as any;
@@ -74,6 +79,8 @@ const _module = {
                 return new CognitoAuth(name, <any>undefined, { urn })
             case "anvil:aws:CognitoUserPool":
                 return new CognitoUserPool(name, <any>undefined, { urn })
+            case "anvil:aws:DynamoDB":
+                return new DynamoDB(name, <any>undefined, { urn })
             case "anvil:aws:EventBus":
                 return new EventBus(name, <any>undefined, { urn })
             case "anvil:aws:HttpApi":

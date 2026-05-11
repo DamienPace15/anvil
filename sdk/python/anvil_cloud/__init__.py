@@ -30,6 +30,7 @@ _utilities.register(
    "anvil:aws:Bucket": "Bucket",
    "anvil:aws:CognitoAuth": "CognitoAuth",
    "anvil:aws:CognitoUserPool": "CognitoUserPool",
+   "anvil:aws:DynamoDB": "DynamoDB",
    "anvil:aws:EventBus": "EventBus",
    "anvil:aws:HttpApi": "HttpApi",
    "anvil:aws:Lambda": "Lambda",
