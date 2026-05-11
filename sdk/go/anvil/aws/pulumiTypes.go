@@ -10,6 +10,7 @@ import (
 	"github.com/DamienPace15/anvil/sdk/go/anvil/internal"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cloudwatch"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cognito"
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/dynamodb"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/lambda"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/s3"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -5790,6 +5791,1763 @@ func (o CognitoUserPoolTransformArgsPtrOutput) CognitoUserPool() CognitoUserPool
 		}
 		return v.CognitoUserPool
 	}).(CognitoUserPoolOverridesPtrOutput)
+}
+
+// A Global Secondary Index. All key attributes must use the explicit { name, type } shape — Anvil merges these into the table attributeDefinitions automatically.
+type DynamoDBGlobalSecondaryIndex struct {
+	// GSI hash key. Must include name and type explicitly.
+	HashKey DynamoDBKeyAttribute `pulumi:"hashKey"`
+	// GSI name.
+	Name string `pulumi:"name"`
+	// Non-key attributes to project. Only valid when projectionType is INCLUDE.
+	NonKeyAttributes []string `pulumi:"nonKeyAttributes"`
+	// Projection type. Defaults to ALL.
+	ProjectionType *DynamoDBProjectionType `pulumi:"projectionType"`
+	// GSI range key. Optional. Must include name and type explicitly.
+	RangeKey *DynamoDBKeyAttribute `pulumi:"rangeKey"`
+}
+
+// DynamoDBGlobalSecondaryIndexInput is an input type that accepts DynamoDBGlobalSecondaryIndexArgs and DynamoDBGlobalSecondaryIndexOutput values.
+// You can construct a concrete instance of `DynamoDBGlobalSecondaryIndexInput` via:
+//
+//	DynamoDBGlobalSecondaryIndexArgs{...}
+type DynamoDBGlobalSecondaryIndexInput interface {
+	pulumi.Input
+
+	ToDynamoDBGlobalSecondaryIndexOutput() DynamoDBGlobalSecondaryIndexOutput
+	ToDynamoDBGlobalSecondaryIndexOutputWithContext(context.Context) DynamoDBGlobalSecondaryIndexOutput
+}
+
+// A Global Secondary Index. All key attributes must use the explicit { name, type } shape — Anvil merges these into the table attributeDefinitions automatically.
+type DynamoDBGlobalSecondaryIndexArgs struct {
+	// GSI hash key. Must include name and type explicitly.
+	HashKey DynamoDBKeyAttributeInput `pulumi:"hashKey"`
+	// GSI name.
+	Name pulumi.StringInput `pulumi:"name"`
+	// Non-key attributes to project. Only valid when projectionType is INCLUDE.
+	NonKeyAttributes pulumi.StringArrayInput `pulumi:"nonKeyAttributes"`
+	// Projection type. Defaults to ALL.
+	ProjectionType DynamoDBProjectionTypePtrInput `pulumi:"projectionType"`
+	// GSI range key. Optional. Must include name and type explicitly.
+	RangeKey DynamoDBKeyAttributePtrInput `pulumi:"rangeKey"`
+}
+
+func (DynamoDBGlobalSecondaryIndexArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBGlobalSecondaryIndex)(nil)).Elem()
+}
+
+func (i DynamoDBGlobalSecondaryIndexArgs) ToDynamoDBGlobalSecondaryIndexOutput() DynamoDBGlobalSecondaryIndexOutput {
+	return i.ToDynamoDBGlobalSecondaryIndexOutputWithContext(context.Background())
+}
+
+func (i DynamoDBGlobalSecondaryIndexArgs) ToDynamoDBGlobalSecondaryIndexOutputWithContext(ctx context.Context) DynamoDBGlobalSecondaryIndexOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBGlobalSecondaryIndexOutput)
+}
+
+// DynamoDBGlobalSecondaryIndexArrayInput is an input type that accepts DynamoDBGlobalSecondaryIndexArray and DynamoDBGlobalSecondaryIndexArrayOutput values.
+// You can construct a concrete instance of `DynamoDBGlobalSecondaryIndexArrayInput` via:
+//
+//	DynamoDBGlobalSecondaryIndexArray{ DynamoDBGlobalSecondaryIndexArgs{...} }
+type DynamoDBGlobalSecondaryIndexArrayInput interface {
+	pulumi.Input
+
+	ToDynamoDBGlobalSecondaryIndexArrayOutput() DynamoDBGlobalSecondaryIndexArrayOutput
+	ToDynamoDBGlobalSecondaryIndexArrayOutputWithContext(context.Context) DynamoDBGlobalSecondaryIndexArrayOutput
+}
+
+type DynamoDBGlobalSecondaryIndexArray []DynamoDBGlobalSecondaryIndexInput
+
+func (DynamoDBGlobalSecondaryIndexArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DynamoDBGlobalSecondaryIndex)(nil)).Elem()
+}
+
+func (i DynamoDBGlobalSecondaryIndexArray) ToDynamoDBGlobalSecondaryIndexArrayOutput() DynamoDBGlobalSecondaryIndexArrayOutput {
+	return i.ToDynamoDBGlobalSecondaryIndexArrayOutputWithContext(context.Background())
+}
+
+func (i DynamoDBGlobalSecondaryIndexArray) ToDynamoDBGlobalSecondaryIndexArrayOutputWithContext(ctx context.Context) DynamoDBGlobalSecondaryIndexArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBGlobalSecondaryIndexArrayOutput)
+}
+
+// A Global Secondary Index. All key attributes must use the explicit { name, type } shape — Anvil merges these into the table attributeDefinitions automatically.
+type DynamoDBGlobalSecondaryIndexOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBGlobalSecondaryIndexOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBGlobalSecondaryIndex)(nil)).Elem()
+}
+
+func (o DynamoDBGlobalSecondaryIndexOutput) ToDynamoDBGlobalSecondaryIndexOutput() DynamoDBGlobalSecondaryIndexOutput {
+	return o
+}
+
+func (o DynamoDBGlobalSecondaryIndexOutput) ToDynamoDBGlobalSecondaryIndexOutputWithContext(ctx context.Context) DynamoDBGlobalSecondaryIndexOutput {
+	return o
+}
+
+// GSI hash key. Must include name and type explicitly.
+func (o DynamoDBGlobalSecondaryIndexOutput) HashKey() DynamoDBKeyAttributeOutput {
+	return o.ApplyT(func(v DynamoDBGlobalSecondaryIndex) DynamoDBKeyAttribute { return v.HashKey }).(DynamoDBKeyAttributeOutput)
+}
+
+// GSI name.
+func (o DynamoDBGlobalSecondaryIndexOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v DynamoDBGlobalSecondaryIndex) string { return v.Name }).(pulumi.StringOutput)
+}
+
+// Non-key attributes to project. Only valid when projectionType is INCLUDE.
+func (o DynamoDBGlobalSecondaryIndexOutput) NonKeyAttributes() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v DynamoDBGlobalSecondaryIndex) []string { return v.NonKeyAttributes }).(pulumi.StringArrayOutput)
+}
+
+// Projection type. Defaults to ALL.
+func (o DynamoDBGlobalSecondaryIndexOutput) ProjectionType() DynamoDBProjectionTypePtrOutput {
+	return o.ApplyT(func(v DynamoDBGlobalSecondaryIndex) *DynamoDBProjectionType { return v.ProjectionType }).(DynamoDBProjectionTypePtrOutput)
+}
+
+// GSI range key. Optional. Must include name and type explicitly.
+func (o DynamoDBGlobalSecondaryIndexOutput) RangeKey() DynamoDBKeyAttributePtrOutput {
+	return o.ApplyT(func(v DynamoDBGlobalSecondaryIndex) *DynamoDBKeyAttribute { return v.RangeKey }).(DynamoDBKeyAttributePtrOutput)
+}
+
+type DynamoDBGlobalSecondaryIndexArrayOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBGlobalSecondaryIndexArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DynamoDBGlobalSecondaryIndex)(nil)).Elem()
+}
+
+func (o DynamoDBGlobalSecondaryIndexArrayOutput) ToDynamoDBGlobalSecondaryIndexArrayOutput() DynamoDBGlobalSecondaryIndexArrayOutput {
+	return o
+}
+
+func (o DynamoDBGlobalSecondaryIndexArrayOutput) ToDynamoDBGlobalSecondaryIndexArrayOutputWithContext(ctx context.Context) DynamoDBGlobalSecondaryIndexArrayOutput {
+	return o
+}
+
+func (o DynamoDBGlobalSecondaryIndexArrayOutput) Index(i pulumi.IntInput) DynamoDBGlobalSecondaryIndexOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) DynamoDBGlobalSecondaryIndex {
+		return vs[0].([]DynamoDBGlobalSecondaryIndex)[vs[1].(int)]
+	}).(DynamoDBGlobalSecondaryIndexOutput)
+}
+
+// A DynamoDB key attribute with an explicit name and type. All keys — table and GSI — must use this shape. Anvil derives attributeDefinitions automatically.
+type DynamoDBKeyAttribute struct {
+	// Attribute name.
+	Name string `pulumi:"name"`
+	// Attribute type. S = String, N = Number, B = Binary.
+	Type DynamoDBAttributeType `pulumi:"type"`
+}
+
+// DynamoDBKeyAttributeInput is an input type that accepts DynamoDBKeyAttributeArgs and DynamoDBKeyAttributeOutput values.
+// You can construct a concrete instance of `DynamoDBKeyAttributeInput` via:
+//
+//	DynamoDBKeyAttributeArgs{...}
+type DynamoDBKeyAttributeInput interface {
+	pulumi.Input
+
+	ToDynamoDBKeyAttributeOutput() DynamoDBKeyAttributeOutput
+	ToDynamoDBKeyAttributeOutputWithContext(context.Context) DynamoDBKeyAttributeOutput
+}
+
+// A DynamoDB key attribute with an explicit name and type. All keys — table and GSI — must use this shape. Anvil derives attributeDefinitions automatically.
+type DynamoDBKeyAttributeArgs struct {
+	// Attribute name.
+	Name pulumi.StringInput `pulumi:"name"`
+	// Attribute type. S = String, N = Number, B = Binary.
+	Type DynamoDBAttributeTypeInput `pulumi:"type"`
+}
+
+func (DynamoDBKeyAttributeArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBKeyAttribute)(nil)).Elem()
+}
+
+func (i DynamoDBKeyAttributeArgs) ToDynamoDBKeyAttributeOutput() DynamoDBKeyAttributeOutput {
+	return i.ToDynamoDBKeyAttributeOutputWithContext(context.Background())
+}
+
+func (i DynamoDBKeyAttributeArgs) ToDynamoDBKeyAttributeOutputWithContext(ctx context.Context) DynamoDBKeyAttributeOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBKeyAttributeOutput)
+}
+
+func (i DynamoDBKeyAttributeArgs) ToDynamoDBKeyAttributePtrOutput() DynamoDBKeyAttributePtrOutput {
+	return i.ToDynamoDBKeyAttributePtrOutputWithContext(context.Background())
+}
+
+func (i DynamoDBKeyAttributeArgs) ToDynamoDBKeyAttributePtrOutputWithContext(ctx context.Context) DynamoDBKeyAttributePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBKeyAttributeOutput).ToDynamoDBKeyAttributePtrOutputWithContext(ctx)
+}
+
+// DynamoDBKeyAttributePtrInput is an input type that accepts DynamoDBKeyAttributeArgs, DynamoDBKeyAttributePtr and DynamoDBKeyAttributePtrOutput values.
+// You can construct a concrete instance of `DynamoDBKeyAttributePtrInput` via:
+//
+//	        DynamoDBKeyAttributeArgs{...}
+//
+//	or:
+//
+//	        nil
+type DynamoDBKeyAttributePtrInput interface {
+	pulumi.Input
+
+	ToDynamoDBKeyAttributePtrOutput() DynamoDBKeyAttributePtrOutput
+	ToDynamoDBKeyAttributePtrOutputWithContext(context.Context) DynamoDBKeyAttributePtrOutput
+}
+
+type dynamoDBKeyAttributePtrType DynamoDBKeyAttributeArgs
+
+func DynamoDBKeyAttributePtr(v *DynamoDBKeyAttributeArgs) DynamoDBKeyAttributePtrInput {
+	return (*dynamoDBKeyAttributePtrType)(v)
+}
+
+func (*dynamoDBKeyAttributePtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBKeyAttribute)(nil)).Elem()
+}
+
+func (i *dynamoDBKeyAttributePtrType) ToDynamoDBKeyAttributePtrOutput() DynamoDBKeyAttributePtrOutput {
+	return i.ToDynamoDBKeyAttributePtrOutputWithContext(context.Background())
+}
+
+func (i *dynamoDBKeyAttributePtrType) ToDynamoDBKeyAttributePtrOutputWithContext(ctx context.Context) DynamoDBKeyAttributePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBKeyAttributePtrOutput)
+}
+
+// A DynamoDB key attribute with an explicit name and type. All keys — table and GSI — must use this shape. Anvil derives attributeDefinitions automatically.
+type DynamoDBKeyAttributeOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBKeyAttributeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBKeyAttribute)(nil)).Elem()
+}
+
+func (o DynamoDBKeyAttributeOutput) ToDynamoDBKeyAttributeOutput() DynamoDBKeyAttributeOutput {
+	return o
+}
+
+func (o DynamoDBKeyAttributeOutput) ToDynamoDBKeyAttributeOutputWithContext(ctx context.Context) DynamoDBKeyAttributeOutput {
+	return o
+}
+
+func (o DynamoDBKeyAttributeOutput) ToDynamoDBKeyAttributePtrOutput() DynamoDBKeyAttributePtrOutput {
+	return o.ToDynamoDBKeyAttributePtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBKeyAttributeOutput) ToDynamoDBKeyAttributePtrOutputWithContext(ctx context.Context) DynamoDBKeyAttributePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DynamoDBKeyAttribute) *DynamoDBKeyAttribute {
+		return &v
+	}).(DynamoDBKeyAttributePtrOutput)
+}
+
+// Attribute name.
+func (o DynamoDBKeyAttributeOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v DynamoDBKeyAttribute) string { return v.Name }).(pulumi.StringOutput)
+}
+
+// Attribute type. S = String, N = Number, B = Binary.
+func (o DynamoDBKeyAttributeOutput) Type() DynamoDBAttributeTypeOutput {
+	return o.ApplyT(func(v DynamoDBKeyAttribute) DynamoDBAttributeType { return v.Type }).(DynamoDBAttributeTypeOutput)
+}
+
+type DynamoDBKeyAttributePtrOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBKeyAttributePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBKeyAttribute)(nil)).Elem()
+}
+
+func (o DynamoDBKeyAttributePtrOutput) ToDynamoDBKeyAttributePtrOutput() DynamoDBKeyAttributePtrOutput {
+	return o
+}
+
+func (o DynamoDBKeyAttributePtrOutput) ToDynamoDBKeyAttributePtrOutputWithContext(ctx context.Context) DynamoDBKeyAttributePtrOutput {
+	return o
+}
+
+func (o DynamoDBKeyAttributePtrOutput) Elem() DynamoDBKeyAttributeOutput {
+	return o.ApplyT(func(v *DynamoDBKeyAttribute) DynamoDBKeyAttribute {
+		if v != nil {
+			return *v
+		}
+		var ret DynamoDBKeyAttribute
+		return ret
+	}).(DynamoDBKeyAttributeOutput)
+}
+
+// Attribute name.
+func (o DynamoDBKeyAttributePtrOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoDBKeyAttribute) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Name
+	}).(pulumi.StringPtrOutput)
+}
+
+// Attribute type. S = String, N = Number, B = Binary.
+func (o DynamoDBKeyAttributePtrOutput) Type() DynamoDBAttributeTypePtrOutput {
+	return o.ApplyT(func(v *DynamoDBKeyAttribute) *DynamoDBAttributeType {
+		if v == nil {
+			return nil
+		}
+		return &v.Type
+	}).(DynamoDBAttributeTypePtrOutput)
+}
+
+// DynamoDB Streams configuration. Opt-in.
+type DynamoDBStream struct {
+	// Number of stream records to send to the consumer per batch. Defaults to 100.
+	BatchSize *int `pulumi:"batchSize"`
+	// The consumer of the stream. Discriminated union — exactly one of lambda or eventBridge.
+	Consumer DynamoDBStreamConsumer `pulumi:"consumer"`
+	// Where to start reading the stream. Defaults to TRIM_HORIZON (AWS default — replays all existing records). Set to LATEST to only receive new events from the point of consumer creation.
+	StartingPosition *DynamoDBStreamStartingPosition `pulumi:"startingPosition"`
+	// The stream view type. Controls what data is written to the stream on item changes.
+	ViewType DynamoDBStreamViewType `pulumi:"viewType"`
+}
+
+// DynamoDBStreamInput is an input type that accepts DynamoDBStreamArgs and DynamoDBStreamOutput values.
+// You can construct a concrete instance of `DynamoDBStreamInput` via:
+//
+//	DynamoDBStreamArgs{...}
+type DynamoDBStreamInput interface {
+	pulumi.Input
+
+	ToDynamoDBStreamOutput() DynamoDBStreamOutput
+	ToDynamoDBStreamOutputWithContext(context.Context) DynamoDBStreamOutput
+}
+
+// DynamoDB Streams configuration. Opt-in.
+type DynamoDBStreamArgs struct {
+	// Number of stream records to send to the consumer per batch. Defaults to 100.
+	BatchSize pulumi.IntPtrInput `pulumi:"batchSize"`
+	// The consumer of the stream. Discriminated union — exactly one of lambda or eventBridge.
+	Consumer DynamoDBStreamConsumerInput `pulumi:"consumer"`
+	// Where to start reading the stream. Defaults to TRIM_HORIZON (AWS default — replays all existing records). Set to LATEST to only receive new events from the point of consumer creation.
+	StartingPosition DynamoDBStreamStartingPositionPtrInput `pulumi:"startingPosition"`
+	// The stream view type. Controls what data is written to the stream on item changes.
+	ViewType DynamoDBStreamViewTypeInput `pulumi:"viewType"`
+}
+
+func (DynamoDBStreamArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBStream)(nil)).Elem()
+}
+
+func (i DynamoDBStreamArgs) ToDynamoDBStreamOutput() DynamoDBStreamOutput {
+	return i.ToDynamoDBStreamOutputWithContext(context.Background())
+}
+
+func (i DynamoDBStreamArgs) ToDynamoDBStreamOutputWithContext(ctx context.Context) DynamoDBStreamOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBStreamOutput)
+}
+
+func (i DynamoDBStreamArgs) ToDynamoDBStreamPtrOutput() DynamoDBStreamPtrOutput {
+	return i.ToDynamoDBStreamPtrOutputWithContext(context.Background())
+}
+
+func (i DynamoDBStreamArgs) ToDynamoDBStreamPtrOutputWithContext(ctx context.Context) DynamoDBStreamPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBStreamOutput).ToDynamoDBStreamPtrOutputWithContext(ctx)
+}
+
+// DynamoDBStreamPtrInput is an input type that accepts DynamoDBStreamArgs, DynamoDBStreamPtr and DynamoDBStreamPtrOutput values.
+// You can construct a concrete instance of `DynamoDBStreamPtrInput` via:
+//
+//	        DynamoDBStreamArgs{...}
+//
+//	or:
+//
+//	        nil
+type DynamoDBStreamPtrInput interface {
+	pulumi.Input
+
+	ToDynamoDBStreamPtrOutput() DynamoDBStreamPtrOutput
+	ToDynamoDBStreamPtrOutputWithContext(context.Context) DynamoDBStreamPtrOutput
+}
+
+type dynamoDBStreamPtrType DynamoDBStreamArgs
+
+func DynamoDBStreamPtr(v *DynamoDBStreamArgs) DynamoDBStreamPtrInput {
+	return (*dynamoDBStreamPtrType)(v)
+}
+
+func (*dynamoDBStreamPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBStream)(nil)).Elem()
+}
+
+func (i *dynamoDBStreamPtrType) ToDynamoDBStreamPtrOutput() DynamoDBStreamPtrOutput {
+	return i.ToDynamoDBStreamPtrOutputWithContext(context.Background())
+}
+
+func (i *dynamoDBStreamPtrType) ToDynamoDBStreamPtrOutputWithContext(ctx context.Context) DynamoDBStreamPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBStreamPtrOutput)
+}
+
+// DynamoDB Streams configuration. Opt-in.
+type DynamoDBStreamOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBStreamOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBStream)(nil)).Elem()
+}
+
+func (o DynamoDBStreamOutput) ToDynamoDBStreamOutput() DynamoDBStreamOutput {
+	return o
+}
+
+func (o DynamoDBStreamOutput) ToDynamoDBStreamOutputWithContext(ctx context.Context) DynamoDBStreamOutput {
+	return o
+}
+
+func (o DynamoDBStreamOutput) ToDynamoDBStreamPtrOutput() DynamoDBStreamPtrOutput {
+	return o.ToDynamoDBStreamPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBStreamOutput) ToDynamoDBStreamPtrOutputWithContext(ctx context.Context) DynamoDBStreamPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DynamoDBStream) *DynamoDBStream {
+		return &v
+	}).(DynamoDBStreamPtrOutput)
+}
+
+// Number of stream records to send to the consumer per batch. Defaults to 100.
+func (o DynamoDBStreamOutput) BatchSize() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v DynamoDBStream) *int { return v.BatchSize }).(pulumi.IntPtrOutput)
+}
+
+// The consumer of the stream. Discriminated union — exactly one of lambda or eventBridge.
+func (o DynamoDBStreamOutput) Consumer() DynamoDBStreamConsumerOutput {
+	return o.ApplyT(func(v DynamoDBStream) DynamoDBStreamConsumer { return v.Consumer }).(DynamoDBStreamConsumerOutput)
+}
+
+// Where to start reading the stream. Defaults to TRIM_HORIZON (AWS default — replays all existing records). Set to LATEST to only receive new events from the point of consumer creation.
+func (o DynamoDBStreamOutput) StartingPosition() DynamoDBStreamStartingPositionPtrOutput {
+	return o.ApplyT(func(v DynamoDBStream) *DynamoDBStreamStartingPosition { return v.StartingPosition }).(DynamoDBStreamStartingPositionPtrOutput)
+}
+
+// The stream view type. Controls what data is written to the stream on item changes.
+func (o DynamoDBStreamOutput) ViewType() DynamoDBStreamViewTypeOutput {
+	return o.ApplyT(func(v DynamoDBStream) DynamoDBStreamViewType { return v.ViewType }).(DynamoDBStreamViewTypeOutput)
+}
+
+type DynamoDBStreamPtrOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBStreamPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBStream)(nil)).Elem()
+}
+
+func (o DynamoDBStreamPtrOutput) ToDynamoDBStreamPtrOutput() DynamoDBStreamPtrOutput {
+	return o
+}
+
+func (o DynamoDBStreamPtrOutput) ToDynamoDBStreamPtrOutputWithContext(ctx context.Context) DynamoDBStreamPtrOutput {
+	return o
+}
+
+func (o DynamoDBStreamPtrOutput) Elem() DynamoDBStreamOutput {
+	return o.ApplyT(func(v *DynamoDBStream) DynamoDBStream {
+		if v != nil {
+			return *v
+		}
+		var ret DynamoDBStream
+		return ret
+	}).(DynamoDBStreamOutput)
+}
+
+// Number of stream records to send to the consumer per batch. Defaults to 100.
+func (o DynamoDBStreamPtrOutput) BatchSize() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *DynamoDBStream) *int {
+		if v == nil {
+			return nil
+		}
+		return v.BatchSize
+	}).(pulumi.IntPtrOutput)
+}
+
+// The consumer of the stream. Discriminated union — exactly one of lambda or eventBridge.
+func (o DynamoDBStreamPtrOutput) Consumer() DynamoDBStreamConsumerPtrOutput {
+	return o.ApplyT(func(v *DynamoDBStream) *DynamoDBStreamConsumer {
+		if v == nil {
+			return nil
+		}
+		return &v.Consumer
+	}).(DynamoDBStreamConsumerPtrOutput)
+}
+
+// Where to start reading the stream. Defaults to TRIM_HORIZON (AWS default — replays all existing records). Set to LATEST to only receive new events from the point of consumer creation.
+func (o DynamoDBStreamPtrOutput) StartingPosition() DynamoDBStreamStartingPositionPtrOutput {
+	return o.ApplyT(func(v *DynamoDBStream) *DynamoDBStreamStartingPosition {
+		if v == nil {
+			return nil
+		}
+		return v.StartingPosition
+	}).(DynamoDBStreamStartingPositionPtrOutput)
+}
+
+// The stream view type. Controls what data is written to the stream on item changes.
+func (o DynamoDBStreamPtrOutput) ViewType() DynamoDBStreamViewTypePtrOutput {
+	return o.ApplyT(func(v *DynamoDBStream) *DynamoDBStreamViewType {
+		if v == nil {
+			return nil
+		}
+		return &v.ViewType
+	}).(DynamoDBStreamViewTypePtrOutput)
+}
+
+// Discriminated union for the stream consumer. Exactly one of lambda or eventBridge must be set.
+type DynamoDBStreamConsumer struct {
+	// Wire an EventBridge bus as the stream consumer via an EventBridge Pipe. Use this for fanout — the bus routes to multiple targets via rules. Bypasses the 2-consumer-per-shard limit of direct Lambda ESM.
+	EventBridge *DynamoDBStreamEventBridgeConsumer `pulumi:"eventBridge"`
+	// Wire a Lambda function as the stream consumer via AWS-managed Event Source Mapping.
+	Lambda *DynamoDBStreamLambdaConsumer `pulumi:"lambda"`
+}
+
+// DynamoDBStreamConsumerInput is an input type that accepts DynamoDBStreamConsumerArgs and DynamoDBStreamConsumerOutput values.
+// You can construct a concrete instance of `DynamoDBStreamConsumerInput` via:
+//
+//	DynamoDBStreamConsumerArgs{...}
+type DynamoDBStreamConsumerInput interface {
+	pulumi.Input
+
+	ToDynamoDBStreamConsumerOutput() DynamoDBStreamConsumerOutput
+	ToDynamoDBStreamConsumerOutputWithContext(context.Context) DynamoDBStreamConsumerOutput
+}
+
+// Discriminated union for the stream consumer. Exactly one of lambda or eventBridge must be set.
+type DynamoDBStreamConsumerArgs struct {
+	// Wire an EventBridge bus as the stream consumer via an EventBridge Pipe. Use this for fanout — the bus routes to multiple targets via rules. Bypasses the 2-consumer-per-shard limit of direct Lambda ESM.
+	EventBridge DynamoDBStreamEventBridgeConsumerPtrInput `pulumi:"eventBridge"`
+	// Wire a Lambda function as the stream consumer via AWS-managed Event Source Mapping.
+	Lambda DynamoDBStreamLambdaConsumerPtrInput `pulumi:"lambda"`
+}
+
+func (DynamoDBStreamConsumerArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBStreamConsumer)(nil)).Elem()
+}
+
+func (i DynamoDBStreamConsumerArgs) ToDynamoDBStreamConsumerOutput() DynamoDBStreamConsumerOutput {
+	return i.ToDynamoDBStreamConsumerOutputWithContext(context.Background())
+}
+
+func (i DynamoDBStreamConsumerArgs) ToDynamoDBStreamConsumerOutputWithContext(ctx context.Context) DynamoDBStreamConsumerOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBStreamConsumerOutput)
+}
+
+func (i DynamoDBStreamConsumerArgs) ToDynamoDBStreamConsumerPtrOutput() DynamoDBStreamConsumerPtrOutput {
+	return i.ToDynamoDBStreamConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i DynamoDBStreamConsumerArgs) ToDynamoDBStreamConsumerPtrOutputWithContext(ctx context.Context) DynamoDBStreamConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBStreamConsumerOutput).ToDynamoDBStreamConsumerPtrOutputWithContext(ctx)
+}
+
+// DynamoDBStreamConsumerPtrInput is an input type that accepts DynamoDBStreamConsumerArgs, DynamoDBStreamConsumerPtr and DynamoDBStreamConsumerPtrOutput values.
+// You can construct a concrete instance of `DynamoDBStreamConsumerPtrInput` via:
+//
+//	        DynamoDBStreamConsumerArgs{...}
+//
+//	or:
+//
+//	        nil
+type DynamoDBStreamConsumerPtrInput interface {
+	pulumi.Input
+
+	ToDynamoDBStreamConsumerPtrOutput() DynamoDBStreamConsumerPtrOutput
+	ToDynamoDBStreamConsumerPtrOutputWithContext(context.Context) DynamoDBStreamConsumerPtrOutput
+}
+
+type dynamoDBStreamConsumerPtrType DynamoDBStreamConsumerArgs
+
+func DynamoDBStreamConsumerPtr(v *DynamoDBStreamConsumerArgs) DynamoDBStreamConsumerPtrInput {
+	return (*dynamoDBStreamConsumerPtrType)(v)
+}
+
+func (*dynamoDBStreamConsumerPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBStreamConsumer)(nil)).Elem()
+}
+
+func (i *dynamoDBStreamConsumerPtrType) ToDynamoDBStreamConsumerPtrOutput() DynamoDBStreamConsumerPtrOutput {
+	return i.ToDynamoDBStreamConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i *dynamoDBStreamConsumerPtrType) ToDynamoDBStreamConsumerPtrOutputWithContext(ctx context.Context) DynamoDBStreamConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBStreamConsumerPtrOutput)
+}
+
+// Discriminated union for the stream consumer. Exactly one of lambda or eventBridge must be set.
+type DynamoDBStreamConsumerOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBStreamConsumerOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBStreamConsumer)(nil)).Elem()
+}
+
+func (o DynamoDBStreamConsumerOutput) ToDynamoDBStreamConsumerOutput() DynamoDBStreamConsumerOutput {
+	return o
+}
+
+func (o DynamoDBStreamConsumerOutput) ToDynamoDBStreamConsumerOutputWithContext(ctx context.Context) DynamoDBStreamConsumerOutput {
+	return o
+}
+
+func (o DynamoDBStreamConsumerOutput) ToDynamoDBStreamConsumerPtrOutput() DynamoDBStreamConsumerPtrOutput {
+	return o.ToDynamoDBStreamConsumerPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBStreamConsumerOutput) ToDynamoDBStreamConsumerPtrOutputWithContext(ctx context.Context) DynamoDBStreamConsumerPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DynamoDBStreamConsumer) *DynamoDBStreamConsumer {
+		return &v
+	}).(DynamoDBStreamConsumerPtrOutput)
+}
+
+// Wire an EventBridge bus as the stream consumer via an EventBridge Pipe. Use this for fanout — the bus routes to multiple targets via rules. Bypasses the 2-consumer-per-shard limit of direct Lambda ESM.
+func (o DynamoDBStreamConsumerOutput) EventBridge() DynamoDBStreamEventBridgeConsumerPtrOutput {
+	return o.ApplyT(func(v DynamoDBStreamConsumer) *DynamoDBStreamEventBridgeConsumer { return v.EventBridge }).(DynamoDBStreamEventBridgeConsumerPtrOutput)
+}
+
+// Wire a Lambda function as the stream consumer via AWS-managed Event Source Mapping.
+func (o DynamoDBStreamConsumerOutput) Lambda() DynamoDBStreamLambdaConsumerPtrOutput {
+	return o.ApplyT(func(v DynamoDBStreamConsumer) *DynamoDBStreamLambdaConsumer { return v.Lambda }).(DynamoDBStreamLambdaConsumerPtrOutput)
+}
+
+type DynamoDBStreamConsumerPtrOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBStreamConsumerPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBStreamConsumer)(nil)).Elem()
+}
+
+func (o DynamoDBStreamConsumerPtrOutput) ToDynamoDBStreamConsumerPtrOutput() DynamoDBStreamConsumerPtrOutput {
+	return o
+}
+
+func (o DynamoDBStreamConsumerPtrOutput) ToDynamoDBStreamConsumerPtrOutputWithContext(ctx context.Context) DynamoDBStreamConsumerPtrOutput {
+	return o
+}
+
+func (o DynamoDBStreamConsumerPtrOutput) Elem() DynamoDBStreamConsumerOutput {
+	return o.ApplyT(func(v *DynamoDBStreamConsumer) DynamoDBStreamConsumer {
+		if v != nil {
+			return *v
+		}
+		var ret DynamoDBStreamConsumer
+		return ret
+	}).(DynamoDBStreamConsumerOutput)
+}
+
+// Wire an EventBridge bus as the stream consumer via an EventBridge Pipe. Use this for fanout — the bus routes to multiple targets via rules. Bypasses the 2-consumer-per-shard limit of direct Lambda ESM.
+func (o DynamoDBStreamConsumerPtrOutput) EventBridge() DynamoDBStreamEventBridgeConsumerPtrOutput {
+	return o.ApplyT(func(v *DynamoDBStreamConsumer) *DynamoDBStreamEventBridgeConsumer {
+		if v == nil {
+			return nil
+		}
+		return v.EventBridge
+	}).(DynamoDBStreamEventBridgeConsumerPtrOutput)
+}
+
+// Wire a Lambda function as the stream consumer via AWS-managed Event Source Mapping.
+func (o DynamoDBStreamConsumerPtrOutput) Lambda() DynamoDBStreamLambdaConsumerPtrOutput {
+	return o.ApplyT(func(v *DynamoDBStreamConsumer) *DynamoDBStreamLambdaConsumer {
+		if v == nil {
+			return nil
+		}
+		return v.Lambda
+	}).(DynamoDBStreamLambdaConsumerPtrOutput)
+}
+
+// EventBridge Pipe consumer. Anvil creates the Pipe, a scoped IAM role for the Pipe, and wires the stream to the target bus. Use this for fanout to multiple targets via EventBridge rules.
+type DynamoDBStreamEventBridgeConsumer struct {
+	// ARN of the target EventBridge event bus.
+	BusArn string `pulumi:"busArn"`
+	// Name of the target EventBridge event bus (anvil.aws.EventBus).
+	Name string `pulumi:"name"`
+}
+
+// DynamoDBStreamEventBridgeConsumerInput is an input type that accepts DynamoDBStreamEventBridgeConsumerArgs and DynamoDBStreamEventBridgeConsumerOutput values.
+// You can construct a concrete instance of `DynamoDBStreamEventBridgeConsumerInput` via:
+//
+//	DynamoDBStreamEventBridgeConsumerArgs{...}
+type DynamoDBStreamEventBridgeConsumerInput interface {
+	pulumi.Input
+
+	ToDynamoDBStreamEventBridgeConsumerOutput() DynamoDBStreamEventBridgeConsumerOutput
+	ToDynamoDBStreamEventBridgeConsumerOutputWithContext(context.Context) DynamoDBStreamEventBridgeConsumerOutput
+}
+
+// EventBridge Pipe consumer. Anvil creates the Pipe, a scoped IAM role for the Pipe, and wires the stream to the target bus. Use this for fanout to multiple targets via EventBridge rules.
+type DynamoDBStreamEventBridgeConsumerArgs struct {
+	// ARN of the target EventBridge event bus.
+	BusArn pulumi.StringInput `pulumi:"busArn"`
+	// Name of the target EventBridge event bus (anvil.aws.EventBus).
+	Name pulumi.StringInput `pulumi:"name"`
+}
+
+func (DynamoDBStreamEventBridgeConsumerArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBStreamEventBridgeConsumer)(nil)).Elem()
+}
+
+func (i DynamoDBStreamEventBridgeConsumerArgs) ToDynamoDBStreamEventBridgeConsumerOutput() DynamoDBStreamEventBridgeConsumerOutput {
+	return i.ToDynamoDBStreamEventBridgeConsumerOutputWithContext(context.Background())
+}
+
+func (i DynamoDBStreamEventBridgeConsumerArgs) ToDynamoDBStreamEventBridgeConsumerOutputWithContext(ctx context.Context) DynamoDBStreamEventBridgeConsumerOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBStreamEventBridgeConsumerOutput)
+}
+
+func (i DynamoDBStreamEventBridgeConsumerArgs) ToDynamoDBStreamEventBridgeConsumerPtrOutput() DynamoDBStreamEventBridgeConsumerPtrOutput {
+	return i.ToDynamoDBStreamEventBridgeConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i DynamoDBStreamEventBridgeConsumerArgs) ToDynamoDBStreamEventBridgeConsumerPtrOutputWithContext(ctx context.Context) DynamoDBStreamEventBridgeConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBStreamEventBridgeConsumerOutput).ToDynamoDBStreamEventBridgeConsumerPtrOutputWithContext(ctx)
+}
+
+// DynamoDBStreamEventBridgeConsumerPtrInput is an input type that accepts DynamoDBStreamEventBridgeConsumerArgs, DynamoDBStreamEventBridgeConsumerPtr and DynamoDBStreamEventBridgeConsumerPtrOutput values.
+// You can construct a concrete instance of `DynamoDBStreamEventBridgeConsumerPtrInput` via:
+//
+//	        DynamoDBStreamEventBridgeConsumerArgs{...}
+//
+//	or:
+//
+//	        nil
+type DynamoDBStreamEventBridgeConsumerPtrInput interface {
+	pulumi.Input
+
+	ToDynamoDBStreamEventBridgeConsumerPtrOutput() DynamoDBStreamEventBridgeConsumerPtrOutput
+	ToDynamoDBStreamEventBridgeConsumerPtrOutputWithContext(context.Context) DynamoDBStreamEventBridgeConsumerPtrOutput
+}
+
+type dynamoDBStreamEventBridgeConsumerPtrType DynamoDBStreamEventBridgeConsumerArgs
+
+func DynamoDBStreamEventBridgeConsumerPtr(v *DynamoDBStreamEventBridgeConsumerArgs) DynamoDBStreamEventBridgeConsumerPtrInput {
+	return (*dynamoDBStreamEventBridgeConsumerPtrType)(v)
+}
+
+func (*dynamoDBStreamEventBridgeConsumerPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBStreamEventBridgeConsumer)(nil)).Elem()
+}
+
+func (i *dynamoDBStreamEventBridgeConsumerPtrType) ToDynamoDBStreamEventBridgeConsumerPtrOutput() DynamoDBStreamEventBridgeConsumerPtrOutput {
+	return i.ToDynamoDBStreamEventBridgeConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i *dynamoDBStreamEventBridgeConsumerPtrType) ToDynamoDBStreamEventBridgeConsumerPtrOutputWithContext(ctx context.Context) DynamoDBStreamEventBridgeConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBStreamEventBridgeConsumerPtrOutput)
+}
+
+// EventBridge Pipe consumer. Anvil creates the Pipe, a scoped IAM role for the Pipe, and wires the stream to the target bus. Use this for fanout to multiple targets via EventBridge rules.
+type DynamoDBStreamEventBridgeConsumerOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBStreamEventBridgeConsumerOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBStreamEventBridgeConsumer)(nil)).Elem()
+}
+
+func (o DynamoDBStreamEventBridgeConsumerOutput) ToDynamoDBStreamEventBridgeConsumerOutput() DynamoDBStreamEventBridgeConsumerOutput {
+	return o
+}
+
+func (o DynamoDBStreamEventBridgeConsumerOutput) ToDynamoDBStreamEventBridgeConsumerOutputWithContext(ctx context.Context) DynamoDBStreamEventBridgeConsumerOutput {
+	return o
+}
+
+func (o DynamoDBStreamEventBridgeConsumerOutput) ToDynamoDBStreamEventBridgeConsumerPtrOutput() DynamoDBStreamEventBridgeConsumerPtrOutput {
+	return o.ToDynamoDBStreamEventBridgeConsumerPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBStreamEventBridgeConsumerOutput) ToDynamoDBStreamEventBridgeConsumerPtrOutputWithContext(ctx context.Context) DynamoDBStreamEventBridgeConsumerPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DynamoDBStreamEventBridgeConsumer) *DynamoDBStreamEventBridgeConsumer {
+		return &v
+	}).(DynamoDBStreamEventBridgeConsumerPtrOutput)
+}
+
+// ARN of the target EventBridge event bus.
+func (o DynamoDBStreamEventBridgeConsumerOutput) BusArn() pulumi.StringOutput {
+	return o.ApplyT(func(v DynamoDBStreamEventBridgeConsumer) string { return v.BusArn }).(pulumi.StringOutput)
+}
+
+// Name of the target EventBridge event bus (anvil.aws.EventBus).
+func (o DynamoDBStreamEventBridgeConsumerOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v DynamoDBStreamEventBridgeConsumer) string { return v.Name }).(pulumi.StringOutput)
+}
+
+type DynamoDBStreamEventBridgeConsumerPtrOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBStreamEventBridgeConsumerPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBStreamEventBridgeConsumer)(nil)).Elem()
+}
+
+func (o DynamoDBStreamEventBridgeConsumerPtrOutput) ToDynamoDBStreamEventBridgeConsumerPtrOutput() DynamoDBStreamEventBridgeConsumerPtrOutput {
+	return o
+}
+
+func (o DynamoDBStreamEventBridgeConsumerPtrOutput) ToDynamoDBStreamEventBridgeConsumerPtrOutputWithContext(ctx context.Context) DynamoDBStreamEventBridgeConsumerPtrOutput {
+	return o
+}
+
+func (o DynamoDBStreamEventBridgeConsumerPtrOutput) Elem() DynamoDBStreamEventBridgeConsumerOutput {
+	return o.ApplyT(func(v *DynamoDBStreamEventBridgeConsumer) DynamoDBStreamEventBridgeConsumer {
+		if v != nil {
+			return *v
+		}
+		var ret DynamoDBStreamEventBridgeConsumer
+		return ret
+	}).(DynamoDBStreamEventBridgeConsumerOutput)
+}
+
+// ARN of the target EventBridge event bus.
+func (o DynamoDBStreamEventBridgeConsumerPtrOutput) BusArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoDBStreamEventBridgeConsumer) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.BusArn
+	}).(pulumi.StringPtrOutput)
+}
+
+// Name of the target EventBridge event bus (anvil.aws.EventBus).
+func (o DynamoDBStreamEventBridgeConsumerPtrOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoDBStreamEventBridgeConsumer) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Name
+	}).(pulumi.StringPtrOutput)
+}
+
+// Lambda stream consumer. Anvil creates the ESM, lambda:InvokeFunction permission, and attaches stream read permissions to the Lambda role. Does not grant table read/write access — call grantRead/Write separately if needed.
+type DynamoDBStreamLambdaConsumer struct {
+	// ARN of the Lambda function.
+	Arn string `pulumi:"arn"`
+	// ARN of the Lambda execution role. Anvil attaches an inline policy granting stream read permissions (GetRecords, GetShardIterator, DescribeStream, ListStreams).
+	LambdaRoleArn string `pulumi:"lambdaRoleArn"`
+}
+
+// DynamoDBStreamLambdaConsumerInput is an input type that accepts DynamoDBStreamLambdaConsumerArgs and DynamoDBStreamLambdaConsumerOutput values.
+// You can construct a concrete instance of `DynamoDBStreamLambdaConsumerInput` via:
+//
+//	DynamoDBStreamLambdaConsumerArgs{...}
+type DynamoDBStreamLambdaConsumerInput interface {
+	pulumi.Input
+
+	ToDynamoDBStreamLambdaConsumerOutput() DynamoDBStreamLambdaConsumerOutput
+	ToDynamoDBStreamLambdaConsumerOutputWithContext(context.Context) DynamoDBStreamLambdaConsumerOutput
+}
+
+// Lambda stream consumer. Anvil creates the ESM, lambda:InvokeFunction permission, and attaches stream read permissions to the Lambda role. Does not grant table read/write access — call grantRead/Write separately if needed.
+type DynamoDBStreamLambdaConsumerArgs struct {
+	// ARN of the Lambda function.
+	Arn pulumi.StringInput `pulumi:"arn"`
+	// ARN of the Lambda execution role. Anvil attaches an inline policy granting stream read permissions (GetRecords, GetShardIterator, DescribeStream, ListStreams).
+	LambdaRoleArn pulumi.StringInput `pulumi:"lambdaRoleArn"`
+}
+
+func (DynamoDBStreamLambdaConsumerArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBStreamLambdaConsumer)(nil)).Elem()
+}
+
+func (i DynamoDBStreamLambdaConsumerArgs) ToDynamoDBStreamLambdaConsumerOutput() DynamoDBStreamLambdaConsumerOutput {
+	return i.ToDynamoDBStreamLambdaConsumerOutputWithContext(context.Background())
+}
+
+func (i DynamoDBStreamLambdaConsumerArgs) ToDynamoDBStreamLambdaConsumerOutputWithContext(ctx context.Context) DynamoDBStreamLambdaConsumerOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBStreamLambdaConsumerOutput)
+}
+
+func (i DynamoDBStreamLambdaConsumerArgs) ToDynamoDBStreamLambdaConsumerPtrOutput() DynamoDBStreamLambdaConsumerPtrOutput {
+	return i.ToDynamoDBStreamLambdaConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i DynamoDBStreamLambdaConsumerArgs) ToDynamoDBStreamLambdaConsumerPtrOutputWithContext(ctx context.Context) DynamoDBStreamLambdaConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBStreamLambdaConsumerOutput).ToDynamoDBStreamLambdaConsumerPtrOutputWithContext(ctx)
+}
+
+// DynamoDBStreamLambdaConsumerPtrInput is an input type that accepts DynamoDBStreamLambdaConsumerArgs, DynamoDBStreamLambdaConsumerPtr and DynamoDBStreamLambdaConsumerPtrOutput values.
+// You can construct a concrete instance of `DynamoDBStreamLambdaConsumerPtrInput` via:
+//
+//	        DynamoDBStreamLambdaConsumerArgs{...}
+//
+//	or:
+//
+//	        nil
+type DynamoDBStreamLambdaConsumerPtrInput interface {
+	pulumi.Input
+
+	ToDynamoDBStreamLambdaConsumerPtrOutput() DynamoDBStreamLambdaConsumerPtrOutput
+	ToDynamoDBStreamLambdaConsumerPtrOutputWithContext(context.Context) DynamoDBStreamLambdaConsumerPtrOutput
+}
+
+type dynamoDBStreamLambdaConsumerPtrType DynamoDBStreamLambdaConsumerArgs
+
+func DynamoDBStreamLambdaConsumerPtr(v *DynamoDBStreamLambdaConsumerArgs) DynamoDBStreamLambdaConsumerPtrInput {
+	return (*dynamoDBStreamLambdaConsumerPtrType)(v)
+}
+
+func (*dynamoDBStreamLambdaConsumerPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBStreamLambdaConsumer)(nil)).Elem()
+}
+
+func (i *dynamoDBStreamLambdaConsumerPtrType) ToDynamoDBStreamLambdaConsumerPtrOutput() DynamoDBStreamLambdaConsumerPtrOutput {
+	return i.ToDynamoDBStreamLambdaConsumerPtrOutputWithContext(context.Background())
+}
+
+func (i *dynamoDBStreamLambdaConsumerPtrType) ToDynamoDBStreamLambdaConsumerPtrOutputWithContext(ctx context.Context) DynamoDBStreamLambdaConsumerPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoDBStreamLambdaConsumerPtrOutput)
+}
+
+// Lambda stream consumer. Anvil creates the ESM, lambda:InvokeFunction permission, and attaches stream read permissions to the Lambda role. Does not grant table read/write access — call grantRead/Write separately if needed.
+type DynamoDBStreamLambdaConsumerOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBStreamLambdaConsumerOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBStreamLambdaConsumer)(nil)).Elem()
+}
+
+func (o DynamoDBStreamLambdaConsumerOutput) ToDynamoDBStreamLambdaConsumerOutput() DynamoDBStreamLambdaConsumerOutput {
+	return o
+}
+
+func (o DynamoDBStreamLambdaConsumerOutput) ToDynamoDBStreamLambdaConsumerOutputWithContext(ctx context.Context) DynamoDBStreamLambdaConsumerOutput {
+	return o
+}
+
+func (o DynamoDBStreamLambdaConsumerOutput) ToDynamoDBStreamLambdaConsumerPtrOutput() DynamoDBStreamLambdaConsumerPtrOutput {
+	return o.ToDynamoDBStreamLambdaConsumerPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBStreamLambdaConsumerOutput) ToDynamoDBStreamLambdaConsumerPtrOutputWithContext(ctx context.Context) DynamoDBStreamLambdaConsumerPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DynamoDBStreamLambdaConsumer) *DynamoDBStreamLambdaConsumer {
+		return &v
+	}).(DynamoDBStreamLambdaConsumerPtrOutput)
+}
+
+// ARN of the Lambda function.
+func (o DynamoDBStreamLambdaConsumerOutput) Arn() pulumi.StringOutput {
+	return o.ApplyT(func(v DynamoDBStreamLambdaConsumer) string { return v.Arn }).(pulumi.StringOutput)
+}
+
+// ARN of the Lambda execution role. Anvil attaches an inline policy granting stream read permissions (GetRecords, GetShardIterator, DescribeStream, ListStreams).
+func (o DynamoDBStreamLambdaConsumerOutput) LambdaRoleArn() pulumi.StringOutput {
+	return o.ApplyT(func(v DynamoDBStreamLambdaConsumer) string { return v.LambdaRoleArn }).(pulumi.StringOutput)
+}
+
+type DynamoDBStreamLambdaConsumerPtrOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBStreamLambdaConsumerPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBStreamLambdaConsumer)(nil)).Elem()
+}
+
+func (o DynamoDBStreamLambdaConsumerPtrOutput) ToDynamoDBStreamLambdaConsumerPtrOutput() DynamoDBStreamLambdaConsumerPtrOutput {
+	return o
+}
+
+func (o DynamoDBStreamLambdaConsumerPtrOutput) ToDynamoDBStreamLambdaConsumerPtrOutputWithContext(ctx context.Context) DynamoDBStreamLambdaConsumerPtrOutput {
+	return o
+}
+
+func (o DynamoDBStreamLambdaConsumerPtrOutput) Elem() DynamoDBStreamLambdaConsumerOutput {
+	return o.ApplyT(func(v *DynamoDBStreamLambdaConsumer) DynamoDBStreamLambdaConsumer {
+		if v != nil {
+			return *v
+		}
+		var ret DynamoDBStreamLambdaConsumer
+		return ret
+	}).(DynamoDBStreamLambdaConsumerOutput)
+}
+
+// ARN of the Lambda function.
+func (o DynamoDBStreamLambdaConsumerPtrOutput) Arn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoDBStreamLambdaConsumer) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Arn
+	}).(pulumi.StringPtrOutput)
+}
+
+// ARN of the Lambda execution role. Anvil attaches an inline policy granting stream read permissions (GetRecords, GetShardIterator, DescribeStream, ListStreams).
+func (o DynamoDBStreamLambdaConsumerPtrOutput) LambdaRoleArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoDBStreamLambdaConsumer) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.LambdaRoleArn
+	}).(pulumi.StringPtrOutput)
+}
+
+type DynamoOverrides struct {
+	// Set of nested attribute definitions. Only required for <span pulumi-lang-nodejs="`hashKey`" pulumi-lang-dotnet="`HashKey`" pulumi-lang-go="`hashKey`" pulumi-lang-python="`hash_key`" pulumi-lang-yaml="`hashKey`" pulumi-lang-java="`hashKey`">`hash_key`</span> and <span pulumi-lang-nodejs="`rangeKey`" pulumi-lang-dotnet="`RangeKey`" pulumi-lang-go="`rangeKey`" pulumi-lang-python="`range_key`" pulumi-lang-yaml="`rangeKey`" pulumi-lang-java="`rangeKey`">`range_key`</span> attributes. See below.
+	Attributes []dynamodb.TableAttribute `pulumi:"attributes"`
+	// Controls how you are charged for read and write throughput and how you manage capacity. The valid values are `PROVISIONED` and `PAY_PER_REQUEST`. Defaults to `PROVISIONED`.
+	BillingMode *string `pulumi:"billingMode"`
+	// Enables deletion protection for table. Defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+	DeletionProtectionEnabled *bool `pulumi:"deletionProtectionEnabled"`
+	// Describe a GSI for the table; subject to the normal limits on the number of GSIs, projected attributes, etc. See below.
+	GlobalSecondaryIndexes []dynamodb.TableGlobalSecondaryIndex `pulumi:"globalSecondaryIndexes"`
+	// Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single <span pulumi-lang-nodejs="`replica`" pulumi-lang-dotnet="`Replica`" pulumi-lang-go="`replica`" pulumi-lang-python="`replica`" pulumi-lang-yaml="`replica`" pulumi-lang-java="`replica`">`replica`</span> with <span pulumi-lang-nodejs="`consistencyMode`" pulumi-lang-dotnet="`ConsistencyMode`" pulumi-lang-go="`consistencyMode`" pulumi-lang-python="`consistency_mode`" pulumi-lang-yaml="`consistencyMode`" pulumi-lang-java="`consistencyMode`">`consistency_mode`</span> set to `STRONG`. Other combinations will fail to provision. See below.
+	GlobalTableWitness *dynamodb.TableGlobalTableWitness `pulumi:"globalTableWitness"`
+	// Attribute to use as the hash (partition) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>. See below.
+	HashKey *string `pulumi:"hashKey"`
+	// Import Amazon S3 data into a new table. See below.
+	ImportTable *dynamodb.TableImportTable `pulumi:"importTable"`
+	// Describe an LSI on the table; these can only be allocated _at creation_ so you cannot change this definition after you have created the resource. See below.
+	LocalSecondaryIndexes []dynamodb.TableLocalSecondaryIndex `pulumi:"localSecondaryIndexes"`
+	// Unique within a region name of the table.
+	//
+	// The following arguments are optional:
+	Name *string `pulumi:"name"`
+	// Sets the maximum number of read and write units for the specified on-demand table. See below.
+	OnDemandThroughput *dynamodb.TableOnDemandThroughput `pulumi:"onDemandThroughput"`
+	// Enable point-in-time recovery options. See below.
+	PointInTimeRecovery *dynamodb.TablePointInTimeRecovery `pulumi:"pointInTimeRecovery"`
+	// Attribute to use as the range (sort) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>, see below.
+	RangeKey *string `pulumi:"rangeKey"`
+	// Number of read units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+	ReadCapacity *int `pulumi:"readCapacity"`
+	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+	Region *string `pulumi:"region"`
+	// Configuration block(s) with [DynamoDB Global Tables V2 (version 2019.11.21)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html) replication configurations. See below.
+	Replicas []dynamodb.TableReplicaType `pulumi:"replicas"`
+	// Time of the point-in-time recovery point to restore.
+	RestoreDateTime *string `pulumi:"restoreDateTime"`
+	// Name of the table to restore. Must match the name of an existing table.
+	RestoreSourceName *string `pulumi:"restoreSourceName"`
+	// ARN of the source table to restore. Must be supplied for cross-region restores.
+	RestoreSourceTableArn *string `pulumi:"restoreSourceTableArn"`
+	// If set, restores table to the most recent point-in-time recovery point.
+	RestoreToLatestTime *bool `pulumi:"restoreToLatestTime"`
+	// Encryption at rest options. AWS DynamoDB tables are automatically encrypted at rest with an AWS-owned Customer Master Key if this argument isn't specified. Must be supplied for cross-region restores. See below.
+	ServerSideEncryption *dynamodb.TableServerSideEncryption `pulumi:"serverSideEncryption"`
+	// Whether Streams are enabled.
+	StreamEnabled *bool `pulumi:"streamEnabled"`
+	// When an item in the table is modified, StreamViewType determines what information is written to the table's stream.
+	// Valid values are `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`.
+	// Only valid when <span pulumi-lang-nodejs="`streamEnabled`" pulumi-lang-dotnet="`StreamEnabled`" pulumi-lang-go="`streamEnabled`" pulumi-lang-python="`stream_enabled`" pulumi-lang-yaml="`streamEnabled`" pulumi-lang-java="`streamEnabled`">`stream_enabled`</span> is true.
+	StreamViewType *string `pulumi:"streamViewType"`
+	// Storage class of the table.
+	// Valid values are `STANDARD` and `STANDARD_INFREQUENT_ACCESS`.
+	// Default value is `STANDARD`.
+	TableClass *string `pulumi:"tableClass"`
+	// A map of tags to populate on the created table. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+	Tags map[string]string `pulumi:"tags"`
+	// Configuration block for TTL. See below.
+	Ttl *dynamodb.TableTtl `pulumi:"ttl"`
+	// Sets the number of warm read and write units for the specified table. See below.
+	WarmThroughput *dynamodb.TableWarmThroughput `pulumi:"warmThroughput"`
+	// Number of write units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+	WriteCapacity *int `pulumi:"writeCapacity"`
+}
+
+// DynamoOverridesInput is an input type that accepts DynamoOverridesArgs and DynamoOverridesOutput values.
+// You can construct a concrete instance of `DynamoOverridesInput` via:
+//
+//	DynamoOverridesArgs{...}
+type DynamoOverridesInput interface {
+	pulumi.Input
+
+	ToDynamoOverridesOutput() DynamoOverridesOutput
+	ToDynamoOverridesOutputWithContext(context.Context) DynamoOverridesOutput
+}
+
+type DynamoOverridesArgs struct {
+	// Set of nested attribute definitions. Only required for <span pulumi-lang-nodejs="`hashKey`" pulumi-lang-dotnet="`HashKey`" pulumi-lang-go="`hashKey`" pulumi-lang-python="`hash_key`" pulumi-lang-yaml="`hashKey`" pulumi-lang-java="`hashKey`">`hash_key`</span> and <span pulumi-lang-nodejs="`rangeKey`" pulumi-lang-dotnet="`RangeKey`" pulumi-lang-go="`rangeKey`" pulumi-lang-python="`range_key`" pulumi-lang-yaml="`rangeKey`" pulumi-lang-java="`rangeKey`">`range_key`</span> attributes. See below.
+	Attributes dynamodb.TableAttributeArrayInput `pulumi:"attributes"`
+	// Controls how you are charged for read and write throughput and how you manage capacity. The valid values are `PROVISIONED` and `PAY_PER_REQUEST`. Defaults to `PROVISIONED`.
+	BillingMode pulumi.StringPtrInput `pulumi:"billingMode"`
+	// Enables deletion protection for table. Defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+	DeletionProtectionEnabled pulumi.BoolPtrInput `pulumi:"deletionProtectionEnabled"`
+	// Describe a GSI for the table; subject to the normal limits on the number of GSIs, projected attributes, etc. See below.
+	GlobalSecondaryIndexes dynamodb.TableGlobalSecondaryIndexArrayInput `pulumi:"globalSecondaryIndexes"`
+	// Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single <span pulumi-lang-nodejs="`replica`" pulumi-lang-dotnet="`Replica`" pulumi-lang-go="`replica`" pulumi-lang-python="`replica`" pulumi-lang-yaml="`replica`" pulumi-lang-java="`replica`">`replica`</span> with <span pulumi-lang-nodejs="`consistencyMode`" pulumi-lang-dotnet="`ConsistencyMode`" pulumi-lang-go="`consistencyMode`" pulumi-lang-python="`consistency_mode`" pulumi-lang-yaml="`consistencyMode`" pulumi-lang-java="`consistencyMode`">`consistency_mode`</span> set to `STRONG`. Other combinations will fail to provision. See below.
+	GlobalTableWitness dynamodb.TableGlobalTableWitnessPtrInput `pulumi:"globalTableWitness"`
+	// Attribute to use as the hash (partition) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>. See below.
+	HashKey pulumi.StringPtrInput `pulumi:"hashKey"`
+	// Import Amazon S3 data into a new table. See below.
+	ImportTable dynamodb.TableImportTablePtrInput `pulumi:"importTable"`
+	// Describe an LSI on the table; these can only be allocated _at creation_ so you cannot change this definition after you have created the resource. See below.
+	LocalSecondaryIndexes dynamodb.TableLocalSecondaryIndexArrayInput `pulumi:"localSecondaryIndexes"`
+	// Unique within a region name of the table.
+	//
+	// The following arguments are optional:
+	Name pulumi.StringPtrInput `pulumi:"name"`
+	// Sets the maximum number of read and write units for the specified on-demand table. See below.
+	OnDemandThroughput dynamodb.TableOnDemandThroughputPtrInput `pulumi:"onDemandThroughput"`
+	// Enable point-in-time recovery options. See below.
+	PointInTimeRecovery dynamodb.TablePointInTimeRecoveryPtrInput `pulumi:"pointInTimeRecovery"`
+	// Attribute to use as the range (sort) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>, see below.
+	RangeKey pulumi.StringPtrInput `pulumi:"rangeKey"`
+	// Number of read units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+	ReadCapacity pulumi.IntPtrInput `pulumi:"readCapacity"`
+	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+	Region pulumi.StringPtrInput `pulumi:"region"`
+	// Configuration block(s) with [DynamoDB Global Tables V2 (version 2019.11.21)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html) replication configurations. See below.
+	Replicas dynamodb.TableReplicaTypeArrayInput `pulumi:"replicas"`
+	// Time of the point-in-time recovery point to restore.
+	RestoreDateTime pulumi.StringPtrInput `pulumi:"restoreDateTime"`
+	// Name of the table to restore. Must match the name of an existing table.
+	RestoreSourceName pulumi.StringPtrInput `pulumi:"restoreSourceName"`
+	// ARN of the source table to restore. Must be supplied for cross-region restores.
+	RestoreSourceTableArn pulumi.StringPtrInput `pulumi:"restoreSourceTableArn"`
+	// If set, restores table to the most recent point-in-time recovery point.
+	RestoreToLatestTime pulumi.BoolPtrInput `pulumi:"restoreToLatestTime"`
+	// Encryption at rest options. AWS DynamoDB tables are automatically encrypted at rest with an AWS-owned Customer Master Key if this argument isn't specified. Must be supplied for cross-region restores. See below.
+	ServerSideEncryption dynamodb.TableServerSideEncryptionPtrInput `pulumi:"serverSideEncryption"`
+	// Whether Streams are enabled.
+	StreamEnabled pulumi.BoolPtrInput `pulumi:"streamEnabled"`
+	// When an item in the table is modified, StreamViewType determines what information is written to the table's stream.
+	// Valid values are `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`.
+	// Only valid when <span pulumi-lang-nodejs="`streamEnabled`" pulumi-lang-dotnet="`StreamEnabled`" pulumi-lang-go="`streamEnabled`" pulumi-lang-python="`stream_enabled`" pulumi-lang-yaml="`streamEnabled`" pulumi-lang-java="`streamEnabled`">`stream_enabled`</span> is true.
+	StreamViewType pulumi.StringPtrInput `pulumi:"streamViewType"`
+	// Storage class of the table.
+	// Valid values are `STANDARD` and `STANDARD_INFREQUENT_ACCESS`.
+	// Default value is `STANDARD`.
+	TableClass pulumi.StringPtrInput `pulumi:"tableClass"`
+	// A map of tags to populate on the created table. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+	Tags pulumi.StringMapInput `pulumi:"tags"`
+	// Configuration block for TTL. See below.
+	Ttl dynamodb.TableTtlPtrInput `pulumi:"ttl"`
+	// Sets the number of warm read and write units for the specified table. See below.
+	WarmThroughput dynamodb.TableWarmThroughputPtrInput `pulumi:"warmThroughput"`
+	// Number of write units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+	WriteCapacity pulumi.IntPtrInput `pulumi:"writeCapacity"`
+}
+
+func (DynamoOverridesArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoOverrides)(nil)).Elem()
+}
+
+func (i DynamoOverridesArgs) ToDynamoOverridesOutput() DynamoOverridesOutput {
+	return i.ToDynamoOverridesOutputWithContext(context.Background())
+}
+
+func (i DynamoOverridesArgs) ToDynamoOverridesOutputWithContext(ctx context.Context) DynamoOverridesOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoOverridesOutput)
+}
+
+func (i DynamoOverridesArgs) ToDynamoOverridesPtrOutput() DynamoOverridesPtrOutput {
+	return i.ToDynamoOverridesPtrOutputWithContext(context.Background())
+}
+
+func (i DynamoOverridesArgs) ToDynamoOverridesPtrOutputWithContext(ctx context.Context) DynamoOverridesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoOverridesOutput).ToDynamoOverridesPtrOutputWithContext(ctx)
+}
+
+// DynamoOverridesPtrInput is an input type that accepts DynamoOverridesArgs, DynamoOverridesPtr and DynamoOverridesPtrOutput values.
+// You can construct a concrete instance of `DynamoOverridesPtrInput` via:
+//
+//	        DynamoOverridesArgs{...}
+//
+//	or:
+//
+//	        nil
+type DynamoOverridesPtrInput interface {
+	pulumi.Input
+
+	ToDynamoOverridesPtrOutput() DynamoOverridesPtrOutput
+	ToDynamoOverridesPtrOutputWithContext(context.Context) DynamoOverridesPtrOutput
+}
+
+type dynamoOverridesPtrType DynamoOverridesArgs
+
+func DynamoOverridesPtr(v *DynamoOverridesArgs) DynamoOverridesPtrInput {
+	return (*dynamoOverridesPtrType)(v)
+}
+
+func (*dynamoOverridesPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoOverrides)(nil)).Elem()
+}
+
+func (i *dynamoOverridesPtrType) ToDynamoOverridesPtrOutput() DynamoOverridesPtrOutput {
+	return i.ToDynamoOverridesPtrOutputWithContext(context.Background())
+}
+
+func (i *dynamoOverridesPtrType) ToDynamoOverridesPtrOutputWithContext(ctx context.Context) DynamoOverridesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoOverridesPtrOutput)
+}
+
+type DynamoOverridesOutput struct{ *pulumi.OutputState }
+
+func (DynamoOverridesOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoOverrides)(nil)).Elem()
+}
+
+func (o DynamoOverridesOutput) ToDynamoOverridesOutput() DynamoOverridesOutput {
+	return o
+}
+
+func (o DynamoOverridesOutput) ToDynamoOverridesOutputWithContext(ctx context.Context) DynamoOverridesOutput {
+	return o
+}
+
+func (o DynamoOverridesOutput) ToDynamoOverridesPtrOutput() DynamoOverridesPtrOutput {
+	return o.ToDynamoOverridesPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoOverridesOutput) ToDynamoOverridesPtrOutputWithContext(ctx context.Context) DynamoOverridesPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DynamoOverrides) *DynamoOverrides {
+		return &v
+	}).(DynamoOverridesPtrOutput)
+}
+
+// Set of nested attribute definitions. Only required for <span pulumi-lang-nodejs="`hashKey`" pulumi-lang-dotnet="`HashKey`" pulumi-lang-go="`hashKey`" pulumi-lang-python="`hash_key`" pulumi-lang-yaml="`hashKey`" pulumi-lang-java="`hashKey`">`hash_key`</span> and <span pulumi-lang-nodejs="`rangeKey`" pulumi-lang-dotnet="`RangeKey`" pulumi-lang-go="`rangeKey`" pulumi-lang-python="`range_key`" pulumi-lang-yaml="`rangeKey`" pulumi-lang-java="`rangeKey`">`range_key`</span> attributes. See below.
+func (o DynamoOverridesOutput) Attributes() dynamodb.TableAttributeArrayOutput {
+	return o.ApplyT(func(v DynamoOverrides) []dynamodb.TableAttribute { return v.Attributes }).(dynamodb.TableAttributeArrayOutput)
+}
+
+// Controls how you are charged for read and write throughput and how you manage capacity. The valid values are `PROVISIONED` and `PAY_PER_REQUEST`. Defaults to `PROVISIONED`.
+func (o DynamoOverridesOutput) BillingMode() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *string { return v.BillingMode }).(pulumi.StringPtrOutput)
+}
+
+// Enables deletion protection for table. Defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+func (o DynamoOverridesOutput) DeletionProtectionEnabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *bool { return v.DeletionProtectionEnabled }).(pulumi.BoolPtrOutput)
+}
+
+// Describe a GSI for the table; subject to the normal limits on the number of GSIs, projected attributes, etc. See below.
+func (o DynamoOverridesOutput) GlobalSecondaryIndexes() dynamodb.TableGlobalSecondaryIndexArrayOutput {
+	return o.ApplyT(func(v DynamoOverrides) []dynamodb.TableGlobalSecondaryIndex { return v.GlobalSecondaryIndexes }).(dynamodb.TableGlobalSecondaryIndexArrayOutput)
+}
+
+// Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single <span pulumi-lang-nodejs="`replica`" pulumi-lang-dotnet="`Replica`" pulumi-lang-go="`replica`" pulumi-lang-python="`replica`" pulumi-lang-yaml="`replica`" pulumi-lang-java="`replica`">`replica`</span> with <span pulumi-lang-nodejs="`consistencyMode`" pulumi-lang-dotnet="`ConsistencyMode`" pulumi-lang-go="`consistencyMode`" pulumi-lang-python="`consistency_mode`" pulumi-lang-yaml="`consistencyMode`" pulumi-lang-java="`consistencyMode`">`consistency_mode`</span> set to `STRONG`. Other combinations will fail to provision. See below.
+func (o DynamoOverridesOutput) GlobalTableWitness() dynamodb.TableGlobalTableWitnessPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *dynamodb.TableGlobalTableWitness { return v.GlobalTableWitness }).(dynamodb.TableGlobalTableWitnessPtrOutput)
+}
+
+// Attribute to use as the hash (partition) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>. See below.
+func (o DynamoOverridesOutput) HashKey() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *string { return v.HashKey }).(pulumi.StringPtrOutput)
+}
+
+// Import Amazon S3 data into a new table. See below.
+func (o DynamoOverridesOutput) ImportTable() dynamodb.TableImportTablePtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *dynamodb.TableImportTable { return v.ImportTable }).(dynamodb.TableImportTablePtrOutput)
+}
+
+// Describe an LSI on the table; these can only be allocated _at creation_ so you cannot change this definition after you have created the resource. See below.
+func (o DynamoOverridesOutput) LocalSecondaryIndexes() dynamodb.TableLocalSecondaryIndexArrayOutput {
+	return o.ApplyT(func(v DynamoOverrides) []dynamodb.TableLocalSecondaryIndex { return v.LocalSecondaryIndexes }).(dynamodb.TableLocalSecondaryIndexArrayOutput)
+}
+
+// Unique within a region name of the table.
+//
+// The following arguments are optional:
+func (o DynamoOverridesOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *string { return v.Name }).(pulumi.StringPtrOutput)
+}
+
+// Sets the maximum number of read and write units for the specified on-demand table. See below.
+func (o DynamoOverridesOutput) OnDemandThroughput() dynamodb.TableOnDemandThroughputPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *dynamodb.TableOnDemandThroughput { return v.OnDemandThroughput }).(dynamodb.TableOnDemandThroughputPtrOutput)
+}
+
+// Enable point-in-time recovery options. See below.
+func (o DynamoOverridesOutput) PointInTimeRecovery() dynamodb.TablePointInTimeRecoveryPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *dynamodb.TablePointInTimeRecovery { return v.PointInTimeRecovery }).(dynamodb.TablePointInTimeRecoveryPtrOutput)
+}
+
+// Attribute to use as the range (sort) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>, see below.
+func (o DynamoOverridesOutput) RangeKey() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *string { return v.RangeKey }).(pulumi.StringPtrOutput)
+}
+
+// Number of read units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+func (o DynamoOverridesOutput) ReadCapacity() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *int { return v.ReadCapacity }).(pulumi.IntPtrOutput)
+}
+
+// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+func (o DynamoOverridesOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *string { return v.Region }).(pulumi.StringPtrOutput)
+}
+
+// Configuration block(s) with [DynamoDB Global Tables V2 (version 2019.11.21)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html) replication configurations. See below.
+func (o DynamoOverridesOutput) Replicas() dynamodb.TableReplicaTypeArrayOutput {
+	return o.ApplyT(func(v DynamoOverrides) []dynamodb.TableReplicaType { return v.Replicas }).(dynamodb.TableReplicaTypeArrayOutput)
+}
+
+// Time of the point-in-time recovery point to restore.
+func (o DynamoOverridesOutput) RestoreDateTime() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *string { return v.RestoreDateTime }).(pulumi.StringPtrOutput)
+}
+
+// Name of the table to restore. Must match the name of an existing table.
+func (o DynamoOverridesOutput) RestoreSourceName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *string { return v.RestoreSourceName }).(pulumi.StringPtrOutput)
+}
+
+// ARN of the source table to restore. Must be supplied for cross-region restores.
+func (o DynamoOverridesOutput) RestoreSourceTableArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *string { return v.RestoreSourceTableArn }).(pulumi.StringPtrOutput)
+}
+
+// If set, restores table to the most recent point-in-time recovery point.
+func (o DynamoOverridesOutput) RestoreToLatestTime() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *bool { return v.RestoreToLatestTime }).(pulumi.BoolPtrOutput)
+}
+
+// Encryption at rest options. AWS DynamoDB tables are automatically encrypted at rest with an AWS-owned Customer Master Key if this argument isn't specified. Must be supplied for cross-region restores. See below.
+func (o DynamoOverridesOutput) ServerSideEncryption() dynamodb.TableServerSideEncryptionPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *dynamodb.TableServerSideEncryption { return v.ServerSideEncryption }).(dynamodb.TableServerSideEncryptionPtrOutput)
+}
+
+// Whether Streams are enabled.
+func (o DynamoOverridesOutput) StreamEnabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *bool { return v.StreamEnabled }).(pulumi.BoolPtrOutput)
+}
+
+// When an item in the table is modified, StreamViewType determines what information is written to the table's stream.
+// Valid values are `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`.
+// Only valid when <span pulumi-lang-nodejs="`streamEnabled`" pulumi-lang-dotnet="`StreamEnabled`" pulumi-lang-go="`streamEnabled`" pulumi-lang-python="`stream_enabled`" pulumi-lang-yaml="`streamEnabled`" pulumi-lang-java="`streamEnabled`">`stream_enabled`</span> is true.
+func (o DynamoOverridesOutput) StreamViewType() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *string { return v.StreamViewType }).(pulumi.StringPtrOutput)
+}
+
+// Storage class of the table.
+// Valid values are `STANDARD` and `STANDARD_INFREQUENT_ACCESS`.
+// Default value is `STANDARD`.
+func (o DynamoOverridesOutput) TableClass() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *string { return v.TableClass }).(pulumi.StringPtrOutput)
+}
+
+// A map of tags to populate on the created table. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+func (o DynamoOverridesOutput) Tags() pulumi.StringMapOutput {
+	return o.ApplyT(func(v DynamoOverrides) map[string]string { return v.Tags }).(pulumi.StringMapOutput)
+}
+
+// Configuration block for TTL. See below.
+func (o DynamoOverridesOutput) Ttl() dynamodb.TableTtlPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *dynamodb.TableTtl { return v.Ttl }).(dynamodb.TableTtlPtrOutput)
+}
+
+// Sets the number of warm read and write units for the specified table. See below.
+func (o DynamoOverridesOutput) WarmThroughput() dynamodb.TableWarmThroughputPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *dynamodb.TableWarmThroughput { return v.WarmThroughput }).(dynamodb.TableWarmThroughputPtrOutput)
+}
+
+// Number of write units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+func (o DynamoOverridesOutput) WriteCapacity() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v DynamoOverrides) *int { return v.WriteCapacity }).(pulumi.IntPtrOutput)
+}
+
+type DynamoOverridesPtrOutput struct{ *pulumi.OutputState }
+
+func (DynamoOverridesPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoOverrides)(nil)).Elem()
+}
+
+func (o DynamoOverridesPtrOutput) ToDynamoOverridesPtrOutput() DynamoOverridesPtrOutput {
+	return o
+}
+
+func (o DynamoOverridesPtrOutput) ToDynamoOverridesPtrOutputWithContext(ctx context.Context) DynamoOverridesPtrOutput {
+	return o
+}
+
+func (o DynamoOverridesPtrOutput) Elem() DynamoOverridesOutput {
+	return o.ApplyT(func(v *DynamoOverrides) DynamoOverrides {
+		if v != nil {
+			return *v
+		}
+		var ret DynamoOverrides
+		return ret
+	}).(DynamoOverridesOutput)
+}
+
+// Set of nested attribute definitions. Only required for <span pulumi-lang-nodejs="`hashKey`" pulumi-lang-dotnet="`HashKey`" pulumi-lang-go="`hashKey`" pulumi-lang-python="`hash_key`" pulumi-lang-yaml="`hashKey`" pulumi-lang-java="`hashKey`">`hash_key`</span> and <span pulumi-lang-nodejs="`rangeKey`" pulumi-lang-dotnet="`RangeKey`" pulumi-lang-go="`rangeKey`" pulumi-lang-python="`range_key`" pulumi-lang-yaml="`rangeKey`" pulumi-lang-java="`rangeKey`">`range_key`</span> attributes. See below.
+func (o DynamoOverridesPtrOutput) Attributes() dynamodb.TableAttributeArrayOutput {
+	return o.ApplyT(func(v *DynamoOverrides) []dynamodb.TableAttribute {
+		if v == nil {
+			return nil
+		}
+		return v.Attributes
+	}).(dynamodb.TableAttributeArrayOutput)
+}
+
+// Controls how you are charged for read and write throughput and how you manage capacity. The valid values are `PROVISIONED` and `PAY_PER_REQUEST`. Defaults to `PROVISIONED`.
+func (o DynamoOverridesPtrOutput) BillingMode() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.BillingMode
+	}).(pulumi.StringPtrOutput)
+}
+
+// Enables deletion protection for table. Defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+func (o DynamoOverridesPtrOutput) DeletionProtectionEnabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.DeletionProtectionEnabled
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Describe a GSI for the table; subject to the normal limits on the number of GSIs, projected attributes, etc. See below.
+func (o DynamoOverridesPtrOutput) GlobalSecondaryIndexes() dynamodb.TableGlobalSecondaryIndexArrayOutput {
+	return o.ApplyT(func(v *DynamoOverrides) []dynamodb.TableGlobalSecondaryIndex {
+		if v == nil {
+			return nil
+		}
+		return v.GlobalSecondaryIndexes
+	}).(dynamodb.TableGlobalSecondaryIndexArrayOutput)
+}
+
+// Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single <span pulumi-lang-nodejs="`replica`" pulumi-lang-dotnet="`Replica`" pulumi-lang-go="`replica`" pulumi-lang-python="`replica`" pulumi-lang-yaml="`replica`" pulumi-lang-java="`replica`">`replica`</span> with <span pulumi-lang-nodejs="`consistencyMode`" pulumi-lang-dotnet="`ConsistencyMode`" pulumi-lang-go="`consistencyMode`" pulumi-lang-python="`consistency_mode`" pulumi-lang-yaml="`consistencyMode`" pulumi-lang-java="`consistencyMode`">`consistency_mode`</span> set to `STRONG`. Other combinations will fail to provision. See below.
+func (o DynamoOverridesPtrOutput) GlobalTableWitness() dynamodb.TableGlobalTableWitnessPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *dynamodb.TableGlobalTableWitness {
+		if v == nil {
+			return nil
+		}
+		return v.GlobalTableWitness
+	}).(dynamodb.TableGlobalTableWitnessPtrOutput)
+}
+
+// Attribute to use as the hash (partition) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>. See below.
+func (o DynamoOverridesPtrOutput) HashKey() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.HashKey
+	}).(pulumi.StringPtrOutput)
+}
+
+// Import Amazon S3 data into a new table. See below.
+func (o DynamoOverridesPtrOutput) ImportTable() dynamodb.TableImportTablePtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *dynamodb.TableImportTable {
+		if v == nil {
+			return nil
+		}
+		return v.ImportTable
+	}).(dynamodb.TableImportTablePtrOutput)
+}
+
+// Describe an LSI on the table; these can only be allocated _at creation_ so you cannot change this definition after you have created the resource. See below.
+func (o DynamoOverridesPtrOutput) LocalSecondaryIndexes() dynamodb.TableLocalSecondaryIndexArrayOutput {
+	return o.ApplyT(func(v *DynamoOverrides) []dynamodb.TableLocalSecondaryIndex {
+		if v == nil {
+			return nil
+		}
+		return v.LocalSecondaryIndexes
+	}).(dynamodb.TableLocalSecondaryIndexArrayOutput)
+}
+
+// Unique within a region name of the table.
+//
+// The following arguments are optional:
+func (o DynamoOverridesPtrOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Name
+	}).(pulumi.StringPtrOutput)
+}
+
+// Sets the maximum number of read and write units for the specified on-demand table. See below.
+func (o DynamoOverridesPtrOutput) OnDemandThroughput() dynamodb.TableOnDemandThroughputPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *dynamodb.TableOnDemandThroughput {
+		if v == nil {
+			return nil
+		}
+		return v.OnDemandThroughput
+	}).(dynamodb.TableOnDemandThroughputPtrOutput)
+}
+
+// Enable point-in-time recovery options. See below.
+func (o DynamoOverridesPtrOutput) PointInTimeRecovery() dynamodb.TablePointInTimeRecoveryPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *dynamodb.TablePointInTimeRecovery {
+		if v == nil {
+			return nil
+		}
+		return v.PointInTimeRecovery
+	}).(dynamodb.TablePointInTimeRecoveryPtrOutput)
+}
+
+// Attribute to use as the range (sort) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>, see below.
+func (o DynamoOverridesPtrOutput) RangeKey() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.RangeKey
+	}).(pulumi.StringPtrOutput)
+}
+
+// Number of read units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+func (o DynamoOverridesPtrOutput) ReadCapacity() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *int {
+		if v == nil {
+			return nil
+		}
+		return v.ReadCapacity
+	}).(pulumi.IntPtrOutput)
+}
+
+// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+func (o DynamoOverridesPtrOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Region
+	}).(pulumi.StringPtrOutput)
+}
+
+// Configuration block(s) with [DynamoDB Global Tables V2 (version 2019.11.21)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html) replication configurations. See below.
+func (o DynamoOverridesPtrOutput) Replicas() dynamodb.TableReplicaTypeArrayOutput {
+	return o.ApplyT(func(v *DynamoOverrides) []dynamodb.TableReplicaType {
+		if v == nil {
+			return nil
+		}
+		return v.Replicas
+	}).(dynamodb.TableReplicaTypeArrayOutput)
+}
+
+// Time of the point-in-time recovery point to restore.
+func (o DynamoOverridesPtrOutput) RestoreDateTime() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.RestoreDateTime
+	}).(pulumi.StringPtrOutput)
+}
+
+// Name of the table to restore. Must match the name of an existing table.
+func (o DynamoOverridesPtrOutput) RestoreSourceName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.RestoreSourceName
+	}).(pulumi.StringPtrOutput)
+}
+
+// ARN of the source table to restore. Must be supplied for cross-region restores.
+func (o DynamoOverridesPtrOutput) RestoreSourceTableArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.RestoreSourceTableArn
+	}).(pulumi.StringPtrOutput)
+}
+
+// If set, restores table to the most recent point-in-time recovery point.
+func (o DynamoOverridesPtrOutput) RestoreToLatestTime() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.RestoreToLatestTime
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Encryption at rest options. AWS DynamoDB tables are automatically encrypted at rest with an AWS-owned Customer Master Key if this argument isn't specified. Must be supplied for cross-region restores. See below.
+func (o DynamoOverridesPtrOutput) ServerSideEncryption() dynamodb.TableServerSideEncryptionPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *dynamodb.TableServerSideEncryption {
+		if v == nil {
+			return nil
+		}
+		return v.ServerSideEncryption
+	}).(dynamodb.TableServerSideEncryptionPtrOutput)
+}
+
+// Whether Streams are enabled.
+func (o DynamoOverridesPtrOutput) StreamEnabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.StreamEnabled
+	}).(pulumi.BoolPtrOutput)
+}
+
+// When an item in the table is modified, StreamViewType determines what information is written to the table's stream.
+// Valid values are `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`.
+// Only valid when <span pulumi-lang-nodejs="`streamEnabled`" pulumi-lang-dotnet="`StreamEnabled`" pulumi-lang-go="`streamEnabled`" pulumi-lang-python="`stream_enabled`" pulumi-lang-yaml="`streamEnabled`" pulumi-lang-java="`streamEnabled`">`stream_enabled`</span> is true.
+func (o DynamoOverridesPtrOutput) StreamViewType() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.StreamViewType
+	}).(pulumi.StringPtrOutput)
+}
+
+// Storage class of the table.
+// Valid values are `STANDARD` and `STANDARD_INFREQUENT_ACCESS`.
+// Default value is `STANDARD`.
+func (o DynamoOverridesPtrOutput) TableClass() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.TableClass
+	}).(pulumi.StringPtrOutput)
+}
+
+// A map of tags to populate on the created table. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+func (o DynamoOverridesPtrOutput) Tags() pulumi.StringMapOutput {
+	return o.ApplyT(func(v *DynamoOverrides) map[string]string {
+		if v == nil {
+			return nil
+		}
+		return v.Tags
+	}).(pulumi.StringMapOutput)
+}
+
+// Configuration block for TTL. See below.
+func (o DynamoOverridesPtrOutput) Ttl() dynamodb.TableTtlPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *dynamodb.TableTtl {
+		if v == nil {
+			return nil
+		}
+		return v.Ttl
+	}).(dynamodb.TableTtlPtrOutput)
+}
+
+// Sets the number of warm read and write units for the specified table. See below.
+func (o DynamoOverridesPtrOutput) WarmThroughput() dynamodb.TableWarmThroughputPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *dynamodb.TableWarmThroughput {
+		if v == nil {
+			return nil
+		}
+		return v.WarmThroughput
+	}).(dynamodb.TableWarmThroughputPtrOutput)
+}
+
+// Number of write units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+func (o DynamoOverridesPtrOutput) WriteCapacity() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *DynamoOverrides) *int {
+		if v == nil {
+			return nil
+		}
+		return v.WriteCapacity
+	}).(pulumi.IntPtrOutput)
+}
+
+type DynamoTransformArgs struct {
+	Dynamo *DynamoOverrides `pulumi:"dynamo"`
+}
+
+// DynamoTransformArgsInput is an input type that accepts DynamoTransformArgsArgs and DynamoTransformArgsOutput values.
+// You can construct a concrete instance of `DynamoTransformArgsInput` via:
+//
+//	DynamoTransformArgsArgs{...}
+type DynamoTransformArgsInput interface {
+	pulumi.Input
+
+	ToDynamoTransformArgsOutput() DynamoTransformArgsOutput
+	ToDynamoTransformArgsOutputWithContext(context.Context) DynamoTransformArgsOutput
+}
+
+type DynamoTransformArgsArgs struct {
+	Dynamo DynamoOverridesPtrInput `pulumi:"dynamo"`
+}
+
+func (DynamoTransformArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoTransformArgs)(nil)).Elem()
+}
+
+func (i DynamoTransformArgsArgs) ToDynamoTransformArgsOutput() DynamoTransformArgsOutput {
+	return i.ToDynamoTransformArgsOutputWithContext(context.Background())
+}
+
+func (i DynamoTransformArgsArgs) ToDynamoTransformArgsOutputWithContext(ctx context.Context) DynamoTransformArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoTransformArgsOutput)
+}
+
+func (i DynamoTransformArgsArgs) ToDynamoTransformArgsPtrOutput() DynamoTransformArgsPtrOutput {
+	return i.ToDynamoTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (i DynamoTransformArgsArgs) ToDynamoTransformArgsPtrOutputWithContext(ctx context.Context) DynamoTransformArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoTransformArgsOutput).ToDynamoTransformArgsPtrOutputWithContext(ctx)
+}
+
+// DynamoTransformArgsPtrInput is an input type that accepts DynamoTransformArgsArgs, DynamoTransformArgsPtr and DynamoTransformArgsPtrOutput values.
+// You can construct a concrete instance of `DynamoTransformArgsPtrInput` via:
+//
+//	        DynamoTransformArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type DynamoTransformArgsPtrInput interface {
+	pulumi.Input
+
+	ToDynamoTransformArgsPtrOutput() DynamoTransformArgsPtrOutput
+	ToDynamoTransformArgsPtrOutputWithContext(context.Context) DynamoTransformArgsPtrOutput
+}
+
+type dynamoTransformArgsPtrType DynamoTransformArgsArgs
+
+func DynamoTransformArgsPtr(v *DynamoTransformArgsArgs) DynamoTransformArgsPtrInput {
+	return (*dynamoTransformArgsPtrType)(v)
+}
+
+func (*dynamoTransformArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoTransformArgs)(nil)).Elem()
+}
+
+func (i *dynamoTransformArgsPtrType) ToDynamoTransformArgsPtrOutput() DynamoTransformArgsPtrOutput {
+	return i.ToDynamoTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *dynamoTransformArgsPtrType) ToDynamoTransformArgsPtrOutputWithContext(ctx context.Context) DynamoTransformArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DynamoTransformArgsPtrOutput)
+}
+
+type DynamoTransformArgsOutput struct{ *pulumi.OutputState }
+
+func (DynamoTransformArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoTransformArgs)(nil)).Elem()
+}
+
+func (o DynamoTransformArgsOutput) ToDynamoTransformArgsOutput() DynamoTransformArgsOutput {
+	return o
+}
+
+func (o DynamoTransformArgsOutput) ToDynamoTransformArgsOutputWithContext(ctx context.Context) DynamoTransformArgsOutput {
+	return o
+}
+
+func (o DynamoTransformArgsOutput) ToDynamoTransformArgsPtrOutput() DynamoTransformArgsPtrOutput {
+	return o.ToDynamoTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoTransformArgsOutput) ToDynamoTransformArgsPtrOutputWithContext(ctx context.Context) DynamoTransformArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DynamoTransformArgs) *DynamoTransformArgs {
+		return &v
+	}).(DynamoTransformArgsPtrOutput)
+}
+
+func (o DynamoTransformArgsOutput) Dynamo() DynamoOverridesPtrOutput {
+	return o.ApplyT(func(v DynamoTransformArgs) *DynamoOverrides { return v.Dynamo }).(DynamoOverridesPtrOutput)
+}
+
+type DynamoTransformArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (DynamoTransformArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoTransformArgs)(nil)).Elem()
+}
+
+func (o DynamoTransformArgsPtrOutput) ToDynamoTransformArgsPtrOutput() DynamoTransformArgsPtrOutput {
+	return o
+}
+
+func (o DynamoTransformArgsPtrOutput) ToDynamoTransformArgsPtrOutputWithContext(ctx context.Context) DynamoTransformArgsPtrOutput {
+	return o
+}
+
+func (o DynamoTransformArgsPtrOutput) Elem() DynamoTransformArgsOutput {
+	return o.ApplyT(func(v *DynamoTransformArgs) DynamoTransformArgs {
+		if v != nil {
+			return *v
+		}
+		var ret DynamoTransformArgs
+		return ret
+	}).(DynamoTransformArgsOutput)
+}
+
+func (o DynamoTransformArgsPtrOutput) Dynamo() DynamoOverridesPtrOutput {
+	return o.ApplyT(func(v *DynamoTransformArgs) *DynamoOverrides {
+		if v == nil {
+			return nil
+		}
+		return v.Dynamo
+	}).(DynamoOverridesPtrOutput)
 }
 
 // Direct overrides for the underlying aws.cloudwatch.EventArchive resource. Use retentionDays to change the default 7 day retention.
@@ -12210,6 +13968,22 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTokenValidityPtrInput)(nil)).Elem(), CognitoUserPoolTokenValidityArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTransformArgsInput)(nil)).Elem(), CognitoUserPoolTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTransformArgsPtrInput)(nil)).Elem(), CognitoUserPoolTransformArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBGlobalSecondaryIndexInput)(nil)).Elem(), DynamoDBGlobalSecondaryIndexArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBGlobalSecondaryIndexArrayInput)(nil)).Elem(), DynamoDBGlobalSecondaryIndexArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBKeyAttributeInput)(nil)).Elem(), DynamoDBKeyAttributeArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBKeyAttributePtrInput)(nil)).Elem(), DynamoDBKeyAttributeArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBStreamInput)(nil)).Elem(), DynamoDBStreamArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBStreamPtrInput)(nil)).Elem(), DynamoDBStreamArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBStreamConsumerInput)(nil)).Elem(), DynamoDBStreamConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBStreamConsumerPtrInput)(nil)).Elem(), DynamoDBStreamConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBStreamEventBridgeConsumerInput)(nil)).Elem(), DynamoDBStreamEventBridgeConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBStreamEventBridgeConsumerPtrInput)(nil)).Elem(), DynamoDBStreamEventBridgeConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBStreamLambdaConsumerInput)(nil)).Elem(), DynamoDBStreamLambdaConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBStreamLambdaConsumerPtrInput)(nil)).Elem(), DynamoDBStreamLambdaConsumerArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoOverridesInput)(nil)).Elem(), DynamoOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoOverridesPtrInput)(nil)).Elem(), DynamoOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoTransformArgsInput)(nil)).Elem(), DynamoTransformArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoTransformArgsPtrInput)(nil)).Elem(), DynamoTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*EventBridgeOverridesInput)(nil)).Elem(), EventBridgeOverridesArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*EventBridgeOverridesPtrInput)(nil)).Elem(), EventBridgeOverridesArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*EventBridgeTransformArgsInput)(nil)).Elem(), EventBridgeTransformArgsArgs{})
@@ -12327,6 +14101,22 @@ func init() {
 	pulumi.RegisterOutputType(CognitoUserPoolTokenValidityPtrOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolTransformArgsOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolTransformArgsPtrOutput{})
+	pulumi.RegisterOutputType(DynamoDBGlobalSecondaryIndexOutput{})
+	pulumi.RegisterOutputType(DynamoDBGlobalSecondaryIndexArrayOutput{})
+	pulumi.RegisterOutputType(DynamoDBKeyAttributeOutput{})
+	pulumi.RegisterOutputType(DynamoDBKeyAttributePtrOutput{})
+	pulumi.RegisterOutputType(DynamoDBStreamOutput{})
+	pulumi.RegisterOutputType(DynamoDBStreamPtrOutput{})
+	pulumi.RegisterOutputType(DynamoDBStreamConsumerOutput{})
+	pulumi.RegisterOutputType(DynamoDBStreamConsumerPtrOutput{})
+	pulumi.RegisterOutputType(DynamoDBStreamEventBridgeConsumerOutput{})
+	pulumi.RegisterOutputType(DynamoDBStreamEventBridgeConsumerPtrOutput{})
+	pulumi.RegisterOutputType(DynamoDBStreamLambdaConsumerOutput{})
+	pulumi.RegisterOutputType(DynamoDBStreamLambdaConsumerPtrOutput{})
+	pulumi.RegisterOutputType(DynamoOverridesOutput{})
+	pulumi.RegisterOutputType(DynamoOverridesPtrOutput{})
+	pulumi.RegisterOutputType(DynamoTransformArgsOutput{})
+	pulumi.RegisterOutputType(DynamoTransformArgsPtrOutput{})
 	pulumi.RegisterOutputType(EventBridgeOverridesOutput{})
 	pulumi.RegisterOutputType(EventBridgeOverridesPtrOutput{})
 	pulumi.RegisterOutputType(EventBridgeTransformArgsOutput{})

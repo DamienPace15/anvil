@@ -693,6 +693,231 @@ export namespace aws {
         cognitoUserPool?: pulumi.Input<inputs.aws.CognitoUserPoolOverridesArgs>;
     }
 
+    /**
+     * A Global Secondary Index. All key attributes must use the explicit { name, type } shape — Anvil merges these into the table attributeDefinitions automatically.
+     */
+    export interface DynamoDBGlobalSecondaryIndexArgs {
+        /**
+         * GSI hash key. Must include name and type explicitly.
+         */
+        hashKey: pulumi.Input<inputs.aws.DynamoDBKeyAttributeArgs>;
+        /**
+         * GSI name.
+         */
+        name: pulumi.Input<string>;
+        /**
+         * Non-key attributes to project. Only valid when projectionType is INCLUDE.
+         */
+        nonKeyAttributes?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Projection type. Defaults to ALL.
+         */
+        projectionType?: pulumi.Input<enums.aws.DynamoDBProjectionType>;
+        /**
+         * GSI range key. Optional. Must include name and type explicitly.
+         */
+        rangeKey?: pulumi.Input<inputs.aws.DynamoDBKeyAttributeArgs>;
+    }
+
+    /**
+     * A DynamoDB key attribute with an explicit name and type. All keys — table and GSI — must use this shape. Anvil derives attributeDefinitions automatically.
+     */
+    export interface DynamoDBKeyAttributeArgs {
+        /**
+         * Attribute name.
+         */
+        name: pulumi.Input<string>;
+        /**
+         * Attribute type. S = String, N = Number, B = Binary.
+         */
+        type: pulumi.Input<enums.aws.DynamoDBAttributeType>;
+    }
+
+    /**
+     * DynamoDB Streams configuration. Opt-in.
+     */
+    export interface DynamoDBStreamArgs {
+        /**
+         * Number of stream records to send to the consumer per batch. Defaults to 100.
+         */
+        batchSize?: pulumi.Input<number>;
+        /**
+         * The consumer of the stream. Discriminated union — exactly one of lambda or eventBridge.
+         */
+        consumer: pulumi.Input<inputs.aws.DynamoDBStreamConsumerArgs>;
+        /**
+         * Where to start reading the stream. Defaults to TRIM_HORIZON (AWS default — replays all existing records). Set to LATEST to only receive new events from the point of consumer creation.
+         */
+        startingPosition?: pulumi.Input<enums.aws.DynamoDBStreamStartingPosition>;
+        /**
+         * The stream view type. Controls what data is written to the stream on item changes.
+         */
+        viewType: pulumi.Input<enums.aws.DynamoDBStreamViewType>;
+    }
+
+    /**
+     * Discriminated union for the stream consumer. Exactly one of lambda or eventBridge must be set.
+     */
+    export interface DynamoDBStreamConsumerArgs {
+        /**
+         * Wire an EventBridge bus as the stream consumer via an EventBridge Pipe. Use this for fanout — the bus routes to multiple targets via rules. Bypasses the 2-consumer-per-shard limit of direct Lambda ESM.
+         */
+        eventBridge?: pulumi.Input<inputs.aws.DynamoDBStreamEventBridgeConsumerArgs>;
+        /**
+         * Wire a Lambda function as the stream consumer via AWS-managed Event Source Mapping.
+         */
+        lambda?: pulumi.Input<inputs.aws.DynamoDBStreamLambdaConsumerArgs>;
+    }
+
+    /**
+     * EventBridge Pipe consumer. Anvil creates the Pipe, a scoped IAM role for the Pipe, and wires the stream to the target bus. Use this for fanout to multiple targets via EventBridge rules.
+     */
+    export interface DynamoDBStreamEventBridgeConsumerArgs {
+        /**
+         * ARN of the target EventBridge event bus.
+         */
+        busArn: pulumi.Input<string>;
+        /**
+         * Name of the target EventBridge event bus (anvil.aws.EventBus).
+         */
+        name: pulumi.Input<string>;
+    }
+
+    /**
+     * Lambda stream consumer. Anvil creates the ESM, lambda:InvokeFunction permission, and attaches stream read permissions to the Lambda role. Does not grant table read/write access — call grantRead/Write separately if needed.
+     */
+    export interface DynamoDBStreamLambdaConsumerArgs {
+        /**
+         * ARN of the Lambda function.
+         */
+        arn: pulumi.Input<string>;
+        /**
+         * ARN of the Lambda execution role. Anvil attaches an inline policy granting stream read permissions (GetRecords, GetShardIterator, DescribeStream, ListStreams).
+         */
+        lambdaRoleArn: pulumi.Input<string>;
+    }
+
+    export interface DynamoOverridesArgs {
+        /**
+         * Set of nested attribute definitions. Only required for <span pulumi-lang-nodejs="`hashKey`" pulumi-lang-dotnet="`HashKey`" pulumi-lang-go="`hashKey`" pulumi-lang-python="`hash_key`" pulumi-lang-yaml="`hashKey`" pulumi-lang-java="`hashKey`">`hash_key`</span> and <span pulumi-lang-nodejs="`rangeKey`" pulumi-lang-dotnet="`RangeKey`" pulumi-lang-go="`rangeKey`" pulumi-lang-python="`range_key`" pulumi-lang-yaml="`rangeKey`" pulumi-lang-java="`rangeKey`">`range_key`</span> attributes. See below.
+         */
+        attributes?: pulumi.Input<pulumi.Input<pulumiAws.types.input.dynamodb.TableAttribute>[]>;
+        /**
+         * Controls how you are charged for read and write throughput and how you manage capacity. The valid values are `PROVISIONED` and `PAY_PER_REQUEST`. Defaults to `PROVISIONED`.
+         */
+        billingMode?: pulumi.Input<string>;
+        /**
+         * Enables deletion protection for table. Defaults to <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+         */
+        deletionProtectionEnabled?: pulumi.Input<boolean>;
+        /**
+         * Describe a GSI for the table; subject to the normal limits on the number of GSIs, projected attributes, etc. See below.
+         */
+        globalSecondaryIndexes?: pulumi.Input<pulumi.Input<pulumiAws.types.input.dynamodb.TableGlobalSecondaryIndex>[]>;
+        /**
+         * Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single <span pulumi-lang-nodejs="`replica`" pulumi-lang-dotnet="`Replica`" pulumi-lang-go="`replica`" pulumi-lang-python="`replica`" pulumi-lang-yaml="`replica`" pulumi-lang-java="`replica`">`replica`</span> with <span pulumi-lang-nodejs="`consistencyMode`" pulumi-lang-dotnet="`ConsistencyMode`" pulumi-lang-go="`consistencyMode`" pulumi-lang-python="`consistency_mode`" pulumi-lang-yaml="`consistencyMode`" pulumi-lang-java="`consistencyMode`">`consistency_mode`</span> set to `STRONG`. Other combinations will fail to provision. See below.
+         */
+        globalTableWitness?: pulumi.Input<pulumiAws.types.input.dynamodb.TableGlobalTableWitness>;
+        /**
+         * Attribute to use as the hash (partition) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>. See below.
+         */
+        hashKey?: pulumi.Input<string>;
+        /**
+         * Import Amazon S3 data into a new table. See below.
+         */
+        importTable?: pulumi.Input<pulumiAws.types.input.dynamodb.TableImportTable>;
+        /**
+         * Describe an LSI on the table; these can only be allocated _at creation_ so you cannot change this definition after you have created the resource. See below.
+         */
+        localSecondaryIndexes?: pulumi.Input<pulumi.Input<pulumiAws.types.input.dynamodb.TableLocalSecondaryIndex>[]>;
+        /**
+         * Unique within a region name of the table.
+         *
+         * The following arguments are optional:
+         */
+        name?: pulumi.Input<string>;
+        /**
+         * Sets the maximum number of read and write units for the specified on-demand table. See below.
+         */
+        onDemandThroughput?: pulumi.Input<pulumiAws.types.input.dynamodb.TableOnDemandThroughput>;
+        /**
+         * Enable point-in-time recovery options. See below.
+         */
+        pointInTimeRecovery?: pulumi.Input<pulumiAws.types.input.dynamodb.TablePointInTimeRecovery>;
+        /**
+         * Attribute to use as the range (sort) key. Must also be defined as an <span pulumi-lang-nodejs="`attribute`" pulumi-lang-dotnet="`Attribute`" pulumi-lang-go="`attribute`" pulumi-lang-python="`attribute`" pulumi-lang-yaml="`attribute`" pulumi-lang-java="`attribute`">`attribute`</span>, see below.
+         */
+        rangeKey?: pulumi.Input<string>;
+        /**
+         * Number of read units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+         */
+        readCapacity?: pulumi.Input<number>;
+        /**
+         * Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+         */
+        region?: pulumi.Input<string>;
+        /**
+         * Configuration block(s) with [DynamoDB Global Tables V2 (version 2019.11.21)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html) replication configurations. See below.
+         */
+        replicas?: pulumi.Input<pulumi.Input<pulumiAws.types.input.dynamodb.TableReplica>[]>;
+        /**
+         * Time of the point-in-time recovery point to restore.
+         */
+        restoreDateTime?: pulumi.Input<string>;
+        /**
+         * Name of the table to restore. Must match the name of an existing table.
+         */
+        restoreSourceName?: pulumi.Input<string>;
+        /**
+         * ARN of the source table to restore. Must be supplied for cross-region restores.
+         */
+        restoreSourceTableArn?: pulumi.Input<string>;
+        /**
+         * If set, restores table to the most recent point-in-time recovery point.
+         */
+        restoreToLatestTime?: pulumi.Input<boolean>;
+        /**
+         * Encryption at rest options. AWS DynamoDB tables are automatically encrypted at rest with an AWS-owned Customer Master Key if this argument isn't specified. Must be supplied for cross-region restores. See below.
+         */
+        serverSideEncryption?: pulumi.Input<pulumiAws.types.input.dynamodb.TableServerSideEncryption>;
+        /**
+         * Whether Streams are enabled.
+         */
+        streamEnabled?: pulumi.Input<boolean>;
+        /**
+         * When an item in the table is modified, StreamViewType determines what information is written to the table's stream.
+         * Valid values are `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`.
+         * Only valid when <span pulumi-lang-nodejs="`streamEnabled`" pulumi-lang-dotnet="`StreamEnabled`" pulumi-lang-go="`streamEnabled`" pulumi-lang-python="`stream_enabled`" pulumi-lang-yaml="`streamEnabled`" pulumi-lang-java="`streamEnabled`">`stream_enabled`</span> is true.
+         */
+        streamViewType?: pulumi.Input<string>;
+        /**
+         * Storage class of the table.
+         * Valid values are `STANDARD` and `STANDARD_INFREQUENT_ACCESS`.
+         * Default value is `STANDARD`.
+         */
+        tableClass?: pulumi.Input<string>;
+        /**
+         * A map of tags to populate on the created table. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+         */
+        tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+        /**
+         * Configuration block for TTL. See below.
+         */
+        ttl?: pulumi.Input<pulumiAws.types.input.dynamodb.TableTtl>;
+        /**
+         * Sets the number of warm read and write units for the specified table. See below.
+         */
+        warmThroughput?: pulumi.Input<pulumiAws.types.input.dynamodb.TableWarmThroughput>;
+        /**
+         * Number of write units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+         */
+        writeCapacity?: pulumi.Input<number>;
+    }
+
+    export interface DynamoTransformArgsArgs {
+        dynamo?: pulumi.Input<inputs.aws.DynamoOverridesArgs>;
+    }
+
     export interface EventBridgeOverridesArgs {
         /**
          * Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ). This block supports the following arguments:

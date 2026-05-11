@@ -13,6 +13,10 @@ __all__ = [
     'CognitoUserPoolMfaMode',
     'CognitoUserPoolOAuthFlow',
     'CognitoUserPoolUsernameAttribute',
+    'DynamoDBAttributeType',
+    'DynamoDBProjectionType',
+    'DynamoDBStreamStartingPosition',
+    'DynamoDBStreamViewType',
     'HttpApiMethod',
     'LambdaArchitecture',
     'LambdaLogRetention',
@@ -112,6 +116,70 @@ class CognitoUserPoolUsernameAttribute(_builtins.str, Enum):
     PHONE_NUMBER = "phone_number"
     """
     Users sign in with their phone number.
+    """
+
+
+@pulumi.type_token("anvil:aws:DynamoDBAttributeType")
+class DynamoDBAttributeType(_builtins.str, Enum):
+    S = "S"
+    """
+    String
+    """
+    N = "N"
+    """
+    Number
+    """
+    B = "B"
+    """
+    Binary
+    """
+
+
+@pulumi.type_token("anvil:aws:DynamoDBProjectionType")
+class DynamoDBProjectionType(_builtins.str, Enum):
+    ALL = "ALL"
+    """
+    All attributes are projected. Default.
+    """
+    KEY_S_ONLY = "KEYS_ONLY"
+    """
+    Only the table and GSI key attributes are projected.
+    """
+    INCLUDE = "INCLUDE"
+    """
+    Only the specified nonKeyAttributes are projected in addition to keys.
+    """
+
+
+@pulumi.type_token("anvil:aws:DynamoDBStreamStartingPosition")
+class DynamoDBStreamStartingPosition(_builtins.str, Enum):
+    TRI_M_HORIZON = "TRIM_HORIZON"
+    """
+    Start reading from the oldest available record in the stream. Replays all existing records up to 24hr retention window. AWS default.
+    """
+    LATEST = "LATEST"
+    """
+    Start reading from the most recent record. Only processes new events from the point of consumer creation.
+    """
+
+
+@pulumi.type_token("anvil:aws:DynamoDBStreamViewType")
+class DynamoDBStreamViewType(_builtins.str, Enum):
+    NE_W_IMAGE = "NEW_IMAGE"
+    """
+    Only the new item image is written to the stream.
+    """
+    OL_D_IMAGE = "OLD_IMAGE"
+    """
+    Only the old item image is written to the stream.
+    """
+    NE_W_AN_D_OL_D_IMAGES = "NEW_AND_OLD_IMAGES"
+    """
+    Both old and new item images are written to the stream.
+    """
+    KEY_S_ONLY = "KEYS_ONLY"
+    """
+    Only the key attributes are written to the stream.
     """
 
 

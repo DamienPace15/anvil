@@ -100,6 +100,74 @@ export const CognitoUserPoolUsernameAttribute = {
 
 export type CognitoUserPoolUsernameAttribute = (typeof CognitoUserPoolUsernameAttribute)[keyof typeof CognitoUserPoolUsernameAttribute];
 
+export const DynamoDBAttributeType = {
+    /**
+     * String
+     */
+    S: "S",
+    /**
+     * Number
+     */
+    N: "N",
+    /**
+     * Binary
+     */
+    B: "B",
+} as const;
+
+export type DynamoDBAttributeType = (typeof DynamoDBAttributeType)[keyof typeof DynamoDBAttributeType];
+
+export const DynamoDBProjectionType = {
+    /**
+     * All attributes are projected. Default.
+     */
+    ALL: "ALL",
+    /**
+     * Only the table and GSI key attributes are projected.
+     */
+    KEYS_ONLY: "KEYS_ONLY",
+    /**
+     * Only the specified nonKeyAttributes are projected in addition to keys.
+     */
+    INCLUDE: "INCLUDE",
+} as const;
+
+export type DynamoDBProjectionType = (typeof DynamoDBProjectionType)[keyof typeof DynamoDBProjectionType];
+
+export const DynamoDBStreamStartingPosition = {
+    /**
+     * Start reading from the oldest available record in the stream. Replays all existing records up to 24hr retention window. AWS default.
+     */
+    TRIM_HORIZON: "TRIM_HORIZON",
+    /**
+     * Start reading from the most recent record. Only processes new events from the point of consumer creation.
+     */
+    LATEST: "LATEST",
+} as const;
+
+export type DynamoDBStreamStartingPosition = (typeof DynamoDBStreamStartingPosition)[keyof typeof DynamoDBStreamStartingPosition];
+
+export const DynamoDBStreamViewType = {
+    /**
+     * Only the new item image is written to the stream.
+     */
+    NEW_IMAGE: "NEW_IMAGE",
+    /**
+     * Only the old item image is written to the stream.
+     */
+    OLD_IMAGE: "OLD_IMAGE",
+    /**
+     * Both old and new item images are written to the stream.
+     */
+    NEW_AND_OLD_IMAGES: "NEW_AND_OLD_IMAGES",
+    /**
+     * Only the key attributes are written to the stream.
+     */
+    KEYS_ONLY: "KEYS_ONLY",
+} as const;
+
+export type DynamoDBStreamViewType = (typeof DynamoDBStreamViewType)[keyof typeof DynamoDBStreamViewType];
+
 export const HttpApiMethod = {
     /**
      * HTTP GET — read operations.

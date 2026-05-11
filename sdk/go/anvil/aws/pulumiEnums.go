@@ -1167,6 +1167,686 @@ func (o CognitoUserPoolUsernameAttributeArrayOutput) Index(i pulumi.IntInput) Co
 	}).(CognitoUserPoolUsernameAttributeOutput)
 }
 
+type DynamoDBAttributeType string
+
+const (
+	// String
+	DynamoDBAttributeTypeS = DynamoDBAttributeType("S")
+	// Number
+	DynamoDBAttributeTypeN = DynamoDBAttributeType("N")
+	// Binary
+	DynamoDBAttributeTypeB = DynamoDBAttributeType("B")
+)
+
+func (DynamoDBAttributeType) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBAttributeType)(nil)).Elem()
+}
+
+func (e DynamoDBAttributeType) ToDynamoDBAttributeTypeOutput() DynamoDBAttributeTypeOutput {
+	return pulumi.ToOutput(e).(DynamoDBAttributeTypeOutput)
+}
+
+func (e DynamoDBAttributeType) ToDynamoDBAttributeTypeOutputWithContext(ctx context.Context) DynamoDBAttributeTypeOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(DynamoDBAttributeTypeOutput)
+}
+
+func (e DynamoDBAttributeType) ToDynamoDBAttributeTypePtrOutput() DynamoDBAttributeTypePtrOutput {
+	return e.ToDynamoDBAttributeTypePtrOutputWithContext(context.Background())
+}
+
+func (e DynamoDBAttributeType) ToDynamoDBAttributeTypePtrOutputWithContext(ctx context.Context) DynamoDBAttributeTypePtrOutput {
+	return DynamoDBAttributeType(e).ToDynamoDBAttributeTypeOutputWithContext(ctx).ToDynamoDBAttributeTypePtrOutputWithContext(ctx)
+}
+
+func (e DynamoDBAttributeType) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DynamoDBAttributeType) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DynamoDBAttributeType) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e DynamoDBAttributeType) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type DynamoDBAttributeTypeOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBAttributeTypeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBAttributeType)(nil)).Elem()
+}
+
+func (o DynamoDBAttributeTypeOutput) ToDynamoDBAttributeTypeOutput() DynamoDBAttributeTypeOutput {
+	return o
+}
+
+func (o DynamoDBAttributeTypeOutput) ToDynamoDBAttributeTypeOutputWithContext(ctx context.Context) DynamoDBAttributeTypeOutput {
+	return o
+}
+
+func (o DynamoDBAttributeTypeOutput) ToDynamoDBAttributeTypePtrOutput() DynamoDBAttributeTypePtrOutput {
+	return o.ToDynamoDBAttributeTypePtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBAttributeTypeOutput) ToDynamoDBAttributeTypePtrOutputWithContext(ctx context.Context) DynamoDBAttributeTypePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DynamoDBAttributeType) *DynamoDBAttributeType {
+		return &v
+	}).(DynamoDBAttributeTypePtrOutput)
+}
+
+func (o DynamoDBAttributeTypeOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o DynamoDBAttributeTypeOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DynamoDBAttributeType) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o DynamoDBAttributeTypeOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBAttributeTypeOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DynamoDBAttributeType) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type DynamoDBAttributeTypePtrOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBAttributeTypePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBAttributeType)(nil)).Elem()
+}
+
+func (o DynamoDBAttributeTypePtrOutput) ToDynamoDBAttributeTypePtrOutput() DynamoDBAttributeTypePtrOutput {
+	return o
+}
+
+func (o DynamoDBAttributeTypePtrOutput) ToDynamoDBAttributeTypePtrOutputWithContext(ctx context.Context) DynamoDBAttributeTypePtrOutput {
+	return o
+}
+
+func (o DynamoDBAttributeTypePtrOutput) Elem() DynamoDBAttributeTypeOutput {
+	return o.ApplyT(func(v *DynamoDBAttributeType) DynamoDBAttributeType {
+		if v != nil {
+			return *v
+		}
+		var ret DynamoDBAttributeType
+		return ret
+	}).(DynamoDBAttributeTypeOutput)
+}
+
+func (o DynamoDBAttributeTypePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBAttributeTypePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *DynamoDBAttributeType) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// DynamoDBAttributeTypeInput is an input type that accepts values of the DynamoDBAttributeType enum
+// A concrete instance of `DynamoDBAttributeTypeInput` can be one of the following:
+//
+//	DynamoDBAttributeTypeS
+//	DynamoDBAttributeTypeN
+//	DynamoDBAttributeTypeB
+type DynamoDBAttributeTypeInput interface {
+	pulumi.Input
+
+	ToDynamoDBAttributeTypeOutput() DynamoDBAttributeTypeOutput
+	ToDynamoDBAttributeTypeOutputWithContext(context.Context) DynamoDBAttributeTypeOutput
+}
+
+var dynamoDBAttributeTypePtrType = reflect.TypeOf((**DynamoDBAttributeType)(nil)).Elem()
+
+type DynamoDBAttributeTypePtrInput interface {
+	pulumi.Input
+
+	ToDynamoDBAttributeTypePtrOutput() DynamoDBAttributeTypePtrOutput
+	ToDynamoDBAttributeTypePtrOutputWithContext(context.Context) DynamoDBAttributeTypePtrOutput
+}
+
+type dynamoDBAttributeTypePtr string
+
+func DynamoDBAttributeTypePtr(v string) DynamoDBAttributeTypePtrInput {
+	return (*dynamoDBAttributeTypePtr)(&v)
+}
+
+func (*dynamoDBAttributeTypePtr) ElementType() reflect.Type {
+	return dynamoDBAttributeTypePtrType
+}
+
+func (in *dynamoDBAttributeTypePtr) ToDynamoDBAttributeTypePtrOutput() DynamoDBAttributeTypePtrOutput {
+	return pulumi.ToOutput(in).(DynamoDBAttributeTypePtrOutput)
+}
+
+func (in *dynamoDBAttributeTypePtr) ToDynamoDBAttributeTypePtrOutputWithContext(ctx context.Context) DynamoDBAttributeTypePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(DynamoDBAttributeTypePtrOutput)
+}
+
+type DynamoDBProjectionType string
+
+const (
+	// All attributes are projected. Default.
+	DynamoDBProjectionTypeALL = DynamoDBProjectionType("ALL")
+	// Only the table and GSI key attributes are projected.
+	DynamoDBProjectionType_KEYS_ONLY = DynamoDBProjectionType("KEYS_ONLY")
+	// Only the specified nonKeyAttributes are projected in addition to keys.
+	DynamoDBProjectionTypeINCLUDE = DynamoDBProjectionType("INCLUDE")
+)
+
+func (DynamoDBProjectionType) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBProjectionType)(nil)).Elem()
+}
+
+func (e DynamoDBProjectionType) ToDynamoDBProjectionTypeOutput() DynamoDBProjectionTypeOutput {
+	return pulumi.ToOutput(e).(DynamoDBProjectionTypeOutput)
+}
+
+func (e DynamoDBProjectionType) ToDynamoDBProjectionTypeOutputWithContext(ctx context.Context) DynamoDBProjectionTypeOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(DynamoDBProjectionTypeOutput)
+}
+
+func (e DynamoDBProjectionType) ToDynamoDBProjectionTypePtrOutput() DynamoDBProjectionTypePtrOutput {
+	return e.ToDynamoDBProjectionTypePtrOutputWithContext(context.Background())
+}
+
+func (e DynamoDBProjectionType) ToDynamoDBProjectionTypePtrOutputWithContext(ctx context.Context) DynamoDBProjectionTypePtrOutput {
+	return DynamoDBProjectionType(e).ToDynamoDBProjectionTypeOutputWithContext(ctx).ToDynamoDBProjectionTypePtrOutputWithContext(ctx)
+}
+
+func (e DynamoDBProjectionType) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DynamoDBProjectionType) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DynamoDBProjectionType) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e DynamoDBProjectionType) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type DynamoDBProjectionTypeOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBProjectionTypeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBProjectionType)(nil)).Elem()
+}
+
+func (o DynamoDBProjectionTypeOutput) ToDynamoDBProjectionTypeOutput() DynamoDBProjectionTypeOutput {
+	return o
+}
+
+func (o DynamoDBProjectionTypeOutput) ToDynamoDBProjectionTypeOutputWithContext(ctx context.Context) DynamoDBProjectionTypeOutput {
+	return o
+}
+
+func (o DynamoDBProjectionTypeOutput) ToDynamoDBProjectionTypePtrOutput() DynamoDBProjectionTypePtrOutput {
+	return o.ToDynamoDBProjectionTypePtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBProjectionTypeOutput) ToDynamoDBProjectionTypePtrOutputWithContext(ctx context.Context) DynamoDBProjectionTypePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DynamoDBProjectionType) *DynamoDBProjectionType {
+		return &v
+	}).(DynamoDBProjectionTypePtrOutput)
+}
+
+func (o DynamoDBProjectionTypeOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o DynamoDBProjectionTypeOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DynamoDBProjectionType) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o DynamoDBProjectionTypeOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBProjectionTypeOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DynamoDBProjectionType) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type DynamoDBProjectionTypePtrOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBProjectionTypePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBProjectionType)(nil)).Elem()
+}
+
+func (o DynamoDBProjectionTypePtrOutput) ToDynamoDBProjectionTypePtrOutput() DynamoDBProjectionTypePtrOutput {
+	return o
+}
+
+func (o DynamoDBProjectionTypePtrOutput) ToDynamoDBProjectionTypePtrOutputWithContext(ctx context.Context) DynamoDBProjectionTypePtrOutput {
+	return o
+}
+
+func (o DynamoDBProjectionTypePtrOutput) Elem() DynamoDBProjectionTypeOutput {
+	return o.ApplyT(func(v *DynamoDBProjectionType) DynamoDBProjectionType {
+		if v != nil {
+			return *v
+		}
+		var ret DynamoDBProjectionType
+		return ret
+	}).(DynamoDBProjectionTypeOutput)
+}
+
+func (o DynamoDBProjectionTypePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBProjectionTypePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *DynamoDBProjectionType) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// DynamoDBProjectionTypeInput is an input type that accepts values of the DynamoDBProjectionType enum
+// A concrete instance of `DynamoDBProjectionTypeInput` can be one of the following:
+//
+//	DynamoDBProjectionTypeALL
+//	DynamoDBProjectionType_KEYS_ONLY
+//	DynamoDBProjectionTypeINCLUDE
+type DynamoDBProjectionTypeInput interface {
+	pulumi.Input
+
+	ToDynamoDBProjectionTypeOutput() DynamoDBProjectionTypeOutput
+	ToDynamoDBProjectionTypeOutputWithContext(context.Context) DynamoDBProjectionTypeOutput
+}
+
+var dynamoDBProjectionTypePtrType = reflect.TypeOf((**DynamoDBProjectionType)(nil)).Elem()
+
+type DynamoDBProjectionTypePtrInput interface {
+	pulumi.Input
+
+	ToDynamoDBProjectionTypePtrOutput() DynamoDBProjectionTypePtrOutput
+	ToDynamoDBProjectionTypePtrOutputWithContext(context.Context) DynamoDBProjectionTypePtrOutput
+}
+
+type dynamoDBProjectionTypePtr string
+
+func DynamoDBProjectionTypePtr(v string) DynamoDBProjectionTypePtrInput {
+	return (*dynamoDBProjectionTypePtr)(&v)
+}
+
+func (*dynamoDBProjectionTypePtr) ElementType() reflect.Type {
+	return dynamoDBProjectionTypePtrType
+}
+
+func (in *dynamoDBProjectionTypePtr) ToDynamoDBProjectionTypePtrOutput() DynamoDBProjectionTypePtrOutput {
+	return pulumi.ToOutput(in).(DynamoDBProjectionTypePtrOutput)
+}
+
+func (in *dynamoDBProjectionTypePtr) ToDynamoDBProjectionTypePtrOutputWithContext(ctx context.Context) DynamoDBProjectionTypePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(DynamoDBProjectionTypePtrOutput)
+}
+
+type DynamoDBStreamStartingPosition string
+
+const (
+	// Start reading from the oldest available record in the stream. Replays all existing records up to 24hr retention window. AWS default.
+	DynamoDBStreamStartingPosition_TRIM_HORIZON = DynamoDBStreamStartingPosition("TRIM_HORIZON")
+	// Start reading from the most recent record. Only processes new events from the point of consumer creation.
+	DynamoDBStreamStartingPositionLATEST = DynamoDBStreamStartingPosition("LATEST")
+)
+
+func (DynamoDBStreamStartingPosition) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBStreamStartingPosition)(nil)).Elem()
+}
+
+func (e DynamoDBStreamStartingPosition) ToDynamoDBStreamStartingPositionOutput() DynamoDBStreamStartingPositionOutput {
+	return pulumi.ToOutput(e).(DynamoDBStreamStartingPositionOutput)
+}
+
+func (e DynamoDBStreamStartingPosition) ToDynamoDBStreamStartingPositionOutputWithContext(ctx context.Context) DynamoDBStreamStartingPositionOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(DynamoDBStreamStartingPositionOutput)
+}
+
+func (e DynamoDBStreamStartingPosition) ToDynamoDBStreamStartingPositionPtrOutput() DynamoDBStreamStartingPositionPtrOutput {
+	return e.ToDynamoDBStreamStartingPositionPtrOutputWithContext(context.Background())
+}
+
+func (e DynamoDBStreamStartingPosition) ToDynamoDBStreamStartingPositionPtrOutputWithContext(ctx context.Context) DynamoDBStreamStartingPositionPtrOutput {
+	return DynamoDBStreamStartingPosition(e).ToDynamoDBStreamStartingPositionOutputWithContext(ctx).ToDynamoDBStreamStartingPositionPtrOutputWithContext(ctx)
+}
+
+func (e DynamoDBStreamStartingPosition) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DynamoDBStreamStartingPosition) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DynamoDBStreamStartingPosition) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e DynamoDBStreamStartingPosition) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type DynamoDBStreamStartingPositionOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBStreamStartingPositionOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBStreamStartingPosition)(nil)).Elem()
+}
+
+func (o DynamoDBStreamStartingPositionOutput) ToDynamoDBStreamStartingPositionOutput() DynamoDBStreamStartingPositionOutput {
+	return o
+}
+
+func (o DynamoDBStreamStartingPositionOutput) ToDynamoDBStreamStartingPositionOutputWithContext(ctx context.Context) DynamoDBStreamStartingPositionOutput {
+	return o
+}
+
+func (o DynamoDBStreamStartingPositionOutput) ToDynamoDBStreamStartingPositionPtrOutput() DynamoDBStreamStartingPositionPtrOutput {
+	return o.ToDynamoDBStreamStartingPositionPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBStreamStartingPositionOutput) ToDynamoDBStreamStartingPositionPtrOutputWithContext(ctx context.Context) DynamoDBStreamStartingPositionPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DynamoDBStreamStartingPosition) *DynamoDBStreamStartingPosition {
+		return &v
+	}).(DynamoDBStreamStartingPositionPtrOutput)
+}
+
+func (o DynamoDBStreamStartingPositionOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o DynamoDBStreamStartingPositionOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DynamoDBStreamStartingPosition) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o DynamoDBStreamStartingPositionOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBStreamStartingPositionOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DynamoDBStreamStartingPosition) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type DynamoDBStreamStartingPositionPtrOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBStreamStartingPositionPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBStreamStartingPosition)(nil)).Elem()
+}
+
+func (o DynamoDBStreamStartingPositionPtrOutput) ToDynamoDBStreamStartingPositionPtrOutput() DynamoDBStreamStartingPositionPtrOutput {
+	return o
+}
+
+func (o DynamoDBStreamStartingPositionPtrOutput) ToDynamoDBStreamStartingPositionPtrOutputWithContext(ctx context.Context) DynamoDBStreamStartingPositionPtrOutput {
+	return o
+}
+
+func (o DynamoDBStreamStartingPositionPtrOutput) Elem() DynamoDBStreamStartingPositionOutput {
+	return o.ApplyT(func(v *DynamoDBStreamStartingPosition) DynamoDBStreamStartingPosition {
+		if v != nil {
+			return *v
+		}
+		var ret DynamoDBStreamStartingPosition
+		return ret
+	}).(DynamoDBStreamStartingPositionOutput)
+}
+
+func (o DynamoDBStreamStartingPositionPtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBStreamStartingPositionPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *DynamoDBStreamStartingPosition) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// DynamoDBStreamStartingPositionInput is an input type that accepts values of the DynamoDBStreamStartingPosition enum
+// A concrete instance of `DynamoDBStreamStartingPositionInput` can be one of the following:
+//
+//	DynamoDBStreamStartingPosition_TRIM_HORIZON
+//	DynamoDBStreamStartingPositionLATEST
+type DynamoDBStreamStartingPositionInput interface {
+	pulumi.Input
+
+	ToDynamoDBStreamStartingPositionOutput() DynamoDBStreamStartingPositionOutput
+	ToDynamoDBStreamStartingPositionOutputWithContext(context.Context) DynamoDBStreamStartingPositionOutput
+}
+
+var dynamoDBStreamStartingPositionPtrType = reflect.TypeOf((**DynamoDBStreamStartingPosition)(nil)).Elem()
+
+type DynamoDBStreamStartingPositionPtrInput interface {
+	pulumi.Input
+
+	ToDynamoDBStreamStartingPositionPtrOutput() DynamoDBStreamStartingPositionPtrOutput
+	ToDynamoDBStreamStartingPositionPtrOutputWithContext(context.Context) DynamoDBStreamStartingPositionPtrOutput
+}
+
+type dynamoDBStreamStartingPositionPtr string
+
+func DynamoDBStreamStartingPositionPtr(v string) DynamoDBStreamStartingPositionPtrInput {
+	return (*dynamoDBStreamStartingPositionPtr)(&v)
+}
+
+func (*dynamoDBStreamStartingPositionPtr) ElementType() reflect.Type {
+	return dynamoDBStreamStartingPositionPtrType
+}
+
+func (in *dynamoDBStreamStartingPositionPtr) ToDynamoDBStreamStartingPositionPtrOutput() DynamoDBStreamStartingPositionPtrOutput {
+	return pulumi.ToOutput(in).(DynamoDBStreamStartingPositionPtrOutput)
+}
+
+func (in *dynamoDBStreamStartingPositionPtr) ToDynamoDBStreamStartingPositionPtrOutputWithContext(ctx context.Context) DynamoDBStreamStartingPositionPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(DynamoDBStreamStartingPositionPtrOutput)
+}
+
+type DynamoDBStreamViewType string
+
+const (
+	// Only the new item image is written to the stream.
+	DynamoDBStreamViewType_NEW_IMAGE = DynamoDBStreamViewType("NEW_IMAGE")
+	// Only the old item image is written to the stream.
+	DynamoDBStreamViewType_OLD_IMAGE = DynamoDBStreamViewType("OLD_IMAGE")
+	// Both old and new item images are written to the stream.
+	DynamoDBStreamViewType_NEW_AND_OLD_IMAGES = DynamoDBStreamViewType("NEW_AND_OLD_IMAGES")
+	// Only the key attributes are written to the stream.
+	DynamoDBStreamViewType_KEYS_ONLY = DynamoDBStreamViewType("KEYS_ONLY")
+)
+
+func (DynamoDBStreamViewType) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBStreamViewType)(nil)).Elem()
+}
+
+func (e DynamoDBStreamViewType) ToDynamoDBStreamViewTypeOutput() DynamoDBStreamViewTypeOutput {
+	return pulumi.ToOutput(e).(DynamoDBStreamViewTypeOutput)
+}
+
+func (e DynamoDBStreamViewType) ToDynamoDBStreamViewTypeOutputWithContext(ctx context.Context) DynamoDBStreamViewTypeOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(DynamoDBStreamViewTypeOutput)
+}
+
+func (e DynamoDBStreamViewType) ToDynamoDBStreamViewTypePtrOutput() DynamoDBStreamViewTypePtrOutput {
+	return e.ToDynamoDBStreamViewTypePtrOutputWithContext(context.Background())
+}
+
+func (e DynamoDBStreamViewType) ToDynamoDBStreamViewTypePtrOutputWithContext(ctx context.Context) DynamoDBStreamViewTypePtrOutput {
+	return DynamoDBStreamViewType(e).ToDynamoDBStreamViewTypeOutputWithContext(ctx).ToDynamoDBStreamViewTypePtrOutputWithContext(ctx)
+}
+
+func (e DynamoDBStreamViewType) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DynamoDBStreamViewType) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DynamoDBStreamViewType) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e DynamoDBStreamViewType) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type DynamoDBStreamViewTypeOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBStreamViewTypeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DynamoDBStreamViewType)(nil)).Elem()
+}
+
+func (o DynamoDBStreamViewTypeOutput) ToDynamoDBStreamViewTypeOutput() DynamoDBStreamViewTypeOutput {
+	return o
+}
+
+func (o DynamoDBStreamViewTypeOutput) ToDynamoDBStreamViewTypeOutputWithContext(ctx context.Context) DynamoDBStreamViewTypeOutput {
+	return o
+}
+
+func (o DynamoDBStreamViewTypeOutput) ToDynamoDBStreamViewTypePtrOutput() DynamoDBStreamViewTypePtrOutput {
+	return o.ToDynamoDBStreamViewTypePtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBStreamViewTypeOutput) ToDynamoDBStreamViewTypePtrOutputWithContext(ctx context.Context) DynamoDBStreamViewTypePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DynamoDBStreamViewType) *DynamoDBStreamViewType {
+		return &v
+	}).(DynamoDBStreamViewTypePtrOutput)
+}
+
+func (o DynamoDBStreamViewTypeOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o DynamoDBStreamViewTypeOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DynamoDBStreamViewType) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o DynamoDBStreamViewTypeOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBStreamViewTypeOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DynamoDBStreamViewType) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type DynamoDBStreamViewTypePtrOutput struct{ *pulumi.OutputState }
+
+func (DynamoDBStreamViewTypePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DynamoDBStreamViewType)(nil)).Elem()
+}
+
+func (o DynamoDBStreamViewTypePtrOutput) ToDynamoDBStreamViewTypePtrOutput() DynamoDBStreamViewTypePtrOutput {
+	return o
+}
+
+func (o DynamoDBStreamViewTypePtrOutput) ToDynamoDBStreamViewTypePtrOutputWithContext(ctx context.Context) DynamoDBStreamViewTypePtrOutput {
+	return o
+}
+
+func (o DynamoDBStreamViewTypePtrOutput) Elem() DynamoDBStreamViewTypeOutput {
+	return o.ApplyT(func(v *DynamoDBStreamViewType) DynamoDBStreamViewType {
+		if v != nil {
+			return *v
+		}
+		var ret DynamoDBStreamViewType
+		return ret
+	}).(DynamoDBStreamViewTypeOutput)
+}
+
+func (o DynamoDBStreamViewTypePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DynamoDBStreamViewTypePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *DynamoDBStreamViewType) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// DynamoDBStreamViewTypeInput is an input type that accepts values of the DynamoDBStreamViewType enum
+// A concrete instance of `DynamoDBStreamViewTypeInput` can be one of the following:
+//
+//	DynamoDBStreamViewType_NEW_IMAGE
+//	DynamoDBStreamViewType_OLD_IMAGE
+//	DynamoDBStreamViewType_NEW_AND_OLD_IMAGES
+//	DynamoDBStreamViewType_KEYS_ONLY
+type DynamoDBStreamViewTypeInput interface {
+	pulumi.Input
+
+	ToDynamoDBStreamViewTypeOutput() DynamoDBStreamViewTypeOutput
+	ToDynamoDBStreamViewTypeOutputWithContext(context.Context) DynamoDBStreamViewTypeOutput
+}
+
+var dynamoDBStreamViewTypePtrType = reflect.TypeOf((**DynamoDBStreamViewType)(nil)).Elem()
+
+type DynamoDBStreamViewTypePtrInput interface {
+	pulumi.Input
+
+	ToDynamoDBStreamViewTypePtrOutput() DynamoDBStreamViewTypePtrOutput
+	ToDynamoDBStreamViewTypePtrOutputWithContext(context.Context) DynamoDBStreamViewTypePtrOutput
+}
+
+type dynamoDBStreamViewTypePtr string
+
+func DynamoDBStreamViewTypePtr(v string) DynamoDBStreamViewTypePtrInput {
+	return (*dynamoDBStreamViewTypePtr)(&v)
+}
+
+func (*dynamoDBStreamViewTypePtr) ElementType() reflect.Type {
+	return dynamoDBStreamViewTypePtrType
+}
+
+func (in *dynamoDBStreamViewTypePtr) ToDynamoDBStreamViewTypePtrOutput() DynamoDBStreamViewTypePtrOutput {
+	return pulumi.ToOutput(in).(DynamoDBStreamViewTypePtrOutput)
+}
+
+func (in *dynamoDBStreamViewTypePtr) ToDynamoDBStreamViewTypePtrOutputWithContext(ctx context.Context) DynamoDBStreamViewTypePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(DynamoDBStreamViewTypePtrOutput)
+}
+
 // HTTP method for an API route.
 type HttpApiMethod string
 
@@ -2375,6 +3055,14 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolUsernameAttributeInput)(nil)).Elem(), CognitoUserPoolUsernameAttribute("email"))
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolUsernameAttributePtrInput)(nil)).Elem(), CognitoUserPoolUsernameAttribute("email"))
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolUsernameAttributeArrayInput)(nil)).Elem(), CognitoUserPoolUsernameAttributeArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBAttributeTypeInput)(nil)).Elem(), DynamoDBAttributeType("S"))
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBAttributeTypePtrInput)(nil)).Elem(), DynamoDBAttributeType("S"))
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBProjectionTypeInput)(nil)).Elem(), DynamoDBProjectionType("ALL"))
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBProjectionTypePtrInput)(nil)).Elem(), DynamoDBProjectionType("ALL"))
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBStreamStartingPositionInput)(nil)).Elem(), DynamoDBStreamStartingPosition("TRIM_HORIZON"))
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBStreamStartingPositionPtrInput)(nil)).Elem(), DynamoDBStreamStartingPosition("TRIM_HORIZON"))
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBStreamViewTypeInput)(nil)).Elem(), DynamoDBStreamViewType("NEW_IMAGE"))
+	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBStreamViewTypePtrInput)(nil)).Elem(), DynamoDBStreamViewType("NEW_IMAGE"))
 	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiMethodInput)(nil)).Elem(), HttpApiMethod("GET"))
 	pulumi.RegisterInputType(reflect.TypeOf((*HttpApiMethodPtrInput)(nil)).Elem(), HttpApiMethod("GET"))
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaArchitectureInput)(nil)).Elem(), LambdaArchitecture("arm64"))
@@ -2404,6 +3092,14 @@ func init() {
 	pulumi.RegisterOutputType(CognitoUserPoolUsernameAttributeOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolUsernameAttributePtrOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolUsernameAttributeArrayOutput{})
+	pulumi.RegisterOutputType(DynamoDBAttributeTypeOutput{})
+	pulumi.RegisterOutputType(DynamoDBAttributeTypePtrOutput{})
+	pulumi.RegisterOutputType(DynamoDBProjectionTypeOutput{})
+	pulumi.RegisterOutputType(DynamoDBProjectionTypePtrOutput{})
+	pulumi.RegisterOutputType(DynamoDBStreamStartingPositionOutput{})
+	pulumi.RegisterOutputType(DynamoDBStreamStartingPositionPtrOutput{})
+	pulumi.RegisterOutputType(DynamoDBStreamViewTypeOutput{})
+	pulumi.RegisterOutputType(DynamoDBStreamViewTypePtrOutput{})
 	pulumi.RegisterOutputType(HttpApiMethodOutput{})
 	pulumi.RegisterOutputType(HttpApiMethodPtrOutput{})
 	pulumi.RegisterOutputType(LambdaArchitectureOutput{})

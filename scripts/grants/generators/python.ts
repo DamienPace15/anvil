@@ -5,7 +5,7 @@ export function generatePyGrantMethod(
   config: GrantConfig,
   grant: Grant
 ): string {
-  const { arnProperty, supportsPaths } = config;
+  const { arnProperty, supportsPaths, supportsIndexes } = config;
   const { method, actions, isFullAccess } = grant;
 
   const pyMethod = toSnakeCase(method);
@@ -30,6 +30,24 @@ export function generatePyGrantMethod(
         arns = grants.build_resource_arns(self.${arnProperty}, None)
         grants.create_grant(self, name, target, [${actionsStr}], arns, opts)
 `;
+  }
+
+  if (supportsIndexes) {
+    return `
+      def ${pyMethod}(self, target: "grants.GrantTarget", indexes: Optional[list] = None, justification: Optional[str] = None) -> None:
+          """Grants ${suffix} access on this resource.
+
+          Args:
+              target: The compute resource to grant access to.
+              indexes: Optional list of GSI names to scope access (e.g. ["by_status"]).
+                       If omitted, grants table access only — no index access.
+              justification: Optional audit trail note.
+          """
+          name = f"{self._name}-{target.grant_name()}-${suffix}"
+          index_paths = [f"index/{i}" for i in indexes] if indexes else None
+          arns = grants.build_resource_arns(self.${arnProperty}, index_paths)
+          grants.create_grant(self, name, target, [${actionsStr}], arns, grants.GrantOptions(justification=justification) if justification else None)
+  `;
   }
 
   if (supportsPaths) {

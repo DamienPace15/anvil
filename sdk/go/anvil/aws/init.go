@@ -27,6 +27,8 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &CognitoAuth{}
 	case "anvil:aws:CognitoUserPool":
 		r = &CognitoUserPool{}
+	case "anvil:aws:DynamoDB":
+		r = &DynamoDB{}
 	case "anvil:aws:EventBus":
 		r = &EventBus{}
 	case "anvil:aws:HttpApi":

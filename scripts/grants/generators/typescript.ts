@@ -5,7 +5,7 @@ export function generateTSGrantMethod(
   config: GrantConfig,
   grant: Grant
 ): string {
-  const { className, arnProperty, supportsPaths } = config;
+  const { className, arnProperty, supportsPaths, supportsIndexes } = config;
   const { method, actions, isFullAccess } = grant;
   const actionsStr = actions.map((a) => `"${a}"`).join(', ');
   const suffix = grantSuffix(method);
@@ -39,6 +39,27 @@ export function generateTSGrantMethod(
         const arns = grants.buildResourceArns(this.${arnProperty}, undefined);
         grants.createGrant(this, name, target, [${actionsStr}], arns, opts);
     }`;
+  }
+
+  if (supportsIndexes) {
+    return `
+      /**
+       * Grants ${suffix} access (${actions.join(
+      ', '
+    )}) on this ${className.toLowerCase()}
+       * to the target compute resource's execution role.
+       *
+       * @param target - The compute resource to grant access to.
+       * @param opts - Optional. indexes: scope to specific GSI names only.
+       *               If omitted, grants table access only — no index access.
+       * @param opts.justification - Optional audit trail note.
+       */
+      public ${method}(target: grants.GrantTarget, opts?: { indexes?: string[]; justification?: string }): void {
+          const name = \`\${this.__name}-\${target.grantName()}-${suffix}\`;
+          const indexPaths = opts?.indexes?.map(i => \`index/\${i}\`) ?? null;
+          const arns = grants.buildResourceArns(this.${arnProperty}, indexPaths);
+          grants.createGrant(this, name, target, [${actionsStr}], arns, { justification: opts?.justification });
+      }`;
   }
 
   if (supportsPaths) {

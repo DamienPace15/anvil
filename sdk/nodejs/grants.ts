@@ -83,9 +83,14 @@ function sanitize(s: string): string {
  */
 export function buildResourceArns(
   baseArn: pulumi.Output<string>,
-  paths?: string[]
+  paths?: string[] | null
 ): pulumi.Output<string>[] {
   const arns: pulumi.Output<string>[] = [baseArn];
+
+  if (paths === null) {
+    // Explicit null = base ARN only, no sub-paths (used by DynamoDB index grants)
+    return arns;
+  }
 
   if (!paths || paths.length === 0) {
     arns.push(pulumi.interpolate`${baseArn}/*`);

@@ -16,6 +16,7 @@
         "aws/bucket.ts",
         "aws/cognitoAuth.ts",
         "aws/cognitoUserPool.ts",
+        "aws/dynamoDB.ts",
         "aws/eventBus.ts",
         "aws/httpApi.ts",
         "aws/index.ts",

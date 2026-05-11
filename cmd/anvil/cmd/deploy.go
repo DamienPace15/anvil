@@ -92,7 +92,10 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 		}
 	}()
 
-	upOpts := []optup.Option{optup.EventStreams(eventCh)}
+	upOpts := []optup.Option{
+		optup.EventStreams(eventCh),
+		optup.Parallel(10),
+	}
 	if deployRefresh {
 		upOpts = append(upOpts, optup.Refresh())
 	}
