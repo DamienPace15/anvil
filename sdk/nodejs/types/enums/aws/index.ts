@@ -100,6 +100,38 @@ export const CognitoUserPoolUsernameAttribute = {
 
 export type CognitoUserPoolUsernameAttribute = (typeof CognitoUserPoolUsernameAttribute)[keyof typeof CognitoUserPoolUsernameAttribute];
 
+export const DSQLGrant = {
+    /**
+     * Read rows.
+     */
+    SELECT: "SELECT",
+    /**
+     * Insert new rows.
+     */
+    INSERT: "INSERT",
+    /**
+     * Update existing rows.
+     */
+    UPDATE: "UPDATE",
+    /**
+     * Delete rows.
+     */
+    DELETE: "DELETE",
+    /**
+     * Truncate a table.
+     */
+    TRUNCATE: "TRUNCATE",
+    /**
+     * Create a foreign key reference to the table.
+     */
+    REFERENCES: "REFERENCES",
+} as const;
+
+/**
+ * A PostgreSQL table-level privilege.
+ */
+export type DSQLGrant = (typeof DSQLGrant)[keyof typeof DSQLGrant];
+
 export const DynamoDBAttributeType = {
     /**
      * String

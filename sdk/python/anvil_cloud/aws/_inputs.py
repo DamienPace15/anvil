@@ -67,6 +67,18 @@ __all__ = [
     'CognitoUserPoolTokenValidityArgsDict',
     'CognitoUserPoolTransformArgsArgs',
     'CognitoUserPoolTransformArgsArgsDict',
+    'DSQLBackupArgsArgs',
+    'DSQLBackupArgsArgsDict',
+    'DSQLMultiRegionArgsArgs',
+    'DSQLMultiRegionArgsArgsDict',
+    'DSQLRoleArgs',
+    'DSQLRoleArgsDict',
+    'DSQLVpcArgsArgs',
+    'DSQLVpcArgsArgsDict',
+    'DsqlOverridesArgs',
+    'DsqlOverridesArgsDict',
+    'DsqlTransformArgsArgs',
+    'DsqlTransformArgsArgsDict',
     'DynamoDBGlobalSecondaryIndexArgs',
     'DynamoDBGlobalSecondaryIndexArgsDict',
     'DynamoDBKeyAttributeArgs',
@@ -3373,6 +3385,463 @@ class CognitoUserPoolTransformArgsArgs:
     @cognito_user_pool.setter
     def cognito_user_pool(self, value: Optional[pulumi.Input['CognitoUserPoolOverridesArgs']]):
         pulumi.set(self, "cognito_user_pool", value)
+
+
+class DSQLBackupArgsArgsDict(TypedDict):
+    """
+    AWS Backup configuration for DSQL clusters. Anvil opts in the DSQL resource type in each cluster region, creates a backup plan, and for multi-region clusters automatically adds cross-region copy rules so restores work in both regions.
+    """
+    retention_days: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Number of days to retain recovery points. Default: 35.
+    """
+    schedule_expression: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    CRON expression for when backups run. e.g. "cron(0 2 * * ? *)". Default: daily at midnight — cron(0 0 * * ? *).
+    """
+    schedule_timezone: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    IANA timezone for the schedule expression. e.g. "Australia/Sydney". Default: "Etc/UTC". Anvil passes this to the backup plan rule as scheduleExpressionTimezone.
+    """
+    vault_arn: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    ARN of an existing backup vault to store recovery points in. When omitted, Anvil uses the default AWS Backup vault.
+    """
+
+@pulumi.input_type
+class DSQLBackupArgsArgs:
+    def __init__(__self__, *,
+                 retention_days: Optional[pulumi.Input[_builtins.int]] = None,
+                 schedule_expression: Optional[pulumi.Input[_builtins.str]] = None,
+                 schedule_timezone: Optional[pulumi.Input[_builtins.str]] = None,
+                 vault_arn: Optional[pulumi.Input[_builtins.str]] = None):
+        """
+        AWS Backup configuration for DSQL clusters. Anvil opts in the DSQL resource type in each cluster region, creates a backup plan, and for multi-region clusters automatically adds cross-region copy rules so restores work in both regions.
+
+        :param pulumi.Input[_builtins.int] retention_days: Number of days to retain recovery points. Default: 35.
+        :param pulumi.Input[_builtins.str] schedule_expression: CRON expression for when backups run. e.g. "cron(0 2 * * ? *)". Default: daily at midnight — cron(0 0 * * ? *).
+        :param pulumi.Input[_builtins.str] schedule_timezone: IANA timezone for the schedule expression. e.g. "Australia/Sydney". Default: "Etc/UTC". Anvil passes this to the backup plan rule as scheduleExpressionTimezone.
+        :param pulumi.Input[_builtins.str] vault_arn: ARN of an existing backup vault to store recovery points in. When omitted, Anvil uses the default AWS Backup vault.
+        """
+        if retention_days is not None:
+            pulumi.set(__self__, "retention_days", retention_days)
+        if schedule_expression is not None:
+            pulumi.set(__self__, "schedule_expression", schedule_expression)
+        if schedule_timezone is not None:
+            pulumi.set(__self__, "schedule_timezone", schedule_timezone)
+        if vault_arn is not None:
+            pulumi.set(__self__, "vault_arn", vault_arn)
+
+    @_builtins.property
+    @pulumi.getter(name="retentionDays")
+    def retention_days(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Number of days to retain recovery points. Default: 35.
+        """
+        return pulumi.get(self, "retention_days")
+
+    @retention_days.setter
+    def retention_days(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "retention_days", value)
+
+    @_builtins.property
+    @pulumi.getter(name="scheduleExpression")
+    def schedule_expression(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        CRON expression for when backups run. e.g. "cron(0 2 * * ? *)". Default: daily at midnight — cron(0 0 * * ? *).
+        """
+        return pulumi.get(self, "schedule_expression")
+
+    @schedule_expression.setter
+    def schedule_expression(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "schedule_expression", value)
+
+    @_builtins.property
+    @pulumi.getter(name="scheduleTimezone")
+    def schedule_timezone(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        IANA timezone for the schedule expression. e.g. "Australia/Sydney". Default: "Etc/UTC". Anvil passes this to the backup plan rule as scheduleExpressionTimezone.
+        """
+        return pulumi.get(self, "schedule_timezone")
+
+    @schedule_timezone.setter
+    def schedule_timezone(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "schedule_timezone", value)
+
+    @_builtins.property
+    @pulumi.getter(name="vaultArn")
+    def vault_arn(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        ARN of an existing backup vault to store recovery points in. When omitted, Anvil uses the default AWS Backup vault.
+        """
+        return pulumi.get(self, "vault_arn")
+
+    @vault_arn.setter
+    def vault_arn(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "vault_arn", value)
+
+
+class DSQLMultiRegionArgsArgsDict(TypedDict):
+    """
+    Multi-region configuration for DSQL. When set, Anvil creates one cluster per region and links them via ClusterPeering. Both regions are active-active — reads and writes are accepted at either endpoint with strong consistency.
+    """
+    regions: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]
+    """
+    The two AWS regions to deploy the cluster into. Anvil creates one cluster per region using internally-created regional providers. AWS validates the region and witness region combination — Anvil passes through without inference.
+    """
+    witness_region: pulumi.Input[_builtins.str]
+    """
+    The AWS region to use as the witness. Stores a limited window of encrypted transaction logs to improve multi-region durability. Must be a third region distinct from both cluster regions. AWS validates this — Anvil does not infer or default it.
+    """
+
+@pulumi.input_type
+class DSQLMultiRegionArgsArgs:
+    def __init__(__self__, *,
+                 regions: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]],
+                 witness_region: pulumi.Input[_builtins.str]):
+        """
+        Multi-region configuration for DSQL. When set, Anvil creates one cluster per region and links them via ClusterPeering. Both regions are active-active — reads and writes are accepted at either endpoint with strong consistency.
+
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] regions: The two AWS regions to deploy the cluster into. Anvil creates one cluster per region using internally-created regional providers. AWS validates the region and witness region combination — Anvil passes through without inference.
+        :param pulumi.Input[_builtins.str] witness_region: The AWS region to use as the witness. Stores a limited window of encrypted transaction logs to improve multi-region durability. Must be a third region distinct from both cluster regions. AWS validates this — Anvil does not infer or default it.
+        """
+        pulumi.set(__self__, "regions", regions)
+        pulumi.set(__self__, "witness_region", witness_region)
+
+    @_builtins.property
+    @pulumi.getter
+    def regions(self) -> pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]:
+        """
+        The two AWS regions to deploy the cluster into. Anvil creates one cluster per region using internally-created regional providers. AWS validates the region and witness region combination — Anvil passes through without inference.
+        """
+        return pulumi.get(self, "regions")
+
+    @regions.setter
+    def regions(self, value: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]):
+        pulumi.set(self, "regions", value)
+
+    @_builtins.property
+    @pulumi.getter(name="witnessRegion")
+    def witness_region(self) -> pulumi.Input[_builtins.str]:
+        """
+        The AWS region to use as the witness. Stores a limited window of encrypted transaction logs to improve multi-region durability. Must be a third region distinct from both cluster regions. AWS validates this — Anvil does not infer or default it.
+        """
+        return pulumi.get(self, "witness_region")
+
+    @witness_region.setter
+    def witness_region(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "witness_region", value)
+
+
+class DSQLRoleArgsDict(TypedDict):
+    """
+    A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.
+    """
+    grants: pulumi.Input[Sequence[pulumi.Input['DSQLGrant']]]
+    """
+    Table-level privileges to grant to this role on all current and future tables in the schema. e.g. ["SELECT", "INSERT", "UPDATE", "DELETE"]. Applied via GRANT ... ON ALL TABLES and ALTER DEFAULT PRIVILEGES.
+    """
+    name: pulumi.Input[_builtins.str]
+    """
+    The Postgres role name. e.g. "app_role". Must be a valid PostgreSQL identifier.
+    """
+    schema: pulumi.Input[_builtins.str]
+    """
+    The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
+    """
+
+@pulumi.input_type
+class DSQLRoleArgs:
+    def __init__(__self__, *,
+                 grants: pulumi.Input[Sequence[pulumi.Input['DSQLGrant']]],
+                 name: pulumi.Input[_builtins.str],
+                 schema: pulumi.Input[_builtins.str]):
+        """
+        A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.
+
+        :param pulumi.Input[Sequence[pulumi.Input['DSQLGrant']]] grants: Table-level privileges to grant to this role on all current and future tables in the schema. e.g. ["SELECT", "INSERT", "UPDATE", "DELETE"]. Applied via GRANT ... ON ALL TABLES and ALTER DEFAULT PRIVILEGES.
+        :param pulumi.Input[_builtins.str] name: The Postgres role name. e.g. "app_role". Must be a valid PostgreSQL identifier.
+        :param pulumi.Input[_builtins.str] schema: The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
+        """
+        pulumi.set(__self__, "grants", grants)
+        pulumi.set(__self__, "name", name)
+        pulumi.set(__self__, "schema", schema)
+
+    @_builtins.property
+    @pulumi.getter
+    def grants(self) -> pulumi.Input[Sequence[pulumi.Input['DSQLGrant']]]:
+        """
+        Table-level privileges to grant to this role on all current and future tables in the schema. e.g. ["SELECT", "INSERT", "UPDATE", "DELETE"]. Applied via GRANT ... ON ALL TABLES and ALTER DEFAULT PRIVILEGES.
+        """
+        return pulumi.get(self, "grants")
+
+    @grants.setter
+    def grants(self, value: pulumi.Input[Sequence[pulumi.Input['DSQLGrant']]]):
+        pulumi.set(self, "grants", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> pulumi.Input[_builtins.str]:
+        """
+        The Postgres role name. e.g. "app_role". Must be a valid PostgreSQL identifier.
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def schema(self) -> pulumi.Input[_builtins.str]:
+        """
+        The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
+        """
+        return pulumi.get(self, "schema")
+
+    @schema.setter
+    def schema(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "schema", value)
+
+
+class DSQLVpcArgsArgsDict(TypedDict):
+    """
+    VPC configuration for DSQL. When set without hasNat, Anvil creates interface VPC endpoints per region so traffic stays on the AWS backbone. When hasNat is true, endpoint creation is skipped and traffic routes via the existing NAT gateway to the public DSQL endpoint. Anvil never creates the NAT gateway.
+    """
+    private_subnet_ids: Any
+    """
+    The IDs of the private subnets to attach the endpoint ENIs to. One ENI is created per subnet. Pass all private subnet IDs — typically one per AZ. Accepts Output<string[]> — pass vpc.privateSubnetIds directly.
+    """
+    vpc_id: Any
+    """
+    The ID of the VPC. Accepts Output<string> — pass vpc.vpcId directly.
+    """
+    has_nat: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Signal that a NAT gateway already exists in this VPC. When true, Anvil skips interface endpoint creation — the Lambda routes to the public DSQL endpoint via NAT. When false (default), Anvil creates interface endpoints per region.
+    """
+
+@pulumi.input_type
+class DSQLVpcArgsArgs:
+    def __init__(__self__, *,
+                 private_subnet_ids: Any,
+                 vpc_id: Any,
+                 has_nat: Optional[pulumi.Input[_builtins.bool]] = None):
+        """
+        VPC configuration for DSQL. When set without hasNat, Anvil creates interface VPC endpoints per region so traffic stays on the AWS backbone. When hasNat is true, endpoint creation is skipped and traffic routes via the existing NAT gateway to the public DSQL endpoint. Anvil never creates the NAT gateway.
+
+        :param Any private_subnet_ids: The IDs of the private subnets to attach the endpoint ENIs to. One ENI is created per subnet. Pass all private subnet IDs — typically one per AZ. Accepts Output<string[]> — pass vpc.privateSubnetIds directly.
+        :param Any vpc_id: The ID of the VPC. Accepts Output<string> — pass vpc.vpcId directly.
+        :param pulumi.Input[_builtins.bool] has_nat: Signal that a NAT gateway already exists in this VPC. When true, Anvil skips interface endpoint creation — the Lambda routes to the public DSQL endpoint via NAT. When false (default), Anvil creates interface endpoints per region.
+        """
+        pulumi.set(__self__, "private_subnet_ids", private_subnet_ids)
+        pulumi.set(__self__, "vpc_id", vpc_id)
+        if has_nat is not None:
+            pulumi.set(__self__, "has_nat", has_nat)
+
+    @_builtins.property
+    @pulumi.getter(name="privateSubnetIds")
+    def private_subnet_ids(self) -> Any:
+        """
+        The IDs of the private subnets to attach the endpoint ENIs to. One ENI is created per subnet. Pass all private subnet IDs — typically one per AZ. Accepts Output<string[]> — pass vpc.privateSubnetIds directly.
+        """
+        return pulumi.get(self, "private_subnet_ids")
+
+    @private_subnet_ids.setter
+    def private_subnet_ids(self, value: Any):
+        pulumi.set(self, "private_subnet_ids", value)
+
+    @_builtins.property
+    @pulumi.getter(name="vpcId")
+    def vpc_id(self) -> Any:
+        """
+        The ID of the VPC. Accepts Output<string> — pass vpc.vpcId directly.
+        """
+        return pulumi.get(self, "vpc_id")
+
+    @vpc_id.setter
+    def vpc_id(self, value: Any):
+        pulumi.set(self, "vpc_id", value)
+
+    @_builtins.property
+    @pulumi.getter(name="hasNat")
+    def has_nat(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Signal that a NAT gateway already exists in this VPC. When true, Anvil skips interface endpoint creation — the Lambda routes to the public DSQL endpoint via NAT. When false (default), Anvil creates interface endpoints per region.
+        """
+        return pulumi.get(self, "has_nat")
+
+    @has_nat.setter
+    def has_nat(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "has_nat", value)
+
+
+class DsqlOverridesArgsDict(TypedDict):
+    deletion_protection_enabled: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Whether deletion protection is enabled in this cluster.
+    Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+    """
+    force_destroy: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Destroys cluster even if <span pulumi-lang-nodejs="`deletionProtectionEnabled`" pulumi-lang-dotnet="`DeletionProtectionEnabled`" pulumi-lang-go="`deletionProtectionEnabled`" pulumi-lang-python="`deletion_protection_enabled`" pulumi-lang-yaml="`deletionProtectionEnabled`" pulumi-lang-java="`deletionProtectionEnabled`">`deletionProtectionEnabled`</span> is set to <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span>.
+    Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+    """
+    kms_encryption_key: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    The ARN of the AWS KMS key that encrypts data in the DSQL Cluster, or `"AWS_OWNED_KMS_KEY"`.
+    """
+    multi_region_properties: NotRequired[pulumi.Input['pulumi_aws.dsql.ClusterMultiRegionPropertiesArgsDict']]
+    """
+    Multi-region properties of the DSQL Cluster.
+    """
+    region: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+    """
+    tags: NotRequired[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]
+    """
+    Set of tags to be associated with the AWS DSQL Cluster resource.
+    """
+    timeouts: NotRequired[pulumi.Input['pulumi_aws.dsql.ClusterTimeoutsArgsDict']]
+
+@pulumi.input_type
+class DsqlOverridesArgs:
+    def __init__(__self__, *,
+                 deletion_protection_enabled: Optional[pulumi.Input[_builtins.bool]] = None,
+                 force_destroy: Optional[pulumi.Input[_builtins.bool]] = None,
+                 kms_encryption_key: Optional[pulumi.Input[_builtins.str]] = None,
+                 multi_region_properties: Optional[pulumi.Input['pulumi_aws.dsql.ClusterMultiRegionPropertiesArgs']] = None,
+                 region: Optional[pulumi.Input[_builtins.str]] = None,
+                 tags: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 timeouts: Optional[pulumi.Input['pulumi_aws.dsql.ClusterTimeoutsArgs']] = None):
+        """
+        :param pulumi.Input[_builtins.bool] deletion_protection_enabled: Whether deletion protection is enabled in this cluster.
+               Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+        :param pulumi.Input[_builtins.bool] force_destroy: Destroys cluster even if <span pulumi-lang-nodejs="`deletionProtectionEnabled`" pulumi-lang-dotnet="`DeletionProtectionEnabled`" pulumi-lang-go="`deletionProtectionEnabled`" pulumi-lang-python="`deletion_protection_enabled`" pulumi-lang-yaml="`deletionProtectionEnabled`" pulumi-lang-java="`deletionProtectionEnabled`">`deletionProtectionEnabled`</span> is set to <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span>.
+               Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+        :param pulumi.Input[_builtins.str] kms_encryption_key: The ARN of the AWS KMS key that encrypts data in the DSQL Cluster, or `"AWS_OWNED_KMS_KEY"`.
+        :param pulumi.Input['pulumi_aws.dsql.ClusterMultiRegionPropertiesArgs'] multi_region_properties: Multi-region properties of the DSQL Cluster.
+        :param pulumi.Input[_builtins.str] region: Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] tags: Set of tags to be associated with the AWS DSQL Cluster resource.
+        """
+        if deletion_protection_enabled is not None:
+            pulumi.set(__self__, "deletion_protection_enabled", deletion_protection_enabled)
+        if force_destroy is not None:
+            pulumi.set(__self__, "force_destroy", force_destroy)
+        if kms_encryption_key is not None:
+            pulumi.set(__self__, "kms_encryption_key", kms_encryption_key)
+        if multi_region_properties is not None:
+            pulumi.set(__self__, "multi_region_properties", multi_region_properties)
+        if region is not None:
+            pulumi.set(__self__, "region", region)
+        if tags is not None:
+            pulumi.set(__self__, "tags", tags)
+        if timeouts is not None:
+            pulumi.set(__self__, "timeouts", timeouts)
+
+    @_builtins.property
+    @pulumi.getter(name="deletionProtectionEnabled")
+    def deletion_protection_enabled(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Whether deletion protection is enabled in this cluster.
+        Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+        """
+        return pulumi.get(self, "deletion_protection_enabled")
+
+    @deletion_protection_enabled.setter
+    def deletion_protection_enabled(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "deletion_protection_enabled", value)
+
+    @_builtins.property
+    @pulumi.getter(name="forceDestroy")
+    def force_destroy(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Destroys cluster even if <span pulumi-lang-nodejs="`deletionProtectionEnabled`" pulumi-lang-dotnet="`DeletionProtectionEnabled`" pulumi-lang-go="`deletionProtectionEnabled`" pulumi-lang-python="`deletion_protection_enabled`" pulumi-lang-yaml="`deletionProtectionEnabled`" pulumi-lang-java="`deletionProtectionEnabled`">`deletionProtectionEnabled`</span> is set to <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span>.
+        Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+        """
+        return pulumi.get(self, "force_destroy")
+
+    @force_destroy.setter
+    def force_destroy(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "force_destroy", value)
+
+    @_builtins.property
+    @pulumi.getter(name="kmsEncryptionKey")
+    def kms_encryption_key(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        The ARN of the AWS KMS key that encrypts data in the DSQL Cluster, or `"AWS_OWNED_KMS_KEY"`.
+        """
+        return pulumi.get(self, "kms_encryption_key")
+
+    @kms_encryption_key.setter
+    def kms_encryption_key(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "kms_encryption_key", value)
+
+    @_builtins.property
+    @pulumi.getter(name="multiRegionProperties")
+    def multi_region_properties(self) -> Optional[pulumi.Input['pulumi_aws.dsql.ClusterMultiRegionPropertiesArgs']]:
+        """
+        Multi-region properties of the DSQL Cluster.
+        """
+        return pulumi.get(self, "multi_region_properties")
+
+    @multi_region_properties.setter
+    def multi_region_properties(self, value: Optional[pulumi.Input['pulumi_aws.dsql.ClusterMultiRegionPropertiesArgs']]):
+        pulumi.set(self, "multi_region_properties", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def region(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+        """
+        return pulumi.get(self, "region")
+
+    @region.setter
+    def region(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "region", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def tags(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]:
+        """
+        Set of tags to be associated with the AWS DSQL Cluster resource.
+        """
+        return pulumi.get(self, "tags")
+
+    @tags.setter
+    def tags(self, value: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "tags", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def timeouts(self) -> Optional[pulumi.Input['pulumi_aws.dsql.ClusterTimeoutsArgs']]:
+        return pulumi.get(self, "timeouts")
+
+    @timeouts.setter
+    def timeouts(self, value: Optional[pulumi.Input['pulumi_aws.dsql.ClusterTimeoutsArgs']]):
+        pulumi.set(self, "timeouts", value)
+
+
+class DsqlTransformArgsArgsDict(TypedDict):
+    dsql: NotRequired[pulumi.Input['DsqlOverridesArgsDict']]
+
+@pulumi.input_type
+class DsqlTransformArgsArgs:
+    def __init__(__self__, *,
+                 dsql: Optional[pulumi.Input['DsqlOverridesArgs']] = None):
+        if dsql is not None:
+            pulumi.set(__self__, "dsql", dsql)
+
+    @_builtins.property
+    @pulumi.getter
+    def dsql(self) -> Optional[pulumi.Input['DsqlOverridesArgs']]:
+        return pulumi.get(self, "dsql")
+
+    @dsql.setter
+    def dsql(self, value: Optional[pulumi.Input['DsqlOverridesArgs']]):
+        pulumi.set(self, "dsql", value)
 
 
 class DynamoDBGlobalSecondaryIndexArgsDict(TypedDict):

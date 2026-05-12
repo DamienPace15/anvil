@@ -1,6 +1,11 @@
 export {
   generateTSGrantMethod,
   generateTSGrantTargetMethods,
+  generateTSGrantMapMethod,
 } from './typescript';
-export { generatePyGrantMethod, generatePyGrantTargetMethods } from './python';
+export {
+  generatePyGrantMethod,
+  generatePyGrantTargetMethods,
+  generatePyGrantMapMethod,
+} from './python';
 export { toSnakeCase, grantSuffix } from './helper';

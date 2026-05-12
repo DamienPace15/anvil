@@ -12,7 +12,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { GrantConfig, GrantTargetConfig } from './types';
+import { GrantConfig, GrantTargetConfig, GrantMapConfig } from './types';
 import {
   BUCKET_GRANT_CONFIG,
   LAMBDA_GRANT_CONFIG,
@@ -20,12 +20,15 @@ import {
   QUEUE_GRANT_CONFIG,
   EVENTBUS_GRANT_CONFIG,
   DYNAMODB_GRANT_CONFIG,
+  DSQL_GRANT_CONFIG,
 } from './configs';
 import {
   generateTSGrantMethod,
   generateTSGrantTargetMethods,
+  generateTSGrantMapMethod,
   generatePyGrantMethod,
   generatePyGrantTargetMethods,
+  generatePyGrantMapMethod,
   toSnakeCase,
 } from './generators';
 
@@ -52,6 +55,7 @@ const GRANT_CONFIGS: GrantConfig[] = [
   DYNAMODB_GRANT_CONFIG,
 ];
 const GRANT_TARGET_CONFIGS: GrantTargetConfig[] = [LAMBDA_GRANT_TARGET_CONFIG];
+const GRANT_MAP_CONFIGS: GrantMapConfig[] = [DSQL_GRANT_CONFIG];
 
 // ── TS file helpers ────────────────────────────────────────
 
@@ -235,6 +239,88 @@ function patchPyFile(
   console.log(`  ✔ Patched ${file} → ${patched.join(', ')}`);
 }
 
+// ── Map ARN grant patching ─────────────────────────────────
+// For resources where the ARN property is Output<Record<string, string>>
+// rather than Output<string> — e.g. DSQL clusterArns (one per region).
+
+function patchTSMapFile(file: string, config: GrantMapConfig): void {
+  const filePath = path.join(tsDir, file);
+  if (!fs.existsSync(filePath)) {
+    console.log(`  ⚠ ${file} not found — skipping`);
+    return;
+  }
+
+  let content = fs.readFileSync(filePath, 'utf8');
+  const firstMethod = config.grants[0]?.method;
+  if (firstMethod && content.includes(`${firstMethod}(`)) {
+    console.log(`  ⏭ ${file} already patched — skipping`);
+    return;
+  }
+
+  content = ensureGrantsImport(content);
+  content = ensureNameProperty(content);
+
+  // Map grant methods create aws.iam.RolePolicy directly — need aws import.
+  if (!content.includes('import * as aws from')) {
+    const lastImportIdx = content.lastIndexOf('import ');
+    const nextNewline = content.indexOf('\n', lastImportIdx);
+    content =
+      content.slice(0, nextNewline) +
+      '\nimport * as aws from "@pulumi/aws";' +
+      content.slice(nextNewline);
+  }
+
+  const methods = config.grants
+    .map((grant) => generateTSGrantMapMethod(config, grant))
+    .join('\n');
+
+  const classEnd = findClassEnd(content);
+  if (classEnd >= 0) {
+    content =
+      content.slice(0, classEnd) +
+      '\n' +
+      methods +
+      '\n' +
+      content.slice(classEnd);
+  }
+
+  fs.writeFileSync(filePath, content);
+  console.log(
+    `  ✔ Patched ${file} → ${config.grants.map((g) => g.method).join(', ')}`
+  );
+}
+
+function patchPyMapFile(file: string, config: GrantMapConfig): void {
+  const filePath = path.join(pyDir, file);
+  if (!fs.existsSync(filePath)) {
+    console.log(`  ⚠ ${file} not found — skipping`);
+    return;
+  }
+
+  let content = fs.readFileSync(filePath, 'utf8');
+  const firstMethod = config.grants[0]?.method;
+  const firstPyMethod = firstMethod ? toSnakeCase(firstMethod) : undefined;
+  if (firstPyMethod && content.includes(`def ${firstPyMethod}`)) {
+    console.log(`  ⏭ ${file} already patched — skipping`);
+    return;
+  }
+
+  content = ensurePyGrantsImport(content);
+
+  const methods = config.grants
+    .map((grant) => generatePyGrantMapMethod(config, grant))
+    .join('');
+
+  content = content.trimEnd() + '\n' + methods + '\n';
+
+  fs.writeFileSync(filePath, content);
+  console.log(
+    `  ✔ Patched ${file} → ${config.grants
+      .map((g) => toSnakeCase(g.method))
+      .join(', ')}`
+  );
+}
+
 // ── Main ───────────────────────────────────────────────────
 
 interface FilePatches {
@@ -267,7 +353,7 @@ for (const config of GRANT_TARGET_CONFIGS) {
   }
 }
 
-// IAM grants
+// IAM grants — single ARN property
 if (doTS) {
   console.log('🔐 Patching TypeScript SDK with IAM grant methods...');
   for (const [file, configs] of Object.entries(tsFileMap)) {
@@ -281,4 +367,20 @@ if (doPython) {
     patchPyFile(file, configs.grantConfig, configs.grantTargetConfig);
   }
   console.log('✔ Python IAM grant patching complete\n');
+}
+
+// Map ARN grants — Output<Record<string, string>> ARN property
+if (doTS) {
+  console.log('🔐 Patching TypeScript SDK with map grant methods...');
+  for (const config of GRANT_MAP_CONFIGS) {
+    patchTSMapFile(config.tsFile, config);
+  }
+  console.log('✔ TypeScript map grant patching complete\n');
+}
+if (doPython) {
+  console.log('🔐 Patching Python SDK with map grant methods...');
+  for (const config of GRANT_MAP_CONFIGS) {
+    patchPyMapFile(config.pyFile, config);
+  }
+  console.log('✔ Python map grant patching complete\n');
 }

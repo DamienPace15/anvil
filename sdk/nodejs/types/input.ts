@@ -694,6 +694,112 @@ export namespace aws {
     }
 
     /**
+     * AWS Backup configuration for DSQL clusters. Anvil opts in the DSQL resource type in each cluster region, creates a backup plan, and for multi-region clusters automatically adds cross-region copy rules so restores work in both regions.
+     */
+    export interface DSQLBackupArgsArgs {
+        /**
+         * Number of days to retain recovery points. Default: 35.
+         */
+        retentionDays?: pulumi.Input<number>;
+        /**
+         * CRON expression for when backups run. e.g. "cron(0 2 * * ? *)". Default: daily at midnight — cron(0 0 * * ? *).
+         */
+        scheduleExpression?: pulumi.Input<string>;
+        /**
+         * IANA timezone for the schedule expression. e.g. "Australia/Sydney". Default: "Etc/UTC". Anvil passes this to the backup plan rule as scheduleExpressionTimezone.
+         */
+        scheduleTimezone?: pulumi.Input<string>;
+        /**
+         * ARN of an existing backup vault to store recovery points in. When omitted, Anvil uses the default AWS Backup vault.
+         */
+        vaultArn?: pulumi.Input<string>;
+    }
+
+    /**
+     * Multi-region configuration for DSQL. When set, Anvil creates one cluster per region and links them via ClusterPeering. Both regions are active-active — reads and writes are accepted at either endpoint with strong consistency.
+     */
+    export interface DSQLMultiRegionArgsArgs {
+        /**
+         * The two AWS regions to deploy the cluster into. Anvil creates one cluster per region using internally-created regional providers. AWS validates the region and witness region combination — Anvil passes through without inference.
+         */
+        regions: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * The AWS region to use as the witness. Stores a limited window of encrypted transaction logs to improve multi-region durability. Must be a third region distinct from both cluster regions. AWS validates this — Anvil does not infer or default it.
+         */
+        witnessRegion: pulumi.Input<string>;
+    }
+
+    /**
+     * A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.
+     */
+    export interface DSQLRoleArgs {
+        /**
+         * Table-level privileges to grant to this role on all current and future tables in the schema. e.g. ["SELECT", "INSERT", "UPDATE", "DELETE"]. Applied via GRANT ... ON ALL TABLES and ALTER DEFAULT PRIVILEGES.
+         */
+        grants: pulumi.Input<pulumi.Input<enums.aws.DSQLGrant>[]>;
+        /**
+         * The Postgres role name. e.g. "app_role". Must be a valid PostgreSQL identifier.
+         */
+        name: pulumi.Input<string>;
+        /**
+         * The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
+         */
+        schema: pulumi.Input<string>;
+    }
+
+    /**
+     * VPC configuration for DSQL. When set without hasNat, Anvil creates interface VPC endpoints per region so traffic stays on the AWS backbone. When hasNat is true, endpoint creation is skipped and traffic routes via the existing NAT gateway to the public DSQL endpoint. Anvil never creates the NAT gateway.
+     */
+    export interface DSQLVpcArgsArgs {
+        /**
+         * Signal that a NAT gateway already exists in this VPC. When true, Anvil skips interface endpoint creation — the Lambda routes to the public DSQL endpoint via NAT. When false (default), Anvil creates interface endpoints per region.
+         */
+        hasNat?: pulumi.Input<boolean>;
+        /**
+         * The IDs of the private subnets to attach the endpoint ENIs to. One ENI is created per subnet. Pass all private subnet IDs — typically one per AZ. Accepts Output<string[]> — pass vpc.privateSubnetIds directly.
+         */
+        privateSubnetIds: any;
+        /**
+         * The ID of the VPC. Accepts Output<string> — pass vpc.vpcId directly.
+         */
+        vpcId: any;
+    }
+
+    export interface DsqlOverridesArgs {
+        /**
+         * Whether deletion protection is enabled in this cluster.
+         * Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+         */
+        deletionProtectionEnabled?: pulumi.Input<boolean>;
+        /**
+         * Destroys cluster even if <span pulumi-lang-nodejs="`deletionProtectionEnabled`" pulumi-lang-dotnet="`DeletionProtectionEnabled`" pulumi-lang-go="`deletionProtectionEnabled`" pulumi-lang-python="`deletion_protection_enabled`" pulumi-lang-yaml="`deletionProtectionEnabled`" pulumi-lang-java="`deletionProtectionEnabled`">`deletionProtectionEnabled`</span> is set to <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span>.
+         * Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+         */
+        forceDestroy?: pulumi.Input<boolean>;
+        /**
+         * The ARN of the AWS KMS key that encrypts data in the DSQL Cluster, or `"AWS_OWNED_KMS_KEY"`.
+         */
+        kmsEncryptionKey?: pulumi.Input<string>;
+        /**
+         * Multi-region properties of the DSQL Cluster.
+         */
+        multiRegionProperties?: pulumi.Input<pulumiAws.types.input.dsql.ClusterMultiRegionProperties>;
+        /**
+         * Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+         */
+        region?: pulumi.Input<string>;
+        /**
+         * Set of tags to be associated with the AWS DSQL Cluster resource.
+         */
+        tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+        timeouts?: pulumi.Input<pulumiAws.types.input.dsql.ClusterTimeouts>;
+    }
+
+    export interface DsqlTransformArgsArgs {
+        dsql?: pulumi.Input<inputs.aws.DsqlOverridesArgs>;
+    }
+
+    /**
      * A Global Secondary Index. All key attributes must use the explicit { name, type } shape — Anvil merges these into the table attributeDefinitions automatically.
      */
     export interface DynamoDBGlobalSecondaryIndexArgs {

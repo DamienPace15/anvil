@@ -1,4 +1,4 @@
-import { GrantConfig, Grant } from '../types';
+import { GrantConfig, Grant, GrantMapConfig } from '../types';
 import { grantSuffix } from './helper';
 
 export function generateTSGrantMethod(
@@ -108,5 +108,46 @@ export function generateTSGrantTargetMethods(roleArnProperty: string): string {
     /** Implements GrantTarget — returns the IAM execution role ARN. */
     public grantRoleArn(): pulumi.Output<string> {
         return this.${roleArnProperty};
+    }`;
+}
+
+export function generateTSGrantMapMethod(
+  config: GrantMapConfig,
+  grant: Grant
+): string {
+  const { className, arnMapProperty } = config;
+  const { method, actions } = grant;
+  const actionsStr = actions.map((a) => `"${a}"`).join(', ');
+  const suffix = grantSuffix(method);
+
+  return `
+    /**
+     * Grants ${suffix} access (${actions.join(
+    ', '
+  )}) on this ${className.toLowerCase()}
+     * to the target compute resource's execution role.
+     *
+     * Scoped to all ARNs in ${arnMapProperty} — one per region.
+     *
+     * @param target - The compute resource to grant access to.
+     * @param opts   - Optional grant options (justification for audit trail).
+     */
+    public ${method}(target: grants.GrantTarget, opts?: grants.GrantOptions): void {
+        const name = \`\${this.__name}-\${target.grantName()}-${suffix}\`;
+        const policyDocument = this.${arnMapProperty}.apply((arns) =>
+            JSON.stringify({
+                Version: '2012-10-17',
+                Statement: [{
+                    Effect: 'Allow',
+                    Action: [${actionsStr}],
+                    Resource: Object.values(arns),
+                }],
+            })
+        );
+        const roleName = target.grantRoleArn().apply((arn) => {
+            const idx = arn.lastIndexOf('/');
+            return idx >= 0 ? arn.substring(idx + 1) : arn;
+        });
+        new aws.iam.RolePolicy(name, { role: roleName, policy: policyDocument }, { parent: this });
     }`;
 }
