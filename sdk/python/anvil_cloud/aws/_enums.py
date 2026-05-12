@@ -13,6 +13,7 @@ __all__ = [
     'CognitoUserPoolMfaMode',
     'CognitoUserPoolOAuthFlow',
     'CognitoUserPoolUsernameAttribute',
+    'DSQLGrant',
     'DynamoDBAttributeType',
     'DynamoDBProjectionType',
     'DynamoDBStreamStartingPosition',
@@ -116,6 +117,37 @@ class CognitoUserPoolUsernameAttribute(_builtins.str, Enum):
     PHONE_NUMBER = "phone_number"
     """
     Users sign in with their phone number.
+    """
+
+
+@pulumi.type_token("anvil:aws:DSQLGrant")
+class DSQLGrant(_builtins.str, Enum):
+    """
+    A PostgreSQL table-level privilege.
+    """
+    SELECT = "SELECT"
+    """
+    Read rows.
+    """
+    INSERT = "INSERT"
+    """
+    Insert new rows.
+    """
+    UPDATE = "UPDATE"
+    """
+    Update existing rows.
+    """
+    DELETE = "DELETE"
+    """
+    Delete rows.
+    """
+    TRUNCATE = "TRUNCATE"
+    """
+    Truncate a table.
+    """
+    REFERENCES = "REFERENCES"
+    """
+    Create a foreign key reference to the table.
     """
 
 

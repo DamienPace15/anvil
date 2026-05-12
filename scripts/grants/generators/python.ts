@@ -1,4 +1,4 @@
-import { GrantConfig, Grant } from '../types';
+import { GrantConfig, Grant, GrantMapConfig } from '../types';
 import { grantSuffix, toSnakeCase } from './helper';
 
 export function generatePyGrantMethod(
@@ -80,5 +80,36 @@ export function generatePyGrantTargetMethods(
     def grant_role_arn(self):
         """Implements GrantTarget — returns the IAM execution role ARN."""
         return self.${pyRoleArnProperty}
+`;
+}
+
+export function generatePyGrantMapMethod(
+  config: GrantMapConfig,
+  grant: Grant
+): string {
+  const { className, pyArnMapProperty } = config;
+  const { method, actions } = grant;
+  const pyMethod = toSnakeCase(method);
+  const suffix = grantSuffix(method);
+  const actionsStr = actions.map((a) => `"${a}"`).join(', ');
+
+  return `
+    def ${pyMethod}(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
+        """Grants ${suffix} access on this ${className.toLowerCase()} to the target's execution role.
+        Scoped to all ARNs in ${pyArnMapProperty} — one per region.
+        """
+        import json
+        import pulumi_aws as aws
+        name = f"{self._name}-{target.grant_name()}-${suffix}"
+        policy_document = self.${pyArnMapProperty}.apply(
+            lambda arns: json.dumps({
+                "Version": "2012-10-17",
+                "Statement": [{"Effect": "Allow", "Action": [${actionsStr}], "Resource": list(arns.values())}],
+            })
+        )
+        role_name = target.grant_role_arn().apply(
+            lambda arn: arn[arn.rfind("/") + 1:] if "/" in arn else arn
+        )
+        aws.iam.RolePolicy(name, role=role_name, policy=policy_document, opts=pulumi.ResourceOptions(parent=self))
 `;
 }

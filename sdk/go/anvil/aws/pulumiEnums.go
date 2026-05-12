@@ -1167,6 +1167,231 @@ func (o CognitoUserPoolUsernameAttributeArrayOutput) Index(i pulumi.IntInput) Co
 	}).(CognitoUserPoolUsernameAttributeOutput)
 }
 
+// A PostgreSQL table-level privilege.
+type DSQLGrant string
+
+const (
+	// Read rows.
+	DSQLGrantSELECT = DSQLGrant("SELECT")
+	// Insert new rows.
+	DSQLGrantINSERT = DSQLGrant("INSERT")
+	// Update existing rows.
+	DSQLGrantUPDATE = DSQLGrant("UPDATE")
+	// Delete rows.
+	DSQLGrantDELETE = DSQLGrant("DELETE")
+	// Truncate a table.
+	DSQLGrantTRUNCATE = DSQLGrant("TRUNCATE")
+	// Create a foreign key reference to the table.
+	DSQLGrantREFERENCES = DSQLGrant("REFERENCES")
+)
+
+func (DSQLGrant) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLGrant)(nil)).Elem()
+}
+
+func (e DSQLGrant) ToDSQLGrantOutput() DSQLGrantOutput {
+	return pulumi.ToOutput(e).(DSQLGrantOutput)
+}
+
+func (e DSQLGrant) ToDSQLGrantOutputWithContext(ctx context.Context) DSQLGrantOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(DSQLGrantOutput)
+}
+
+func (e DSQLGrant) ToDSQLGrantPtrOutput() DSQLGrantPtrOutput {
+	return e.ToDSQLGrantPtrOutputWithContext(context.Background())
+}
+
+func (e DSQLGrant) ToDSQLGrantPtrOutputWithContext(ctx context.Context) DSQLGrantPtrOutput {
+	return DSQLGrant(e).ToDSQLGrantOutputWithContext(ctx).ToDSQLGrantPtrOutputWithContext(ctx)
+}
+
+func (e DSQLGrant) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DSQLGrant) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DSQLGrant) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e DSQLGrant) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type DSQLGrantOutput struct{ *pulumi.OutputState }
+
+func (DSQLGrantOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLGrant)(nil)).Elem()
+}
+
+func (o DSQLGrantOutput) ToDSQLGrantOutput() DSQLGrantOutput {
+	return o
+}
+
+func (o DSQLGrantOutput) ToDSQLGrantOutputWithContext(ctx context.Context) DSQLGrantOutput {
+	return o
+}
+
+func (o DSQLGrantOutput) ToDSQLGrantPtrOutput() DSQLGrantPtrOutput {
+	return o.ToDSQLGrantPtrOutputWithContext(context.Background())
+}
+
+func (o DSQLGrantOutput) ToDSQLGrantPtrOutputWithContext(ctx context.Context) DSQLGrantPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DSQLGrant) *DSQLGrant {
+		return &v
+	}).(DSQLGrantPtrOutput)
+}
+
+func (o DSQLGrantOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o DSQLGrantOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DSQLGrant) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o DSQLGrantOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DSQLGrantOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DSQLGrant) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type DSQLGrantPtrOutput struct{ *pulumi.OutputState }
+
+func (DSQLGrantPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DSQLGrant)(nil)).Elem()
+}
+
+func (o DSQLGrantPtrOutput) ToDSQLGrantPtrOutput() DSQLGrantPtrOutput {
+	return o
+}
+
+func (o DSQLGrantPtrOutput) ToDSQLGrantPtrOutputWithContext(ctx context.Context) DSQLGrantPtrOutput {
+	return o
+}
+
+func (o DSQLGrantPtrOutput) Elem() DSQLGrantOutput {
+	return o.ApplyT(func(v *DSQLGrant) DSQLGrant {
+		if v != nil {
+			return *v
+		}
+		var ret DSQLGrant
+		return ret
+	}).(DSQLGrantOutput)
+}
+
+func (o DSQLGrantPtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DSQLGrantPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *DSQLGrant) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// DSQLGrantInput is an input type that accepts values of the DSQLGrant enum
+// A concrete instance of `DSQLGrantInput` can be one of the following:
+//
+//	DSQLGrantSELECT
+//	DSQLGrantINSERT
+//	DSQLGrantUPDATE
+//	DSQLGrantDELETE
+//	DSQLGrantTRUNCATE
+//	DSQLGrantREFERENCES
+type DSQLGrantInput interface {
+	pulumi.Input
+
+	ToDSQLGrantOutput() DSQLGrantOutput
+	ToDSQLGrantOutputWithContext(context.Context) DSQLGrantOutput
+}
+
+var dsqlgrantPtrType = reflect.TypeOf((**DSQLGrant)(nil)).Elem()
+
+type DSQLGrantPtrInput interface {
+	pulumi.Input
+
+	ToDSQLGrantPtrOutput() DSQLGrantPtrOutput
+	ToDSQLGrantPtrOutputWithContext(context.Context) DSQLGrantPtrOutput
+}
+
+type dsqlgrantPtr string
+
+func DSQLGrantPtr(v string) DSQLGrantPtrInput {
+	return (*dsqlgrantPtr)(&v)
+}
+
+func (*dsqlgrantPtr) ElementType() reflect.Type {
+	return dsqlgrantPtrType
+}
+
+func (in *dsqlgrantPtr) ToDSQLGrantPtrOutput() DSQLGrantPtrOutput {
+	return pulumi.ToOutput(in).(DSQLGrantPtrOutput)
+}
+
+func (in *dsqlgrantPtr) ToDSQLGrantPtrOutputWithContext(ctx context.Context) DSQLGrantPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(DSQLGrantPtrOutput)
+}
+
+// DSQLGrantArrayInput is an input type that accepts DSQLGrantArray and DSQLGrantArrayOutput values.
+// You can construct a concrete instance of `DSQLGrantArrayInput` via:
+//
+//	DSQLGrantArray{ DSQLGrantArgs{...} }
+type DSQLGrantArrayInput interface {
+	pulumi.Input
+
+	ToDSQLGrantArrayOutput() DSQLGrantArrayOutput
+	ToDSQLGrantArrayOutputWithContext(context.Context) DSQLGrantArrayOutput
+}
+
+type DSQLGrantArray []DSQLGrant
+
+func (DSQLGrantArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DSQLGrant)(nil)).Elem()
+}
+
+func (i DSQLGrantArray) ToDSQLGrantArrayOutput() DSQLGrantArrayOutput {
+	return i.ToDSQLGrantArrayOutputWithContext(context.Background())
+}
+
+func (i DSQLGrantArray) ToDSQLGrantArrayOutputWithContext(ctx context.Context) DSQLGrantArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLGrantArrayOutput)
+}
+
+type DSQLGrantArrayOutput struct{ *pulumi.OutputState }
+
+func (DSQLGrantArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DSQLGrant)(nil)).Elem()
+}
+
+func (o DSQLGrantArrayOutput) ToDSQLGrantArrayOutput() DSQLGrantArrayOutput {
+	return o
+}
+
+func (o DSQLGrantArrayOutput) ToDSQLGrantArrayOutputWithContext(ctx context.Context) DSQLGrantArrayOutput {
+	return o
+}
+
+func (o DSQLGrantArrayOutput) Index(i pulumi.IntInput) DSQLGrantOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) DSQLGrant {
+		return vs[0].([]DSQLGrant)[vs[1].(int)]
+	}).(DSQLGrantOutput)
+}
+
 type DynamoDBAttributeType string
 
 const (
@@ -3055,6 +3280,9 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolUsernameAttributeInput)(nil)).Elem(), CognitoUserPoolUsernameAttribute("email"))
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolUsernameAttributePtrInput)(nil)).Elem(), CognitoUserPoolUsernameAttribute("email"))
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolUsernameAttributeArrayInput)(nil)).Elem(), CognitoUserPoolUsernameAttributeArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLGrantInput)(nil)).Elem(), DSQLGrant("SELECT"))
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLGrantPtrInput)(nil)).Elem(), DSQLGrant("SELECT"))
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLGrantArrayInput)(nil)).Elem(), DSQLGrantArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBAttributeTypeInput)(nil)).Elem(), DynamoDBAttributeType("S"))
 	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBAttributeTypePtrInput)(nil)).Elem(), DynamoDBAttributeType("S"))
 	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBProjectionTypeInput)(nil)).Elem(), DynamoDBProjectionType("ALL"))
@@ -3092,6 +3320,9 @@ func init() {
 	pulumi.RegisterOutputType(CognitoUserPoolUsernameAttributeOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolUsernameAttributePtrOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolUsernameAttributeArrayOutput{})
+	pulumi.RegisterOutputType(DSQLGrantOutput{})
+	pulumi.RegisterOutputType(DSQLGrantPtrOutput{})
+	pulumi.RegisterOutputType(DSQLGrantArrayOutput{})
 	pulumi.RegisterOutputType(DynamoDBAttributeTypeOutput{})
 	pulumi.RegisterOutputType(DynamoDBAttributeTypePtrOutput{})
 	pulumi.RegisterOutputType(DynamoDBProjectionTypeOutput{})

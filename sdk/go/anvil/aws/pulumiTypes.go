@@ -10,6 +10,7 @@ import (
 	"github.com/DamienPace15/anvil/sdk/go/anvil/internal"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cloudwatch"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cognito"
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/dsql"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/dynamodb"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/lambda"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/s3"
@@ -5791,6 +5792,1058 @@ func (o CognitoUserPoolTransformArgsPtrOutput) CognitoUserPool() CognitoUserPool
 		}
 		return v.CognitoUserPool
 	}).(CognitoUserPoolOverridesPtrOutput)
+}
+
+// AWS Backup configuration for DSQL clusters. Anvil opts in the DSQL resource type in each cluster region, creates a backup plan, and for multi-region clusters automatically adds cross-region copy rules so restores work in both regions.
+type DSQLBackupArgs struct {
+	// Number of days to retain recovery points. Default: 35.
+	RetentionDays *int `pulumi:"retentionDays"`
+	// CRON expression for when backups run. e.g. "cron(0 2 * * ? *)". Default: daily at midnight — cron(0 0 * * ? *).
+	ScheduleExpression *string `pulumi:"scheduleExpression"`
+	// IANA timezone for the schedule expression. e.g. "Australia/Sydney". Default: "Etc/UTC". Anvil passes this to the backup plan rule as scheduleExpressionTimezone.
+	ScheduleTimezone *string `pulumi:"scheduleTimezone"`
+	// ARN of an existing backup vault to store recovery points in. When omitted, Anvil uses the default AWS Backup vault.
+	VaultArn *string `pulumi:"vaultArn"`
+}
+
+// DSQLBackupArgsInput is an input type that accepts DSQLBackupArgsArgs and DSQLBackupArgsOutput values.
+// You can construct a concrete instance of `DSQLBackupArgsInput` via:
+//
+//	DSQLBackupArgsArgs{...}
+type DSQLBackupArgsInput interface {
+	pulumi.Input
+
+	ToDSQLBackupArgsOutput() DSQLBackupArgsOutput
+	ToDSQLBackupArgsOutputWithContext(context.Context) DSQLBackupArgsOutput
+}
+
+// AWS Backup configuration for DSQL clusters. Anvil opts in the DSQL resource type in each cluster region, creates a backup plan, and for multi-region clusters automatically adds cross-region copy rules so restores work in both regions.
+type DSQLBackupArgsArgs struct {
+	// Number of days to retain recovery points. Default: 35.
+	RetentionDays pulumi.IntPtrInput `pulumi:"retentionDays"`
+	// CRON expression for when backups run. e.g. "cron(0 2 * * ? *)". Default: daily at midnight — cron(0 0 * * ? *).
+	ScheduleExpression pulumi.StringPtrInput `pulumi:"scheduleExpression"`
+	// IANA timezone for the schedule expression. e.g. "Australia/Sydney". Default: "Etc/UTC". Anvil passes this to the backup plan rule as scheduleExpressionTimezone.
+	ScheduleTimezone pulumi.StringPtrInput `pulumi:"scheduleTimezone"`
+	// ARN of an existing backup vault to store recovery points in. When omitted, Anvil uses the default AWS Backup vault.
+	VaultArn pulumi.StringPtrInput `pulumi:"vaultArn"`
+}
+
+func (DSQLBackupArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLBackupArgs)(nil)).Elem()
+}
+
+func (i DSQLBackupArgsArgs) ToDSQLBackupArgsOutput() DSQLBackupArgsOutput {
+	return i.ToDSQLBackupArgsOutputWithContext(context.Background())
+}
+
+func (i DSQLBackupArgsArgs) ToDSQLBackupArgsOutputWithContext(ctx context.Context) DSQLBackupArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLBackupArgsOutput)
+}
+
+func (i DSQLBackupArgsArgs) ToDSQLBackupArgsPtrOutput() DSQLBackupArgsPtrOutput {
+	return i.ToDSQLBackupArgsPtrOutputWithContext(context.Background())
+}
+
+func (i DSQLBackupArgsArgs) ToDSQLBackupArgsPtrOutputWithContext(ctx context.Context) DSQLBackupArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLBackupArgsOutput).ToDSQLBackupArgsPtrOutputWithContext(ctx)
+}
+
+// DSQLBackupArgsPtrInput is an input type that accepts DSQLBackupArgsArgs, DSQLBackupArgsPtr and DSQLBackupArgsPtrOutput values.
+// You can construct a concrete instance of `DSQLBackupArgsPtrInput` via:
+//
+//	        DSQLBackupArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type DSQLBackupArgsPtrInput interface {
+	pulumi.Input
+
+	ToDSQLBackupArgsPtrOutput() DSQLBackupArgsPtrOutput
+	ToDSQLBackupArgsPtrOutputWithContext(context.Context) DSQLBackupArgsPtrOutput
+}
+
+type dsqlbackupArgsPtrType DSQLBackupArgsArgs
+
+func DSQLBackupArgsPtr(v *DSQLBackupArgsArgs) DSQLBackupArgsPtrInput {
+	return (*dsqlbackupArgsPtrType)(v)
+}
+
+func (*dsqlbackupArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**DSQLBackupArgs)(nil)).Elem()
+}
+
+func (i *dsqlbackupArgsPtrType) ToDSQLBackupArgsPtrOutput() DSQLBackupArgsPtrOutput {
+	return i.ToDSQLBackupArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *dsqlbackupArgsPtrType) ToDSQLBackupArgsPtrOutputWithContext(ctx context.Context) DSQLBackupArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLBackupArgsPtrOutput)
+}
+
+// AWS Backup configuration for DSQL clusters. Anvil opts in the DSQL resource type in each cluster region, creates a backup plan, and for multi-region clusters automatically adds cross-region copy rules so restores work in both regions.
+type DSQLBackupArgsOutput struct{ *pulumi.OutputState }
+
+func (DSQLBackupArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLBackupArgs)(nil)).Elem()
+}
+
+func (o DSQLBackupArgsOutput) ToDSQLBackupArgsOutput() DSQLBackupArgsOutput {
+	return o
+}
+
+func (o DSQLBackupArgsOutput) ToDSQLBackupArgsOutputWithContext(ctx context.Context) DSQLBackupArgsOutput {
+	return o
+}
+
+func (o DSQLBackupArgsOutput) ToDSQLBackupArgsPtrOutput() DSQLBackupArgsPtrOutput {
+	return o.ToDSQLBackupArgsPtrOutputWithContext(context.Background())
+}
+
+func (o DSQLBackupArgsOutput) ToDSQLBackupArgsPtrOutputWithContext(ctx context.Context) DSQLBackupArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DSQLBackupArgs) *DSQLBackupArgs {
+		return &v
+	}).(DSQLBackupArgsPtrOutput)
+}
+
+// Number of days to retain recovery points. Default: 35.
+func (o DSQLBackupArgsOutput) RetentionDays() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v DSQLBackupArgs) *int { return v.RetentionDays }).(pulumi.IntPtrOutput)
+}
+
+// CRON expression for when backups run. e.g. "cron(0 2 * * ? *)". Default: daily at midnight — cron(0 0 * * ? *).
+func (o DSQLBackupArgsOutput) ScheduleExpression() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DSQLBackupArgs) *string { return v.ScheduleExpression }).(pulumi.StringPtrOutput)
+}
+
+// IANA timezone for the schedule expression. e.g. "Australia/Sydney". Default: "Etc/UTC". Anvil passes this to the backup plan rule as scheduleExpressionTimezone.
+func (o DSQLBackupArgsOutput) ScheduleTimezone() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DSQLBackupArgs) *string { return v.ScheduleTimezone }).(pulumi.StringPtrOutput)
+}
+
+// ARN of an existing backup vault to store recovery points in. When omitted, Anvil uses the default AWS Backup vault.
+func (o DSQLBackupArgsOutput) VaultArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DSQLBackupArgs) *string { return v.VaultArn }).(pulumi.StringPtrOutput)
+}
+
+type DSQLBackupArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (DSQLBackupArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DSQLBackupArgs)(nil)).Elem()
+}
+
+func (o DSQLBackupArgsPtrOutput) ToDSQLBackupArgsPtrOutput() DSQLBackupArgsPtrOutput {
+	return o
+}
+
+func (o DSQLBackupArgsPtrOutput) ToDSQLBackupArgsPtrOutputWithContext(ctx context.Context) DSQLBackupArgsPtrOutput {
+	return o
+}
+
+func (o DSQLBackupArgsPtrOutput) Elem() DSQLBackupArgsOutput {
+	return o.ApplyT(func(v *DSQLBackupArgs) DSQLBackupArgs {
+		if v != nil {
+			return *v
+		}
+		var ret DSQLBackupArgs
+		return ret
+	}).(DSQLBackupArgsOutput)
+}
+
+// Number of days to retain recovery points. Default: 35.
+func (o DSQLBackupArgsPtrOutput) RetentionDays() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *DSQLBackupArgs) *int {
+		if v == nil {
+			return nil
+		}
+		return v.RetentionDays
+	}).(pulumi.IntPtrOutput)
+}
+
+// CRON expression for when backups run. e.g. "cron(0 2 * * ? *)". Default: daily at midnight — cron(0 0 * * ? *).
+func (o DSQLBackupArgsPtrOutput) ScheduleExpression() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DSQLBackupArgs) *string {
+		if v == nil {
+			return nil
+		}
+		return v.ScheduleExpression
+	}).(pulumi.StringPtrOutput)
+}
+
+// IANA timezone for the schedule expression. e.g. "Australia/Sydney". Default: "Etc/UTC". Anvil passes this to the backup plan rule as scheduleExpressionTimezone.
+func (o DSQLBackupArgsPtrOutput) ScheduleTimezone() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DSQLBackupArgs) *string {
+		if v == nil {
+			return nil
+		}
+		return v.ScheduleTimezone
+	}).(pulumi.StringPtrOutput)
+}
+
+// ARN of an existing backup vault to store recovery points in. When omitted, Anvil uses the default AWS Backup vault.
+func (o DSQLBackupArgsPtrOutput) VaultArn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DSQLBackupArgs) *string {
+		if v == nil {
+			return nil
+		}
+		return v.VaultArn
+	}).(pulumi.StringPtrOutput)
+}
+
+// Multi-region configuration for DSQL. When set, Anvil creates one cluster per region and links them via ClusterPeering. Both regions are active-active — reads and writes are accepted at either endpoint with strong consistency.
+type DSQLMultiRegionArgs struct {
+	// The two AWS regions to deploy the cluster into. Anvil creates one cluster per region using internally-created regional providers. AWS validates the region and witness region combination — Anvil passes through without inference.
+	Regions []string `pulumi:"regions"`
+	// The AWS region to use as the witness. Stores a limited window of encrypted transaction logs to improve multi-region durability. Must be a third region distinct from both cluster regions. AWS validates this — Anvil does not infer or default it.
+	WitnessRegion string `pulumi:"witnessRegion"`
+}
+
+// DSQLMultiRegionArgsInput is an input type that accepts DSQLMultiRegionArgsArgs and DSQLMultiRegionArgsOutput values.
+// You can construct a concrete instance of `DSQLMultiRegionArgsInput` via:
+//
+//	DSQLMultiRegionArgsArgs{...}
+type DSQLMultiRegionArgsInput interface {
+	pulumi.Input
+
+	ToDSQLMultiRegionArgsOutput() DSQLMultiRegionArgsOutput
+	ToDSQLMultiRegionArgsOutputWithContext(context.Context) DSQLMultiRegionArgsOutput
+}
+
+// Multi-region configuration for DSQL. When set, Anvil creates one cluster per region and links them via ClusterPeering. Both regions are active-active — reads and writes are accepted at either endpoint with strong consistency.
+type DSQLMultiRegionArgsArgs struct {
+	// The two AWS regions to deploy the cluster into. Anvil creates one cluster per region using internally-created regional providers. AWS validates the region and witness region combination — Anvil passes through without inference.
+	Regions pulumi.StringArrayInput `pulumi:"regions"`
+	// The AWS region to use as the witness. Stores a limited window of encrypted transaction logs to improve multi-region durability. Must be a third region distinct from both cluster regions. AWS validates this — Anvil does not infer or default it.
+	WitnessRegion pulumi.StringInput `pulumi:"witnessRegion"`
+}
+
+func (DSQLMultiRegionArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLMultiRegionArgs)(nil)).Elem()
+}
+
+func (i DSQLMultiRegionArgsArgs) ToDSQLMultiRegionArgsOutput() DSQLMultiRegionArgsOutput {
+	return i.ToDSQLMultiRegionArgsOutputWithContext(context.Background())
+}
+
+func (i DSQLMultiRegionArgsArgs) ToDSQLMultiRegionArgsOutputWithContext(ctx context.Context) DSQLMultiRegionArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLMultiRegionArgsOutput)
+}
+
+func (i DSQLMultiRegionArgsArgs) ToDSQLMultiRegionArgsPtrOutput() DSQLMultiRegionArgsPtrOutput {
+	return i.ToDSQLMultiRegionArgsPtrOutputWithContext(context.Background())
+}
+
+func (i DSQLMultiRegionArgsArgs) ToDSQLMultiRegionArgsPtrOutputWithContext(ctx context.Context) DSQLMultiRegionArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLMultiRegionArgsOutput).ToDSQLMultiRegionArgsPtrOutputWithContext(ctx)
+}
+
+// DSQLMultiRegionArgsPtrInput is an input type that accepts DSQLMultiRegionArgsArgs, DSQLMultiRegionArgsPtr and DSQLMultiRegionArgsPtrOutput values.
+// You can construct a concrete instance of `DSQLMultiRegionArgsPtrInput` via:
+//
+//	        DSQLMultiRegionArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type DSQLMultiRegionArgsPtrInput interface {
+	pulumi.Input
+
+	ToDSQLMultiRegionArgsPtrOutput() DSQLMultiRegionArgsPtrOutput
+	ToDSQLMultiRegionArgsPtrOutputWithContext(context.Context) DSQLMultiRegionArgsPtrOutput
+}
+
+type dsqlmultiRegionArgsPtrType DSQLMultiRegionArgsArgs
+
+func DSQLMultiRegionArgsPtr(v *DSQLMultiRegionArgsArgs) DSQLMultiRegionArgsPtrInput {
+	return (*dsqlmultiRegionArgsPtrType)(v)
+}
+
+func (*dsqlmultiRegionArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**DSQLMultiRegionArgs)(nil)).Elem()
+}
+
+func (i *dsqlmultiRegionArgsPtrType) ToDSQLMultiRegionArgsPtrOutput() DSQLMultiRegionArgsPtrOutput {
+	return i.ToDSQLMultiRegionArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *dsqlmultiRegionArgsPtrType) ToDSQLMultiRegionArgsPtrOutputWithContext(ctx context.Context) DSQLMultiRegionArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLMultiRegionArgsPtrOutput)
+}
+
+// Multi-region configuration for DSQL. When set, Anvil creates one cluster per region and links them via ClusterPeering. Both regions are active-active — reads and writes are accepted at either endpoint with strong consistency.
+type DSQLMultiRegionArgsOutput struct{ *pulumi.OutputState }
+
+func (DSQLMultiRegionArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLMultiRegionArgs)(nil)).Elem()
+}
+
+func (o DSQLMultiRegionArgsOutput) ToDSQLMultiRegionArgsOutput() DSQLMultiRegionArgsOutput {
+	return o
+}
+
+func (o DSQLMultiRegionArgsOutput) ToDSQLMultiRegionArgsOutputWithContext(ctx context.Context) DSQLMultiRegionArgsOutput {
+	return o
+}
+
+func (o DSQLMultiRegionArgsOutput) ToDSQLMultiRegionArgsPtrOutput() DSQLMultiRegionArgsPtrOutput {
+	return o.ToDSQLMultiRegionArgsPtrOutputWithContext(context.Background())
+}
+
+func (o DSQLMultiRegionArgsOutput) ToDSQLMultiRegionArgsPtrOutputWithContext(ctx context.Context) DSQLMultiRegionArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DSQLMultiRegionArgs) *DSQLMultiRegionArgs {
+		return &v
+	}).(DSQLMultiRegionArgsPtrOutput)
+}
+
+// The two AWS regions to deploy the cluster into. Anvil creates one cluster per region using internally-created regional providers. AWS validates the region and witness region combination — Anvil passes through without inference.
+func (o DSQLMultiRegionArgsOutput) Regions() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v DSQLMultiRegionArgs) []string { return v.Regions }).(pulumi.StringArrayOutput)
+}
+
+// The AWS region to use as the witness. Stores a limited window of encrypted transaction logs to improve multi-region durability. Must be a third region distinct from both cluster regions. AWS validates this — Anvil does not infer or default it.
+func (o DSQLMultiRegionArgsOutput) WitnessRegion() pulumi.StringOutput {
+	return o.ApplyT(func(v DSQLMultiRegionArgs) string { return v.WitnessRegion }).(pulumi.StringOutput)
+}
+
+type DSQLMultiRegionArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (DSQLMultiRegionArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DSQLMultiRegionArgs)(nil)).Elem()
+}
+
+func (o DSQLMultiRegionArgsPtrOutput) ToDSQLMultiRegionArgsPtrOutput() DSQLMultiRegionArgsPtrOutput {
+	return o
+}
+
+func (o DSQLMultiRegionArgsPtrOutput) ToDSQLMultiRegionArgsPtrOutputWithContext(ctx context.Context) DSQLMultiRegionArgsPtrOutput {
+	return o
+}
+
+func (o DSQLMultiRegionArgsPtrOutput) Elem() DSQLMultiRegionArgsOutput {
+	return o.ApplyT(func(v *DSQLMultiRegionArgs) DSQLMultiRegionArgs {
+		if v != nil {
+			return *v
+		}
+		var ret DSQLMultiRegionArgs
+		return ret
+	}).(DSQLMultiRegionArgsOutput)
+}
+
+// The two AWS regions to deploy the cluster into. Anvil creates one cluster per region using internally-created regional providers. AWS validates the region and witness region combination — Anvil passes through without inference.
+func (o DSQLMultiRegionArgsPtrOutput) Regions() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *DSQLMultiRegionArgs) []string {
+		if v == nil {
+			return nil
+		}
+		return v.Regions
+	}).(pulumi.StringArrayOutput)
+}
+
+// The AWS region to use as the witness. Stores a limited window of encrypted transaction logs to improve multi-region durability. Must be a third region distinct from both cluster regions. AWS validates this — Anvil does not infer or default it.
+func (o DSQLMultiRegionArgsPtrOutput) WitnessRegion() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DSQLMultiRegionArgs) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.WitnessRegion
+	}).(pulumi.StringPtrOutput)
+}
+
+// Low-level overrides for the underlying aws.dsql.Cluster resource. Use for KMS key ARN and any other cluster-level settings not exposed by the Anvil API.
+type DSQLOverrides struct {
+	// ARN of a KMS CMK for encryption at rest. If omitted, AWS_OWNED_KMS_KEY is used (default — always on, zero cost).
+	KmsEncryptionKey *string `pulumi:"kmsEncryptionKey"`
+	// Additional tags to apply to the cluster resources.
+	Tags map[string]string `pulumi:"tags"`
+}
+
+// A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.
+type DSQLRole struct {
+	// Table-level privileges to grant to this role on all current and future tables in the schema. e.g. ["SELECT", "INSERT", "UPDATE", "DELETE"]. Applied via GRANT ... ON ALL TABLES and ALTER DEFAULT PRIVILEGES.
+	Grants []DSQLGrant `pulumi:"grants"`
+	// The Postgres role name. e.g. "app_role". Must be a valid PostgreSQL identifier.
+	Name string `pulumi:"name"`
+	// The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
+	Schema string `pulumi:"schema"`
+}
+
+// DSQLRoleInput is an input type that accepts DSQLRoleArgs and DSQLRoleOutput values.
+// You can construct a concrete instance of `DSQLRoleInput` via:
+//
+//	DSQLRoleArgs{...}
+type DSQLRoleInput interface {
+	pulumi.Input
+
+	ToDSQLRoleOutput() DSQLRoleOutput
+	ToDSQLRoleOutputWithContext(context.Context) DSQLRoleOutput
+}
+
+// A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.
+type DSQLRoleArgs struct {
+	// Table-level privileges to grant to this role on all current and future tables in the schema. e.g. ["SELECT", "INSERT", "UPDATE", "DELETE"]. Applied via GRANT ... ON ALL TABLES and ALTER DEFAULT PRIVILEGES.
+	Grants DSQLGrantArrayInput `pulumi:"grants"`
+	// The Postgres role name. e.g. "app_role". Must be a valid PostgreSQL identifier.
+	Name pulumi.StringInput `pulumi:"name"`
+	// The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
+	Schema pulumi.StringInput `pulumi:"schema"`
+}
+
+func (DSQLRoleArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLRole)(nil)).Elem()
+}
+
+func (i DSQLRoleArgs) ToDSQLRoleOutput() DSQLRoleOutput {
+	return i.ToDSQLRoleOutputWithContext(context.Background())
+}
+
+func (i DSQLRoleArgs) ToDSQLRoleOutputWithContext(ctx context.Context) DSQLRoleOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLRoleOutput)
+}
+
+// DSQLRoleArrayInput is an input type that accepts DSQLRoleArray and DSQLRoleArrayOutput values.
+// You can construct a concrete instance of `DSQLRoleArrayInput` via:
+//
+//	DSQLRoleArray{ DSQLRoleArgs{...} }
+type DSQLRoleArrayInput interface {
+	pulumi.Input
+
+	ToDSQLRoleArrayOutput() DSQLRoleArrayOutput
+	ToDSQLRoleArrayOutputWithContext(context.Context) DSQLRoleArrayOutput
+}
+
+type DSQLRoleArray []DSQLRoleInput
+
+func (DSQLRoleArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DSQLRole)(nil)).Elem()
+}
+
+func (i DSQLRoleArray) ToDSQLRoleArrayOutput() DSQLRoleArrayOutput {
+	return i.ToDSQLRoleArrayOutputWithContext(context.Background())
+}
+
+func (i DSQLRoleArray) ToDSQLRoleArrayOutputWithContext(ctx context.Context) DSQLRoleArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLRoleArrayOutput)
+}
+
+// A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.
+type DSQLRoleOutput struct{ *pulumi.OutputState }
+
+func (DSQLRoleOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLRole)(nil)).Elem()
+}
+
+func (o DSQLRoleOutput) ToDSQLRoleOutput() DSQLRoleOutput {
+	return o
+}
+
+func (o DSQLRoleOutput) ToDSQLRoleOutputWithContext(ctx context.Context) DSQLRoleOutput {
+	return o
+}
+
+// Table-level privileges to grant to this role on all current and future tables in the schema. e.g. ["SELECT", "INSERT", "UPDATE", "DELETE"]. Applied via GRANT ... ON ALL TABLES and ALTER DEFAULT PRIVILEGES.
+func (o DSQLRoleOutput) Grants() DSQLGrantArrayOutput {
+	return o.ApplyT(func(v DSQLRole) []DSQLGrant { return v.Grants }).(DSQLGrantArrayOutput)
+}
+
+// The Postgres role name. e.g. "app_role". Must be a valid PostgreSQL identifier.
+func (o DSQLRoleOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v DSQLRole) string { return v.Name }).(pulumi.StringOutput)
+}
+
+// The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
+func (o DSQLRoleOutput) Schema() pulumi.StringOutput {
+	return o.ApplyT(func(v DSQLRole) string { return v.Schema }).(pulumi.StringOutput)
+}
+
+type DSQLRoleArrayOutput struct{ *pulumi.OutputState }
+
+func (DSQLRoleArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DSQLRole)(nil)).Elem()
+}
+
+func (o DSQLRoleArrayOutput) ToDSQLRoleArrayOutput() DSQLRoleArrayOutput {
+	return o
+}
+
+func (o DSQLRoleArrayOutput) ToDSQLRoleArrayOutputWithContext(ctx context.Context) DSQLRoleArrayOutput {
+	return o
+}
+
+func (o DSQLRoleArrayOutput) Index(i pulumi.IntInput) DSQLRoleOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) DSQLRole {
+		return vs[0].([]DSQLRole)[vs[1].(int)]
+	}).(DSQLRoleOutput)
+}
+
+type DSQLTransformArgs struct {
+	Cluster *DSQLOverrides `pulumi:"cluster"`
+}
+
+// VPC configuration for DSQL. When set without hasNat, Anvil creates interface VPC endpoints per region so traffic stays on the AWS backbone. When hasNat is true, endpoint creation is skipped and traffic routes via the existing NAT gateway to the public DSQL endpoint. Anvil never creates the NAT gateway.
+type DSQLVpcArgs struct {
+	// Signal that a NAT gateway already exists in this VPC. When true, Anvil skips interface endpoint creation — the Lambda routes to the public DSQL endpoint via NAT. When false (default), Anvil creates interface endpoints per region.
+	HasNat *bool `pulumi:"hasNat"`
+	// The IDs of the private subnets to attach the endpoint ENIs to. One ENI is created per subnet. Pass all private subnet IDs — typically one per AZ. Accepts Output<string[]> — pass vpc.privateSubnetIds directly.
+	PrivateSubnetIds interface{} `pulumi:"privateSubnetIds"`
+	// The ID of the VPC. Accepts Output<string> — pass vpc.vpcId directly.
+	VpcId interface{} `pulumi:"vpcId"`
+}
+
+// DSQLVpcArgsInput is an input type that accepts DSQLVpcArgsArgs and DSQLVpcArgsOutput values.
+// You can construct a concrete instance of `DSQLVpcArgsInput` via:
+//
+//	DSQLVpcArgsArgs{...}
+type DSQLVpcArgsInput interface {
+	pulumi.Input
+
+	ToDSQLVpcArgsOutput() DSQLVpcArgsOutput
+	ToDSQLVpcArgsOutputWithContext(context.Context) DSQLVpcArgsOutput
+}
+
+// VPC configuration for DSQL. When set without hasNat, Anvil creates interface VPC endpoints per region so traffic stays on the AWS backbone. When hasNat is true, endpoint creation is skipped and traffic routes via the existing NAT gateway to the public DSQL endpoint. Anvil never creates the NAT gateway.
+type DSQLVpcArgsArgs struct {
+	// Signal that a NAT gateway already exists in this VPC. When true, Anvil skips interface endpoint creation — the Lambda routes to the public DSQL endpoint via NAT. When false (default), Anvil creates interface endpoints per region.
+	HasNat pulumi.BoolPtrInput `pulumi:"hasNat"`
+	// The IDs of the private subnets to attach the endpoint ENIs to. One ENI is created per subnet. Pass all private subnet IDs — typically one per AZ. Accepts Output<string[]> — pass vpc.privateSubnetIds directly.
+	PrivateSubnetIds pulumi.Input `pulumi:"privateSubnetIds"`
+	// The ID of the VPC. Accepts Output<string> — pass vpc.vpcId directly.
+	VpcId pulumi.Input `pulumi:"vpcId"`
+}
+
+func (DSQLVpcArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLVpcArgs)(nil)).Elem()
+}
+
+func (i DSQLVpcArgsArgs) ToDSQLVpcArgsOutput() DSQLVpcArgsOutput {
+	return i.ToDSQLVpcArgsOutputWithContext(context.Background())
+}
+
+func (i DSQLVpcArgsArgs) ToDSQLVpcArgsOutputWithContext(ctx context.Context) DSQLVpcArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLVpcArgsOutput)
+}
+
+func (i DSQLVpcArgsArgs) ToDSQLVpcArgsPtrOutput() DSQLVpcArgsPtrOutput {
+	return i.ToDSQLVpcArgsPtrOutputWithContext(context.Background())
+}
+
+func (i DSQLVpcArgsArgs) ToDSQLVpcArgsPtrOutputWithContext(ctx context.Context) DSQLVpcArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLVpcArgsOutput).ToDSQLVpcArgsPtrOutputWithContext(ctx)
+}
+
+// DSQLVpcArgsPtrInput is an input type that accepts DSQLVpcArgsArgs, DSQLVpcArgsPtr and DSQLVpcArgsPtrOutput values.
+// You can construct a concrete instance of `DSQLVpcArgsPtrInput` via:
+//
+//	        DSQLVpcArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type DSQLVpcArgsPtrInput interface {
+	pulumi.Input
+
+	ToDSQLVpcArgsPtrOutput() DSQLVpcArgsPtrOutput
+	ToDSQLVpcArgsPtrOutputWithContext(context.Context) DSQLVpcArgsPtrOutput
+}
+
+type dsqlvpcArgsPtrType DSQLVpcArgsArgs
+
+func DSQLVpcArgsPtr(v *DSQLVpcArgsArgs) DSQLVpcArgsPtrInput {
+	return (*dsqlvpcArgsPtrType)(v)
+}
+
+func (*dsqlvpcArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**DSQLVpcArgs)(nil)).Elem()
+}
+
+func (i *dsqlvpcArgsPtrType) ToDSQLVpcArgsPtrOutput() DSQLVpcArgsPtrOutput {
+	return i.ToDSQLVpcArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *dsqlvpcArgsPtrType) ToDSQLVpcArgsPtrOutputWithContext(ctx context.Context) DSQLVpcArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLVpcArgsPtrOutput)
+}
+
+// VPC configuration for DSQL. When set without hasNat, Anvil creates interface VPC endpoints per region so traffic stays on the AWS backbone. When hasNat is true, endpoint creation is skipped and traffic routes via the existing NAT gateway to the public DSQL endpoint. Anvil never creates the NAT gateway.
+type DSQLVpcArgsOutput struct{ *pulumi.OutputState }
+
+func (DSQLVpcArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLVpcArgs)(nil)).Elem()
+}
+
+func (o DSQLVpcArgsOutput) ToDSQLVpcArgsOutput() DSQLVpcArgsOutput {
+	return o
+}
+
+func (o DSQLVpcArgsOutput) ToDSQLVpcArgsOutputWithContext(ctx context.Context) DSQLVpcArgsOutput {
+	return o
+}
+
+func (o DSQLVpcArgsOutput) ToDSQLVpcArgsPtrOutput() DSQLVpcArgsPtrOutput {
+	return o.ToDSQLVpcArgsPtrOutputWithContext(context.Background())
+}
+
+func (o DSQLVpcArgsOutput) ToDSQLVpcArgsPtrOutputWithContext(ctx context.Context) DSQLVpcArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DSQLVpcArgs) *DSQLVpcArgs {
+		return &v
+	}).(DSQLVpcArgsPtrOutput)
+}
+
+// Signal that a NAT gateway already exists in this VPC. When true, Anvil skips interface endpoint creation — the Lambda routes to the public DSQL endpoint via NAT. When false (default), Anvil creates interface endpoints per region.
+func (o DSQLVpcArgsOutput) HasNat() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v DSQLVpcArgs) *bool { return v.HasNat }).(pulumi.BoolPtrOutput)
+}
+
+// The IDs of the private subnets to attach the endpoint ENIs to. One ENI is created per subnet. Pass all private subnet IDs — typically one per AZ. Accepts Output<string[]> — pass vpc.privateSubnetIds directly.
+func (o DSQLVpcArgsOutput) PrivateSubnetIds() pulumi.AnyOutput {
+	return o.ApplyT(func(v DSQLVpcArgs) interface{} { return v.PrivateSubnetIds }).(pulumi.AnyOutput)
+}
+
+// The ID of the VPC. Accepts Output<string> — pass vpc.vpcId directly.
+func (o DSQLVpcArgsOutput) VpcId() pulumi.AnyOutput {
+	return o.ApplyT(func(v DSQLVpcArgs) interface{} { return v.VpcId }).(pulumi.AnyOutput)
+}
+
+type DSQLVpcArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (DSQLVpcArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DSQLVpcArgs)(nil)).Elem()
+}
+
+func (o DSQLVpcArgsPtrOutput) ToDSQLVpcArgsPtrOutput() DSQLVpcArgsPtrOutput {
+	return o
+}
+
+func (o DSQLVpcArgsPtrOutput) ToDSQLVpcArgsPtrOutputWithContext(ctx context.Context) DSQLVpcArgsPtrOutput {
+	return o
+}
+
+func (o DSQLVpcArgsPtrOutput) Elem() DSQLVpcArgsOutput {
+	return o.ApplyT(func(v *DSQLVpcArgs) DSQLVpcArgs {
+		if v != nil {
+			return *v
+		}
+		var ret DSQLVpcArgs
+		return ret
+	}).(DSQLVpcArgsOutput)
+}
+
+// Signal that a NAT gateway already exists in this VPC. When true, Anvil skips interface endpoint creation — the Lambda routes to the public DSQL endpoint via NAT. When false (default), Anvil creates interface endpoints per region.
+func (o DSQLVpcArgsPtrOutput) HasNat() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *DSQLVpcArgs) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.HasNat
+	}).(pulumi.BoolPtrOutput)
+}
+
+// The IDs of the private subnets to attach the endpoint ENIs to. One ENI is created per subnet. Pass all private subnet IDs — typically one per AZ. Accepts Output<string[]> — pass vpc.privateSubnetIds directly.
+func (o DSQLVpcArgsPtrOutput) PrivateSubnetIds() pulumi.AnyOutput {
+	return o.ApplyT(func(v *DSQLVpcArgs) interface{} {
+		if v == nil {
+			return nil
+		}
+		return v.PrivateSubnetIds
+	}).(pulumi.AnyOutput)
+}
+
+// The ID of the VPC. Accepts Output<string> — pass vpc.vpcId directly.
+func (o DSQLVpcArgsPtrOutput) VpcId() pulumi.AnyOutput {
+	return o.ApplyT(func(v *DSQLVpcArgs) interface{} {
+		if v == nil {
+			return nil
+		}
+		return v.VpcId
+	}).(pulumi.AnyOutput)
+}
+
+type DsqlOverrides struct {
+	// Whether deletion protection is enabled in this cluster.
+	// Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+	DeletionProtectionEnabled *bool `pulumi:"deletionProtectionEnabled"`
+	// Destroys cluster even if <span pulumi-lang-nodejs="`deletionProtectionEnabled`" pulumi-lang-dotnet="`DeletionProtectionEnabled`" pulumi-lang-go="`deletionProtectionEnabled`" pulumi-lang-python="`deletion_protection_enabled`" pulumi-lang-yaml="`deletionProtectionEnabled`" pulumi-lang-java="`deletionProtectionEnabled`">`deletionProtectionEnabled`</span> is set to <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span>.
+	// Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+	ForceDestroy *bool `pulumi:"forceDestroy"`
+	// The ARN of the AWS KMS key that encrypts data in the DSQL Cluster, or `"AWS_OWNED_KMS_KEY"`.
+	KmsEncryptionKey *string `pulumi:"kmsEncryptionKey"`
+	// Multi-region properties of the DSQL Cluster.
+	MultiRegionProperties *dsql.ClusterMultiRegionProperties `pulumi:"multiRegionProperties"`
+	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+	Region *string `pulumi:"region"`
+	// Set of tags to be associated with the AWS DSQL Cluster resource.
+	Tags     map[string]string     `pulumi:"tags"`
+	Timeouts *dsql.ClusterTimeouts `pulumi:"timeouts"`
+}
+
+// DsqlOverridesInput is an input type that accepts DsqlOverridesArgs and DsqlOverridesOutput values.
+// You can construct a concrete instance of `DsqlOverridesInput` via:
+//
+//	DsqlOverridesArgs{...}
+type DsqlOverridesInput interface {
+	pulumi.Input
+
+	ToDsqlOverridesOutput() DsqlOverridesOutput
+	ToDsqlOverridesOutputWithContext(context.Context) DsqlOverridesOutput
+}
+
+type DsqlOverridesArgs struct {
+	// Whether deletion protection is enabled in this cluster.
+	// Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+	DeletionProtectionEnabled pulumi.BoolPtrInput `pulumi:"deletionProtectionEnabled"`
+	// Destroys cluster even if <span pulumi-lang-nodejs="`deletionProtectionEnabled`" pulumi-lang-dotnet="`DeletionProtectionEnabled`" pulumi-lang-go="`deletionProtectionEnabled`" pulumi-lang-python="`deletion_protection_enabled`" pulumi-lang-yaml="`deletionProtectionEnabled`" pulumi-lang-java="`deletionProtectionEnabled`">`deletionProtectionEnabled`</span> is set to <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span>.
+	// Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+	ForceDestroy pulumi.BoolPtrInput `pulumi:"forceDestroy"`
+	// The ARN of the AWS KMS key that encrypts data in the DSQL Cluster, or `"AWS_OWNED_KMS_KEY"`.
+	KmsEncryptionKey pulumi.StringPtrInput `pulumi:"kmsEncryptionKey"`
+	// Multi-region properties of the DSQL Cluster.
+	MultiRegionProperties dsql.ClusterMultiRegionPropertiesPtrInput `pulumi:"multiRegionProperties"`
+	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+	Region pulumi.StringPtrInput `pulumi:"region"`
+	// Set of tags to be associated with the AWS DSQL Cluster resource.
+	Tags     pulumi.StringMapInput        `pulumi:"tags"`
+	Timeouts dsql.ClusterTimeoutsPtrInput `pulumi:"timeouts"`
+}
+
+func (DsqlOverridesArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DsqlOverrides)(nil)).Elem()
+}
+
+func (i DsqlOverridesArgs) ToDsqlOverridesOutput() DsqlOverridesOutput {
+	return i.ToDsqlOverridesOutputWithContext(context.Background())
+}
+
+func (i DsqlOverridesArgs) ToDsqlOverridesOutputWithContext(ctx context.Context) DsqlOverridesOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DsqlOverridesOutput)
+}
+
+func (i DsqlOverridesArgs) ToDsqlOverridesPtrOutput() DsqlOverridesPtrOutput {
+	return i.ToDsqlOverridesPtrOutputWithContext(context.Background())
+}
+
+func (i DsqlOverridesArgs) ToDsqlOverridesPtrOutputWithContext(ctx context.Context) DsqlOverridesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DsqlOverridesOutput).ToDsqlOverridesPtrOutputWithContext(ctx)
+}
+
+// DsqlOverridesPtrInput is an input type that accepts DsqlOverridesArgs, DsqlOverridesPtr and DsqlOverridesPtrOutput values.
+// You can construct a concrete instance of `DsqlOverridesPtrInput` via:
+//
+//	        DsqlOverridesArgs{...}
+//
+//	or:
+//
+//	        nil
+type DsqlOverridesPtrInput interface {
+	pulumi.Input
+
+	ToDsqlOverridesPtrOutput() DsqlOverridesPtrOutput
+	ToDsqlOverridesPtrOutputWithContext(context.Context) DsqlOverridesPtrOutput
+}
+
+type dsqlOverridesPtrType DsqlOverridesArgs
+
+func DsqlOverridesPtr(v *DsqlOverridesArgs) DsqlOverridesPtrInput {
+	return (*dsqlOverridesPtrType)(v)
+}
+
+func (*dsqlOverridesPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**DsqlOverrides)(nil)).Elem()
+}
+
+func (i *dsqlOverridesPtrType) ToDsqlOverridesPtrOutput() DsqlOverridesPtrOutput {
+	return i.ToDsqlOverridesPtrOutputWithContext(context.Background())
+}
+
+func (i *dsqlOverridesPtrType) ToDsqlOverridesPtrOutputWithContext(ctx context.Context) DsqlOverridesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DsqlOverridesPtrOutput)
+}
+
+type DsqlOverridesOutput struct{ *pulumi.OutputState }
+
+func (DsqlOverridesOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DsqlOverrides)(nil)).Elem()
+}
+
+func (o DsqlOverridesOutput) ToDsqlOverridesOutput() DsqlOverridesOutput {
+	return o
+}
+
+func (o DsqlOverridesOutput) ToDsqlOverridesOutputWithContext(ctx context.Context) DsqlOverridesOutput {
+	return o
+}
+
+func (o DsqlOverridesOutput) ToDsqlOverridesPtrOutput() DsqlOverridesPtrOutput {
+	return o.ToDsqlOverridesPtrOutputWithContext(context.Background())
+}
+
+func (o DsqlOverridesOutput) ToDsqlOverridesPtrOutputWithContext(ctx context.Context) DsqlOverridesPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DsqlOverrides) *DsqlOverrides {
+		return &v
+	}).(DsqlOverridesPtrOutput)
+}
+
+// Whether deletion protection is enabled in this cluster.
+// Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+func (o DsqlOverridesOutput) DeletionProtectionEnabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v DsqlOverrides) *bool { return v.DeletionProtectionEnabled }).(pulumi.BoolPtrOutput)
+}
+
+// Destroys cluster even if <span pulumi-lang-nodejs="`deletionProtectionEnabled`" pulumi-lang-dotnet="`DeletionProtectionEnabled`" pulumi-lang-go="`deletionProtectionEnabled`" pulumi-lang-python="`deletion_protection_enabled`" pulumi-lang-yaml="`deletionProtectionEnabled`" pulumi-lang-java="`deletionProtectionEnabled`">`deletionProtectionEnabled`</span> is set to <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span>.
+// Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+func (o DsqlOverridesOutput) ForceDestroy() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v DsqlOverrides) *bool { return v.ForceDestroy }).(pulumi.BoolPtrOutput)
+}
+
+// The ARN of the AWS KMS key that encrypts data in the DSQL Cluster, or `"AWS_OWNED_KMS_KEY"`.
+func (o DsqlOverridesOutput) KmsEncryptionKey() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DsqlOverrides) *string { return v.KmsEncryptionKey }).(pulumi.StringPtrOutput)
+}
+
+// Multi-region properties of the DSQL Cluster.
+func (o DsqlOverridesOutput) MultiRegionProperties() dsql.ClusterMultiRegionPropertiesPtrOutput {
+	return o.ApplyT(func(v DsqlOverrides) *dsql.ClusterMultiRegionProperties { return v.MultiRegionProperties }).(dsql.ClusterMultiRegionPropertiesPtrOutput)
+}
+
+// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+func (o DsqlOverridesOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DsqlOverrides) *string { return v.Region }).(pulumi.StringPtrOutput)
+}
+
+// Set of tags to be associated with the AWS DSQL Cluster resource.
+func (o DsqlOverridesOutput) Tags() pulumi.StringMapOutput {
+	return o.ApplyT(func(v DsqlOverrides) map[string]string { return v.Tags }).(pulumi.StringMapOutput)
+}
+
+func (o DsqlOverridesOutput) Timeouts() dsql.ClusterTimeoutsPtrOutput {
+	return o.ApplyT(func(v DsqlOverrides) *dsql.ClusterTimeouts { return v.Timeouts }).(dsql.ClusterTimeoutsPtrOutput)
+}
+
+type DsqlOverridesPtrOutput struct{ *pulumi.OutputState }
+
+func (DsqlOverridesPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DsqlOverrides)(nil)).Elem()
+}
+
+func (o DsqlOverridesPtrOutput) ToDsqlOverridesPtrOutput() DsqlOverridesPtrOutput {
+	return o
+}
+
+func (o DsqlOverridesPtrOutput) ToDsqlOverridesPtrOutputWithContext(ctx context.Context) DsqlOverridesPtrOutput {
+	return o
+}
+
+func (o DsqlOverridesPtrOutput) Elem() DsqlOverridesOutput {
+	return o.ApplyT(func(v *DsqlOverrides) DsqlOverrides {
+		if v != nil {
+			return *v
+		}
+		var ret DsqlOverrides
+		return ret
+	}).(DsqlOverridesOutput)
+}
+
+// Whether deletion protection is enabled in this cluster.
+// Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+func (o DsqlOverridesPtrOutput) DeletionProtectionEnabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *DsqlOverrides) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.DeletionProtectionEnabled
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Destroys cluster even if <span pulumi-lang-nodejs="`deletionProtectionEnabled`" pulumi-lang-dotnet="`DeletionProtectionEnabled`" pulumi-lang-go="`deletionProtectionEnabled`" pulumi-lang-python="`deletion_protection_enabled`" pulumi-lang-yaml="`deletionProtectionEnabled`" pulumi-lang-java="`deletionProtectionEnabled`">`deletionProtectionEnabled`</span> is set to <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span>.
+// Default value is <span pulumi-lang-nodejs="`false`" pulumi-lang-dotnet="`False`" pulumi-lang-go="`false`" pulumi-lang-python="`false`" pulumi-lang-yaml="`false`" pulumi-lang-java="`false`">`false`</span>.
+func (o DsqlOverridesPtrOutput) ForceDestroy() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *DsqlOverrides) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.ForceDestroy
+	}).(pulumi.BoolPtrOutput)
+}
+
+// The ARN of the AWS KMS key that encrypts data in the DSQL Cluster, or `"AWS_OWNED_KMS_KEY"`.
+func (o DsqlOverridesPtrOutput) KmsEncryptionKey() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DsqlOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.KmsEncryptionKey
+	}).(pulumi.StringPtrOutput)
+}
+
+// Multi-region properties of the DSQL Cluster.
+func (o DsqlOverridesPtrOutput) MultiRegionProperties() dsql.ClusterMultiRegionPropertiesPtrOutput {
+	return o.ApplyT(func(v *DsqlOverrides) *dsql.ClusterMultiRegionProperties {
+		if v == nil {
+			return nil
+		}
+		return v.MultiRegionProperties
+	}).(dsql.ClusterMultiRegionPropertiesPtrOutput)
+}
+
+// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+func (o DsqlOverridesPtrOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DsqlOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Region
+	}).(pulumi.StringPtrOutput)
+}
+
+// Set of tags to be associated with the AWS DSQL Cluster resource.
+func (o DsqlOverridesPtrOutput) Tags() pulumi.StringMapOutput {
+	return o.ApplyT(func(v *DsqlOverrides) map[string]string {
+		if v == nil {
+			return nil
+		}
+		return v.Tags
+	}).(pulumi.StringMapOutput)
+}
+
+func (o DsqlOverridesPtrOutput) Timeouts() dsql.ClusterTimeoutsPtrOutput {
+	return o.ApplyT(func(v *DsqlOverrides) *dsql.ClusterTimeouts {
+		if v == nil {
+			return nil
+		}
+		return v.Timeouts
+	}).(dsql.ClusterTimeoutsPtrOutput)
+}
+
+type DsqlTransformArgs struct {
+	Dsql *DsqlOverrides `pulumi:"dsql"`
+}
+
+// DsqlTransformArgsInput is an input type that accepts DsqlTransformArgsArgs and DsqlTransformArgsOutput values.
+// You can construct a concrete instance of `DsqlTransformArgsInput` via:
+//
+//	DsqlTransformArgsArgs{...}
+type DsqlTransformArgsInput interface {
+	pulumi.Input
+
+	ToDsqlTransformArgsOutput() DsqlTransformArgsOutput
+	ToDsqlTransformArgsOutputWithContext(context.Context) DsqlTransformArgsOutput
+}
+
+type DsqlTransformArgsArgs struct {
+	Dsql DsqlOverridesPtrInput `pulumi:"dsql"`
+}
+
+func (DsqlTransformArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DsqlTransformArgs)(nil)).Elem()
+}
+
+func (i DsqlTransformArgsArgs) ToDsqlTransformArgsOutput() DsqlTransformArgsOutput {
+	return i.ToDsqlTransformArgsOutputWithContext(context.Background())
+}
+
+func (i DsqlTransformArgsArgs) ToDsqlTransformArgsOutputWithContext(ctx context.Context) DsqlTransformArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DsqlTransformArgsOutput)
+}
+
+func (i DsqlTransformArgsArgs) ToDsqlTransformArgsPtrOutput() DsqlTransformArgsPtrOutput {
+	return i.ToDsqlTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (i DsqlTransformArgsArgs) ToDsqlTransformArgsPtrOutputWithContext(ctx context.Context) DsqlTransformArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DsqlTransformArgsOutput).ToDsqlTransformArgsPtrOutputWithContext(ctx)
+}
+
+// DsqlTransformArgsPtrInput is an input type that accepts DsqlTransformArgsArgs, DsqlTransformArgsPtr and DsqlTransformArgsPtrOutput values.
+// You can construct a concrete instance of `DsqlTransformArgsPtrInput` via:
+//
+//	        DsqlTransformArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type DsqlTransformArgsPtrInput interface {
+	pulumi.Input
+
+	ToDsqlTransformArgsPtrOutput() DsqlTransformArgsPtrOutput
+	ToDsqlTransformArgsPtrOutputWithContext(context.Context) DsqlTransformArgsPtrOutput
+}
+
+type dsqlTransformArgsPtrType DsqlTransformArgsArgs
+
+func DsqlTransformArgsPtr(v *DsqlTransformArgsArgs) DsqlTransformArgsPtrInput {
+	return (*dsqlTransformArgsPtrType)(v)
+}
+
+func (*dsqlTransformArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**DsqlTransformArgs)(nil)).Elem()
+}
+
+func (i *dsqlTransformArgsPtrType) ToDsqlTransformArgsPtrOutput() DsqlTransformArgsPtrOutput {
+	return i.ToDsqlTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *dsqlTransformArgsPtrType) ToDsqlTransformArgsPtrOutputWithContext(ctx context.Context) DsqlTransformArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DsqlTransformArgsPtrOutput)
+}
+
+type DsqlTransformArgsOutput struct{ *pulumi.OutputState }
+
+func (DsqlTransformArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DsqlTransformArgs)(nil)).Elem()
+}
+
+func (o DsqlTransformArgsOutput) ToDsqlTransformArgsOutput() DsqlTransformArgsOutput {
+	return o
+}
+
+func (o DsqlTransformArgsOutput) ToDsqlTransformArgsOutputWithContext(ctx context.Context) DsqlTransformArgsOutput {
+	return o
+}
+
+func (o DsqlTransformArgsOutput) ToDsqlTransformArgsPtrOutput() DsqlTransformArgsPtrOutput {
+	return o.ToDsqlTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (o DsqlTransformArgsOutput) ToDsqlTransformArgsPtrOutputWithContext(ctx context.Context) DsqlTransformArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DsqlTransformArgs) *DsqlTransformArgs {
+		return &v
+	}).(DsqlTransformArgsPtrOutput)
+}
+
+func (o DsqlTransformArgsOutput) Dsql() DsqlOverridesPtrOutput {
+	return o.ApplyT(func(v DsqlTransformArgs) *DsqlOverrides { return v.Dsql }).(DsqlOverridesPtrOutput)
+}
+
+type DsqlTransformArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (DsqlTransformArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DsqlTransformArgs)(nil)).Elem()
+}
+
+func (o DsqlTransformArgsPtrOutput) ToDsqlTransformArgsPtrOutput() DsqlTransformArgsPtrOutput {
+	return o
+}
+
+func (o DsqlTransformArgsPtrOutput) ToDsqlTransformArgsPtrOutputWithContext(ctx context.Context) DsqlTransformArgsPtrOutput {
+	return o
+}
+
+func (o DsqlTransformArgsPtrOutput) Elem() DsqlTransformArgsOutput {
+	return o.ApplyT(func(v *DsqlTransformArgs) DsqlTransformArgs {
+		if v != nil {
+			return *v
+		}
+		var ret DsqlTransformArgs
+		return ret
+	}).(DsqlTransformArgsOutput)
+}
+
+func (o DsqlTransformArgsPtrOutput) Dsql() DsqlOverridesPtrOutput {
+	return o.ApplyT(func(v *DsqlTransformArgs) *DsqlOverrides {
+		if v == nil {
+			return nil
+		}
+		return v.Dsql
+	}).(DsqlOverridesPtrOutput)
 }
 
 // A Global Secondary Index. All key attributes must use the explicit { name, type } shape — Anvil merges these into the table attributeDefinitions automatically.
@@ -13968,6 +15021,18 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTokenValidityPtrInput)(nil)).Elem(), CognitoUserPoolTokenValidityArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTransformArgsInput)(nil)).Elem(), CognitoUserPoolTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTransformArgsPtrInput)(nil)).Elem(), CognitoUserPoolTransformArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLBackupArgsInput)(nil)).Elem(), DSQLBackupArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLBackupArgsPtrInput)(nil)).Elem(), DSQLBackupArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLMultiRegionArgsInput)(nil)).Elem(), DSQLMultiRegionArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLMultiRegionArgsPtrInput)(nil)).Elem(), DSQLMultiRegionArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLRoleInput)(nil)).Elem(), DSQLRoleArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLRoleArrayInput)(nil)).Elem(), DSQLRoleArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLVpcArgsInput)(nil)).Elem(), DSQLVpcArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLVpcArgsPtrInput)(nil)).Elem(), DSQLVpcArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DsqlOverridesInput)(nil)).Elem(), DsqlOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DsqlOverridesPtrInput)(nil)).Elem(), DsqlOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DsqlTransformArgsInput)(nil)).Elem(), DsqlTransformArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DsqlTransformArgsPtrInput)(nil)).Elem(), DsqlTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBGlobalSecondaryIndexInput)(nil)).Elem(), DynamoDBGlobalSecondaryIndexArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBGlobalSecondaryIndexArrayInput)(nil)).Elem(), DynamoDBGlobalSecondaryIndexArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DynamoDBKeyAttributeInput)(nil)).Elem(), DynamoDBKeyAttributeArgs{})
@@ -14101,6 +15166,18 @@ func init() {
 	pulumi.RegisterOutputType(CognitoUserPoolTokenValidityPtrOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolTransformArgsOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolTransformArgsPtrOutput{})
+	pulumi.RegisterOutputType(DSQLBackupArgsOutput{})
+	pulumi.RegisterOutputType(DSQLBackupArgsPtrOutput{})
+	pulumi.RegisterOutputType(DSQLMultiRegionArgsOutput{})
+	pulumi.RegisterOutputType(DSQLMultiRegionArgsPtrOutput{})
+	pulumi.RegisterOutputType(DSQLRoleOutput{})
+	pulumi.RegisterOutputType(DSQLRoleArrayOutput{})
+	pulumi.RegisterOutputType(DSQLVpcArgsOutput{})
+	pulumi.RegisterOutputType(DSQLVpcArgsPtrOutput{})
+	pulumi.RegisterOutputType(DsqlOverridesOutput{})
+	pulumi.RegisterOutputType(DsqlOverridesPtrOutput{})
+	pulumi.RegisterOutputType(DsqlTransformArgsOutput{})
+	pulumi.RegisterOutputType(DsqlTransformArgsPtrOutput{})
 	pulumi.RegisterOutputType(DynamoDBGlobalSecondaryIndexOutput{})
 	pulumi.RegisterOutputType(DynamoDBGlobalSecondaryIndexArrayOutput{})
 	pulumi.RegisterOutputType(DynamoDBKeyAttributeOutput{})

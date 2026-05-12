@@ -40,3 +40,25 @@ export interface GrantTargetConfig {
   /** Python property name for IAM role ARN, e.g. "role_arn" */
   pyRoleArnProperty: string;
 }
+
+/**
+ * GrantMapConfig is for resources where the ARN property is
+ * Output<Record<string, string>> rather than Output<string>.
+ * Used when a component exposes multiple ARNs keyed by region
+ * (e.g. DSQL clusterArns). The grant method iterates all values
+ * in the map and scopes the IAM policy to every ARN.
+ */
+export interface GrantMapConfig {
+  /** Path relative to sdk/nodejs/, e.g. "aws/dsql.ts" */
+  tsFile: string;
+  /** Path relative to sdk/python/anvil_cloud/, e.g. "aws/dsql.py" */
+  pyFile: string;
+  /** Generated class name to patch, e.g. "DSQL" */
+  className: string;
+  /** Property on class that holds the ARN map, e.g. "clusterArns" */
+  arnMapProperty: string;
+  /** Python snake_case property name, e.g. "cluster_arns" */
+  pyArnMapProperty: string;
+  /** Grant methods to inject on this resource */
+  grants: Grant[];
+}

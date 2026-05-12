@@ -1,0 +1,261 @@
+{
+  "resources": {
+    "anvil:aws:DSQL": {
+      "description": "Serverless distributed PostgreSQL-compatible database. Secure-by-default Aurora DSQL cluster with optional multi-region active-active replication, IAM authentication, deploy-time role bootstrapping, and AWS Backup integration. No VPC required — connect directly via IAM auth tokens.",
+      "inputProperties": {
+        "backup": {
+          "$ref": "#/types/anvil:aws:DSQLBackupArgs",
+          "description": "AWS Backup configuration. Omit to disable. When set, Anvil opts in the DSQL resource type per region, creates a backup plan with retention and schedule, and for multi-region clusters automatically adds cross-region copy rules."
+        },
+        "multiRegion": {
+          "$ref": "#/types/anvil:aws:DSQLMultiRegionArgs",
+          "description": "Opt-in multi-region configuration. When set, Anvil creates two clusters in the specified regions and links them via ClusterPeering. When omitted, a single-region cluster is created in the provider's default region."
+        },
+        "roles": {
+          "description": "Database roles to bootstrap at deploy time. Anvil connects as admin using the deployer's credentials and runs the SQL to create schemas, roles, IAM grants, and table-level permissions. Only re-runs when role definitions change. Omit entirely to skip bootstrapping — useful when managing schema separately.",
+          "items": {
+            "$ref": "#/types/anvil:aws:DSQLRole"
+          },
+          "type": "array"
+        },
+        "transform": {
+          "$ref": "#/types/anvil:aws:DsqlTransformArgs"
+        },
+        "vpc": {
+          "$ref": "#/types/anvil:aws:DSQLVpcArgs",
+          "description": "Optional VPC configuration. When set without hasNat, Anvil creates interface VPC endpoints (PrivateLink) per region so traffic stays on the AWS backbone. When omitted, the Lambda connects to the public DSQL endpoint over the internet using IAM auth tokens over TLS."
+        }
+      },
+      "isComponent": true,
+      "properties": {
+        "clusterArns": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of region to cluster ARN. Single-region: one entry. Multi-region: one entry per region. e.g. { \"us-east-1\": \"arn:aws:dsql:us-east-1:...\" }.",
+          "type": "object"
+        },
+        "endpoints": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of region to cluster endpoint. Single-region: one entry keyed by the provider region. Multi-region: one entry per region. e.g. { \"us-east-1\": \"abc123.dsql.us-east-1.on.aws\" }. Pass the relevant endpoint to your Lambda via environment variables.",
+          "type": "object"
+        },
+        "vpcEndpointIds": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of region to VPC endpoint ID. Only populated when vpc is set and hasNat is false. Pass to LambdaVpcEndpointArgs.endpointId.",
+          "type": "object"
+        },
+        "vpcEndpointSecurityGroupIds": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of region to VPC endpoint security group ID. Only populated when vpc is set and hasNat is false. Pass to LambdaVpcEndpointArgs.securityGroupId so Anvil can wire the egress rule from the Lambda SG to the endpoint SG on port 5432.",
+          "type": "object"
+        }
+      },
+      "required": [
+        "endpoints",
+        "clusterArns"
+      ],
+      "requiredInputs": []
+    }
+  },
+  "types": {
+    "anvil:aws:DSQLBackupArgs": {
+      "description": "AWS Backup configuration for DSQL clusters. Anvil opts in the DSQL resource type in each cluster region, creates a backup plan, and for multi-region clusters automatically adds cross-region copy rules so restores work in both regions.",
+      "properties": {
+        "retentionDays": {
+          "description": "Number of days to retain recovery points. Default: 35.",
+          "type": "integer"
+        },
+        "scheduleExpression": {
+          "description": "CRON expression for when backups run. e.g. \"cron(0 2 * * ? *)\". Default: daily at midnight — cron(0 0 * * ? *).",
+          "type": "string"
+        },
+        "scheduleTimezone": {
+          "description": "IANA timezone for the schedule expression. e.g. \"Australia/Sydney\". Default: \"Etc/UTC\". Anvil passes this to the backup plan rule as scheduleExpressionTimezone.",
+          "type": "string"
+        },
+        "vaultArn": {
+          "description": "ARN of an existing backup vault to store recovery points in. When omitted, Anvil uses the default AWS Backup vault.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:DSQLGrant": {
+      "description": "A PostgreSQL table-level privilege.",
+      "enum": [
+        {
+          "description": "Read rows.",
+          "value": "SELECT"
+        },
+        {
+          "description": "Insert new rows.",
+          "value": "INSERT"
+        },
+        {
+          "description": "Update existing rows.",
+          "value": "UPDATE"
+        },
+        {
+          "description": "Delete rows.",
+          "value": "DELETE"
+        },
+        {
+          "description": "Truncate a table.",
+          "value": "TRUNCATE"
+        },
+        {
+          "description": "Create a foreign key reference to the table.",
+          "value": "REFERENCES"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:DSQLMultiRegionArgs": {
+      "description": "Multi-region configuration for DSQL. When set, Anvil creates one cluster per region and links them via ClusterPeering. Both regions are active-active — reads and writes are accepted at either endpoint with strong consistency.",
+      "properties": {
+        "regions": {
+          "description": "The two AWS regions to deploy the cluster into. Anvil creates one cluster per region using internally-created regional providers. AWS validates the region and witness region combination — Anvil passes through without inference.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "witnessRegion": {
+          "description": "The AWS region to use as the witness. Stores a limited window of encrypted transaction logs to improve multi-region durability. Must be a third region distinct from both cluster regions. AWS validates this — Anvil does not infer or default it.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "regions",
+        "witnessRegion"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:DSQLOverrides": {
+      "description": "Low-level overrides for the underlying aws.dsql.Cluster resource. Use for KMS key ARN and any other cluster-level settings not exposed by the Anvil API.",
+      "properties": {
+        "kmsEncryptionKey": {
+          "description": "ARN of a KMS CMK for encryption at rest. If omitted, AWS_OWNED_KMS_KEY is used (default — always on, zero cost).",
+          "type": "string"
+        },
+        "tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Additional tags to apply to the cluster resources.",
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:DSQLRole": {
+      "description": "A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.",
+      "properties": {
+        "grants": {
+          "description": "Table-level privileges to grant to this role on all current and future tables in the schema. e.g. [\"SELECT\", \"INSERT\", \"UPDATE\", \"DELETE\"]. Applied via GRANT ... ON ALL TABLES and ALTER DEFAULT PRIVILEGES.",
+          "items": {
+            "$ref": "#/types/anvil:aws:DSQLGrant"
+          },
+          "type": "array"
+        },
+        "name": {
+          "description": "The Postgres role name. e.g. \"app_role\". Must be a valid PostgreSQL identifier.",
+          "type": "string"
+        },
+        "schema": {
+          "description": "The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be \"public\".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "schema",
+        "grants"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:DSQLTransformArgs": {
+      "properties": {
+        "cluster": {
+          "$ref": "#/types/anvil:aws:DSQLOverrides"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:DSQLVpcArgs": {
+      "description": "VPC configuration for DSQL. When set without hasNat, Anvil creates interface VPC endpoints per region so traffic stays on the AWS backbone. When hasNat is true, endpoint creation is skipped and traffic routes via the existing NAT gateway to the public DSQL endpoint. Anvil never creates the NAT gateway.",
+      "properties": {
+        "hasNat": {
+          "description": "Signal that a NAT gateway already exists in this VPC. When true, Anvil skips interface endpoint creation — the Lambda routes to the public DSQL endpoint via NAT. When false (default), Anvil creates interface endpoints per region.",
+          "type": "boolean"
+        },
+        "privateSubnetIds": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The IDs of the private subnets to attach the endpoint ENIs to. One ENI is created per subnet. Pass all private subnet IDs — typically one per AZ. Accepts Output\u003cstring[]\u003e — pass vpc.privateSubnetIds directly."
+        },
+        "vpcId": {
+          "$ref": "pulumi.json#/Any",
+          "description": "The ID of the VPC. Accepts Output\u003cstring\u003e — pass vpc.vpcId directly."
+        }
+      },
+      "required": [
+        "vpcId",
+        "privateSubnetIds"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:DsqlOverrides": {
+      "properties": {
+        "deletionProtectionEnabled": {
+          "description": "Whether deletion protection is enabled in this cluster.\nDefault value is \u003cspan pulumi-lang-nodejs=\"`false`\" pulumi-lang-dotnet=\"`False`\" pulumi-lang-go=\"`false`\" pulumi-lang-python=\"`false`\" pulumi-lang-yaml=\"`false`\" pulumi-lang-java=\"`false`\"\u003e`false`\u003c/span\u003e.\n",
+          "type": "boolean"
+        },
+        "forceDestroy": {
+          "description": "Destroys cluster even if \u003cspan pulumi-lang-nodejs=\"`deletionProtectionEnabled`\" pulumi-lang-dotnet=\"`DeletionProtectionEnabled`\" pulumi-lang-go=\"`deletionProtectionEnabled`\" pulumi-lang-python=\"`deletion_protection_enabled`\" pulumi-lang-yaml=\"`deletionProtectionEnabled`\" pulumi-lang-java=\"`deletionProtectionEnabled`\"\u003e`deletionProtectionEnabled`\u003c/span\u003e is set to \u003cspan pulumi-lang-nodejs=\"`true`\" pulumi-lang-dotnet=\"`True`\" pulumi-lang-go=\"`true`\" pulumi-lang-python=\"`true`\" pulumi-lang-yaml=\"`true`\" pulumi-lang-java=\"`true`\"\u003e`true`\u003c/span\u003e.\nDefault value is \u003cspan pulumi-lang-nodejs=\"`false`\" pulumi-lang-dotnet=\"`False`\" pulumi-lang-go=\"`false`\" pulumi-lang-python=\"`false`\" pulumi-lang-yaml=\"`false`\" pulumi-lang-java=\"`false`\"\u003e`false`\u003c/span\u003e.\n",
+          "type": "boolean"
+        },
+        "kmsEncryptionKey": {
+          "description": "The ARN of the AWS KMS key that encrypts data in the DSQL Cluster, or `\"AWS_OWNED_KMS_KEY\"`.\n",
+          "type": "string"
+        },
+        "multiRegionProperties": {
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:dsql/ClusterMultiRegionProperties:ClusterMultiRegionProperties",
+          "description": "Multi-region properties of the DSQL Cluster.\n"
+        },
+        "region": {
+          "description": "Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.\n",
+          "type": "string"
+        },
+        "tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Set of tags to be associated with the AWS DSQL Cluster resource.\n",
+          "type": "object"
+        },
+        "timeouts": {
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:dsql/ClusterTimeouts:ClusterTimeouts"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:DsqlTransformArgs": {
+      "properties": {
+        "dsql": {
+          "$ref": "#/types/anvil:aws:DsqlOverrides"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "x-upstream-provider": "aws",
+  "x-upstream-token": "aws:dsql/cluster:Cluster",
+  "x-upstream-version": "v7.29.0"
+}
