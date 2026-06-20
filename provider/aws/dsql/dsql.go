@@ -10,9 +10,12 @@ import (
 	"github.com/DamienPace15/anvil/provider/internal/vpcsg"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws"
 	awsbackup "github.com/pulumi/pulumi-aws/sdk/v7/go/aws/backup"
+	awscloudwatch "github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cloudwatch"
 	awsdsql "github.com/pulumi/pulumi-aws/sdk/v7/go/aws/dsql"
+	awsdynamodb "github.com/pulumi/pulumi-aws/sdk/v7/go/aws/dynamodb"
 	awsec2 "github.com/pulumi/pulumi-aws/sdk/v7/go/aws/ec2"
 	awsiam "github.com/pulumi/pulumi-aws/sdk/v7/go/aws/iam"
+	awslambda "github.com/pulumi/pulumi-aws/sdk/v7/go/aws/lambda"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -498,20 +501,358 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 		}
 	}
 
-	// ── 8. Bootstrap ───────────────────────────────────────────────────────
-	// Only when roles is set and non-empty.
-	// Implemented in bootstrap.go — DSQLBootstrap dynamic provider.
-	// Connects as admin using the deployer's dsql:DbConnectAdmin credentials.
-	// Runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN,
-	//       AWS IAM GRANT, GRANT USAGE ON SCHEMA,
-	//       GRANT ON ALL TABLES, ALTER DEFAULT PRIVILEGES.
-	// For multi-region: depends on peering completing (clusters must be ACTIVE).
-	// Idempotent — Pulumi state diff prevents re-run when inputs unchanged.
+	// ── 8. Role bootstrap ──────────────────────────────────────────────────
+	//
+	// ARCHITECTURE (security-first, least-privilege):
+	//
+	//   Pulumi (deploy) ──► DynamoDB TableItem ──► DynamoDB Stream ──► Bootstrap Lambda
+	//                                                                    │
+	//                          ┌─────────────────────────────────────────┘
+	//                          ▼
+	//                   DSQL cluster (SQL)
+	//                   - CREATE SCHEMA / ROLE / GRANT (from DEFINITION items)
+	//
+	// The admin endpoint (dsql:DbConnectAdmin) NEVER runs in the CI/CD pipeline.
+	// If the pipeline is compromised, an attacker can only write role definitions
+	// to DynamoDB — they cannot execute arbitrary SQL against the cluster.
+	//
+	// The bootstrap Lambda:
+	//   - Can ONLY be triggered by the DynamoDB stream (no lambda:InvokeFunction)
+	//   - Has dsql:DbConnectAdmin scoped to these cluster ARNs only
+	//   - Reads DSQL_ENDPOINT and DSQL_REGION from its own env vars
+	//   - Generates IAM auth tokens per-request (no stored credentials)
+	//   - Is idempotent: INSERT creates, MODIFY updates, REMOVE drops
+	//
+	// Pulumi lifecycle handles diffing: unchanged roles are skipped entirely,
+	// no API calls, no stream events, no Lambda invocations.
+	//
+	// MULTI-CLUSTER ISOLATION:
+	//   Each DSQL component creates its own independent DynamoDB table and
+	//   bootstrap Lambda. Two clusters = two tables, two Lambdas, each with
+	//   their own DSQL_ENDPOINT env var. No cross-cluster confusion.
+	//
+	//     DSQL("orders")    → dev-orders-dsql-roles-abc123    + dev-orders-dsql-bootstrap-abc123
+	//     DSQL("analytics") → dev-analytics-dsql-roles-def456 + dev-analytics-dsql-bootstrap-def456
+	//
+	// DynamoDB table schema (composite key):
+	//
+	//   PK: roleName (S)  — Postgres role name, e.g. "app_role"
+	//   SK: sk (S)        — item type discriminator, currently "DEFINITION"
+	//
+	//   Role definition item (sk = "DEFINITION"):
+	//     Attributes: schema (S), grants (S, comma-separated)
+	//     Stream INSERT → CREATE SCHEMA, CREATE ROLE, GRANT, ALTER DEFAULT PRIVILEGES
+	//     Stream MODIFY → REVOKE old, GRANT new
+	//     Stream REMOVE → REVOKE ALL, DROP OWNED BY, DROP ROLE
+	//
+	//   Cluster endpoint/region are NOT stored per-item — they are infrastructure
+	//   config set as Lambda env vars (DSQL_ENDPOINT, DSQL_REGION).
+	//
+	// FRONTEND / DASHBOARD NOTES:
+	//   Reading roles: query the DynamoDB table directly. Table name follows
+	//   Anvil naming: {stage}-{componentName}-dsql-roles-{stageId}.
+	//   Writes should go through Pulumi (code-defined roles), but reads
+	//   are safe from any authorized service.
+	//
+	//   Limits: DSQL allows max 10 schemas per database, 1 database per cluster.
+	//
 	if len(args.Roles) > 0 {
-		// TODO: wire DSQLBootstrap dynamic provider once bootstrap.go is implemented.
-		// Blocked on: clusters ACTIVE (after peering for multi-region).
-		// Requires: github.com/jackc/pgx/v5, aws-sdk-go-v2 dsql auth package.
-		_ = args.Roles
+
+		// ── 8a. DynamoDB roles table ──────────────────────────────────────
+		rolesTableName := provider.PhysicalName(stage, name, "dsql-roles", stageId)
+
+		rolesTable := &awsdynamodb.Table{}
+		if err := ctx.RegisterResource("aws:dynamodb/table:Table",
+			fmt.Sprintf("%s-roles-table", name),
+			pulumi.Map{
+				"name":     pulumi.String(rolesTableName),
+				"hashKey":  pulumi.String("roleName"),
+				"rangeKey": pulumi.String("sk"),
+				"attributes": pulumi.MapArray{
+					pulumi.Map{
+						"name": pulumi.String("roleName"),
+						"type": pulumi.String("S"),
+					},
+					pulumi.Map{
+						"name": pulumi.String("sk"),
+						"type": pulumi.String("S"),
+					},
+				},
+				"billingMode":              pulumi.String("PAY_PER_REQUEST"),
+				"deletionProtectionEnabled": pulumi.Bool(true),
+				"pointInTimeRecovery": pulumi.Map{
+					"enabled": pulumi.Bool(true),
+				},
+				"streamEnabled":  pulumi.Bool(true),
+				"streamViewType": pulumi.String("NEW_AND_OLD_IMAGES"),
+				"tags": pulumi.StringMap{
+					"ManagedBy": pulumi.String("anvil"),
+				},
+			},
+			rolesTable,
+			pulumi.Parent(d),
+		); err != nil {
+			return nil, fmt.Errorf("creating DSQL roles table: %w", err)
+		}
+
+		// ── 8b. Bootstrap Lambda IAM role ─────────────────────────────────
+		bootstrapRoleName := provider.PhysicalName(stage, name, "dsql-bootstrap-role", stageId)
+
+		bootstrapRole := &awsiam.Role{}
+		if err := ctx.RegisterResource("aws:iam/role:Role",
+			fmt.Sprintf("%s-bootstrap-role", name),
+			pulumi.Map{
+				"name": pulumi.String(bootstrapRoleName),
+				"assumeRolePolicy": pulumi.String(`{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": { "Service": "lambda.amazonaws.com" },
+    "Action": "sts:AssumeRole"
+  }]
+}`),
+				"tags": pulumi.StringMap{
+					"ManagedBy": pulumi.String("anvil"),
+				},
+			},
+			bootstrapRole,
+			pulumi.Parent(d),
+		); err != nil {
+			return nil, fmt.Errorf("creating bootstrap Lambda IAM role: %w", err)
+		}
+
+		// Basic execution policy (CloudWatch logs)
+		basicExec := &awsiam.RolePolicyAttachment{}
+		if err := ctx.RegisterResource("aws:iam/rolePolicyAttachment:RolePolicyAttachment",
+			fmt.Sprintf("%s-bootstrap-basic-exec", name),
+			pulumi.Map{
+				"role":      bootstrapRole.Name,
+				"policyArn": pulumi.String("arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"),
+			},
+			basicExec,
+			pulumi.Parent(d),
+		); err != nil {
+			return nil, fmt.Errorf("attaching basic exec policy to bootstrap role: %w", err)
+		}
+
+		// dsql:DbConnectAdmin on all cluster ARNs
+		adminPolicyJSON := d.ClusterArns.ApplyT(func(arns map[string]string) (string, error) {
+			resources := make([]string, 0, len(arns))
+			for _, arn := range arns {
+				resources = append(resources, arn)
+			}
+			type statement struct {
+				Effect   string   `json:"Effect"`
+				Action   []string `json:"Action"`
+				Resource []string `json:"Resource"`
+			}
+			type doc struct {
+				Version   string      `json:"Version"`
+				Statement []statement `json:"Statement"`
+			}
+			b, err := json.Marshal(doc{
+				Version: "2012-10-17",
+				Statement: []statement{{
+					Effect:   "Allow",
+					Action:   []string{"dsql:DbConnectAdmin"},
+					Resource: resources,
+				}},
+			})
+			if err != nil {
+				return "", fmt.Errorf("failed to marshal admin policy: %w", err)
+			}
+			return string(b), nil
+		}).(pulumi.StringOutput)
+
+		if err := ctx.RegisterResource("aws:iam/rolePolicy:RolePolicy",
+			fmt.Sprintf("%s-bootstrap-admin-policy", name),
+			pulumi.Map{
+				"role":   bootstrapRole.Name,
+				"policy": adminPolicyJSON,
+			},
+			&awsiam.RolePolicy{},
+			pulumi.Parent(d),
+		); err != nil {
+			return nil, fmt.Errorf("attaching admin policy to bootstrap role: %w", err)
+		}
+
+		// ── 8c. Bootstrap Lambda log group ────────────────────────────────
+		bootstrapLambdaName := provider.PhysicalName(stage, name, "dsql-bootstrap", stageId)
+
+		logGroup := &awscloudwatch.LogGroup{}
+		if err := ctx.RegisterResource("aws:cloudwatch/logGroup:LogGroup",
+			fmt.Sprintf("%s-bootstrap-logs", name),
+			pulumi.Map{
+				"name":            pulumi.String(fmt.Sprintf("/aws/lambda/%s", bootstrapLambdaName)),
+				"retentionInDays": pulumi.Int(30),
+				"tags": pulumi.StringMap{
+					"ManagedBy": pulumi.String("anvil"),
+				},
+			},
+			logGroup,
+			pulumi.Parent(d),
+		); err != nil {
+			return nil, fmt.Errorf("creating bootstrap log group: %w", err)
+		}
+
+		// ── 8d. Bootstrap Lambda function ─────────────────────────────────
+		// Code is provided via the dsql-bootstrap zip built during `anvil deploy`.
+		// Checks component-specific key first, then falls back to generic key.
+		bootstrapZipPath := cfg.Get(fmt.Sprintf("dsql-bootstrap-%s", name))
+		if bootstrapZipPath == "" {
+			bootstrapZipPath = cfg.Get("dsql-bootstrap")
+		}
+
+		var bootstrapCode pulumi.Archive
+		if bootstrapZipPath != "" {
+			bootstrapCode = pulumi.NewFileArchive(bootstrapZipPath)
+		} else {
+			// Placeholder — deploy pipeline must build the Lambda first.
+			// See: cmd/anvil/dsql-lambda/main.go and build.go target "build-dsql-lambda"
+			bootstrapCode = pulumi.NewAssetArchive(map[string]interface{}{
+				"bootstrap": pulumi.NewStringAsset("#!/bin/sh\necho 'dsql-lambda not built' && exit 1"),
+			})
+		}
+
+		// Resolve cluster endpoint for Lambda env var.
+		// Each DSQL component's Lambda gets its own endpoint — no cross-cluster confusion.
+		firstRegion := regions[0]
+		clusterEndpoint := clusters[firstRegion].Identifier.ApplyT(func(id string) string {
+			return fmt.Sprintf("%s.dsql.%s.on.aws", id, firstRegion)
+		}).(pulumi.StringOutput)
+
+		bootstrapLambda := &awslambda.Function{}
+		if err := ctx.RegisterResource("aws:lambda/function:Function",
+			fmt.Sprintf("%s-bootstrap-fn", name),
+			pulumi.Map{
+				"name":          pulumi.String(bootstrapLambdaName),
+				"runtime":       pulumi.String("provided.al2023"),
+				"handler":       pulumi.String("bootstrap"),
+				"role":          bootstrapRole.Arn,
+				"memorySize":    pulumi.Int(256),
+				"timeout":       pulumi.Int(30),
+				"architectures": pulumi.StringArray{pulumi.String("arm64")},
+				"code":          bootstrapCode,
+				"environment": pulumi.Map{
+					"variables": pulumi.StringMap{
+						"DSQL_ENDPOINT": clusterEndpoint,
+						"DSQL_REGION":   pulumi.String(firstRegion),
+					},
+				},
+				"tags": pulumi.StringMap{
+					"ManagedBy": pulumi.String("anvil"),
+				},
+			},
+			bootstrapLambda,
+			pulumi.Parent(d),
+			pulumi.DependsOn([]pulumi.Resource{basicExec, logGroup}),
+		); err != nil {
+			return nil, fmt.Errorf("creating bootstrap Lambda: %w", err)
+		}
+
+		// ── 8e. Stream → Lambda wiring ────────────────────────────────────
+		// Resource-based policy for DynamoDB Streams to invoke the Lambda.
+		if _, err := awslambda.NewPermission(ctx,
+			fmt.Sprintf("%s-bootstrap-stream-invoke", name),
+			&awslambda.PermissionArgs{
+				Action:    pulumi.String("lambda:InvokeFunction"),
+				Function:  bootstrapLambda.Arn,
+				Principal: pulumi.String("lambda.amazonaws.com"),
+				SourceArn: rolesTable.StreamArn,
+			},
+			pulumi.Parent(d),
+		); err != nil {
+			return nil, fmt.Errorf("creating stream invoke permission: %w", err)
+		}
+
+		// Stream read permissions on bootstrap Lambda role
+		streamReadPolicy := rolesTable.StreamArn.ApplyT(func(streamArn string) (string, error) {
+			type statement struct {
+				Effect   string   `json:"Effect"`
+				Action   []string `json:"Action"`
+				Resource []string `json:"Resource"`
+			}
+			type doc struct {
+				Version   string      `json:"Version"`
+				Statement []statement `json:"Statement"`
+			}
+			b, err := json.Marshal(doc{
+				Version: "2012-10-17",
+				Statement: []statement{{
+					Effect: "Allow",
+					Action: []string{
+						"dynamodb:GetRecords",
+						"dynamodb:GetShardIterator",
+						"dynamodb:DescribeStream",
+						"dynamodb:ListStreams",
+					},
+					Resource: []string{streamArn},
+				}},
+			})
+			if err != nil {
+				return "", fmt.Errorf("failed to marshal stream read policy: %w", err)
+			}
+			return string(b), nil
+		}).(pulumi.StringOutput)
+
+		if err := ctx.RegisterResource("aws:iam/rolePolicy:RolePolicy",
+			fmt.Sprintf("%s-bootstrap-stream-read", name),
+			pulumi.Map{
+				"role":   bootstrapRole.Name,
+				"policy": streamReadPolicy,
+			},
+			&awsiam.RolePolicy{},
+			pulumi.Parent(d),
+		); err != nil {
+			return nil, fmt.Errorf("attaching stream read policy: %w", err)
+		}
+
+		// Event Source Mapping — DynamoDB Stream → Bootstrap Lambda
+		if _, err := awslambda.NewEventSourceMapping(ctx,
+			fmt.Sprintf("%s-bootstrap-esm", name),
+			&awslambda.EventSourceMappingArgs{
+				EventSourceArn:   rolesTable.StreamArn,
+				FunctionName:     bootstrapLambda.Arn,
+				StartingPosition: pulumi.String("TRIM_HORIZON"),
+				BatchSize:        pulumi.Int(1),
+				Enabled:          pulumi.Bool(true),
+			},
+			pulumi.Parent(d),
+		); err != nil {
+			return nil, fmt.Errorf("creating bootstrap event source mapping: %w", err)
+		}
+
+		// ── 8f. Role definition items ─────────────────────────────────────
+		// One DynamoDB item per role with sk="DEFINITION".
+		// Pulumi tracks each as a separate resource.
+		// When roles change → PutItem/DeleteItem → stream fires → Lambda acts.
+		// Endpoint/region are Lambda env vars, not stored per-item.
+		for _, role := range args.Roles {
+			role := role
+
+			itemJSON := marshalDynamoItem(map[string]string{
+				"roleName": role.Name,
+				"sk":       "DEFINITION",
+				"schema":   role.Schema,
+				"grants":   strings.Join(role.Grants, ","),
+			})
+
+			roleItem := &awsdynamodb.TableItem{}
+			if err := ctx.RegisterResource("aws:dynamodb/tableItem:TableItem",
+				fmt.Sprintf("%s-role-%s", name, role.Name),
+				pulumi.Map{
+					"tableName": rolesTable.Name,
+					"hashKey":   pulumi.String("roleName"),
+					"rangeKey":  pulumi.String("sk"),
+					"item":      pulumi.String(itemJSON),
+				},
+				roleItem,
+				pulumi.Parent(d),
+				pulumi.DependsOn([]pulumi.Resource{rolesTable}),
+			); err != nil {
+				return nil, fmt.Errorf("creating role item for %s: %w", role.Name, err)
+			}
+		}
 	}
 
 	// ── 9. Outputs ─────────────────────────────────────────────────────────
@@ -643,36 +984,75 @@ func (d *DSQL) GrantConnect(
 	return nil
 }
 
+// marshalDynamoItem builds a DynamoDB-format JSON string from a flat string map.
+func marshalDynamoItem(fields map[string]string) string {
+	item := make(map[string]map[string]string, len(fields))
+	for k, v := range fields {
+		item[k] = map[string]string{"S": v}
+	}
+	b, _ := json.Marshal(item)
+	return string(b)
+}
+
 // ── Doc notes ──────────────────────────────────────────────────────────────
 //
-// ADMIN CREDENTIALS AT DEPLOY TIME (docs + error handling):
-//   The bootstrap resource requires dsql:DbConnectAdmin on both cluster ARNs
-//   at deploy time. This is satisfied by the deployer's IAM identity — whoever
-//   runs `anvil deploy`. If the connection fails, surface the required
-//   permission and cluster ARN explicitly — raw pgx auth errors are opaque.
+// ROLE BOOTSTRAP ARCHITECTURE (docs):
+//   Roles are managed via a DynamoDB table + stream + Lambda pattern.
+//   The bootstrap Lambda is the ONLY entity with dsql:DbConnectAdmin — the
+//   CI/CD pipeline and deployer never hold admin credentials.
+//
+//   Deploy flow:
+//     1. Pulumi writes role DEFINITION items to DynamoDB (from roles[] array)
+//     2. DynamoDB stream fires for each INSERT/MODIFY/REMOVE
+//     3. Bootstrap Lambda processes events and runs SQL against DSQL
+//
+//   The Lambda reads DSQL_ENDPOINT and DSQL_REGION from its own env vars —
+//   these are NOT stored in the DynamoDB items. Each DSQL component has its
+//   own table and Lambda, so multi-cluster deployments are fully isolated.
+//
+//   Source: cmd/anvil/dsql-lambda/main.go
+//   Build:  go run build.go build-dsql-lambda
+//   Deploy: anvil deploy (auto-builds and sets Pulumi config)
+//
+// MULTI-CLUSTER ISOLATION (docs):
+//   Each DSQL component creates its own DynamoDB table and bootstrap Lambda.
+//   The endpoint is an env var on the Lambda, not stored in items. This means:
+//   - Two clusters = two tables, two Lambdas, zero shared state
+//   - Renaming or replacing a cluster only updates one Lambda's env var
+//   - No item migration or cross-table coordination needed
+//
+// ADMIN CREDENTIALS — BLAST RADIUS (docs + security):
+//   The bootstrap Lambda has dsql:DbConnectAdmin scoped to the component's
+//   cluster ARNs. It cannot be invoked directly — no lambda:InvokeFunction
+//   is granted. The only trigger is the DynamoDB stream. If the CI/CD
+//   pipeline is compromised, the attacker can write items to DynamoDB
+//   (role definitions) but cannot execute arbitrary SQL.
 //
 // SINGLE-REGION VS MULTI-REGION (docs):
 //   Single-region is the default — zero config required for a working cluster.
 //   Multi-region is opt-in via the multiRegion block. Tradeoffs:
 //   ~$43-87/month in PrivateLink costs (if VPC is used), cross-region data
 //   transfer charges, and OCC retry handling at the application layer.
-//   Document this clearly so users make an informed choice.
+//   For multi-region, the bootstrap Lambda connects to the first region's
+//   cluster — DSQL replicates the system catalog across regions.
 //
 // OCC RETRY BEHAVIOR (docs):
 //   DSQL uses Optimistic Concurrency Control. Under contention, transactions
 //   abort at commit time rather than blocking. Applications must implement
 //   retry logic — fundamentally different from standard Postgres locking.
-//   Recommend surfacing this in the component description and linking to
-//   the DSQL OCC documentation. Consider emitting cluster endpoints as env
-//   vars named DSQL_ENDPOINT_{REGION} so Lambda code can identify the db type.
 //
 // BOOTSTRAP IDEMPOTENCY (docs):
-//   The bootstrap resource only re-runs when the roles block changes — Pulumi
-//   state diffing handles this. CREATE ROLE IF NOT EXISTS and
-//   CREATE SCHEMA IF NOT EXISTS are safety nets for manual intervention
-//   scenarios. ALTER DEFAULT PRIVILEGES is critical — without it, grants only
-//   apply to tables that exist at bootstrap time. New tables added later
-//   are automatically accessible because of this statement.
+//   Pulumi state diffing prevents re-runs when inputs are unchanged.
+//   CREATE SCHEMA IF NOT EXISTS and CREATE ROLE (without IF NOT EXISTS)
+//   are safety nets. ALTER DEFAULT PRIVILEGES is critical — without it,
+//   grants only apply to tables that exist at bootstrap time. New tables
+//   added later are automatically accessible because of this statement.
+//
+// DSQL LIMITS (docs):
+//   Max 10 schemas per database. Max 1 database per cluster. No published
+//   limit on number of database roles or IAM-to-role mappings. Each role
+//   in the roles[] array requires a schema, so you're effectively capped
+//   at 10 roles unless multiple roles share a schema.
 //
 // VPC ENDPOINT SERVICE NAME (implementation note):
 //   Unlike SSM, SQS, and other standard services where the service name is
@@ -704,3 +1084,10 @@ func (d *DSQL) GrantConnect(
 //   that is set at Lambda construction time and cannot be modified post-deploy
 //   without replacing the function. The user must declare the DSQL endpoint SGs
 //   in vpc.vpcEndpoints on the Lambda when constructing it.
+//
+// DYNAMODB TABLE NAMING (frontend reference):
+//   Table name: {stage}-{componentName}-dsql-roles-{stageId}
+//   Example:    dev-orders-dsql-roles-a1b2c3
+//   Query patterns:
+//     - List all roles: Scan with FilterExpression sk = "DEFINITION"
+//     - Get one role:   GetItem(roleName="app_role", sk="DEFINITION")

@@ -35,22 +35,23 @@ func main() {
 	}
 
 	targets := map[string]func(){
-		"build":            targetBuild,
-		"binary":           targetBinary,
-		"generate":         targetGenerate,
-		"gen-site-schemas": targetGenSiteSchemas,
-		"merge":            targetMerge,
-		"registry":         targetRegistry,
-		"gen-go-sdk":       targetGenGoSDK,
-		"gen-nodejs":       targetGenNodejs,
-		"gen-python-sdk":   targetGenPythonSDK,
-		"build-provider":   targetBuildProvider,
-		"build-sdk":        targetBuildSDK,
-		"install":          targetInstall,
-		"build-python-sdk": targetBuildPythonSDK,
-		"install-py":       targetInstallPy,
-		"publish-npm":      targetPublishNpm,
-		"publish-pypi":     targetPublishPypi,
+		"build":              targetBuild,
+		"binary":             targetBinary,
+		"generate":           targetGenerate,
+		"gen-site-schemas":   targetGenSiteSchemas,
+		"merge":              targetMerge,
+		"registry":           targetRegistry,
+		"gen-go-sdk":         targetGenGoSDK,
+		"gen-nodejs":         targetGenNodejs,
+		"gen-python-sdk":     targetGenPythonSDK,
+		"build-provider":     targetBuildProvider,
+		"build-sdk":          targetBuildSDK,
+		"install":            targetInstall,
+		"build-python-sdk":   targetBuildPythonSDK,
+		"install-py":         targetInstallPy,
+		"build-dsql-lambda":  targetBuildDsqlLambda,
+		"publish-npm":        targetPublishNpm,
+		"publish-pypi":       targetPublishPypi,
 		"publish-go": func() {
 			version, ok := extra["VERSION"]
 			if !ok || version == "" {
@@ -231,6 +232,27 @@ func targetClean() {
 		must(os.RemoveAll(m))
 	}
 	log("🧹 Clean complete")
+}
+
+// ── DSQL Lambda ─────────────────────────────────────────────────────────────
+
+func targetBuildDsqlLambda() {
+	must(os.MkdirAll(".anvil/internal", 0o755))
+
+	// Cross-compile for Lambda (linux/arm64, custom runtime)
+	run("cmd/anvil/dsql-lambda",
+		[]string{"GOOS=linux", "GOARCH=arm64", "CGO_ENABLED=0"},
+		"go", "build", "-tags", "lambda.norpc",
+		"-o", "../../../.anvil/internal/bootstrap", ".",
+	)
+
+	// Zip the binary as "bootstrap" (required name for provided.al2023 runtime)
+	run(".anvil/internal", nil, "zip", "-j", "dsql-lambda.zip", "bootstrap")
+
+	// Clean up the raw binary
+	remove(".anvil/internal/bootstrap")
+
+	log("✅ DSQL bootstrap Lambda built → .anvil/internal/dsql-lambda.zip")
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
