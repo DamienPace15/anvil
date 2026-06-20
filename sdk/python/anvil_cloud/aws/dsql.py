@@ -219,21 +219,22 @@ class DSQL(pulumi.ComponentResource):
         """
         return pulumi.get(self, "vpc_endpoint_security_group_ids")
 
-    def grant_connect(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants connect access on this dsql to the target's execution role.
-        Scoped to all ARNs in cluster_arns — one per region.
+    def grant_connect(self, target: "grants.GrantTarget", db_role: str = None) -> None:
+        """Grants connect access on this DSQL cluster to the target's execution role.
+
+        Creates an anvil:aws:DSQLConnect component that handles the IAM policy
+        and optional DynamoDB IAM mapping for role bootstrap.
+
+        Args:
+            target: The compute resource to grant access to (Lambda, ECS, etc.).
+            db_role: The database role name to map this target to (e.g. "app_role").
         """
-        import json
-        import pulumi_aws as aws
-        name = f"{self._name}-{target.grant_name()}-connect"
-        policy_document = self.cluster_arns.apply(
-            lambda arns: json.dumps({
-                "Version": "2012-10-17",
-                "Statement": [{"Effect": "Allow", "Action": ["dsql:DbConnect"], "Resource": list(arns.values())}],
-            })
+        DSQLConnect(f"{self._name}-{target.grant_name()}-connect",
+            cluster_arns=self.cluster_arns,
+            target_role_arn=target.grant_role_arn(),
+            target_name=target.grant_name(),
+            db_role=db_role,
+            roles_table_name=self.roles_table_name,
+            opts=pulumi.ResourceOptions(parent=self),
         )
-        role_name = target.grant_role_arn().apply(
-            lambda arn: arn[arn.rfind("/") + 1:] if "/" in arn else arn
-        )
-        aws.iam.RolePolicy(name, role=role_name, policy=policy_document, opts=pulumi.ResourceOptions(parent=self))
 

@@ -296,6 +296,39 @@
       ],
       "requiredInputs": []
     },
+    "anvil:aws:DSQLConnect": {
+      "description": "Grants a compute resource (Lambda, ECS, etc.) connect access to an Anvil DSQL cluster. Creates the IAM policy (dsql:DbConnect) and optionally a DynamoDB IAM mapping item that triggers the bootstrap Lambda to run AWS IAM GRANT, mapping the compute resource's IAM role to a Postgres database role.",
+      "inputProperties": {
+        "clusterArns": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of region to cluster ARN from the DSQL component. Used to scope the dsql:DbConnect IAM policy.",
+          "type": "object"
+        },
+        "dbRole": {
+          "description": "Postgres database role name to map this IAM identity to (e.g. \"app_role\"). The bootstrap Lambda runs: AWS IAM GRANT \"dbRole\" TO 'arn:...'. Optional — omit when roles are not configured on the DSQL component.",
+          "type": "string"
+        },
+        "rolesTableName": {
+          "description": "DynamoDB table name for role bootstrap. Pass dsql.rolesTableName from the DSQL component. When set with dbRole, a TableItem is created to trigger the bootstrap Lambda. Optional — omit when roles are not configured.",
+          "type": "string"
+        },
+        "targetName": {
+          "description": "Logical name of the compute resource. Used for naming child resources.",
+          "type": "string"
+        },
+        "targetRoleArn": {
+          "description": "IAM execution role ARN of the compute resource (Lambda, ECS task, etc.) that will connect to the cluster.",
+          "type": "string"
+        }
+      },
+      "requiredInputs": [
+        "clusterArns",
+        "targetRoleArn",
+        "targetName"
+      ]
+    },
     "anvil:aws:DynamoDB": {
       "description": "Serverless key-value and document store. Secure-by-default DynamoDB table with GSI support, optional streams, and Lambda/EventBridge consumers. First data layer component — pairs naturally with anvil.aws.Lambda.",
       "inputProperties": {

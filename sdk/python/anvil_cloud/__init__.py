@@ -31,6 +31,7 @@ _utilities.register(
    "anvil:aws:CognitoAuth": "CognitoAuth",
    "anvil:aws:CognitoUserPool": "CognitoUserPool",
    "anvil:aws:DSQL": "DSQL",
+   "anvil:aws:DSQLConnect": "DSQLConnect",
    "anvil:aws:DynamoDB": "DynamoDB",
    "anvil:aws:EventBus": "EventBus",
    "anvil:aws:HttpApi": "HttpApi",

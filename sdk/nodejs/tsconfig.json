@@ -17,6 +17,7 @@
         "aws/cognitoAuth.ts",
         "aws/cognitoUserPool.ts",
         "aws/dsql.ts",
+        "aws/dsqlconnect.ts",
         "aws/dynamoDB.ts",
         "aws/eventBus.ts",
         "aws/httpApi.ts",

@@ -23,26 +23,28 @@ import (
 // Each DSQL component has its own table and Lambda, so multi-cluster
 // deployments are fully isolated.
 //
-// DynamoDB table schema:
+// DynamoDB table schema (composite key):
 //
 //   PK: roleName (S)   — Postgres role name, e.g. "app_role"
-//   SK: sk (S)         — currently always "DEFINITION"
+//   SK: sk (S)         — discriminator: "DEFINITION" or an IAM role ARN
 //
-//   Role definition item (sk = "DEFINITION"):
-//     roleName  (S)  — Postgres role name
-//     sk        (S)  — literal "DEFINITION"
-//     schema    (S)  — Postgres schema name, e.g. "myapp"
-//     grants    (S)  — Comma-separated privileges, e.g. "SELECT,INSERT,UPDATE,DELETE"
+// Two item types:
 //
-// Stream event types → SQL actions:
+//   1. Role definition (sk = "DEFINITION"):
+//      Written by Pulumi from the roles[] array on the DSQL component.
+//      Attributes: schema (S), grants (S, comma-separated)
 //
-//   INSERT → CREATE SCHEMA IF NOT EXISTS, CREATE ROLE, GRANT USAGE,
-//            GRANT privileges, ALTER DEFAULT PRIVILEGES
+//      INSERT → CREATE SCHEMA, CREATE ROLE, GRANT USAGE, GRANT privileges,
+//               ALTER DEFAULT PRIVILEGES
+//      MODIFY → REVOKE old, GRANT new
+//      REMOVE → REVOKE ALL, DROP OWNED BY, DROP ROLE
 //
-//   MODIFY → REVOKE old grants, GRANT new grants, ALTER DEFAULT PRIVILEGES
-//            (compares old vs new image)
+//   2. IAM mapping (sk = full IAM role ARN):
+//      Written by DSQLConnect component (via dsql.grantConnect).
+//      No extra attributes — roleName + ARN is all this Lambda needs.
 //
-//   REMOVE → REVOKE ALL, DROP OWNED BY, DROP ROLE
+//      INSERT → AWS IAM GRANT "roleName" TO 'arn:...'
+//      REMOVE → AWS IAM REVOKE "roleName" FROM 'arn:...'
 //
 // The Lambda connects as admin using dsql:DbConnectAdmin IAM auth.
 // Auth tokens are generated per-request — no long-lived credentials.
@@ -72,6 +74,17 @@ func handler(ctx context.Context, event events.DynamoDBEvent) error {
 }
 
 func processRecord(ctx context.Context, record events.DynamoDBEventRecord) error {
+	// Dispatch based on sk value: "DEFINITION" → role CRUD, IAM ARN → IAM GRANT/REVOKE
+	var image map[string]events.DynamoDBAttributeValue
+	if record.Change.NewImage != nil {
+		image = record.Change.NewImage
+	} else {
+		image = record.Change.OldImage
+	}
+	if isIAMMapping(image) {
+		return processIAMMapping(ctx, record)
+	}
+
 	switch record.EventName {
 	case "INSERT":
 		return handleInsert(ctx, record.Change.NewImage)
@@ -168,6 +181,52 @@ func handleRemove(ctx context.Context, oldImage map[string]events.DynamoDBAttrib
 	}
 
 	return execAll(ctx, conn, statements)
+}
+
+// ── IAM mapping items (sk = IAM role ARN) ───────────────────────────────────
+
+func isIAMMapping(image map[string]events.DynamoDBAttributeValue) bool {
+	sk := image["sk"].String()
+	return strings.HasPrefix(sk, "arn:")
+}
+
+func processIAMMapping(ctx context.Context, record events.DynamoDBEventRecord) error {
+	switch record.EventName {
+	case "INSERT":
+		roleName := record.Change.NewImage["roleName"].String()
+		iamArn := record.Change.NewImage["sk"].String()
+
+		conn, err := connectAdmin(ctx)
+		if err != nil {
+			return fmt.Errorf("admin connect failed: %w", err)
+		}
+		defer conn.Close(ctx)
+
+		sql := fmt.Sprintf("AWS IAM GRANT %s TO '%s'", pgIdent(roleName), iamArn)
+		if _, err := conn.Exec(ctx, sql); err != nil {
+			return fmt.Errorf("SQL failed [%s]: %w", sql, err)
+		}
+		return nil
+
+	case "REMOVE":
+		roleName := record.Change.OldImage["roleName"].String()
+		iamArn := record.Change.OldImage["sk"].String()
+
+		conn, err := connectAdmin(ctx)
+		if err != nil {
+			return fmt.Errorf("admin connect failed: %w", err)
+		}
+		defer conn.Close(ctx)
+
+		sql := fmt.Sprintf("AWS IAM REVOKE %s FROM '%s'", pgIdent(roleName), iamArn)
+		if _, err := conn.Exec(ctx, sql); err != nil {
+			return fmt.Errorf("SQL failed [%s]: %w", sql, err)
+		}
+		return nil
+
+	default:
+		return nil
+	}
 }
 
 // ── Admin connection via IAM auth token ─────────────────────────────────────

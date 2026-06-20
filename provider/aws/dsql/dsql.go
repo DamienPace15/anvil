@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	dsqlgrant "github.com/DamienPace15/anvil/provider/aws/dsqlgrant"
 	provider "github.com/DamienPace15/anvil/provider/internal/shared"
 	"github.com/DamienPace15/anvil/provider/internal/transform"
 	"github.com/DamienPace15/anvil/provider/internal/vpcsg"
@@ -34,9 +35,11 @@ type DSQLMultiRegionArgs struct {
 }
 
 // DSQLRoleArgs defines a database role to bootstrap at deploy time.
-// Anvil connects as admin using the deployer's credentials and runs the
-// required SQL. Only re-runs when role definitions change — idempotent
-// via Pulumi state diffing.
+// Anvil writes the role definition to a DynamoDB table. A DynamoDB stream
+// triggers a bootstrap Lambda (the only entity with dsql:DbConnectAdmin)
+// that runs the required SQL. Only re-runs when role definitions change —
+// idempotent via Pulumi state diffing. The admin endpoint never touches
+// the CI/CD pipeline.
 type DSQLRoleArgs struct {
 	// Name is the Postgres role name. Must be a valid PostgreSQL identifier.
 	Name string `pulumi:"name"`
@@ -120,6 +123,11 @@ type DSQL struct {
 	// Only populated when vpc is set and hasNat is false.
 	// Pass to LambdaVpcEndpointArgs.securityGroupId.
 	VpcEndpointSecurityGroupIds pulumi.StringMapOutput `pulumi:"vpcEndpointSecurityGroupIds"`
+
+	// RolesTableName is the DynamoDB table name for role bootstrap.
+	// Only populated when roles is configured. Used by DSQLConnect to
+	// create IAM mapping items. Empty when roles is omitted.
+	RolesTableName pulumi.StringOutput `pulumi:"rolesTableName"`
 
 	// hasVpcEndpoints tracks whether interface endpoints were created.
 	// Used by GrantConnect to decide whether to wire SG egress rules.
@@ -594,6 +602,7 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 		); err != nil {
 			return nil, fmt.Errorf("creating DSQL roles table: %w", err)
 		}
+		d.RolesTableName = rolesTable.Name
 
 		// ── 8b. Bootstrap Lambda IAM role ─────────────────────────────────
 		bootstrapRoleName := provider.PhysicalName(stage, name, "dsql-bootstrap-role", stageId)
@@ -874,103 +883,66 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 	d.VpcEndpointIds = vpcEndpointIds.ToStringMapOutput()
 	d.VpcEndpointSecurityGroupIds = vpcEndpointSgIds.ToStringMapOutput()
 
-	ctx.RegisterResourceOutputs(d, pulumi.Map{
+	outputMap := pulumi.Map{
 		"endpoints":                   endpointMap,
 		"clusterArns":                 arnMap,
 		"vpcEndpointIds":              vpcEndpointIds,
 		"vpcEndpointSecurityGroupIds": vpcEndpointSgIds,
-	})
+	}
+	if len(args.Roles) > 0 {
+		outputMap["rolesTableName"] = d.RolesTableName
+	}
+	ctx.RegisterResourceOutputs(d, outputMap)
 
 	return d, nil
 }
 
 // ── Grant methods ──────────────────────────────────────────────────────────
 
-// GrantConnect grants dsql:DbConnect on all cluster ARNs to the given Lambda's
-// execution role. Allows the Lambda to generate IAM auth tokens and connect
-// to the cluster as the mapped database role.
+// GrantConnect grants a compute resource connect access to this DSQL cluster.
+// Creates an anvil:aws:DSQLConnect component that handles:
 //
-// Never grants dsql:DbConnectAdmin — admin access is only used by the
-// bootstrap resource at deploy time using the deployer's own credentials.
+//  1. IAM policy — dsql:DbConnect on all cluster ARNs
+//  2. IAM-to-role mapping — DynamoDB item that triggers the bootstrap Lambda
+//     to run: AWS IAM GRANT "dbRole" TO 'arn:aws:iam::...:role/...'
 //
 // When vpc endpoints were created (hasNat false), also wires egress rules
-// from the Lambda's SG to each endpoint SG on port 5432.
+// from the target's SG to each endpoint SG on port 5432.
 //
-// The Lambda must declare the endpoint SGs in vpc.vpcEndpoints at construction
-// time — GrantConnect cannot attach SGs to an already-constructed Lambda.
-//
-// dbRole is informational — it documents which database role this Lambda
-// connects as. The actual role mapping is wired by the bootstrap resource.
+// The target must declare the endpoint SGs in vpc.vpcEndpoints at construction
+// time — GrantConnect cannot attach SGs to an already-constructed target.
 func (d *DSQL) GrantConnect(
 	ctx *pulumi.Context,
-	lambda provider.GrantTarget,
+	target provider.GrantTarget,
 	dbRole string,
 ) error {
-	// Build dsql:DbConnect IAM policy scoped to all cluster ARNs.
-	policyJSON := d.ClusterArns.ApplyT(func(arns map[string]string) (string, error) {
-		resources := make([]string, 0, len(arns))
-		for _, arn := range arns {
-			resources = append(resources, arn)
-		}
-
-		type statement struct {
-			Effect   string   `json:"Effect"`
-			Action   []string `json:"Action"`
-			Resource []string `json:"Resource"`
-		}
-		type doc struct {
-			Version   string      `json:"Version"`
-			Statement []statement `json:"Statement"`
-		}
-
-		b, err := json.Marshal(doc{
-			Version: "2012-10-17",
-			Statement: []statement{{
-				Effect:   "Allow",
-				Action:   []string{"dsql:DbConnect"},
-				Resource: resources,
-			}},
-		})
-		if err != nil {
-			return "", fmt.Errorf("failed to marshal dsql:DbConnect policy: %w", err)
-		}
-		return string(b), nil
-	}).(pulumi.StringOutput)
-
-	// Extract role name from ARN for iam.NewRolePolicy.
-	// ARN format: arn:aws:iam::{account}:role/{name}
-	roleNameOutput := lambda.RoleARN().ApplyT(func(arn string) string {
-		for i := len(arn) - 1; i >= 0; i-- {
-			if arn[i] == '/' {
-				return arn[i+1:]
-			}
-		}
-		return arn
-	}).(pulumi.StringOutput)
-
-	if _, err := awsiam.NewRolePolicy(ctx,
-		fmt.Sprintf("%s-%s-dsql-connect", d.name, lambda.Name()),
-		&awsiam.RolePolicyArgs{
-			Role:   roleNameOutput,
-			Policy: policyJSON,
-		},
-		pulumi.Parent(d),
-	); err != nil {
-		return fmt.Errorf("granting dsql:DbConnect to %s: %w", lambda.Name(), err)
+	grantArgs := dsqlgrant.DSQLConnectArgs{
+		ClusterArns:   d.ClusterArns,
+		TargetRoleArn: target.RoleARN(),
+		TargetName:    target.Name(),
+		DbRole:        dbRole,
 	}
 
-	// Wire egress rules from Lambda SG to each endpoint SG on port 5432.
+	if d.RolesTableName != (pulumi.StringOutput{}) {
+		grantArgs.RolesTableName = d.RolesTableName
+	}
+
+	if _, err := dsqlgrant.NewDSQLConnect(ctx,
+		fmt.Sprintf("%s-%s-dsql-connect", d.name, target.Name()),
+		grantArgs,
+		pulumi.Parent(d),
+	); err != nil {
+		return fmt.Errorf("granting dsql:DbConnect to %s: %w", target.Name(), err)
+	}
+
+	// Wire egress rules from target SG to each endpoint SG on port 5432.
 	// Only when interface endpoints were created during component construction.
-	// Iterates d.vpcEndpointSgOutputs — a plain map of region → StringOutput
-	// populated at construction time. Cannot use VpcEndpointSecurityGroupIds
-	// (StringMapOutput) here because Pulumi resources cannot be created inside
-	// an ApplyT.
 	if d.hasVpcEndpoints {
 		for region, sgIdOutput := range d.vpcEndpointSgOutputs {
 			if err := vpcsg.AddEgressRule(
 				ctx,
-				fmt.Sprintf("%s-%s-vpce-egress-%s", d.name, lambda.Name(), region),
-				lambda.SecurityGroupId().ToStringOutput(),
+				fmt.Sprintf("%s-%s-vpce-egress-%s", d.name, target.Name(), region),
+				target.SecurityGroupId().ToStringOutput(),
 				sgIdOutput,
 				5432, 5432,
 				"tcp",
@@ -1003,8 +975,10 @@ func marshalDynamoItem(fields map[string]string) string {
 //
 //   Deploy flow:
 //     1. Pulumi writes role DEFINITION items to DynamoDB (from roles[] array)
-//     2. DynamoDB stream fires for each INSERT/MODIFY/REMOVE
-//     3. Bootstrap Lambda processes events and runs SQL against DSQL
+//     2. GrantConnect creates DSQLConnect components that write IAM mapping
+//        items to the same DynamoDB table
+//     3. DynamoDB stream fires for each INSERT/MODIFY/REMOVE
+//     4. Bootstrap Lambda processes events and runs SQL against DSQL
 //
 //   The Lambda reads DSQL_ENDPOINT and DSQL_REGION from its own env vars —
 //   these are NOT stored in the DynamoDB items. Each DSQL component has its
@@ -1026,7 +1000,33 @@ func marshalDynamoItem(fields map[string]string) string {
 //   cluster ARNs. It cannot be invoked directly — no lambda:InvokeFunction
 //   is granted. The only trigger is the DynamoDB stream. If the CI/CD
 //   pipeline is compromised, the attacker can write items to DynamoDB
-//   (role definitions) but cannot execute arbitrary SQL.
+//   (role definitions or IAM mappings) but cannot execute arbitrary SQL.
+//
+// GRANTCONNECT — DSQLConnect COMPONENT (docs):
+//   dsql.grantConnect(target, "app_role") creates an anvil:aws:DSQLConnect
+//   component (provider/aws/dsqlgrant/) that handles:
+//     1. IAM policy — dsql:DbConnect on all cluster ARNs
+//     2. DynamoDB IAM mapping item (sk = IAM ARN) — triggers bootstrap Lambda
+//        to run: AWS IAM GRANT "app_role" TO 'arn:...'
+//   Removing the target cleans up both: Pulumi deletes the policy and the
+//   DynamoDB item, the stream fires REMOVE, bootstrap Lambda runs AWS IAM REVOKE.
+//   DSQLConnect works with any GrantTarget (Lambda, ECS, future compute types).
+//   It can also be used standalone: new anvil.aws.DSQLConnect(...) for advanced cases.
+//
+// GRANTCONNECT WITHOUT ROLES (docs):
+//   When roles is omitted (no roles table), GrantConnect only creates the
+//   IAM policy (dsql:DbConnect). The DynamoDB mapping item is skipped because
+//   rolesTableName is empty. The database-level mapping (AWS IAM GRANT)
+//   must be handled separately — intended for teams using migration tools.
+//
+// LAMBDA CONNECTION FLOW (docs):
+//   The user's Lambda connects to DSQL as a custom role (not admin):
+//     1. Generate token: signer.getDbConnectAuthToken() (NOT admin)
+//     2. Connect: user="app_role", password=token, port=5432, ssl=true
+//   This requires:
+//     - dsql:DbConnect IAM permission (from DSQLConnect)
+//     - AWS IAM GRANT mapping in the database (from bootstrap Lambda)
+//     - The database role must exist with GRANT privileges (from DEFINITION item)
 //
 // SINGLE-REGION VS MULTI-REGION (docs):
 //   Single-region is the default — zero config required for a working cluster.
@@ -1072,22 +1072,18 @@ func marshalDynamoItem(fields map[string]string) string {
 //   most AWS service endpoints (SSM, SQS, Secrets Manager). The self-referencing
 //   ingress rule and Lambda egress rules are wired on 5432. Do not change to 443.
 //
-// ROLES OPTIONAL (docs):
-//   When roles is omitted, no SQL runs at deploy time. Intended for teams using
-//   migration tools (Atlas, Flyway) or manual bootstrapping. GrantConnect still
-//   works — it only grants IAM-level dsql:DbConnect. The database-level role
-//   mapping (AWS IAM GRANT) must be handled separately when roles is omitted.
-//
 // GRANTCONNECT AND VPC SG ATTACHMENT (docs):
-//   GrantConnect wires the egress rule from the Lambda SG to the DSQL endpoint
-//   SG. However, it cannot attach the endpoint SG to the Lambda's vpcConfig —
-//   that is set at Lambda construction time and cannot be modified post-deploy
-//   without replacing the function. The user must declare the DSQL endpoint SGs
-//   in vpc.vpcEndpoints on the Lambda when constructing it.
+//   GrantConnect wires the egress rule from the target SG to the DSQL endpoint
+//   SG. However, it cannot attach the endpoint SG to the target's vpcConfig —
+//   that is set at construction time and cannot be modified post-deploy
+//   without replacing the resource. The user must declare the DSQL endpoint SGs
+//   in vpc.vpcEndpoints on the target when constructing it.
 //
 // DYNAMODB TABLE NAMING (frontend reference):
 //   Table name: {stage}-{componentName}-dsql-roles-{stageId}
 //   Example:    dev-orders-dsql-roles-a1b2c3
 //   Query patterns:
-//     - List all roles: Scan with FilterExpression sk = "DEFINITION"
+//     - List all role definitions: Scan with FilterExpression sk = "DEFINITION"
 //     - Get one role:   GetItem(roleName="app_role", sk="DEFINITION")
+//     - List IAM mappings for a role: Query(roleName="app_role", sk begins_with "arn:")
+//     - List all mappings: Scan with FilterExpression sk begins_with "arn:"

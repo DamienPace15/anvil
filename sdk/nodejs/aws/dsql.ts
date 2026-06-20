@@ -10,6 +10,7 @@ import * as utilities from "../utilities";
 import * as pulumiAws from "@pulumi/aws";
 import * as grants from "../grants";
 import * as aws from "@pulumi/aws";
+import { DSQLConnect } from "./dsqlconnect";
 
 /**
  * Serverless distributed PostgreSQL-compatible database. Secure-by-default Aurora DSQL cluster with optional multi-region active-active replication, IAM authentication, deploy-time role bootstrapping, and AWS Backup integration. No VPC required — connect directly via IAM auth tokens.
@@ -48,6 +49,7 @@ export class DSQL extends pulumi.ComponentResource {
      * Map of region to VPC endpoint security group ID. Only populated when vpc is set and hasNat is false. Pass to LambdaVpcEndpointArgs.securityGroupId so Anvil can wire the egress rule from the Lambda SG to the endpoint SG on port 5432.
      */
     declare public /*out*/ readonly vpcEndpointSecurityGroupIds: pulumi.Output<{[key: string]: string} | undefined>;
+    declare public /*out*/ readonly rolesTableName: pulumi.Output<string | undefined>;
 
     /**
      * Create a DSQL resource with the given unique name, arguments, and options.
@@ -69,43 +71,44 @@ export class DSQL extends pulumi.ComponentResource {
             resourceInputs["endpoints"] = undefined /*out*/;
             resourceInputs["vpcEndpointIds"] = undefined /*out*/;
             resourceInputs["vpcEndpointSecurityGroupIds"] = undefined /*out*/;
+            resourceInputs["rolesTableName"] = undefined /*out*/;
         } else {
             resourceInputs["clusterArns"] = undefined /*out*/;
             resourceInputs["endpoints"] = undefined /*out*/;
             resourceInputs["vpcEndpointIds"] = undefined /*out*/;
             resourceInputs["vpcEndpointSecurityGroupIds"] = undefined /*out*/;
+            resourceInputs["rolesTableName"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(DSQL.__pulumiType, name, resourceInputs, opts, true /*remote*/);
         this.__name = name;
     }
 
+
+
     /**
-     * Grants connect access (dsql:DbConnect) on this dsql
+     * Grants connect access (dsql:DbConnect) on this DSQL cluster
      * to the target compute resource's execution role.
      *
-     * Scoped to all ARNs in clusterArns — one per region.
+     * Creates an anvil:aws:DSQLConnect component that handles:
+     * 1. IAM policy (dsql:DbConnect) on all cluster ARNs
+     * 2. DynamoDB IAM mapping item (when roles are configured) that triggers
+     *    the bootstrap Lambda to run: AWS IAM GRANT "dbRole" TO 'arn:...'
      *
-     * @param target - The compute resource to grant access to.
-     * @param opts   - Optional grant options (justification for audit trail).
+     * @param target - The compute resource to grant access to (Lambda, ECS, etc.).
+     * @param dbRole - The database role name to map this target to (e.g. "app_role").
      */
-    public grantConnect(target: grants.GrantTarget, opts?: grants.GrantOptions): void {
-        const name = `${this.__name}-${target.grantName()}-connect`;
-        const policyDocument = this.clusterArns.apply((arns) =>
-            JSON.stringify({
-                Version: '2012-10-17',
-                Statement: [{
-                    Effect: 'Allow',
-                    Action: ["dsql:DbConnect"],
-                    Resource: Object.values(arns),
-                }],
-            })
-        );
-        const roleName = target.grantRoleArn().apply((arn) => {
-            const idx = arn.lastIndexOf('/');
-            return idx >= 0 ? arn.substring(idx + 1) : arn;
-        });
-        new aws.iam.RolePolicy(name, { role: roleName, policy: policyDocument }, { parent: this });
+    public grantConnect(target: grants.GrantTarget, dbRole?: string): void {
+        const args: any = {
+            clusterArns: this.clusterArns,
+            targetRoleArn: target.grantRoleArn(),
+            targetName: target.grantName(),
+            dbRole: dbRole,
+        };
+        if (this.rolesTableName) {
+            args.rolesTableName = this.rolesTableName;
+        }
+        new DSQLConnect(`${this.__name}-${target.grantName()}-connect`, args, { parent: this });
     }
 
 }

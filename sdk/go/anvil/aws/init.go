@@ -29,6 +29,8 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &CognitoUserPool{}
 	case "anvil:aws:DSQL":
 		r = &DSQL{}
+	case "anvil:aws:DSQLConnect":
+		r = &DSQLConnect{}
 	case "anvil:aws:DynamoDB":
 		r = &DynamoDB{}
 	case "anvil:aws:EventBus":
