@@ -21,48 +21,23 @@ import (
 
 // ── Nested arg types ───────────────────────────────────────────────────────
 
-// DSQLMultiRegionArgs configures multi-region active-active replication.
-// When set, Anvil creates one cluster per region and links them via
-// ClusterPeering. Both regions accept reads and writes with strong consistency.
-// When omitted, a single-region cluster is created in the provider's default region.
 type DSQLMultiRegionArgs struct {
 	Regions       []string `pulumi:"regions"`
 	WitnessRegion string   `pulumi:"witnessRegion"`
 }
 
-// DSQLRoleArgs defines a database role to bootstrap at deploy time.
-// Anvil connects as admin using the deployer's credentials and runs the
-// required SQL. Only re-runs when role definitions change — idempotent
-// via Pulumi state diffing.
 type DSQLRoleArgs struct {
-	// Name is the Postgres role name. Must be a valid PostgreSQL identifier.
-	Name string `pulumi:"name"`
-
-	// Schema is the Postgres schema this role operates in.
-	// Anvil creates it if it does not exist and grants USAGE.
-	// Must not be "public" — public schema is owned by admin.
-	Schema string `pulumi:"schema"`
-
-	// Grants are the table-level privileges to apply on all current
-	// and future tables in the schema.
+	Name   string   `pulumi:"name"`
+	Schema string   `pulumi:"schema"`
 	Grants []string `pulumi:"grants"`
 }
 
-// DSQLVpcArgs configures VPC placement and network routing for DSQL.
-// When set without HasNat, Anvil creates interface VPC endpoints (PrivateLink)
-// per region so traffic stays on the AWS backbone.
-// When HasNat is true, endpoint creation is skipped — traffic routes via
-// the existing NAT gateway to the public DSQL endpoint.
-// Anvil never creates the NAT gateway.
 type DSQLVpcArgs struct {
 	VpcId            pulumi.StringInput      `pulumi:"vpcId"`
 	PrivateSubnetIds pulumi.StringArrayInput `pulumi:"privateSubnetIds"`
 	HasNat           bool                    `pulumi:"hasNat,optional"`
 }
 
-// DSQLBackupArgs configures AWS Backup for the cluster(s).
-// Anvil opts in the DSQL resource type per region, creates a backup plan,
-// and for multi-region clusters automatically adds cross-region copy rules.
 type DSQLBackupArgs struct {
 	RetentionDays      int    `pulumi:"retentionDays,optional"`
 	ScheduleExpression string `pulumi:"scheduleExpression,optional"`
@@ -73,27 +48,11 @@ type DSQLBackupArgs struct {
 // ── Args ───────────────────────────────────────────────────────────────────
 
 type DSQLArgs struct {
-	// MultiRegion enables multi-region active-active replication.
-	// When omitted, a single-region cluster is created in the provider's
-	// default region.
-	MultiRegion *DSQLMultiRegionArgs `pulumi:"multiRegion,optional"`
-
-	// Roles are the database roles to bootstrap at deploy time.
-	// When omitted, no SQL is run — schema management is left to the user.
-	Roles []DSQLRoleArgs `pulumi:"roles,optional"`
-
-	// Vpc configures VPC placement and network routing.
-	// When omitted, the Lambda connects to the public DSQL endpoint.
-	Vpc *DSQLVpcArgs `pulumi:"vpc,optional"`
-
-	// Backup configures AWS Backup for the cluster(s).
-	// When omitted, no backup resources are created.
-	Backup *DSQLBackupArgs `pulumi:"backup,optional"`
-
-	// Transform allows low-level overrides of the underlying aws.dsql.Cluster.
-	// Keys: "cluster". Use for KMS key ARN and other cluster-level settings
-	// not exposed by the Anvil API.
-	Transform map[string]map[string]interface{} `pulumi:"transform,optional"`
+	MultiRegion *DSQLMultiRegionArgs              `pulumi:"multiRegion,optional"`
+	Roles       []DSQLRoleArgs                    `pulumi:"roles,optional"`
+	Vpc         *DSQLVpcArgs                      `pulumi:"vpc,optional"`
+	Backup      *DSQLBackupArgs                   `pulumi:"backup,optional"`
+	Transform   map[string]map[string]interface{} `pulumi:"transform,optional"`
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -101,33 +60,17 @@ type DSQLArgs struct {
 type DSQL struct {
 	pulumi.ResourceState
 
-	// Endpoints is a map of region to cluster endpoint.
-	// Single-region: one entry keyed by the provider region.
-	// Multi-region: one entry per region.
-	Endpoints pulumi.StringMapOutput `pulumi:"endpoints"`
-
-	// ClusterArns is a map of region to cluster ARN.
-	ClusterArns pulumi.StringMapOutput `pulumi:"clusterArns"`
-
-	// VpcEndpointIds is a map of region to VPC endpoint ID.
-	// Only populated when vpc is set and hasNat is false.
-	VpcEndpointIds pulumi.StringMapOutput `pulumi:"vpcEndpointIds"`
-
-	// VpcEndpointSecurityGroupIds is a map of region to endpoint SG ID.
-	// Only populated when vpc is set and hasNat is false.
-	// Pass to LambdaVpcEndpointArgs.securityGroupId.
+	Endpoints                   pulumi.StringMapOutput `pulumi:"endpoints"`
+	ClusterArns                 pulumi.StringMapOutput `pulumi:"clusterArns"`
+	VpcEndpointIds              pulumi.StringMapOutput `pulumi:"vpcEndpointIds"`
 	VpcEndpointSecurityGroupIds pulumi.StringMapOutput `pulumi:"vpcEndpointSecurityGroupIds"`
 
-	// hasVpcEndpoints tracks whether interface endpoints were created.
-	// Used by GrantConnect to decide whether to wire SG egress rules.
-	hasVpcEndpoints bool
-
-	// vpcEndpointSgOutputs stores endpoint SG IDs keyed by region as plain
-	// StringOutputs. Populated during construction when vpc is set and hasNat
-	// is false. Used by GrantConnect to wire egress rules at graph construction
-	// time — cannot use VpcEndpointSecurityGroupIds (StringMapOutput) for this
-	// because Pulumi resources cannot be created inside an ApplyT.
+	hasVpcEndpoints      bool
 	vpcEndpointSgOutputs map[string]pulumi.StringOutput
+
+	// roles stores the roles config so GrantConnect can include it in the
+	// bootstrap payload exported as a stack output for the CLI.
+	roles []DSQLRoleArgs
 
 	name string
 }
@@ -157,8 +100,6 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 	}
 
 	// ── 1. Resolve default region ──────────────────────────────────────────
-	// Used for single-region clusters and as the output map key.
-	// Safe to call outside Apply — synchronous SDK call.
 	defaultRegion, err := aws.GetRegion(ctx, &aws.GetRegionArgs{}, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve AWS region: %w", err)
@@ -177,9 +118,10 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 		regions = []string{providerRegion}
 	}
 
+	// Store roles for use in GrantConnect bootstrap payload.
+	d.roles = args.Roles
+
 	// ── 3. Regional providers ──────────────────────────────────────────────
-	// One provider per region. Reuses the default provider for the stack's
-	// default region to avoid creating a redundant provider.
 	regionalProviders := make(map[string]*aws.Provider, len(regions))
 	for _, region := range regions {
 		if region == providerRegion {
@@ -195,8 +137,6 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 		regionalProviders[region] = rp
 	}
 
-	// resourceOpts returns the correct provider option for a given region.
-	// Always includes pulumi.Parent(d) for correct resource hierarchy.
 	resourceOpts := func(region string) []pulumi.ResourceOption {
 		base := []pulumi.ResourceOption{pulumi.Parent(d)}
 		if rp := regionalProviders[region]; rp != nil {
@@ -206,12 +146,10 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 	}
 
 	// ── 4. Clusters ────────────────────────────────────────────────────────
-	// Single-region: one cluster, no multiRegionProperties.
-	// Multi-region: two clusters each with witnessRegion set.
-	// Both enter PENDING_SETUP — peering (phase 5) completes the link.
 	clusters := make(map[string]*awsdsql.Cluster, len(regions))
 
 	for _, region := range regions {
+		region := region
 
 		clusterMap := pulumi.Map{
 			"tags": pulumi.StringMap{
@@ -249,10 +187,6 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 	}
 
 	// ── 5. ClusterPeering ──────────────────────────────────────────────────
-	// Only for multi-region. Creates two ClusterPeering resources that
-	// cross-reference each other's ARN. Pulumi waits for both clusters
-	// before running either peering resource — no circular dependency.
-	// After peering: PENDING_SETUP → CREATING → ACTIVE.
 	if isMultiRegion && len(regions) == 2 {
 		regionA := regions[0]
 		regionB := regions[1]
@@ -285,21 +219,13 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 	}
 
 	// ── 6. VPC endpoints ───────────────────────────────────────────────────
-	// Only when vpc is set and hasNat is false.
-	// One interface endpoint per region with a dedicated SG.
-	// Self-referencing ingress on port 5432 (Postgres).
-	// grantConnect wires the egress side on the Lambda SG.
-	//
-	// The endpoint service name is cluster-specific:
-	// com.amazonaws.{region}.dsql-{hex} — exposed as cluster.VpcEndpointServiceName.
-	// This differs from standard AWS services which have fixed service names,
-	// which is why DSQL cannot use the existing VpcEndpoint component or enum.
 	vpcEndpointIds := pulumi.StringMap{}
 	vpcEndpointSgIds := pulumi.StringMap{}
 	d.vpcEndpointSgOutputs = make(map[string]pulumi.StringOutput)
 
 	if args.Vpc != nil && !args.Vpc.HasNat {
 		for _, region := range regions {
+			region := region
 			cluster := clusters[region]
 
 			sg, err := vpcsg.CreateSecurityGroup(
@@ -356,10 +282,6 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 	}
 
 	// ── 7. Backup ──────────────────────────────────────────────────────────
-	// Only when backup block is set.
-	// Opts in DSQL per region, creates a plan with schedule and retention.
-	// Multi-region: cross-region copy rules are wired automatically so
-	// restores work in both regions — AWS Backup does not replicate by default.
 	if args.Backup != nil {
 		retentionDays := args.Backup.RetentionDays
 		if retentionDays == 0 {
@@ -379,8 +301,6 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 			vaultName = parts[len(parts)-1]
 		}
 
-		// Opt in DSQL resource type per region — required before AWS Backup
-		// can protect DSQL clusters in that region.
 		for _, region := range regions {
 			region := region
 			if _, err := awsbackup.NewRegionSettings(ctx,
@@ -399,13 +319,10 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 			}
 		}
 
-		// Cross-region copy actions for multi-region clusters.
-		// One copy action per region so each region has its own recovery point.
-		// Without this, multi-region restore fails because the peer region
-		// has no recovery point to restore from.
 		var copyActions awsbackup.PlanRuleCopyActionArray
 		if isMultiRegion && len(regions) == 2 {
 			for _, region := range regions {
+				region := region
 				destVaultArn := clusters[region].Arn.ApplyT(func(arn string) string {
 					parts := strings.Split(arn, ":")
 					if len(parts) < 5 {
@@ -452,13 +369,11 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 			return nil, fmt.Errorf("creating backup plan: %w", err)
 		}
 
-		// Collect all cluster ARNs for the backup selection resource.
 		var clusterArns pulumi.StringArray
 		for _, cluster := range clusters {
 			clusterArns = append(clusterArns, cluster.Arn)
 		}
 
-		// IAM role for AWS Backup to access DSQL clusters.
 		backupRole, err := awsiam.NewRole(ctx,
 			fmt.Sprintf("%s-backup-role", name),
 			&awsiam.RoleArgs{
@@ -498,30 +413,13 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 		}
 	}
 
-	// ── 8. Bootstrap ───────────────────────────────────────────────────────
-	// Only when roles is set and non-empty.
-	// Implemented in bootstrap.go — DSQLBootstrap dynamic provider.
-	// Connects as admin using the deployer's dsql:DbConnectAdmin credentials.
-	// Runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN,
-	//       AWS IAM GRANT, GRANT USAGE ON SCHEMA,
-	//       GRANT ON ALL TABLES, ALTER DEFAULT PRIVILEGES.
-	// For multi-region: depends on peering completing (clusters must be ACTIVE).
-	// Idempotent — Pulumi state diff prevents re-run when inputs unchanged.
-	if len(args.Roles) > 0 {
-		// TODO: wire DSQLBootstrap dynamic provider once bootstrap.go is implemented.
-		// Blocked on: clusters ACTIVE (after peering for multi-region).
-		// Requires: github.com/jackc/pgx/v5, aws-sdk-go-v2 dsql auth package.
-		_ = args.Roles
-	}
-
-	// ── 9. Outputs ─────────────────────────────────────────────────────────
-	// The standard aws provider does not expose an Endpoint output field on
-	// aws.dsql.Cluster. The endpoint follows a fixed pattern:
-	// {identifier}.dsql.{region}.on.aws
-	// Constructed from the Identifier output and the known region string.
+	// ── 8. Outputs ─────────────────────────────────────────────────────────
+	// aws.dsql.Cluster has no Endpoint output — construct from Identifier.
+	// Pattern: {identifier}.dsql.{region}.on.aws
 	endpointMap := pulumi.StringMap{}
 	arnMap := pulumi.StringMap{}
 	for region, cluster := range clusters {
+		region := region
 		endpointMap[region] = cluster.Identifier.ApplyT(func(id string) string {
 			return fmt.Sprintf("%s.dsql.%s.on.aws", id, region)
 		}).(pulumi.StringOutput)
@@ -545,27 +443,22 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 
 // ── Grant methods ──────────────────────────────────────────────────────────
 
-// GrantConnect grants dsql:DbConnect on all cluster ARNs to the given Lambda's
-// execution role. Allows the Lambda to generate IAM auth tokens and connect
-// to the cluster as the mapped database role.
+// GrantConnect grants dsql:DbConnect on all cluster ARNs to the Lambda's
+// execution role, then exports a _dsqlBootstrap_* stack output containing
+// the full bootstrap payload for the CLI to read after s.Up() completes.
 //
-// Never grants dsql:DbConnectAdmin — admin access is only used by the
-// bootstrap resource at deploy time using the deployer's own credentials.
+// The CLI creates a short-lived Lambda with dsql:DbConnectAdmin scoped to
+// the cluster ARN, invokes it to run the bootstrap SQL, then deletes it.
+// The deployer's credentials never need dsql:DbConnectAdmin.
 //
 // When vpc endpoints were created (hasNat false), also wires egress rules
 // from the Lambda's SG to each endpoint SG on port 5432.
-//
-// The Lambda must declare the endpoint SGs in vpc.vpcEndpoints at construction
-// time — GrantConnect cannot attach SGs to an already-constructed Lambda.
-//
-// dbRole is informational — it documents which database role this Lambda
-// connects as. The actual role mapping is wired by the bootstrap resource.
 func (d *DSQL) GrantConnect(
 	ctx *pulumi.Context,
 	lambda provider.GrantTarget,
 	dbRole string,
 ) error {
-	// Build dsql:DbConnect IAM policy scoped to all cluster ARNs.
+	// ── IAM policy — dsql:DbConnect on all cluster ARNs ───────────────────
 	policyJSON := d.ClusterArns.ApplyT(func(arns map[string]string) (string, error) {
 		resources := make([]string, 0, len(arns))
 		for _, arn := range arns {
@@ -596,8 +489,6 @@ func (d *DSQL) GrantConnect(
 		return string(b), nil
 	}).(pulumi.StringOutput)
 
-	// Extract role name from ARN for iam.NewRolePolicy.
-	// ARN format: arn:aws:iam::{account}:role/{name}
 	roleNameOutput := lambda.RoleARN().ApplyT(func(arn string) string {
 		for i := len(arn) - 1; i >= 0; i-- {
 			if arn[i] == '/' {
@@ -618,12 +509,80 @@ func (d *DSQL) GrantConnect(
 		return fmt.Errorf("granting dsql:DbConnect to %s: %w", lambda.Name(), err)
 	}
 
-	// Wire egress rules from Lambda SG to each endpoint SG on port 5432.
+	// ── Bootstrap payload stack export ────────────────────────────────────
+	// Exported as _dsqlBootstrap_{dsqlName}_{lambdaName} stack output.
+	// CLI reads all _dsqlBootstrap_* outputs after s.Up(), groups by cluster
+	// endpoint, and invokes one ephemeral bootstrap Lambda per cluster.
+	// Hash stored in .anvil/dsql-bootstrap-hashes-{stage}.json — only runs
+	// when payload changes. Hash only written on successful invocation.
+	rolesJSON, _ := json.Marshal(d.roles)
+
+	type bootstrapPayloadType struct {
+		DSQLName   string          `json:"dsqlName"`
+		Endpoint   string          `json:"endpoint"`
+		Region     string          `json:"region"`
+		ClusterArn string          `json:"clusterArn"`
+		Roles      json.RawMessage `json:"roles"`
+		DbRole     string          `json:"dbRole"`
+		IamRoleArn string          `json:"iamRoleArn"`
+	}
+
+	bootstrapKey := fmt.Sprintf("_dsqlBootstrap_%s_%s", d.name, lambda.Name())
+
+	// Extract primary endpoint, region and cluster ARN from the maps.
+	// For single-region there is one entry. For multi-region we use the
+	// first entry — AWS IAM GRANT replicates automatically to peer regions.
+	primaryEndpoint := d.Endpoints.ApplyT(func(m map[string]string) string {
+		for _, v := range m {
+			return v
+		}
+		return ""
+	}).(pulumi.StringOutput)
+
+	primaryRegion := d.Endpoints.ApplyT(func(m map[string]string) string {
+		for k := range m {
+			return k
+		}
+		return ""
+	}).(pulumi.StringOutput)
+
+	primaryClusterArn := d.ClusterArns.ApplyT(func(m map[string]string) string {
+		for _, v := range m {
+			return v
+		}
+		return ""
+	}).(pulumi.StringOutput)
+
+	bootstrapPayload := pulumi.All(
+		primaryEndpoint,
+		primaryRegion,
+		primaryClusterArn,
+		lambda.RoleARN(),
+	).ApplyT(func(args []interface{}) string {
+		endpoint := args[0].(string)
+		region := args[1].(string)
+		clusterArn := args[2].(string)
+		iamRoleArn := args[3].(string)
+
+		b, _ := json.Marshal(bootstrapPayloadType{
+			DSQLName:   d.name,
+			Endpoint:   endpoint,
+			Region:     region,
+			ClusterArn: clusterArn,
+			Roles:      json.RawMessage(rolesJSON),
+			DbRole:     dbRole,
+			IamRoleArn: iamRoleArn,
+		})
+		return string(b)
+	}).(pulumi.StringOutput)
+
+	ctx.Export(bootstrapKey, bootstrapPayload)
+
+	// ── VPC egress rules ──────────────────────────────────────────────────
 	// Only when interface endpoints were created during component construction.
-	// Iterates d.vpcEndpointSgOutputs — a plain map of region → StringOutput
-	// populated at construction time. Cannot use VpcEndpointSecurityGroupIds
-	// (StringMapOutput) here because Pulumi resources cannot be created inside
-	// an ApplyT.
+	// Iterates vpcEndpointSgOutputs — plain map of region → StringOutput.
+	// Cannot use VpcEndpointSecurityGroupIds (StringMapOutput) here because
+	// Pulumi resources cannot be created inside an ApplyT.
 	if d.hasVpcEndpoints {
 		for region, sgIdOutput := range d.vpcEndpointSgOutputs {
 			if err := vpcsg.AddEgressRule(
@@ -645,62 +604,45 @@ func (d *DSQL) GrantConnect(
 
 // ── Doc notes ──────────────────────────────────────────────────────────────
 //
-// ADMIN CREDENTIALS AT DEPLOY TIME (docs + error handling):
-//   The bootstrap resource requires dsql:DbConnectAdmin on both cluster ARNs
-//   at deploy time. This is satisfied by the deployer's IAM identity — whoever
-//   runs `anvil deploy`. If the connection fails, surface the required
-//   permission and cluster ARN explicitly — raw pgx auth errors are opaque.
+// BOOTSTRAP SECURITY MODEL (docs):
+//   The CI/CD pipeline never needs dsql:DbConnectAdmin. The bootstrap Lambda's
+//   execution role has dsql:DbConnectAdmin scoped to the specific cluster ARN
+//   only. The Lambda exists for ~15-30 seconds and is deleted immediately.
+//   Pipeline credentials only need Lambda management + iam:CreateRole/PassRole.
+//
+// BOOTSTRAP PAYLOAD (docs):
+//   ctx.Export() in GrantConnect registers _dsqlBootstrap_{dsqlName}_{lambdaName}
+//   as a Pulumi stack output. The CLI reads these via s.Outputs() after s.Up().
+//   Each output contains: endpoint, region, clusterArn, roles[], dbRole, iamRoleArn.
+//   The CLI groups by endpoint (one Lambda invocation per cluster) and only
+//   re-runs when the SHA256 hash of the payload changes.
 //
 // SINGLE-REGION VS MULTI-REGION (docs):
-//   Single-region is the default — zero config required for a working cluster.
-//   Multi-region is opt-in via the multiRegion block. Tradeoffs:
-//   ~$43-87/month in PrivateLink costs (if VPC is used), cross-region data
-//   transfer charges, and OCC retry handling at the application layer.
-//   Document this clearly so users make an informed choice.
+//   Single-region is the default — zero config required.
+//   Multi-region is opt-in via the multiRegion block.
+//   Bootstrap Lambda connects to the primary region endpoint only —
+//   AWS IAM GRANT replicates automatically to peer regions.
 //
 // OCC RETRY BEHAVIOR (docs):
-//   DSQL uses Optimistic Concurrency Control. Under contention, transactions
-//   abort at commit time rather than blocking. Applications must implement
-//   retry logic — fundamentally different from standard Postgres locking.
-//   Recommend surfacing this in the component description and linking to
-//   the DSQL OCC documentation. Consider emitting cluster endpoints as env
-//   vars named DSQL_ENDPOINT_{REGION} so Lambda code can identify the db type.
+//   DSQL uses Optimistic Concurrency Control. Applications must implement
+//   retry logic for transaction aborts at commit time.
 //
-// BOOTSTRAP IDEMPOTENCY (docs):
-//   The bootstrap resource only re-runs when the roles block changes — Pulumi
-//   state diffing handles this. CREATE ROLE IF NOT EXISTS and
-//   CREATE SCHEMA IF NOT EXISTS are safety nets for manual intervention
-//   scenarios. ALTER DEFAULT PRIVILEGES is critical — without it, grants only
-//   apply to tables that exist at bootstrap time. New tables added later
-//   are automatically accessible because of this statement.
+// ALTER DEFAULT PRIVILEGES NOT SUPPORTED (docs):
+//   Aurora DSQL does not support ALTER DEFAULT PRIVILEGES. Grants only apply
+//   to tables that exist at bootstrap time. Re-deploy after adding new tables.
 //
 // VPC ENDPOINT SERVICE NAME (implementation note):
-//   Unlike SSM, SQS, and other standard services where the service name is
-//   fixed (com.amazonaws.{region}.sqs), DSQL's service name is cluster-specific:
-//   com.amazonaws.{region}.dsql-{hex}. It is exposed as cluster.VpcEndpointServiceName.
-//   This is why DSQL cannot use the existing AwsVpcEndpointService enum or
-//   the existing VpcEndpoint component.
+//   DSQL endpoint service name is cluster-specific: com.amazonaws.{region}.dsql-{hex}.
+//   Cannot use the existing AwsVpcEndpointService enum or VpcEndpoint component.
 //
 // BACKUP CROSS-REGION COPY (docs):
-//   AWS Backup does not automatically replicate across regions. Without a
-//   cross-region copy rule, multi-region restore fails because the peer region
-//   has no recovery point. Anvil wires copy rules automatically when multiRegion
-//   is set. Single-region clusters only get a local recovery point.
+//   AWS Backup does not automatically replicate. Anvil wires copy rules
+//   automatically when multiRegion is set.
 //
 // PRIVATELINK PORT (docs):
-//   DSQL VPC endpoints use port 5432 (Postgres wire protocol), not 443 like
-//   most AWS service endpoints (SSM, SQS, Secrets Manager). The self-referencing
-//   ingress rule and Lambda egress rules are wired on 5432. Do not change to 443.
-//
-// ROLES OPTIONAL (docs):
-//   When roles is omitted, no SQL runs at deploy time. Intended for teams using
-//   migration tools (Atlas, Flyway) or manual bootstrapping. GrantConnect still
-//   works — it only grants IAM-level dsql:DbConnect. The database-level role
-//   mapping (AWS IAM GRANT) must be handled separately when roles is omitted.
+//   DSQL VPC endpoints use port 5432, not 443. Do not change.
 //
 // GRANTCONNECT AND VPC SG ATTACHMENT (docs):
-//   GrantConnect wires the egress rule from the Lambda SG to the DSQL endpoint
-//   SG. However, it cannot attach the endpoint SG to the Lambda's vpcConfig —
-//   that is set at Lambda construction time and cannot be modified post-deploy
-//   without replacing the function. The user must declare the DSQL endpoint SGs
+//   GrantConnect cannot attach the endpoint SG to the Lambda's vpcConfig —
+//   set at Lambda construction time. User must declare DSQL endpoint SGs
 //   in vpc.vpcEndpoints on the Lambda when constructing it.

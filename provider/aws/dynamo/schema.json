@@ -257,9 +257,9 @@
     "anvil:aws:DynamoOverrides": {
       "properties": {
         "attributes": {
-          "description": "Set of nested attribute definitions. Only required for \u003cspan pulumi-lang-nodejs=\"`hashKey`\" pulumi-lang-dotnet=\"`HashKey`\" pulumi-lang-go=\"`hashKey`\" pulumi-lang-python=\"`hash_key`\" pulumi-lang-yaml=\"`hashKey`\" pulumi-lang-java=\"`hashKey`\"\u003e`hash_key`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`rangeKey`\" pulumi-lang-dotnet=\"`RangeKey`\" pulumi-lang-go=\"`rangeKey`\" pulumi-lang-python=\"`range_key`\" pulumi-lang-yaml=\"`rangeKey`\" pulumi-lang-java=\"`rangeKey`\"\u003e`range_key`\u003c/span\u003e attributes. See below.\n",
+          "description": "Set of nested attribute definitions. Only required for \u003cspan pulumi-lang-nodejs=\"`hashKey`\" pulumi-lang-dotnet=\"`HashKey`\" pulumi-lang-go=\"`hashKey`\" pulumi-lang-python=\"`hash_key`\" pulumi-lang-yaml=\"`hashKey`\" pulumi-lang-java=\"`hashKey`\"\u003e`hashKey`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`rangeKey`\" pulumi-lang-dotnet=\"`RangeKey`\" pulumi-lang-go=\"`rangeKey`\" pulumi-lang-python=\"`range_key`\" pulumi-lang-yaml=\"`rangeKey`\" pulumi-lang-java=\"`rangeKey`\"\u003e`rangeKey`\u003c/span\u003e attributes. See below.\n",
           "items": {
-            "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableAttribute:TableAttribute"
+            "$ref": "/aws/v7.29.0/schema.json#/types/aws:dynamodb/TableAttribute:TableAttribute"
           },
           "type": "array"
         },
@@ -274,13 +274,13 @@
         "globalSecondaryIndexes": {
           "description": "Describe a GSI for the table; subject to the normal limits on the number of GSIs, projected attributes, etc. See below.\n",
           "items": {
-            "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableGlobalSecondaryIndex:TableGlobalSecondaryIndex"
+            "$ref": "/aws/v7.29.0/schema.json#/types/aws:dynamodb/TableGlobalSecondaryIndex:TableGlobalSecondaryIndex"
           },
           "type": "array"
         },
         "globalTableWitness": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableGlobalTableWitness:TableGlobalTableWitness",
-          "description": "Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single \u003cspan pulumi-lang-nodejs=\"`replica`\" pulumi-lang-dotnet=\"`Replica`\" pulumi-lang-go=\"`replica`\" pulumi-lang-python=\"`replica`\" pulumi-lang-yaml=\"`replica`\" pulumi-lang-java=\"`replica`\"\u003e`replica`\u003c/span\u003e with \u003cspan pulumi-lang-nodejs=\"`consistencyMode`\" pulumi-lang-dotnet=\"`ConsistencyMode`\" pulumi-lang-go=\"`consistencyMode`\" pulumi-lang-python=\"`consistency_mode`\" pulumi-lang-yaml=\"`consistencyMode`\" pulumi-lang-java=\"`consistencyMode`\"\u003e`consistency_mode`\u003c/span\u003e set to `STRONG`. Other combinations will fail to provision. See below.\n"
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:dynamodb/TableGlobalTableWitness:TableGlobalTableWitness",
+          "description": "Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single \u003cspan pulumi-lang-nodejs=\"`replica`\" pulumi-lang-dotnet=\"`Replica`\" pulumi-lang-go=\"`replica`\" pulumi-lang-python=\"`replica`\" pulumi-lang-yaml=\"`replica`\" pulumi-lang-java=\"`replica`\"\u003e`replica`\u003c/span\u003e with \u003cspan pulumi-lang-nodejs=\"`consistencyMode`\" pulumi-lang-dotnet=\"`ConsistencyMode`\" pulumi-lang-go=\"`consistencyMode`\" pulumi-lang-python=\"`consistency_mode`\" pulumi-lang-yaml=\"`consistencyMode`\" pulumi-lang-java=\"`consistencyMode`\"\u003e`consistencyMode`\u003c/span\u003e set to `STRONG`. Other combinations will fail to provision. See below.\n"
         },
         "hashKey": {
           "description": "Attribute to use as the hash (partition) key. Must also be defined as an \u003cspan pulumi-lang-nodejs=\"`attribute`\" pulumi-lang-dotnet=\"`Attribute`\" pulumi-lang-go=\"`attribute`\" pulumi-lang-python=\"`attribute`\" pulumi-lang-yaml=\"`attribute`\" pulumi-lang-java=\"`attribute`\"\u003e`attribute`\u003c/span\u003e. See below.\n",
@@ -288,13 +288,13 @@
           "willReplaceOnChanges": true
         },
         "importTable": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableImportTable:TableImportTable",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:dynamodb/TableImportTable:TableImportTable",
           "description": "Import Amazon S3 data into a new table. See below.\n"
         },
         "localSecondaryIndexes": {
           "description": "Describe an LSI on the table; these can only be allocated _at creation_ so you cannot change this definition after you have created the resource. See below.\n",
           "items": {
-            "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableLocalSecondaryIndex:TableLocalSecondaryIndex"
+            "$ref": "/aws/v7.29.0/schema.json#/types/aws:dynamodb/TableLocalSecondaryIndex:TableLocalSecondaryIndex"
           },
           "type": "array",
           "willReplaceOnChanges": true
@@ -305,11 +305,11 @@
           "willReplaceOnChanges": true
         },
         "onDemandThroughput": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableOnDemandThroughput:TableOnDemandThroughput",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:dynamodb/TableOnDemandThroughput:TableOnDemandThroughput",
           "description": "Sets the maximum number of read and write units for the specified on-demand table. See below.\n"
         },
         "pointInTimeRecovery": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TablePointInTimeRecovery:TablePointInTimeRecovery",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:dynamodb/TablePointInTimeRecovery:TablePointInTimeRecovery",
           "description": "Enable point-in-time recovery options. See below.\n"
         },
         "rangeKey": {
@@ -318,7 +318,7 @@
           "willReplaceOnChanges": true
         },
         "readCapacity": {
-          "description": "Number of read units for this table. If the \u003cspan pulumi-lang-nodejs=\"`billingMode`\" pulumi-lang-dotnet=\"`BillingMode`\" pulumi-lang-go=\"`billingMode`\" pulumi-lang-python=\"`billing_mode`\" pulumi-lang-yaml=\"`billingMode`\" pulumi-lang-java=\"`billingMode`\"\u003e`billing_mode`\u003c/span\u003e is `PROVISIONED`, this field is required.\n",
+          "description": "Number of read units for this table. If the \u003cspan pulumi-lang-nodejs=\"`billingMode`\" pulumi-lang-dotnet=\"`BillingMode`\" pulumi-lang-go=\"`billingMode`\" pulumi-lang-python=\"`billing_mode`\" pulumi-lang-yaml=\"`billingMode`\" pulumi-lang-java=\"`billingMode`\"\u003e`billingMode`\u003c/span\u003e is `PROVISIONED`, this field is required.\n",
           "type": "integer"
         },
         "region": {
@@ -328,9 +328,13 @@
         "replicas": {
           "description": "Configuration block(s) with [DynamoDB Global Tables V2 (version 2019.11.21)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html) replication configurations. See below.\n",
           "items": {
-            "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableReplica:TableReplica"
+            "$ref": "/aws/v7.29.0/schema.json#/types/aws:dynamodb/TableReplica:TableReplica"
           },
           "type": "array"
+        },
+        "restoreBackupArn": {
+          "description": "ARN of backup to restore.\n",
+          "type": "string"
         },
         "restoreDateTime": {
           "description": "Time of the point-in-time recovery point to restore.\n",
@@ -351,7 +355,7 @@
           "willReplaceOnChanges": true
         },
         "serverSideEncryption": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableServerSideEncryption:TableServerSideEncryption",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:dynamodb/TableServerSideEncryption:TableServerSideEncryption",
           "description": "Encryption at rest options. AWS DynamoDB tables are automatically encrypted at rest with an AWS-owned Customer Master Key if this argument isn't specified. Must be supplied for cross-region restores. See below.\n"
         },
         "streamEnabled": {
@@ -359,7 +363,7 @@
           "type": "boolean"
         },
         "streamViewType": {
-          "description": "When an item in the table is modified, StreamViewType determines what information is written to the table's stream.\nValid values are `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`.\nOnly valid when \u003cspan pulumi-lang-nodejs=\"`streamEnabled`\" pulumi-lang-dotnet=\"`StreamEnabled`\" pulumi-lang-go=\"`streamEnabled`\" pulumi-lang-python=\"`stream_enabled`\" pulumi-lang-yaml=\"`streamEnabled`\" pulumi-lang-java=\"`streamEnabled`\"\u003e`stream_enabled`\u003c/span\u003e is true.\n",
+          "description": "When an item in the table is modified, StreamViewType determines what information is written to the table's stream.\nValid values are `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`.\nOnly valid when \u003cspan pulumi-lang-nodejs=\"`streamEnabled`\" pulumi-lang-dotnet=\"`StreamEnabled`\" pulumi-lang-go=\"`streamEnabled`\" pulumi-lang-python=\"`stream_enabled`\" pulumi-lang-yaml=\"`streamEnabled`\" pulumi-lang-java=\"`streamEnabled`\"\u003e`streamEnabled`\u003c/span\u003e is true.\n",
           "type": "string"
         },
         "tableClass": {
@@ -370,19 +374,19 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "A map of tags to populate on the created table. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`default_tags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n",
+          "description": "A map of tags to populate on the created table. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`defaultTags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n",
           "type": "object"
         },
         "ttl": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableTtl:TableTtl",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:dynamodb/TableTtl:TableTtl",
           "description": "Configuration block for TTL. See below.\n"
         },
         "warmThroughput": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:dynamodb/TableWarmThroughput:TableWarmThroughput",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:dynamodb/TableWarmThroughput:TableWarmThroughput",
           "description": "Sets the number of warm read and write units for the specified table. See below.\n"
         },
         "writeCapacity": {
-          "description": "Number of write units for this table. If the \u003cspan pulumi-lang-nodejs=\"`billingMode`\" pulumi-lang-dotnet=\"`BillingMode`\" pulumi-lang-go=\"`billingMode`\" pulumi-lang-python=\"`billing_mode`\" pulumi-lang-yaml=\"`billingMode`\" pulumi-lang-java=\"`billingMode`\"\u003e`billing_mode`\u003c/span\u003e is `PROVISIONED`, this field is required.\n",
+          "description": "Number of write units for this table. If the \u003cspan pulumi-lang-nodejs=\"`billingMode`\" pulumi-lang-dotnet=\"`BillingMode`\" pulumi-lang-go=\"`billingMode`\" pulumi-lang-python=\"`billing_mode`\" pulumi-lang-yaml=\"`billingMode`\" pulumi-lang-java=\"`billingMode`\"\u003e`billingMode`\u003c/span\u003e is `PROVISIONED`, this field is required.\n",
           "type": "integer"
         }
       },
@@ -399,5 +403,5 @@
   },
   "x-upstream-provider": "aws",
   "x-upstream-token": "aws:dynamodb/table:Table",
-  "x-upstream-version": "v7.23.0"
+  "x-upstream-version": "v7.29.0"
 }

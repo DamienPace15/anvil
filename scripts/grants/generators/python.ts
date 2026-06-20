@@ -94,7 +94,7 @@ export function generatePyGrantMapMethod(
   const actionsStr = actions.map((a) => `"${a}"`).join(', ');
 
   return `
-    def ${pyMethod}(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
+    def ${pyMethod}(self, target: "grants.GrantTarget", db_role: str, opts: Optional["grants.GrantOptions"] = None) -> None:
         """Grants ${suffix} access on this ${className.toLowerCase()} to the target's execution role.
         Scoped to all ARNs in ${pyArnMapProperty} — one per region.
         """

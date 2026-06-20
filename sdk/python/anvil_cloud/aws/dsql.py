@@ -219,7 +219,7 @@ class DSQL(pulumi.ComponentResource):
         """
         return pulumi.get(self, "vpc_endpoint_security_group_ids")
 
-    def grant_connect(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
+    def grant_connect(self, target: "grants.GrantTarget", db_role: str, opts: Optional["grants.GrantOptions"] = None) -> None:
         """Grants connect access on this dsql to the target's execution role.
         Scoped to all ARNs in cluster_arns — one per region.
         """

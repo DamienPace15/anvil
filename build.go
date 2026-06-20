@@ -3,7 +3,7 @@
 // Run with: go run build.go [target]
 // Targets: build, binary, generate, merge, registry, gen-go-sdk, gen-nodejs,
 //          gen-python-sdk, build-provider, build-sdk, build-python-sdk,
-//          install-py, publish-npm, publish-pypi, publish-go, clean
+//          build-dsql-lambda, install-py, publish-npm, publish-pypi, publish-go, clean
 //
 // Example: go run build.go build
 //          go run build.go publish-go VERSION=v0.1.0
@@ -35,22 +35,23 @@ func main() {
 	}
 
 	targets := map[string]func(){
-		"build":            targetBuild,
-		"binary":           targetBinary,
-		"generate":         targetGenerate,
-		"gen-site-schemas": targetGenSiteSchemas,
-		"merge":            targetMerge,
-		"registry":         targetRegistry,
-		"gen-go-sdk":       targetGenGoSDK,
-		"gen-nodejs":       targetGenNodejs,
-		"gen-python-sdk":   targetGenPythonSDK,
-		"build-provider":   targetBuildProvider,
-		"build-sdk":        targetBuildSDK,
-		"install":          targetInstall,
-		"build-python-sdk": targetBuildPythonSDK,
-		"install-py":       targetInstallPy,
-		"publish-npm":      targetPublishNpm,
-		"publish-pypi":     targetPublishPypi,
+		"build":             targetBuild,
+		"binary":            targetBinary,
+		"generate":          targetGenerate,
+		"gen-site-schemas":  targetGenSiteSchemas,
+		"merge":             targetMerge,
+		"registry":          targetRegistry,
+		"gen-go-sdk":        targetGenGoSDK,
+		"gen-nodejs":        targetGenNodejs,
+		"gen-python-sdk":    targetGenPythonSDK,
+		"build-provider":    targetBuildProvider,
+		"build-sdk":         targetBuildSDK,
+		"build-dsql-lambda": targetBuildDSQLLambda,
+		"install":           targetInstall,
+		"build-python-sdk":  targetBuildPythonSDK,
+		"install-py":        targetInstallPy,
+		"publish-npm":       targetPublishNpm,
+		"publish-pypi":      targetPublishPypi,
 		"publish-go": func() {
 			version, ok := extra["VERSION"]
 			if !ok || version == "" {
@@ -80,6 +81,7 @@ func targetBuild() {
 	targetMerge()
 	targetRegistry()
 	targetGenGoSDK()
+	targetBuildDSQLLambda() // must run before targetBuildProvider so embed zip exists
 	targetBuildProvider()
 	targetGenNodejs()
 	targetBuildSDK()
@@ -143,6 +145,40 @@ func targetBuildProvider() {
 	run("provider", nil, "go", "build", "-o", "../bin/pulumi-resource-anvil", "./cmd/anvil/")
 }
 
+// targetBuildDSQLLambda builds the DSQL bootstrap Lambda binary for Linux arm64,
+// zips it, and copies it into cmd/anvil/cmd/embed/ so the //go:embed directive
+// in dsql_bootstrap.go can find it at compile time.
+//
+// The Lambda's execution role gets dsql:DbConnectAdmin scoped to the specific
+// cluster ARN only — CI/CD pipeline credentials never need database admin access.
+// The Lambda is ephemeral — created, invoked, and deleted in ~30 seconds.
+func targetBuildDSQLLambda() {
+	must(os.MkdirAll("bin", 0o755))
+	must(os.MkdirAll("cmd/anvil/cmd/embed", 0o755))
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		fatal("could not get working directory: %v", err)
+	}
+
+	// Build from within the dsql-lambda module directory.
+	// Uses absolute output path since we can't use relative ../ from a separate module.
+	run("cmd/anvil/dsql-lambda", []string{
+		"GOOS=linux",
+		"GOARCH=arm64",
+		"CGO_ENABLED=0",
+		"GOWORK=off", // disable workspace — dsql-lambda is its own module
+	}, "go", "build", "-o", filepath.Join(cwd, "bin", "bootstrap"), ".")
+
+	run("bin", nil, "zip", "dsql-lambda-bootstrap.zip", "bootstrap")
+
+	must(copyFile(
+		"bin/dsql-lambda-bootstrap.zip",
+		"cmd/anvil/cmd/embed/dsql-lambda-bootstrap.zip",
+	))
+
+	log("✅ DSQL Lambda binary built → cmd/anvil/cmd/embed/dsql-lambda-bootstrap.zip")
+}
 func targetGenNodejs() {
 	targetMerge()
 
@@ -224,6 +260,9 @@ func targetPublishGo(version string) {
 
 func targetClean() {
 	remove("bin/pulumi-resource-anvil")
+	remove("bin/bootstrap")
+	remove("bin/dsql-lambda-bootstrap.zip")
+	remove("cmd/anvil/cmd/embed/dsql-lambda-bootstrap.zip")
 	removeAll("sdk/nodejs/bin", "sdk/nodejs/node_modules")
 	removeAll("sdk/python/dist", "sdk/python/build", "sdk/python/.venv")
 	matches, _ := filepath.Glob("sdk/python/*.egg-info")
@@ -235,8 +274,6 @@ func targetClean() {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-// run executes a command piping stdout/stderr but NOT stdin.
-// Use for all non-interactive commands.
 func run(dir string, extraEnv []string, name string, args ...string) {
 	log("▶ %s %s  (in %s)", name, strings.Join(args, " "), dir)
 	cmd := exec.Command(name, args...)
@@ -251,8 +288,6 @@ func run(dir string, extraEnv []string, name string, args ...string) {
 	}
 }
 
-// runInteractive is like run but also wires stdin so the terminal can handle
-// interactive prompts (e.g. npm OTP, twine credentials).
 func runInteractive(dir string, extraEnv []string, name string, args ...string) {
 	log("▶ %s %s  (in %s)", name, strings.Join(args, " "), dir)
 	cmd := exec.Command(name, args...)

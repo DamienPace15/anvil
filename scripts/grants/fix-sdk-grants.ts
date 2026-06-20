@@ -28,8 +28,8 @@ import {
   generateTSGrantMapMethod,
   generatePyGrantMethod,
   generatePyGrantTargetMethods,
-  generatePyGrantMapMethod,
   toSnakeCase,
+  generatePyGrantMapMethod,
 } from './generators';
 
 // ── Paths ──────────────────────────────────────────────────
@@ -126,11 +126,6 @@ function ensurePyGrantsImport(content: string): string {
     ''
   );
   return lines.join('\n');
-}
-
-function ensurePyOptionalImport(content: string): string {
-  if (content.includes('Optional')) return content;
-  return content.replace('from typing import', 'from typing import Optional,');
 }
 
 // ── IAM grant patching ─────────────────────────────────────
@@ -242,6 +237,10 @@ function patchPyFile(
 // ── Map ARN grant patching ─────────────────────────────────
 // For resources where the ARN property is Output<Record<string, string>>
 // rather than Output<string> — e.g. DSQL clusterArns (one per region).
+//
+// If the config is a GrantMapBootstrapConfig (has endpointsProperty),
+// uses the bootstrap generator which also exports the _dsqlBootstrap_*
+// stack output for the CLI to read post-deploy.
 
 function patchTSMapFile(file: string, config: GrantMapConfig): void {
   const filePath = path.join(tsDir, file);

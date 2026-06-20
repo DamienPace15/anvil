@@ -89,7 +89,7 @@ export class DSQL extends pulumi.ComponentResource {
      * @param target - The compute resource to grant access to.
      * @param opts   - Optional grant options (justification for audit trail).
      */
-    public grantConnect(target: grants.GrantTarget, opts?: grants.GrantOptions): void {
+    public grantConnect(target: grants.GrantTarget, dbRole: string, opts?: grants.GrantOptions): void {
         const name = `${this.__name}-${target.grantName()}-connect`;
         const policyDocument = this.clusterArns.apply((arns) =>
             JSON.stringify({

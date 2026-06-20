@@ -40,7 +40,7 @@
     "anvil:aws:EventBridgeOverrides": {
       "properties": {
         "deadLetterConfig": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:cloudwatch/EventBusDeadLetterConfig:EventBusDeadLetterConfig",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:cloudwatch/EventBusDeadLetterConfig:EventBusDeadLetterConfig",
           "description": "Configuration details of the Amazon SQS queue for EventBridge to use as a dead-letter queue (DLQ). This block supports the following arguments:\n"
         },
         "description": {
@@ -57,11 +57,11 @@
           "type": "string"
         },
         "logConfig": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:cloudwatch/EventBusLogConfig:EventBusLogConfig",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:cloudwatch/EventBusLogConfig:EventBusLogConfig",
           "description": "Block for logging configuration settings for the event bus.\n"
         },
         "name": {
-          "description": "Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the \u003cspan pulumi-lang-nodejs=\"`name`\" pulumi-lang-dotnet=\"`Name`\" pulumi-lang-go=\"`name`\" pulumi-lang-python=\"`name`\" pulumi-lang-yaml=\"`name`\" pulumi-lang-java=\"`name`\"\u003e`name`\u003c/span\u003e matches the \u003cspan pulumi-lang-nodejs=\"`eventSourceName`\" pulumi-lang-dotnet=\"`EventSourceName`\" pulumi-lang-go=\"`eventSourceName`\" pulumi-lang-python=\"`event_source_name`\" pulumi-lang-yaml=\"`eventSourceName`\" pulumi-lang-java=\"`eventSourceName`\"\u003e`event_source_name`\u003c/span\u003e.\n\nThe following arguments are optional:\n",
+          "description": "Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the \u003cspan pulumi-lang-nodejs=\"`name`\" pulumi-lang-dotnet=\"`Name`\" pulumi-lang-go=\"`name`\" pulumi-lang-python=\"`name`\" pulumi-lang-yaml=\"`name`\" pulumi-lang-java=\"`name`\"\u003e`name`\u003c/span\u003e matches the \u003cspan pulumi-lang-nodejs=\"`eventSourceName`\" pulumi-lang-dotnet=\"`EventSourceName`\" pulumi-lang-go=\"`eventSourceName`\" pulumi-lang-python=\"`event_source_name`\" pulumi-lang-yaml=\"`eventSourceName`\" pulumi-lang-java=\"`eventSourceName`\"\u003e`eventSourceName`\u003c/span\u003e.\n\nThe following arguments are optional:\n",
           "type": "string",
           "willReplaceOnChanges": true
         },
@@ -73,7 +73,7 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Map of tags assigned to the resource. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`default_tags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n",
+          "description": "Map of tags assigned to the resource. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`defaultTags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n",
           "type": "object"
         }
       },
@@ -181,5 +181,5 @@
   },
   "x-upstream-provider": "aws",
   "x-upstream-token": "aws:cloudwatch/eventBus:EventBus",
-  "x-upstream-version": "v7.23.0"
+  "x-upstream-version": "v7.29.0"
 }

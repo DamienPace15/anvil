@@ -120,7 +120,7 @@
     "anvil:aws:BucketAclTransform": {
       "properties": {
         "accessControlPolicy": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketAclAccessControlPolicy:BucketAclAccessControlPolicy",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketAclAccessControlPolicy:BucketAclAccessControlPolicy",
           "description": "Configuration block that sets the ACL permissions for an object per grantee. See below.\n"
         },
         "acl": {
@@ -154,7 +154,7 @@
         "corsRules": {
           "description": "Set of origins and methods (cross-origin access that you want to allow). See below. You can configure up to 100 rules.\n",
           "items": {
-            "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketCorsConfigurationCorsRule:BucketCorsConfigurationCorsRule"
+            "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketCorsConfigurationCorsRule:BucketCorsConfigurationCorsRule"
           },
           "type": "array"
         },
@@ -188,15 +188,15 @@
         "rules": {
           "description": "List of configuration blocks describing the rules managing the replication. See below.\n",
           "items": {
-            "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketLifecycleConfigurationRule:BucketLifecycleConfigurationRule"
+            "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketLifecycleConfigurationRule:BucketLifecycleConfigurationRule"
           },
           "type": "array"
         },
         "timeouts": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketLifecycleConfigurationTimeouts:BucketLifecycleConfigurationTimeouts"
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketLifecycleConfigurationTimeouts:BucketLifecycleConfigurationTimeouts"
         },
         "transitionDefaultMinimumObjectSize": {
-          "description": "The default minimum object size behavior applied to the lifecycle configuration. Valid values: `all_storage_classes_128K` (default), \u003cspan pulumi-lang-nodejs=\"`variesByStorageClass`\" pulumi-lang-dotnet=\"`VariesByStorageClass`\" pulumi-lang-go=\"`variesByStorageClass`\" pulumi-lang-python=\"`varies_by_storage_class`\" pulumi-lang-yaml=\"`variesByStorageClass`\" pulumi-lang-java=\"`variesByStorageClass`\"\u003e`varies_by_storage_class`\u003c/span\u003e. To customize the minimum object size for any transition you can add a \u003cspan pulumi-lang-nodejs=\"`filter`\" pulumi-lang-dotnet=\"`Filter`\" pulumi-lang-go=\"`filter`\" pulumi-lang-python=\"`filter`\" pulumi-lang-yaml=\"`filter`\" pulumi-lang-java=\"`filter`\"\u003e`filter`\u003c/span\u003e that specifies a custom \u003cspan pulumi-lang-nodejs=\"`objectSizeGreaterThan`\" pulumi-lang-dotnet=\"`ObjectSizeGreaterThan`\" pulumi-lang-go=\"`objectSizeGreaterThan`\" pulumi-lang-python=\"`object_size_greater_than`\" pulumi-lang-yaml=\"`objectSizeGreaterThan`\" pulumi-lang-java=\"`objectSizeGreaterThan`\"\u003e`object_size_greater_than`\u003c/span\u003e or \u003cspan pulumi-lang-nodejs=\"`objectSizeLessThan`\" pulumi-lang-dotnet=\"`ObjectSizeLessThan`\" pulumi-lang-go=\"`objectSizeLessThan`\" pulumi-lang-python=\"`object_size_less_than`\" pulumi-lang-yaml=\"`objectSizeLessThan`\" pulumi-lang-java=\"`objectSizeLessThan`\"\u003e`object_size_less_than`\u003c/span\u003e value. Custom filters always take precedence over the default transition behavior.\n",
+          "description": "The default minimum object size behavior applied to the lifecycle configuration. Valid values: `all_storage_classes_128K` (default), \u003cspan pulumi-lang-nodejs=\"`variesByStorageClass`\" pulumi-lang-dotnet=\"`VariesByStorageClass`\" pulumi-lang-go=\"`variesByStorageClass`\" pulumi-lang-python=\"`varies_by_storage_class`\" pulumi-lang-yaml=\"`variesByStorageClass`\" pulumi-lang-java=\"`variesByStorageClass`\"\u003e`variesByStorageClass`\u003c/span\u003e. To customize the minimum object size for any transition you can add a \u003cspan pulumi-lang-nodejs=\"`filter`\" pulumi-lang-dotnet=\"`Filter`\" pulumi-lang-go=\"`filter`\" pulumi-lang-python=\"`filter`\" pulumi-lang-yaml=\"`filter`\" pulumi-lang-java=\"`filter`\"\u003e`filter`\u003c/span\u003e that specifies a custom \u003cspan pulumi-lang-nodejs=\"`objectSizeGreaterThan`\" pulumi-lang-dotnet=\"`ObjectSizeGreaterThan`\" pulumi-lang-go=\"`objectSizeGreaterThan`\" pulumi-lang-python=\"`object_size_greater_than`\" pulumi-lang-yaml=\"`objectSizeGreaterThan`\" pulumi-lang-java=\"`objectSizeGreaterThan`\"\u003e`objectSizeGreaterThan`\u003c/span\u003e or \u003cspan pulumi-lang-nodejs=\"`objectSizeLessThan`\" pulumi-lang-dotnet=\"`ObjectSizeLessThan`\" pulumi-lang-go=\"`objectSizeLessThan`\" pulumi-lang-python=\"`object_size_less_than`\" pulumi-lang-yaml=\"`objectSizeLessThan`\" pulumi-lang-java=\"`objectSizeLessThan`\"\u003e`objectSizeLessThan`\u003c/span\u003e value. Custom filters always take precedence over the default transition behavior.\n",
           "type": "string"
         }
       },
@@ -225,12 +225,12 @@
         "targetGrants": {
           "description": "Set of configuration blocks with information for granting permissions. See below.\n",
           "items": {
-            "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketLoggingTargetGrant:BucketLoggingTargetGrant"
+            "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketLoggingTargetGrant:BucketLoggingTargetGrant"
           },
           "type": "array"
         },
         "targetObjectKeyFormat": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketLoggingTargetObjectKeyFormat:BucketLoggingTargetObjectKeyFormat",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketLoggingTargetObjectKeyFormat:BucketLoggingTargetObjectKeyFormat",
           "description": "Amazon S3 key format for log objects. See below.\n"
         },
         "targetPrefix": {
@@ -263,7 +263,7 @@
           "type": "string"
         },
         "rule": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketObjectLockConfigurationRule:BucketObjectLockConfigurationRule",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketObjectLockConfigurationRule:BucketObjectLockConfigurationRule",
           "description": "Configuration block for specifying the Object Lock rule for the specified object. See below.\n"
         },
         "token": {
@@ -277,12 +277,17 @@
     "anvil:aws:BucketOverrides": {
       "properties": {
         "bucket": {
-          "description": "Name of the bucket. If omitted, the provider will assign a random, unique name. Must be lowercase and less than or equal to 63 characters in length. A full list of bucket naming rules [may be found here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html). The name must not be in the format `\u003cspan pulumi-lang-nodejs=\"[bucketName]\" pulumi-lang-dotnet=\"[BucketName]\" pulumi-lang-go=\"[bucketName]\" pulumi-lang-python=\"[bucket_name]\" pulumi-lang-yaml=\"[bucketName]\" pulumi-lang-java=\"[bucketName]\"\u003e[bucket_name]\u003c/span\u003e--[azid]--x-s3`. Use the \u003cspan pulumi-lang-nodejs=\"`aws.s3.DirectoryBucket`\" pulumi-lang-dotnet=\"`aws.s3.DirectoryBucket`\" pulumi-lang-go=\"`s3.DirectoryBucket`\" pulumi-lang-python=\"`s3.DirectoryBucket`\" pulumi-lang-yaml=\"`aws.s3.DirectoryBucket`\" pulumi-lang-java=\"`aws.s3.DirectoryBucket`\"\u003e`aws.s3.DirectoryBucket`\u003c/span\u003e resource to manage S3 Express buckets.\n",
+          "description": "Name of the bucket. If omitted, the provider will assign a random, unique name. Must be lowercase and less than or equal to 63 characters in length. A full list of bucket naming rules [may be found here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html). The name must not be in the format `\u003cspan pulumi-lang-nodejs=\"[bucketName]\" pulumi-lang-dotnet=\"[BucketName]\" pulumi-lang-go=\"[bucketName]\" pulumi-lang-python=\"[bucket_name]\" pulumi-lang-yaml=\"[bucketName]\" pulumi-lang-java=\"[bucketName]\"\u003e[bucketName]\u003c/span\u003e--[azid]--x-s3`. Use the \u003cspan pulumi-lang-nodejs=\"`aws.s3.DirectoryBucket`\" pulumi-lang-dotnet=\"`aws.s3.DirectoryBucket`\" pulumi-lang-go=\"`s3.DirectoryBucket`\" pulumi-lang-python=\"`s3.DirectoryBucket`\" pulumi-lang-yaml=\"`aws.s3.DirectoryBucket`\" pulumi-lang-java=\"`aws.s3.DirectoryBucket`\"\u003e`aws.s3.DirectoryBucket`\u003c/span\u003e resource to manage S3 Express buckets.\n",
           "language": {
             "csharp": {
               "name": "BucketName"
             }
           },
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "bucketNamespace": {
+          "description": "Namespace for the bucket. Determines bucket naming scope. Valid values: `account-regional`, \u003cspan pulumi-lang-nodejs=\"`global`\" pulumi-lang-dotnet=\"`Global`\" pulumi-lang-go=\"`global`\" pulumi-lang-python=\"`global`\" pulumi-lang-yaml=\"`global`\" pulumi-lang-java=\"`global`\"\u003e`global`\u003c/span\u003e. Defaults to \u003cspan pulumi-lang-nodejs=\"`global`\" pulumi-lang-dotnet=\"`Global`\" pulumi-lang-go=\"`global`\" pulumi-lang-python=\"`global`\" pulumi-lang-yaml=\"`global`\" pulumi-lang-java=\"`global`\"\u003e`global`\u003c/span\u003e (AWS).\n",
           "type": "string",
           "willReplaceOnChanges": true
         },
@@ -308,7 +313,7 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Map of tags to assign to the bucket. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`default_tags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n\nThe following arguments are deprecated, and will be removed in a future major version:\n",
+          "description": "Map of tags to assign to the bucket. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`defaultTags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n\nThe following arguments are deprecated, and will be removed in a future major version:\n",
           "type": "object"
         }
       },
@@ -328,7 +333,7 @@
               "type": "string"
             },
             {
-              "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/PolicyDocument:PolicyDocument",
+              "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/PolicyDocument:PolicyDocument",
               "type": "string"
             }
           ],
@@ -357,9 +362,9 @@
           "type": "string"
         },
         "rules": {
-          "description": "List of configuration blocks describing the rules managing the replication. See below.\n\n\u003e **NOTE:** Replication to multiple destination buckets requires that \u003cspan pulumi-lang-nodejs=\"`priority`\" pulumi-lang-dotnet=\"`Priority`\" pulumi-lang-go=\"`priority`\" pulumi-lang-python=\"`priority`\" pulumi-lang-yaml=\"`priority`\" pulumi-lang-java=\"`priority`\"\u003e`priority`\u003c/span\u003e is specified in the \u003cspan pulumi-lang-nodejs=\"`rule`\" pulumi-lang-dotnet=\"`Rule`\" pulumi-lang-go=\"`rule`\" pulumi-lang-python=\"`rule`\" pulumi-lang-yaml=\"`rule`\" pulumi-lang-java=\"`rule`\"\u003e`rule`\u003c/span\u003e object. If the corresponding rule requires no filter, an empty configuration block `filter {}` must be specified.\n\n\u003e **NOTE:** Amazon S3's latest version of the replication configuration is V2, which includes the \u003cspan pulumi-lang-nodejs=\"`filter`\" pulumi-lang-dotnet=\"`Filter`\" pulumi-lang-go=\"`filter`\" pulumi-lang-python=\"`filter`\" pulumi-lang-yaml=\"`filter`\" pulumi-lang-java=\"`filter`\"\u003e`filter`\u003c/span\u003e attribute for replication rules.\n\n\u003e **NOTE:** The \u003cspan pulumi-lang-nodejs=\"`existingObjectReplication`\" pulumi-lang-dotnet=\"`ExistingObjectReplication`\" pulumi-lang-go=\"`existingObjectReplication`\" pulumi-lang-python=\"`existing_object_replication`\" pulumi-lang-yaml=\"`existingObjectReplication`\" pulumi-lang-java=\"`existingObjectReplication`\"\u003e`existing_object_replication`\u003c/span\u003e parameter is not supported by Amazon S3 at this time and should not be included in your \u003cspan pulumi-lang-nodejs=\"`rule`\" pulumi-lang-dotnet=\"`Rule`\" pulumi-lang-go=\"`rule`\" pulumi-lang-python=\"`rule`\" pulumi-lang-yaml=\"`rule`\" pulumi-lang-java=\"`rule`\"\u003e`rule`\u003c/span\u003e configurations. Specifying this parameter will result in `MalformedXML` errors.\nTo replicate existing objects, please refer to the [Replicating existing objects with S3 Batch Replication](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-batch-replication-batch.html) documentation in the Amazon S3 User Guide.\n",
+          "description": "List of configuration blocks describing the rules managing the replication. See below.\n\n\u003e **NOTE:** Replication to multiple destination buckets requires that \u003cspan pulumi-lang-nodejs=\"`priority`\" pulumi-lang-dotnet=\"`Priority`\" pulumi-lang-go=\"`priority`\" pulumi-lang-python=\"`priority`\" pulumi-lang-yaml=\"`priority`\" pulumi-lang-java=\"`priority`\"\u003e`priority`\u003c/span\u003e is specified in the \u003cspan pulumi-lang-nodejs=\"`rule`\" pulumi-lang-dotnet=\"`Rule`\" pulumi-lang-go=\"`rule`\" pulumi-lang-python=\"`rule`\" pulumi-lang-yaml=\"`rule`\" pulumi-lang-java=\"`rule`\"\u003e`rule`\u003c/span\u003e object. If the corresponding rule requires no filter, an empty configuration block `filter {}` must be specified.\n\n\u003e **NOTE:** Amazon S3's latest version of the replication configuration is V2, which includes the \u003cspan pulumi-lang-nodejs=\"`filter`\" pulumi-lang-dotnet=\"`Filter`\" pulumi-lang-go=\"`filter`\" pulumi-lang-python=\"`filter`\" pulumi-lang-yaml=\"`filter`\" pulumi-lang-java=\"`filter`\"\u003e`filter`\u003c/span\u003e attribute for replication rules.\n\n\u003e **NOTE:** The \u003cspan pulumi-lang-nodejs=\"`existingObjectReplication`\" pulumi-lang-dotnet=\"`ExistingObjectReplication`\" pulumi-lang-go=\"`existingObjectReplication`\" pulumi-lang-python=\"`existing_object_replication`\" pulumi-lang-yaml=\"`existingObjectReplication`\" pulumi-lang-java=\"`existingObjectReplication`\"\u003e`existingObjectReplication`\u003c/span\u003e parameter is not supported by Amazon S3 at this time and should not be included in your \u003cspan pulumi-lang-nodejs=\"`rule`\" pulumi-lang-dotnet=\"`Rule`\" pulumi-lang-go=\"`rule`\" pulumi-lang-python=\"`rule`\" pulumi-lang-yaml=\"`rule`\" pulumi-lang-java=\"`rule`\"\u003e`rule`\u003c/span\u003e configurations. Specifying this parameter will result in `MalformedXML` errors.\nTo replicate existing objects, please refer to the [Replicating existing objects with S3 Batch Replication](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-batch-replication-batch.html) documentation in the Amazon S3 User Guide.\n",
           "items": {
-            "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketReplicationConfigRule:BucketReplicationConfigRule"
+            "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketReplicationConfigRule:BucketReplicationConfigRule"
           },
           "type": "array"
         },
@@ -414,7 +419,7 @@
         "rules": {
           "description": "Set of server-side encryption configuration rules. See below. Currently, only a single rule is supported.\n",
           "items": {
-            "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketServerSideEncryptionConfigurationRule:BucketServerSideEncryptionConfigurationRule"
+            "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketServerSideEncryptionConfigurationRule:BucketServerSideEncryptionConfigurationRule"
           },
           "type": "array"
         }
@@ -527,7 +532,7 @@
           "type": "string"
         },
         "versioningConfiguration": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketVersioningVersioningConfiguration:BucketVersioningVersioningConfiguration",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketVersioningVersioningConfiguration:BucketVersioningVersioningConfiguration",
           "description": "Configuration block for the versioning parameters. See below.\n"
         }
       },
@@ -541,7 +546,7 @@
           "willReplaceOnChanges": true
         },
         "errorDocument": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationErrorDocument:BucketWebsiteConfigurationErrorDocument",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationErrorDocument:BucketWebsiteConfigurationErrorDocument",
           "description": "Name of the error document for the website. See below.\n"
         },
         "expectedBucketOwner": {
@@ -550,12 +555,12 @@
           "type": "string"
         },
         "indexDocument": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationIndexDocument:BucketWebsiteConfigurationIndexDocument",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationIndexDocument:BucketWebsiteConfigurationIndexDocument",
           "description": "Name of the index document for the website. See below.\n"
         },
         "redirectAllRequestsTo": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationRedirectAllRequestsTo:BucketWebsiteConfigurationRedirectAllRequestsTo",
-          "description": "Redirect behavior for every request to this bucket's website endpoint. See below. Conflicts with \u003cspan pulumi-lang-nodejs=\"`errorDocument`\" pulumi-lang-dotnet=\"`ErrorDocument`\" pulumi-lang-go=\"`errorDocument`\" pulumi-lang-python=\"`error_document`\" pulumi-lang-yaml=\"`errorDocument`\" pulumi-lang-java=\"`errorDocument`\"\u003e`error_document`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`indexDocument`\" pulumi-lang-dotnet=\"`IndexDocument`\" pulumi-lang-go=\"`indexDocument`\" pulumi-lang-python=\"`index_document`\" pulumi-lang-yaml=\"`indexDocument`\" pulumi-lang-java=\"`indexDocument`\"\u003e`index_document`\u003c/span\u003e, and \u003cspan pulumi-lang-nodejs=\"`routingRule`\" pulumi-lang-dotnet=\"`RoutingRule`\" pulumi-lang-go=\"`routingRule`\" pulumi-lang-python=\"`routing_rule`\" pulumi-lang-yaml=\"`routingRule`\" pulumi-lang-java=\"`routingRule`\"\u003e`routing_rule`\u003c/span\u003e.\n"
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationRedirectAllRequestsTo:BucketWebsiteConfigurationRedirectAllRequestsTo",
+          "description": "Redirect behavior for every request to this bucket's website endpoint. See below. Conflicts with \u003cspan pulumi-lang-nodejs=\"`errorDocument`\" pulumi-lang-dotnet=\"`ErrorDocument`\" pulumi-lang-go=\"`errorDocument`\" pulumi-lang-python=\"`error_document`\" pulumi-lang-yaml=\"`errorDocument`\" pulumi-lang-java=\"`errorDocument`\"\u003e`errorDocument`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`indexDocument`\" pulumi-lang-dotnet=\"`IndexDocument`\" pulumi-lang-go=\"`indexDocument`\" pulumi-lang-python=\"`index_document`\" pulumi-lang-yaml=\"`indexDocument`\" pulumi-lang-java=\"`indexDocument`\"\u003e`indexDocument`\u003c/span\u003e, and \u003cspan pulumi-lang-nodejs=\"`routingRule`\" pulumi-lang-dotnet=\"`RoutingRule`\" pulumi-lang-go=\"`routingRule`\" pulumi-lang-python=\"`routing_rule`\" pulumi-lang-yaml=\"`routingRule`\" pulumi-lang-java=\"`routingRule`\"\u003e`routingRule`\u003c/span\u003e.\n"
         },
         "region": {
           "description": "Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.\n",
@@ -568,7 +573,7 @@
         "routingRules": {
           "description": "List of rules that define when a redirect is applied and the redirect behavior. See below.\n",
           "items": {
-            "$ref": "/aws/v7.23.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationRoutingRule:BucketWebsiteConfigurationRoutingRule"
+            "$ref": "/aws/v7.29.0/schema.json#/types/aws:s3/BucketWebsiteConfigurationRoutingRule:BucketWebsiteConfigurationRoutingRule"
           },
           "type": "array"
         }
@@ -612,5 +617,5 @@
   },
   "x-upstream-provider": "aws",
   "x-upstream-token": "aws:s3/bucket:Bucket",
-  "x-upstream-version": "v7.23.0"
+  "x-upstream-version": "v7.29.0"
 }

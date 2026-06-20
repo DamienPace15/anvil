@@ -132,7 +132,7 @@ export function generateTSGrantMapMethod(
      * @param target - The compute resource to grant access to.
      * @param opts   - Optional grant options (justification for audit trail).
      */
-    public ${method}(target: grants.GrantTarget, opts?: grants.GrantOptions): void {
+    public ${method}(target: grants.GrantTarget, dbRole: string, opts?: grants.GrantOptions): void {
         const name = \`\${this.__name}-\${target.grantName()}-${suffix}\`;
         const policyDocument = this.${arnMapProperty}.apply((arns) =>
             JSON.stringify({

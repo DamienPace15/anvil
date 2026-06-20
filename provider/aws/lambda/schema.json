@@ -148,22 +148,22 @@
     "anvil:aws:LambdaOverrides": {
       "properties": {
         "architectures": {
-          "description": "Instruction set architecture for your Lambda function. Valid values are `[\u003cspan pulumi-lang-nodejs=\"\"x8664\"\" pulumi-lang-dotnet=\"\"X8664\"\" pulumi-lang-go=\"\"x8664\"\" pulumi-lang-python=\"\"x86_64\"\" pulumi-lang-yaml=\"\"x8664\"\" pulumi-lang-java=\"\"x8664\"\"\u003e\"x86_64\"\u003c/span\u003e]` and `[\"arm64\"]`. Default is `[\u003cspan pulumi-lang-nodejs=\"\"x8664\"\" pulumi-lang-dotnet=\"\"X8664\"\" pulumi-lang-go=\"\"x8664\"\" pulumi-lang-python=\"\"x86_64\"\" pulumi-lang-yaml=\"\"x8664\"\" pulumi-lang-java=\"\"x8664\"\"\u003e\"x86_64\"\u003c/span\u003e]`. Removing this attribute, function's architecture stays the same.\n",
+          "description": "Instruction set architecture for your Lambda function. Valid values are `[\u003cspan pulumi-lang-nodejs=\"\"x8664\"\" pulumi-lang-dotnet=\"\"X8664\"\" pulumi-lang-go=\"\"x8664\"\" pulumi-lang-python=\"\"x86_64\"\" pulumi-lang-yaml=\"\"x8664\"\" pulumi-lang-java=\"\"x8664\"\"\u003e\"x8664\"\u003c/span\u003e]` and `[\"arm64\"]`. Default is `[\u003cspan pulumi-lang-nodejs=\"\"x8664\"\" pulumi-lang-dotnet=\"\"X8664\"\" pulumi-lang-go=\"\"x8664\"\" pulumi-lang-python=\"\"x86_64\"\" pulumi-lang-yaml=\"\"x8664\"\" pulumi-lang-java=\"\"x8664\"\"\u003e\"x8664\"\u003c/span\u003e]`. Removing this attribute, function's architecture stays the same.\n",
           "items": {
             "type": "string"
           },
           "type": "array"
         },
         "capacityProviderConfig": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionCapacityProviderConfig:FunctionCapacityProviderConfig",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/FunctionCapacityProviderConfig:FunctionCapacityProviderConfig",
           "description": "Configuration block for Lambda Capacity Provider. See below.\n"
         },
         "code": {
           "$ref": "pulumi.json#/Archive",
-          "description": "Path to the function's deployment package within the local filesystem. Conflicts with \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3_bucket`\u003c/span\u003e. One of \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e, or \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3_bucket`\u003c/span\u003e must be specified.\n"
+          "description": "Path to the function's deployment package within the local filesystem. Conflicts with \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`imageUri`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3Bucket`\u003c/span\u003e. One of \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`imageUri`\u003c/span\u003e, or \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3Bucket`\u003c/span\u003e must be specified.\n"
         },
         "codeSha256": {
-          "description": "Base64-encoded representation the source code package file. Use this argument to trigger updates when the function source code changes. For OCI, this value is relayed directly from the image digest. For zip files, this value is the Base64 encoded SHA-256 hash of the `.zip` file. Layers are not included in the calculation. To trigger updates using a non-standard hashing algorithm, use the \u003cspan pulumi-lang-nodejs=\"`sourceCodeHash`\" pulumi-lang-dotnet=\"`SourceCodeHash`\" pulumi-lang-go=\"`sourceCodeHash`\" pulumi-lang-python=\"`source_code_hash`\" pulumi-lang-yaml=\"`sourceCodeHash`\" pulumi-lang-java=\"`sourceCodeHash`\"\u003e`source_code_hash`\u003c/span\u003e argument instead.\n",
+          "description": "Base64-encoded representation the source code package file. Use this argument to trigger updates when the function source code changes. For OCI, this value is relayed directly from the image digest. For zip files, this value is the Base64 encoded SHA-256 hash of the `.zip` file. Layers are not included in the calculation. To trigger updates using a non-standard hashing algorithm, use the \u003cspan pulumi-lang-nodejs=\"`sourceCodeHash`\" pulumi-lang-dotnet=\"`SourceCodeHash`\" pulumi-lang-go=\"`sourceCodeHash`\" pulumi-lang-python=\"`source_code_hash`\" pulumi-lang-yaml=\"`sourceCodeHash`\" pulumi-lang-java=\"`sourceCodeHash`\"\u003e`sourceCodeHash`\u003c/span\u003e argument instead.\n",
           "type": "string"
         },
         "codeSigningConfigArn": {
@@ -171,7 +171,7 @@
           "type": "string"
         },
         "deadLetterConfig": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionDeadLetterConfig:FunctionDeadLetterConfig",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/FunctionDeadLetterConfig:FunctionDeadLetterConfig",
           "description": "Configuration block for dead letter queue. See below.\n"
         },
         "description": {
@@ -179,31 +179,31 @@
           "type": "string"
         },
         "durableConfig": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionDurableConfig:FunctionDurableConfig",
-          "description": "Configuration block for durable function settings. See below. \u003cspan pulumi-lang-nodejs=\"`durableConfig`\" pulumi-lang-dotnet=\"`DurableConfig`\" pulumi-lang-go=\"`durableConfig`\" pulumi-lang-python=\"`durable_config`\" pulumi-lang-yaml=\"`durableConfig`\" pulumi-lang-java=\"`durableConfig`\"\u003e`durable_config`\u003c/span\u003e may only be available in [limited regions](https://builder.aws.com/build/capabilities), including `us-east-2`.\n"
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/FunctionDurableConfig:FunctionDurableConfig",
+          "description": "Configuration block for durable function settings. See below. \u003cspan pulumi-lang-nodejs=\"`durableConfig`\" pulumi-lang-dotnet=\"`DurableConfig`\" pulumi-lang-go=\"`durableConfig`\" pulumi-lang-python=\"`durable_config`\" pulumi-lang-yaml=\"`durableConfig`\" pulumi-lang-java=\"`durableConfig`\"\u003e`durableConfig`\u003c/span\u003e may only be available in [limited regions](https://builder.aws.com/build/capabilities), including `us-east-2`.\n"
         },
         "environment": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionEnvironment:FunctionEnvironment",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/FunctionEnvironment:FunctionEnvironment",
           "description": "Configuration block for environment variables. See below.\n"
         },
         "ephemeralStorage": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionEphemeralStorage:FunctionEphemeralStorage",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/FunctionEphemeralStorage:FunctionEphemeralStorage",
           "description": "Amount of ephemeral storage (`/tmp`) to allocate for the Lambda Function. See below.\n"
         },
         "fileSystemConfig": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionFileSystemConfig:FunctionFileSystemConfig",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/FunctionFileSystemConfig:FunctionFileSystemConfig",
           "description": "Configuration block for EFS file system. See below.\n"
         },
         "handler": {
-          "description": "Function entry point in your code. Required if \u003cspan pulumi-lang-nodejs=\"`packageType`\" pulumi-lang-dotnet=\"`PackageType`\" pulumi-lang-go=\"`packageType`\" pulumi-lang-python=\"`package_type`\" pulumi-lang-yaml=\"`packageType`\" pulumi-lang-java=\"`packageType`\"\u003e`package_type`\u003c/span\u003e is `Zip`.\n",
+          "description": "Function entry point in your code. Required if \u003cspan pulumi-lang-nodejs=\"`packageType`\" pulumi-lang-dotnet=\"`PackageType`\" pulumi-lang-go=\"`packageType`\" pulumi-lang-python=\"`package_type`\" pulumi-lang-yaml=\"`packageType`\" pulumi-lang-java=\"`packageType`\"\u003e`packageType`\u003c/span\u003e is `Zip`.\n",
           "type": "string"
         },
         "imageConfig": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionImageConfig:FunctionImageConfig",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/FunctionImageConfig:FunctionImageConfig",
           "description": "Container image configuration values. See below.\n"
         },
         "imageUri": {
-          "description": "ECR image URI containing the function's deployment package. Conflicts with \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3_bucket`\u003c/span\u003e. One of \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e, or \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3_bucket`\u003c/span\u003e must be specified.\n",
+          "description": "ECR image URI containing the function's deployment package. Conflicts with \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3Bucket`\u003c/span\u003e. One of \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`imageUri`\u003c/span\u003e, or \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3Bucket`\u003c/span\u003e must be specified.\n",
           "type": "string"
         },
         "kmsKeyArn": {
@@ -218,7 +218,7 @@
           "type": "array"
         },
         "loggingConfig": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionLoggingConfig:FunctionLoggingConfig",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/FunctionLoggingConfig:FunctionLoggingConfig",
           "description": "Configuration block for advanced logging settings. See below.\n"
         },
         "memorySize": {
@@ -252,7 +252,7 @@
           "type": "boolean"
         },
         "replacementSecurityGroupIds": {
-          "description": "List of security group IDs to assign to the function's VPC configuration prior to destruction. Required if \u003cspan pulumi-lang-nodejs=\"`replaceSecurityGroupsOnDestroy`\" pulumi-lang-dotnet=\"`ReplaceSecurityGroupsOnDestroy`\" pulumi-lang-go=\"`replaceSecurityGroupsOnDestroy`\" pulumi-lang-python=\"`replace_security_groups_on_destroy`\" pulumi-lang-yaml=\"`replaceSecurityGroupsOnDestroy`\" pulumi-lang-java=\"`replaceSecurityGroupsOnDestroy`\"\u003e`replace_security_groups_on_destroy`\u003c/span\u003e is \u003cspan pulumi-lang-nodejs=\"`true`\" pulumi-lang-dotnet=\"`True`\" pulumi-lang-go=\"`true`\" pulumi-lang-python=\"`true`\" pulumi-lang-yaml=\"`true`\" pulumi-lang-java=\"`true`\"\u003e`true`\u003c/span\u003e.\n",
+          "description": "List of security group IDs to assign to the function's VPC configuration prior to destruction. Required if \u003cspan pulumi-lang-nodejs=\"`replaceSecurityGroupsOnDestroy`\" pulumi-lang-dotnet=\"`ReplaceSecurityGroupsOnDestroy`\" pulumi-lang-go=\"`replaceSecurityGroupsOnDestroy`\" pulumi-lang-python=\"`replace_security_groups_on_destroy`\" pulumi-lang-yaml=\"`replaceSecurityGroupsOnDestroy`\" pulumi-lang-java=\"`replaceSecurityGroupsOnDestroy`\"\u003e`replaceSecurityGroupsOnDestroy`\u003c/span\u003e is \u003cspan pulumi-lang-nodejs=\"`true`\" pulumi-lang-dotnet=\"`True`\" pulumi-lang-go=\"`true`\" pulumi-lang-python=\"`true`\" pulumi-lang-yaml=\"`true`\" pulumi-lang-java=\"`true`\"\u003e`true`\u003c/span\u003e.\n",
           "items": {
             "type": "string"
           },
@@ -267,28 +267,28 @@
           "type": "string"
         },
         "runtime": {
-          "description": "Identifier of the function's runtime. Required if \u003cspan pulumi-lang-nodejs=\"`packageType`\" pulumi-lang-dotnet=\"`PackageType`\" pulumi-lang-go=\"`packageType`\" pulumi-lang-python=\"`package_type`\" pulumi-lang-yaml=\"`packageType`\" pulumi-lang-java=\"`packageType`\"\u003e`package_type`\u003c/span\u003e is `Zip`. See [Runtimes](https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-Runtime) for valid values.\n",
+          "description": "Identifier of the function's runtime. Required if \u003cspan pulumi-lang-nodejs=\"`packageType`\" pulumi-lang-dotnet=\"`PackageType`\" pulumi-lang-go=\"`packageType`\" pulumi-lang-python=\"`package_type`\" pulumi-lang-yaml=\"`packageType`\" pulumi-lang-java=\"`packageType`\"\u003e`packageType`\u003c/span\u003e is `Zip`. See [Runtimes](https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-Runtime) for valid values.\n",
           "oneOf": [
             {
               "type": "string"
             },
             {
-              "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/Runtime:Runtime",
+              "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/Runtime:Runtime",
               "type": "string"
             }
           ],
           "type": "string"
         },
         "s3Bucket": {
-          "description": "S3 bucket location containing the function's deployment package. Conflicts with \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e. One of \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e, or \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3_bucket`\u003c/span\u003e must be specified.\n",
+          "description": "S3 bucket location containing the function's deployment package. Conflicts with \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`imageUri`\u003c/span\u003e. One of \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`imageUri`\u003c/span\u003e, or \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3Bucket`\u003c/span\u003e must be specified.\n",
           "type": "string"
         },
         "s3Key": {
-          "description": "S3 key of an object containing the function's deployment package. Required if \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3_bucket`\u003c/span\u003e is set.\n",
+          "description": "S3 key of an object containing the function's deployment package. Required if \u003cspan pulumi-lang-nodejs=\"`s3Bucket`\" pulumi-lang-dotnet=\"`S3Bucket`\" pulumi-lang-go=\"`s3Bucket`\" pulumi-lang-python=\"`s3_bucket`\" pulumi-lang-yaml=\"`s3Bucket`\" pulumi-lang-java=\"`s3Bucket`\"\u003e`s3Bucket`\u003c/span\u003e is set.\n",
           "type": "string"
         },
         "s3ObjectVersion": {
-          "description": "Object version containing the function's deployment package. Conflicts with \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e.\n",
+          "description": "Object version containing the function's deployment package. Conflicts with \u003cspan pulumi-lang-nodejs=\"`filename`\" pulumi-lang-dotnet=\"`Filename`\" pulumi-lang-go=\"`filename`\" pulumi-lang-python=\"`filename`\" pulumi-lang-yaml=\"`filename`\" pulumi-lang-java=\"`filename`\"\u003e`filename`\u003c/span\u003e and \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`imageUri`\u003c/span\u003e.\n",
           "type": "string"
         },
         "skipDestroy": {
@@ -296,26 +296,26 @@
           "type": "boolean"
         },
         "snapStart": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionSnapStart:FunctionSnapStart",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/FunctionSnapStart:FunctionSnapStart",
           "description": "Configuration block for snap start settings. See below.\n"
         },
         "sourceCodeHash": {
-          "description": "User-defined hash of the source code package file. Use this argument to trigger updates when the local function source code changes. This is a synthetic argument tracked only by the AWS provider and does not need to match the hashing algorithm used by Lambda to compute the `CodeSha256` response value. Out-of-band changes to the source code _will not_ be captured by this argument. To include out-of-band source code changes as an update trigger, use the \u003cspan pulumi-lang-nodejs=\"`codeSha256`\" pulumi-lang-dotnet=\"`CodeSha256`\" pulumi-lang-go=\"`codeSha256`\" pulumi-lang-python=\"`code_sha256`\" pulumi-lang-yaml=\"`codeSha256`\" pulumi-lang-java=\"`codeSha256`\"\u003e`code_sha256`\u003c/span\u003e argument instead.\n",
+          "description": "User-defined hash of the source code package file. Use this argument to trigger updates when the local function source code changes. This is a synthetic argument tracked only by the AWS provider and does not need to match the hashing algorithm used by Lambda to compute the `CodeSha256` response value. Out-of-band changes to the source code _will not_ be captured by this argument. To include out-of-band source code changes as an update trigger, use the \u003cspan pulumi-lang-nodejs=\"`codeSha256`\" pulumi-lang-dotnet=\"`CodeSha256`\" pulumi-lang-go=\"`codeSha256`\" pulumi-lang-python=\"`code_sha256`\" pulumi-lang-yaml=\"`codeSha256`\" pulumi-lang-java=\"`codeSha256`\"\u003e`codeSha256`\u003c/span\u003e argument instead.\n",
           "type": "string"
         },
         "sourceKmsKeyArn": {
-          "description": "ARN of the AWS Key Management Service key used to encrypt the function's `.zip` deployment package. Conflicts with \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`image_uri`\u003c/span\u003e.\n",
+          "description": "ARN of the AWS Key Management Service key used to encrypt the function's `.zip` deployment package. Conflicts with \u003cspan pulumi-lang-nodejs=\"`imageUri`\" pulumi-lang-dotnet=\"`ImageUri`\" pulumi-lang-go=\"`imageUri`\" pulumi-lang-python=\"`image_uri`\" pulumi-lang-yaml=\"`imageUri`\" pulumi-lang-java=\"`imageUri`\"\u003e`imageUri`\u003c/span\u003e.\n",
           "type": "string"
         },
         "tags": {
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Key-value map of tags for the Lambda function. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`default_tags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n",
+          "description": "Key-value map of tags for the Lambda function. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`defaultTags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n",
           "type": "object"
         },
         "tenancyConfig": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionTenancyConfig:FunctionTenancyConfig",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/FunctionTenancyConfig:FunctionTenancyConfig",
           "description": "Configuration block for Tenancy. See below.\n",
           "willReplaceOnChanges": true
         },
@@ -324,11 +324,11 @@
           "type": "integer"
         },
         "tracingConfig": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionTracingConfig:FunctionTracingConfig",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/FunctionTracingConfig:FunctionTracingConfig",
           "description": "Configuration block for X-Ray tracing. See below.\n"
         },
         "vpcConfig": {
-          "$ref": "/aws/v7.23.0/schema.json#/types/aws:lambda/FunctionVpcConfig:FunctionVpcConfig",
+          "$ref": "/aws/v7.29.0/schema.json#/types/aws:lambda/FunctionVpcConfig:FunctionVpcConfig",
           "description": "Configuration block for VPC. See below.\n"
         }
       },
@@ -524,5 +524,5 @@
   },
   "x-upstream-provider": "aws",
   "x-upstream-token": "aws:lambda/function:Function",
-  "x-upstream-version": "v7.23.0"
+  "x-upstream-version": "v7.29.0"
 }

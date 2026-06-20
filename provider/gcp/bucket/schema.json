@@ -25,18 +25,18 @@
     "anvil:gcp:BucketOverrides": {
       "properties": {
         "autoclass": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketAutoclass:BucketAutoclass",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:storage/BucketAutoclass:BucketAutoclass",
           "description": "The bucket's [Autoclass](https://cloud.google.com/storage/docs/autoclass) configuration.  Structure is documented below.\n"
         },
         "cors": {
           "description": "The bucket's [Cross-Origin Resource Sharing (CORS)](https://www.w3.org/TR/cors/) configuration. Multiple blocks of this type are permitted. Structure is documented below.\n",
           "items": {
-            "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketCor:BucketCor"
+            "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:storage/BucketCor:BucketCor"
           },
           "type": "array"
         },
         "customPlacementConfig": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketCustomPlacementConfig:BucketCustomPlacementConfig",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:storage/BucketCustomPlacementConfig:BucketCustomPlacementConfig",
           "description": "The bucket's custom location configuration, which specifies the individual regions that comprise a dual-region bucket. If the bucket is designated a single or multi-region, the parameters are empty. Structure is documented below.\n"
         },
         "defaultEventBasedHold": {
@@ -49,7 +49,7 @@
           "willReplaceOnChanges": true
         },
         "encryption": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketEncryption:BucketEncryption",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:storage/BucketEncryption:BucketEncryption",
           "description": "The bucket's encryption configuration. Structure is documented below.\n"
         },
         "forceDestroy": {
@@ -57,12 +57,12 @@
           "type": "boolean"
         },
         "hierarchicalNamespace": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketHierarchicalNamespace:BucketHierarchicalNamespace",
-          "description": "The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is documented below. To use this configuration, \u003cspan pulumi-lang-nodejs=\"`uniformBucketLevelAccess`\" pulumi-lang-dotnet=\"`UniformBucketLevelAccess`\" pulumi-lang-go=\"`uniformBucketLevelAccess`\" pulumi-lang-python=\"`uniform_bucket_level_access`\" pulumi-lang-yaml=\"`uniformBucketLevelAccess`\" pulumi-lang-java=\"`uniformBucketLevelAccess`\"\u003e`uniform_bucket_level_access`\u003c/span\u003e must be enabled on bucket.\n",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:storage/BucketHierarchicalNamespace:BucketHierarchicalNamespace",
+          "description": "The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is documented below. To use this configuration, \u003cspan pulumi-lang-nodejs=\"`uniformBucketLevelAccess`\" pulumi-lang-dotnet=\"`UniformBucketLevelAccess`\" pulumi-lang-go=\"`uniformBucketLevelAccess`\" pulumi-lang-python=\"`uniform_bucket_level_access`\" pulumi-lang-yaml=\"`uniformBucketLevelAccess`\" pulumi-lang-java=\"`uniformBucketLevelAccess`\"\u003e`uniformBucketLevelAccess`\u003c/span\u003e must be enabled on bucket.\n",
           "willReplaceOnChanges": true
         },
         "ipFilter": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketIpFilter:BucketIpFilter",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:storage/BucketIpFilter:BucketIpFilter",
           "description": "The bucket IP filtering configuration. Specifies the network sources that can access the bucket, as well as its underlying objects. Structure is documented below.\n"
         },
         "labels": {
@@ -75,7 +75,7 @@
         "lifecycleRules": {
           "description": "The bucket's [Lifecycle Rules](https://cloud.google.com/storage/docs/lifecycle#configuration) configuration. Multiple blocks of this type are permitted. Structure is documented below.\n",
           "items": {
-            "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketLifecycleRule:BucketLifecycleRule"
+            "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:storage/BucketLifecycleRule:BucketLifecycleRule"
           },
           "type": "array"
         },
@@ -85,7 +85,7 @@
           "willReplaceOnChanges": true
         },
         "logging": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketLogging:BucketLogging",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:storage/BucketLogging:BucketLogging",
           "description": "The bucket's [Access \u0026 Storage Logs](https://cloud.google.com/storage/docs/access-logs) configuration. Structure is documented below.\n"
         },
         "name": {
@@ -107,7 +107,7 @@
           "type": "boolean"
         },
         "retentionPolicy": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketRetentionPolicy:BucketRetentionPolicy",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:storage/BucketRetentionPolicy:BucketRetentionPolicy",
           "description": "Configuration of the bucket's data retention policy for how long objects in the bucket should be retained. Structure is documented below.\n"
         },
         "rpo": {
@@ -115,7 +115,7 @@
           "type": "string"
         },
         "softDeletePolicy": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketSoftDeletePolicy:BucketSoftDeletePolicy",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:storage/BucketSoftDeletePolicy:BucketSoftDeletePolicy",
           "description": "The bucket's soft delete policy, which defines the period of time that soft-deleted objects will be retained, and cannot be permanently deleted. If the block is not provided, Server side value will be kept which means removal of block won't generate any terraform change. Structure is documented below.\n"
         },
         "storageClass": {
@@ -127,11 +127,11 @@
           "type": "boolean"
         },
         "versioning": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketVersioning:BucketVersioning",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:storage/BucketVersioning:BucketVersioning",
           "description": "The bucket's [Versioning](https://cloud.google.com/storage/docs/object-versioning) configuration.  Structure is documented below.\n"
         },
         "website": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:storage/BucketWebsite:BucketWebsite",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:storage/BucketWebsite:BucketWebsite",
           "description": "Configuration if the bucket acts as a website. Structure is documented below.\n"
         }
       },
@@ -263,5 +263,5 @@
   },
   "x-upstream-provider": "gcp",
   "x-upstream-token": "gcp:storage/bucket:Bucket",
-  "x-upstream-version": "v9.15.0"
+  "x-upstream-version": "v9.23.0"
 }

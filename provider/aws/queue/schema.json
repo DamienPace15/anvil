@@ -135,7 +135,7 @@
           "type": "integer"
         },
         "name": {
-          "description": "Name of the queue. Queue names must be made up of only uppercase and lowercase ASCII letters, numbers, underscores, and hyphens, and must be between 1 and 80 characters long. For a FIFO (first-in-first-out) queue, the name must end with the `.fifo` suffix. If omitted, the provider will assign a random, unique name. Conflicts with \u003cspan pulumi-lang-nodejs=\"`namePrefix`\" pulumi-lang-dotnet=\"`NamePrefix`\" pulumi-lang-go=\"`namePrefix`\" pulumi-lang-python=\"`name_prefix`\" pulumi-lang-yaml=\"`namePrefix`\" pulumi-lang-java=\"`namePrefix`\"\u003e`name_prefix`\u003c/span\u003e.\n",
+          "description": "Name of the queue. Queue names must be made up of only uppercase and lowercase ASCII letters, numbers, underscores, and hyphens, and must be between 1 and 80 characters long. For a FIFO (first-in-first-out) queue, the name must end with the `.fifo` suffix. If omitted, the provider will assign a random, unique name. Conflicts with \u003cspan pulumi-lang-nodejs=\"`namePrefix`\" pulumi-lang-dotnet=\"`NamePrefix`\" pulumi-lang-go=\"`namePrefix`\" pulumi-lang-python=\"`name_prefix`\" pulumi-lang-yaml=\"`namePrefix`\" pulumi-lang-java=\"`namePrefix`\"\u003e`namePrefix`\u003c/span\u003e.\n",
           "type": "string",
           "willReplaceOnChanges": true
         },
@@ -172,7 +172,7 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "Map of tags to assign to the queue. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`default_tags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n",
+          "description": "Map of tags to assign to the queue. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`defaultTags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n",
           "type": "object"
         },
         "visibilityTimeoutSeconds": {
@@ -193,5 +193,5 @@
   },
   "x-upstream-provider": "aws",
   "x-upstream-token": "aws:sqs/queue:Queue",
-  "x-upstream-version": "v7.23.0"
+  "x-upstream-version": "v7.29.0"
 }

@@ -102,6 +102,35 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 
 	_, err = s.Up(ctx, upOpts...)
 
+	// ── Step 6: DSQL Bootstrap ─────────────────────────
+	// Runs after infrastructure deploy completes successfully.
+	// Detects _dsqlBootstrap_* stack outputs, groups by cluster, and for
+	// each changed cluster: creates a short-lived Lambda with
+	// dsql:DbConnectAdmin scoped to that cluster ARN, invokes it to run
+	// the bootstrap SQL, then deletes the Lambda and its IAM role.
+	//
+	// Skipped entirely if no DSQL components use grantConnect.
+	// Skipped per-cluster if the payload hash matches the stored hash in
+	// .anvil/dsql-bootstrap-hashes-{stage}.json
+	//
+	// Does not fail the deploy if bootstrap errors — infrastructure is up,
+	// bootstrap retries automatically on next deploy (hash not written).
+	if !handler.HasErrors() {
+		outputs, outErr := s.Outputs(ctx)
+		if outErr != nil {
+			fmt.Printf("  ⚠ Could not read stack outputs for DSQL bootstrap: %v\n", outErr)
+		} else {
+			fmt.Printf("  🔍 Debug: found %d stack outputs\n", len(outputs))
+			for k := range outputs {
+				fmt.Printf("  🔍 Output key: %s\n", k)
+			}
+			region := resolveRegionForStage(stage)
+			if bootstrapErr := runDSQLBootstrap(ctx, outputs, stage, region); bootstrapErr != nil {
+				fmt.Printf("\n  ✘ DSQL bootstrap error: %v\n", bootstrapErr)
+			}
+		}
+	}
+
 	handler.PrintSummary(stage)
 
 	if handler.HasErrors() {

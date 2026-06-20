@@ -98,7 +98,7 @@ export namespace aws {
         rules?: pulumi.Input<pulumi.Input<pulumiAws.types.input.s3.BucketLifecycleConfigurationRule>[]>;
         timeouts?: pulumi.Input<pulumiAws.types.input.s3.BucketLifecycleConfigurationTimeouts>;
         /**
-         * The default minimum object size behavior applied to the lifecycle configuration. Valid values: `all_storage_classes_128K` (default), <span pulumi-lang-nodejs="`variesByStorageClass`" pulumi-lang-dotnet="`VariesByStorageClass`" pulumi-lang-go="`variesByStorageClass`" pulumi-lang-python="`varies_by_storage_class`" pulumi-lang-yaml="`variesByStorageClass`" pulumi-lang-java="`variesByStorageClass`">`varies_by_storage_class`</span>. To customize the minimum object size for any transition you can add a <span pulumi-lang-nodejs="`filter`" pulumi-lang-dotnet="`Filter`" pulumi-lang-go="`filter`" pulumi-lang-python="`filter`" pulumi-lang-yaml="`filter`" pulumi-lang-java="`filter`">`filter`</span> that specifies a custom <span pulumi-lang-nodejs="`objectSizeGreaterThan`" pulumi-lang-dotnet="`ObjectSizeGreaterThan`" pulumi-lang-go="`objectSizeGreaterThan`" pulumi-lang-python="`object_size_greater_than`" pulumi-lang-yaml="`objectSizeGreaterThan`" pulumi-lang-java="`objectSizeGreaterThan`">`object_size_greater_than`</span> or <span pulumi-lang-nodejs="`objectSizeLessThan`" pulumi-lang-dotnet="`ObjectSizeLessThan`" pulumi-lang-go="`objectSizeLessThan`" pulumi-lang-python="`object_size_less_than`" pulumi-lang-yaml="`objectSizeLessThan`" pulumi-lang-java="`objectSizeLessThan`">`object_size_less_than`</span> value. Custom filters always take precedence over the default transition behavior.
+         * The default minimum object size behavior applied to the lifecycle configuration. Valid values: `all_storage_classes_128K` (default), <span pulumi-lang-nodejs="`variesByStorageClass`" pulumi-lang-dotnet="`VariesByStorageClass`" pulumi-lang-go="`variesByStorageClass`" pulumi-lang-python="`varies_by_storage_class`" pulumi-lang-yaml="`variesByStorageClass`" pulumi-lang-java="`variesByStorageClass`">`variesByStorageClass`</span>. To customize the minimum object size for any transition you can add a <span pulumi-lang-nodejs="`filter`" pulumi-lang-dotnet="`Filter`" pulumi-lang-go="`filter`" pulumi-lang-python="`filter`" pulumi-lang-yaml="`filter`" pulumi-lang-java="`filter`">`filter`</span> that specifies a custom <span pulumi-lang-nodejs="`objectSizeGreaterThan`" pulumi-lang-dotnet="`ObjectSizeGreaterThan`" pulumi-lang-go="`objectSizeGreaterThan`" pulumi-lang-python="`object_size_greater_than`" pulumi-lang-yaml="`objectSizeGreaterThan`" pulumi-lang-java="`objectSizeGreaterThan`">`objectSizeGreaterThan`</span> or <span pulumi-lang-nodejs="`objectSizeLessThan`" pulumi-lang-dotnet="`ObjectSizeLessThan`" pulumi-lang-go="`objectSizeLessThan`" pulumi-lang-python="`object_size_less_than`" pulumi-lang-yaml="`objectSizeLessThan`" pulumi-lang-java="`objectSizeLessThan`">`objectSizeLessThan`</span> value. Custom filters always take precedence over the default transition behavior.
          */
         transitionDefaultMinimumObjectSize?: pulumi.Input<string>;
     }
@@ -168,9 +168,13 @@ export namespace aws {
 
     export interface BucketOverridesArgs {
         /**
-         * Name of the bucket. If omitted, the provider will assign a random, unique name. Must be lowercase and less than or equal to 63 characters in length. A full list of bucket naming rules [may be found here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html). The name must not be in the format `<span pulumi-lang-nodejs="[bucketName]" pulumi-lang-dotnet="[BucketName]" pulumi-lang-go="[bucketName]" pulumi-lang-python="[bucket_name]" pulumi-lang-yaml="[bucketName]" pulumi-lang-java="[bucketName]">[bucket_name]</span>--[azid]--x-s3`. Use the <span pulumi-lang-nodejs="`aws.s3.DirectoryBucket`" pulumi-lang-dotnet="`aws.s3.DirectoryBucket`" pulumi-lang-go="`s3.DirectoryBucket`" pulumi-lang-python="`s3.DirectoryBucket`" pulumi-lang-yaml="`aws.s3.DirectoryBucket`" pulumi-lang-java="`aws.s3.DirectoryBucket`">`aws.s3.DirectoryBucket`</span> resource to manage S3 Express buckets.
+         * Name of the bucket. If omitted, the provider will assign a random, unique name. Must be lowercase and less than or equal to 63 characters in length. A full list of bucket naming rules [may be found here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html). The name must not be in the format `<span pulumi-lang-nodejs="[bucketName]" pulumi-lang-dotnet="[BucketName]" pulumi-lang-go="[bucketName]" pulumi-lang-python="[bucket_name]" pulumi-lang-yaml="[bucketName]" pulumi-lang-java="[bucketName]">[bucketName]</span>--[azid]--x-s3`. Use the <span pulumi-lang-nodejs="`aws.s3.DirectoryBucket`" pulumi-lang-dotnet="`aws.s3.DirectoryBucket`" pulumi-lang-go="`s3.DirectoryBucket`" pulumi-lang-python="`s3.DirectoryBucket`" pulumi-lang-yaml="`aws.s3.DirectoryBucket`" pulumi-lang-java="`aws.s3.DirectoryBucket`">`aws.s3.DirectoryBucket`</span> resource to manage S3 Express buckets.
          */
         bucket?: pulumi.Input<string>;
+        /**
+         * Namespace for the bucket. Determines bucket naming scope. Valid values: `account-regional`, <span pulumi-lang-nodejs="`global`" pulumi-lang-dotnet="`Global`" pulumi-lang-go="`global`" pulumi-lang-python="`global`" pulumi-lang-yaml="`global`" pulumi-lang-java="`global`">`global`</span>. Defaults to <span pulumi-lang-nodejs="`global`" pulumi-lang-dotnet="`Global`" pulumi-lang-go="`global`" pulumi-lang-python="`global`" pulumi-lang-yaml="`global`" pulumi-lang-java="`global`">`global`</span> (AWS).
+         */
+        bucketNamespace?: pulumi.Input<string>;
         /**
          * Creates a unique bucket name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`bucket`" pulumi-lang-dotnet="`Bucket`" pulumi-lang-go="`bucket`" pulumi-lang-python="`bucket`" pulumi-lang-yaml="`bucket`" pulumi-lang-java="`bucket`">`bucket`</span>. Must be lowercase and less than or equal to 37 characters in length. A full list of bucket naming rules [may be found here](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html).
          */
@@ -188,7 +192,7 @@ export namespace aws {
          */
         region?: pulumi.Input<string>;
         /**
-         * Map of tags to assign to the bucket. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+         * Map of tags to assign to the bucket. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`defaultTags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
          *
          * The following arguments are deprecated, and will be removed in a future major version:
          */
@@ -230,7 +234,7 @@ export namespace aws {
          *
          * > **NOTE:** Amazon S3's latest version of the replication configuration is V2, which includes the <span pulumi-lang-nodejs="`filter`" pulumi-lang-dotnet="`Filter`" pulumi-lang-go="`filter`" pulumi-lang-python="`filter`" pulumi-lang-yaml="`filter`" pulumi-lang-java="`filter`">`filter`</span> attribute for replication rules.
          *
-         * > **NOTE:** The <span pulumi-lang-nodejs="`existingObjectReplication`" pulumi-lang-dotnet="`ExistingObjectReplication`" pulumi-lang-go="`existingObjectReplication`" pulumi-lang-python="`existing_object_replication`" pulumi-lang-yaml="`existingObjectReplication`" pulumi-lang-java="`existingObjectReplication`">`existing_object_replication`</span> parameter is not supported by Amazon S3 at this time and should not be included in your <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> configurations. Specifying this parameter will result in `MalformedXML` errors.
+         * > **NOTE:** The <span pulumi-lang-nodejs="`existingObjectReplication`" pulumi-lang-dotnet="`ExistingObjectReplication`" pulumi-lang-go="`existingObjectReplication`" pulumi-lang-python="`existing_object_replication`" pulumi-lang-yaml="`existingObjectReplication`" pulumi-lang-java="`existingObjectReplication`">`existingObjectReplication`</span> parameter is not supported by Amazon S3 at this time and should not be included in your <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> configurations. Specifying this parameter will result in `MalformedXML` errors.
          * To replicate existing objects, please refer to the [Replicating existing objects with S3 Batch Replication](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-batch-replication-batch.html) documentation in the Amazon S3 User Guide.
          */
         rules?: pulumi.Input<pulumi.Input<pulumiAws.types.input.s3.BucketReplicationConfigRule>[]>;
@@ -346,7 +350,7 @@ export namespace aws {
          */
         indexDocument?: pulumi.Input<pulumiAws.types.input.s3.BucketWebsiteConfigurationIndexDocument>;
         /**
-         * Redirect behavior for every request to this bucket's website endpoint. See below. Conflicts with <span pulumi-lang-nodejs="`errorDocument`" pulumi-lang-dotnet="`ErrorDocument`" pulumi-lang-go="`errorDocument`" pulumi-lang-python="`error_document`" pulumi-lang-yaml="`errorDocument`" pulumi-lang-java="`errorDocument`">`error_document`</span>, <span pulumi-lang-nodejs="`indexDocument`" pulumi-lang-dotnet="`IndexDocument`" pulumi-lang-go="`indexDocument`" pulumi-lang-python="`index_document`" pulumi-lang-yaml="`indexDocument`" pulumi-lang-java="`indexDocument`">`index_document`</span>, and <span pulumi-lang-nodejs="`routingRule`" pulumi-lang-dotnet="`RoutingRule`" pulumi-lang-go="`routingRule`" pulumi-lang-python="`routing_rule`" pulumi-lang-yaml="`routingRule`" pulumi-lang-java="`routingRule`">`routing_rule`</span>.
+         * Redirect behavior for every request to this bucket's website endpoint. See below. Conflicts with <span pulumi-lang-nodejs="`errorDocument`" pulumi-lang-dotnet="`ErrorDocument`" pulumi-lang-go="`errorDocument`" pulumi-lang-python="`error_document`" pulumi-lang-yaml="`errorDocument`" pulumi-lang-java="`errorDocument`">`errorDocument`</span>, <span pulumi-lang-nodejs="`indexDocument`" pulumi-lang-dotnet="`IndexDocument`" pulumi-lang-go="`indexDocument`" pulumi-lang-python="`index_document`" pulumi-lang-yaml="`indexDocument`" pulumi-lang-java="`indexDocument`">`indexDocument`</span>, and <span pulumi-lang-nodejs="`routingRule`" pulumi-lang-dotnet="`RoutingRule`" pulumi-lang-go="`routingRule`" pulumi-lang-python="`routing_rule`" pulumi-lang-yaml="`routingRule`" pulumi-lang-java="`routingRule`">`routingRule`</span>.
          */
         redirectAllRequestsTo?: pulumi.Input<pulumiAws.types.input.s3.BucketWebsiteConfigurationRedirectAllRequestsTo>;
         /**
@@ -532,11 +536,11 @@ export namespace aws {
          */
         adminCreateUserConfig?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolAdminCreateUserConfig>;
         /**
-         * Attributes supported as an alias for this user pool. Valid values: <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>, <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, or <span pulumi-lang-nodejs="`preferredUsername`" pulumi-lang-dotnet="`PreferredUsername`" pulumi-lang-go="`preferredUsername`" pulumi-lang-python="`preferred_username`" pulumi-lang-yaml="`preferredUsername`" pulumi-lang-java="`preferredUsername`">`preferred_username`</span>. Conflicts with <span pulumi-lang-nodejs="`usernameAttributes`" pulumi-lang-dotnet="`UsernameAttributes`" pulumi-lang-go="`usernameAttributes`" pulumi-lang-python="`username_attributes`" pulumi-lang-yaml="`usernameAttributes`" pulumi-lang-java="`usernameAttributes`">`username_attributes`</span>.
+         * Attributes supported as an alias for this user pool. Valid values: <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phoneNumber`</span>, <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, or <span pulumi-lang-nodejs="`preferredUsername`" pulumi-lang-dotnet="`PreferredUsername`" pulumi-lang-go="`preferredUsername`" pulumi-lang-python="`preferred_username`" pulumi-lang-yaml="`preferredUsername`" pulumi-lang-java="`preferredUsername`">`preferredUsername`</span>. Conflicts with <span pulumi-lang-nodejs="`usernameAttributes`" pulumi-lang-dotnet="`UsernameAttributes`" pulumi-lang-go="`usernameAttributes`" pulumi-lang-python="`username_attributes`" pulumi-lang-yaml="`usernameAttributes`" pulumi-lang-java="`usernameAttributes`">`usernameAttributes`</span>.
          */
         aliasAttributes?: pulumi.Input<pulumi.Input<string>[]>;
         /**
-         * Attributes to be auto-verified. Valid values: <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phone_number`</span>.
+         * Attributes to be auto-verified. Valid values: <span pulumi-lang-nodejs="`email`" pulumi-lang-dotnet="`Email`" pulumi-lang-go="`email`" pulumi-lang-python="`email`" pulumi-lang-yaml="`email`" pulumi-lang-java="`email`">`email`</span>, <span pulumi-lang-nodejs="`phoneNumber`" pulumi-lang-dotnet="`PhoneNumber`" pulumi-lang-go="`phoneNumber`" pulumi-lang-python="`phone_number`" pulumi-lang-yaml="`phoneNumber`" pulumi-lang-java="`phoneNumber`">`phoneNumber`</span>.
          */
         autoVerifiedAttributes?: pulumi.Input<pulumi.Input<string>[]>;
         /**
@@ -552,15 +556,15 @@ export namespace aws {
          */
         emailConfiguration?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolEmailConfiguration>;
         /**
-         * Configuration block for configuring email Multi-Factor Authentication (MFA); requires at least 2 <span pulumi-lang-nodejs="`accountRecoverySetting`" pulumi-lang-dotnet="`AccountRecoverySetting`" pulumi-lang-go="`accountRecoverySetting`" pulumi-lang-python="`account_recovery_setting`" pulumi-lang-yaml="`accountRecoverySetting`" pulumi-lang-java="`accountRecoverySetting`">`account_recovery_setting`</span> entries; requires an <span pulumi-lang-nodejs="`emailConfiguration`" pulumi-lang-dotnet="`EmailConfiguration`" pulumi-lang-go="`emailConfiguration`" pulumi-lang-python="`email_configuration`" pulumi-lang-yaml="`emailConfiguration`" pulumi-lang-java="`emailConfiguration`">`email_configuration`</span> configuration block. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+         * Configuration block for configuring email Multi-Factor Authentication (MFA); requires at least 2 <span pulumi-lang-nodejs="`accountRecoverySetting`" pulumi-lang-dotnet="`AccountRecoverySetting`" pulumi-lang-go="`accountRecoverySetting`" pulumi-lang-python="`account_recovery_setting`" pulumi-lang-yaml="`accountRecoverySetting`" pulumi-lang-java="`accountRecoverySetting`">`accountRecoverySetting`</span> entries; requires an <span pulumi-lang-nodejs="`emailConfiguration`" pulumi-lang-dotnet="`EmailConfiguration`" pulumi-lang-go="`emailConfiguration`" pulumi-lang-python="`email_configuration`" pulumi-lang-yaml="`emailConfiguration`" pulumi-lang-java="`emailConfiguration`">`emailConfiguration`</span> configuration block. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfaConfiguration`</span> is `ON` or `OPTIONAL`. Detailed below.
          */
         emailMfaConfiguration?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolEmailMfaConfiguration>;
         /**
-         * String representing the email verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailMessage`" pulumi-lang-dotnet="`EmailMessage`" pulumi-lang-go="`emailMessage`" pulumi-lang-python="`email_message`" pulumi-lang-yaml="`emailMessage`" pulumi-lang-java="`emailMessage`">`email_message`</span> argument.
+         * String representing the email verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verificationMessageTemplate`</span> configuration block <span pulumi-lang-nodejs="`emailMessage`" pulumi-lang-dotnet="`EmailMessage`" pulumi-lang-go="`emailMessage`" pulumi-lang-python="`email_message`" pulumi-lang-yaml="`emailMessage`" pulumi-lang-java="`emailMessage`">`emailMessage`</span> argument.
          */
         emailVerificationMessage?: pulumi.Input<string>;
         /**
-         * String representing the email verification subject. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`emailSubject`" pulumi-lang-dotnet="`EmailSubject`" pulumi-lang-go="`emailSubject`" pulumi-lang-python="`email_subject`" pulumi-lang-yaml="`emailSubject`" pulumi-lang-java="`emailSubject`">`email_subject`</span> argument.
+         * String representing the email verification subject. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verificationMessageTemplate`</span> configuration block <span pulumi-lang-nodejs="`emailSubject`" pulumi-lang-dotnet="`EmailSubject`" pulumi-lang-go="`emailSubject`" pulumi-lang-python="`email_subject`" pulumi-lang-yaml="`emailSubject`" pulumi-lang-java="`emailSubject`">`emailSubject`</span> argument.
          */
         emailVerificationSubject?: pulumi.Input<string>;
         /**
@@ -568,7 +572,7 @@ export namespace aws {
          */
         lambdaConfig?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolLambdaConfig>;
         /**
-         * Multi-Factor Authentication (MFA) configuration for the User Pool. Defaults of `OFF`. Valid values are `OFF` (MFA Tokens are not required), `ON` (MFA is required for all users to sign in; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured), or `OPTIONAL` (MFA Will be required only for individual users who have MFA Enabled; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`email_mfa_configuration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`sms_configuration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`software_token_mfa_configuration`</span> to be configured).
+         * Multi-Factor Authentication (MFA) configuration for the User Pool. Defaults of `OFF`. Valid values are `OFF` (MFA Tokens are not required), `ON` (MFA is required for all users to sign in; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`emailMfaConfiguration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`smsConfiguration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`softwareTokenMfaConfiguration`</span> to be configured), or `OPTIONAL` (MFA Will be required only for individual users who have MFA Enabled; requires at least one of <span pulumi-lang-nodejs="`emailMfaConfiguration`" pulumi-lang-dotnet="`EmailMfaConfiguration`" pulumi-lang-go="`emailMfaConfiguration`" pulumi-lang-python="`email_mfa_configuration`" pulumi-lang-yaml="`emailMfaConfiguration`" pulumi-lang-java="`emailMfaConfiguration`">`emailMfaConfiguration`</span>, <span pulumi-lang-nodejs="`smsConfiguration`" pulumi-lang-dotnet="`SmsConfiguration`" pulumi-lang-go="`smsConfiguration`" pulumi-lang-python="`sms_configuration`" pulumi-lang-yaml="`smsConfiguration`" pulumi-lang-java="`smsConfiguration`">`smsConfiguration`</span> or <span pulumi-lang-nodejs="`softwareTokenMfaConfiguration`" pulumi-lang-dotnet="`SoftwareTokenMfaConfiguration`" pulumi-lang-go="`softwareTokenMfaConfiguration`" pulumi-lang-python="`software_token_mfa_configuration`" pulumi-lang-yaml="`softwareTokenMfaConfiguration`" pulumi-lang-java="`softwareTokenMfaConfiguration`">`softwareTokenMfaConfiguration`</span> to be configured).
          */
         mfaConfiguration?: pulumi.Input<string>;
         /**
@@ -596,19 +600,19 @@ export namespace aws {
          */
         smsAuthenticationMessage?: pulumi.Input<string>;
         /**
-         * Configuration block for Short Message Service (SMS) settings. Detailed below. These settings apply to SMS user verification and SMS Multi-Factor Authentication (MFA). SMS MFA is activated only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is set to `ON` or `OPTIONAL` along with this block. Due to Cognito API restrictions, the SMS configuration cannot be removed without recreating the Cognito User Pool. For user data safety, this resource will ignore the removal of this configuration by disabling drift detection. To force resource recreation after this configuration has been applied, see the <span pulumi-lang-nodejs="`taint`" pulumi-lang-dotnet="`Taint`" pulumi-lang-go="`taint`" pulumi-lang-python="`taint`" pulumi-lang-yaml="`taint`" pulumi-lang-java="`taint`">`taint`</span> command.
+         * Configuration block for Short Message Service (SMS) settings. Detailed below. These settings apply to SMS user verification and SMS Multi-Factor Authentication (MFA). SMS MFA is activated only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfaConfiguration`</span> is set to `ON` or `OPTIONAL` along with this block. Due to Cognito API restrictions, the SMS configuration cannot be removed without recreating the Cognito User Pool. For user data safety, this resource will ignore the removal of this configuration by disabling drift detection. To force resource recreation after this configuration has been applied, see the <span pulumi-lang-nodejs="`taint`" pulumi-lang-dotnet="`Taint`" pulumi-lang-go="`taint`" pulumi-lang-python="`taint`" pulumi-lang-yaml="`taint`" pulumi-lang-java="`taint`">`taint`</span> command.
          */
         smsConfiguration?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolSmsConfiguration>;
         /**
-         * String representing the SMS verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verification_message_template`</span> configuration block <span pulumi-lang-nodejs="`smsMessage`" pulumi-lang-dotnet="`SmsMessage`" pulumi-lang-go="`smsMessage`" pulumi-lang-python="`sms_message`" pulumi-lang-yaml="`smsMessage`" pulumi-lang-java="`smsMessage`">`sms_message`</span> argument.
+         * String representing the SMS verification message. Conflicts with <span pulumi-lang-nodejs="`verificationMessageTemplate`" pulumi-lang-dotnet="`VerificationMessageTemplate`" pulumi-lang-go="`verificationMessageTemplate`" pulumi-lang-python="`verification_message_template`" pulumi-lang-yaml="`verificationMessageTemplate`" pulumi-lang-java="`verificationMessageTemplate`">`verificationMessageTemplate`</span> configuration block <span pulumi-lang-nodejs="`smsMessage`" pulumi-lang-dotnet="`SmsMessage`" pulumi-lang-go="`smsMessage`" pulumi-lang-python="`sms_message`" pulumi-lang-yaml="`smsMessage`" pulumi-lang-java="`smsMessage`">`smsMessage`</span> argument.
          */
         smsVerificationMessage?: pulumi.Input<string>;
         /**
-         * Configuration block for software token Mult-Factor Authentication (MFA) settings. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfa_configuration`</span> is `ON` or `OPTIONAL`. Detailed below.
+         * Configuration block for software token Mult-Factor Authentication (MFA) settings. Effective only when <span pulumi-lang-nodejs="`mfaConfiguration`" pulumi-lang-dotnet="`MfaConfiguration`" pulumi-lang-go="`mfaConfiguration`" pulumi-lang-python="`mfa_configuration`" pulumi-lang-yaml="`mfaConfiguration`" pulumi-lang-java="`mfaConfiguration`">`mfaConfiguration`</span> is `ON` or `OPTIONAL`. Detailed below.
          */
         softwareTokenMfaConfiguration?: pulumi.Input<pulumiAws.types.input.cognito.UserPoolSoftwareTokenMfaConfiguration>;
         /**
-         * Map of tags to assign to the User Pool. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+         * Map of tags to assign to the User Pool. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`defaultTags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
          */
         tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         /**
@@ -624,7 +628,7 @@ export namespace aws {
          */
         userPoolTier?: pulumi.Input<string>;
         /**
-         * Whether email addresses or phone numbers can be specified as usernames when a user signs up. Conflicts with <span pulumi-lang-nodejs="`aliasAttributes`" pulumi-lang-dotnet="`AliasAttributes`" pulumi-lang-go="`aliasAttributes`" pulumi-lang-python="`alias_attributes`" pulumi-lang-yaml="`aliasAttributes`" pulumi-lang-java="`aliasAttributes`">`alias_attributes`</span>.
+         * Whether email addresses or phone numbers can be specified as usernames when a user signs up. Conflicts with <span pulumi-lang-nodejs="`aliasAttributes`" pulumi-lang-dotnet="`AliasAttributes`" pulumi-lang-go="`aliasAttributes`" pulumi-lang-python="`alias_attributes`" pulumi-lang-yaml="`aliasAttributes`" pulumi-lang-java="`aliasAttributes`">`aliasAttributes`</span>.
          */
         usernameAttributes?: pulumi.Input<pulumi.Input<string>[]>;
         /**
@@ -905,7 +909,7 @@ export namespace aws {
 
     export interface DynamoOverridesArgs {
         /**
-         * Set of nested attribute definitions. Only required for <span pulumi-lang-nodejs="`hashKey`" pulumi-lang-dotnet="`HashKey`" pulumi-lang-go="`hashKey`" pulumi-lang-python="`hash_key`" pulumi-lang-yaml="`hashKey`" pulumi-lang-java="`hashKey`">`hash_key`</span> and <span pulumi-lang-nodejs="`rangeKey`" pulumi-lang-dotnet="`RangeKey`" pulumi-lang-go="`rangeKey`" pulumi-lang-python="`range_key`" pulumi-lang-yaml="`rangeKey`" pulumi-lang-java="`rangeKey`">`range_key`</span> attributes. See below.
+         * Set of nested attribute definitions. Only required for <span pulumi-lang-nodejs="`hashKey`" pulumi-lang-dotnet="`HashKey`" pulumi-lang-go="`hashKey`" pulumi-lang-python="`hash_key`" pulumi-lang-yaml="`hashKey`" pulumi-lang-java="`hashKey`">`hashKey`</span> and <span pulumi-lang-nodejs="`rangeKey`" pulumi-lang-dotnet="`RangeKey`" pulumi-lang-go="`rangeKey`" pulumi-lang-python="`range_key`" pulumi-lang-yaml="`rangeKey`" pulumi-lang-java="`rangeKey`">`rangeKey`</span> attributes. See below.
          */
         attributes?: pulumi.Input<pulumi.Input<pulumiAws.types.input.dynamodb.TableAttribute>[]>;
         /**
@@ -921,7 +925,7 @@ export namespace aws {
          */
         globalSecondaryIndexes?: pulumi.Input<pulumi.Input<pulumiAws.types.input.dynamodb.TableGlobalSecondaryIndex>[]>;
         /**
-         * Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single <span pulumi-lang-nodejs="`replica`" pulumi-lang-dotnet="`Replica`" pulumi-lang-go="`replica`" pulumi-lang-python="`replica`" pulumi-lang-yaml="`replica`" pulumi-lang-java="`replica`">`replica`</span> with <span pulumi-lang-nodejs="`consistencyMode`" pulumi-lang-dotnet="`ConsistencyMode`" pulumi-lang-go="`consistencyMode`" pulumi-lang-python="`consistency_mode`" pulumi-lang-yaml="`consistencyMode`" pulumi-lang-java="`consistencyMode`">`consistency_mode`</span> set to `STRONG`. Other combinations will fail to provision. See below.
+         * Witness Region in a Multi-Region Strong Consistency deployment. **Note** This must be used alongside a single <span pulumi-lang-nodejs="`replica`" pulumi-lang-dotnet="`Replica`" pulumi-lang-go="`replica`" pulumi-lang-python="`replica`" pulumi-lang-yaml="`replica`" pulumi-lang-java="`replica`">`replica`</span> with <span pulumi-lang-nodejs="`consistencyMode`" pulumi-lang-dotnet="`ConsistencyMode`" pulumi-lang-go="`consistencyMode`" pulumi-lang-python="`consistency_mode`" pulumi-lang-yaml="`consistencyMode`" pulumi-lang-java="`consistencyMode`">`consistencyMode`</span> set to `STRONG`. Other combinations will fail to provision. See below.
          */
         globalTableWitness?: pulumi.Input<pulumiAws.types.input.dynamodb.TableGlobalTableWitness>;
         /**
@@ -955,7 +959,7 @@ export namespace aws {
          */
         rangeKey?: pulumi.Input<string>;
         /**
-         * Number of read units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+         * Number of read units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billingMode`</span> is `PROVISIONED`, this field is required.
          */
         readCapacity?: pulumi.Input<number>;
         /**
@@ -966,6 +970,10 @@ export namespace aws {
          * Configuration block(s) with [DynamoDB Global Tables V2 (version 2019.11.21)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/globaltables.V2.html) replication configurations. See below.
          */
         replicas?: pulumi.Input<pulumi.Input<pulumiAws.types.input.dynamodb.TableReplica>[]>;
+        /**
+         * ARN of backup to restore.
+         */
+        restoreBackupArn?: pulumi.Input<string>;
         /**
          * Time of the point-in-time recovery point to restore.
          */
@@ -993,7 +1001,7 @@ export namespace aws {
         /**
          * When an item in the table is modified, StreamViewType determines what information is written to the table's stream.
          * Valid values are `KEYS_ONLY`, `NEW_IMAGE`, `OLD_IMAGE`, `NEW_AND_OLD_IMAGES`.
-         * Only valid when <span pulumi-lang-nodejs="`streamEnabled`" pulumi-lang-dotnet="`StreamEnabled`" pulumi-lang-go="`streamEnabled`" pulumi-lang-python="`stream_enabled`" pulumi-lang-yaml="`streamEnabled`" pulumi-lang-java="`streamEnabled`">`stream_enabled`</span> is true.
+         * Only valid when <span pulumi-lang-nodejs="`streamEnabled`" pulumi-lang-dotnet="`StreamEnabled`" pulumi-lang-go="`streamEnabled`" pulumi-lang-python="`stream_enabled`" pulumi-lang-yaml="`streamEnabled`" pulumi-lang-java="`streamEnabled`">`streamEnabled`</span> is true.
          */
         streamViewType?: pulumi.Input<string>;
         /**
@@ -1003,7 +1011,7 @@ export namespace aws {
          */
         tableClass?: pulumi.Input<string>;
         /**
-         * A map of tags to populate on the created table. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+         * A map of tags to populate on the created table. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`defaultTags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
          */
         tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         /**
@@ -1015,7 +1023,7 @@ export namespace aws {
          */
         warmThroughput?: pulumi.Input<pulumiAws.types.input.dynamodb.TableWarmThroughput>;
         /**
-         * Number of write units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billing_mode`</span> is `PROVISIONED`, this field is required.
+         * Number of write units for this table. If the <span pulumi-lang-nodejs="`billingMode`" pulumi-lang-dotnet="`BillingMode`" pulumi-lang-go="`billingMode`" pulumi-lang-python="`billing_mode`" pulumi-lang-yaml="`billingMode`" pulumi-lang-java="`billingMode`">`billingMode`</span> is `PROVISIONED`, this field is required.
          */
         writeCapacity?: pulumi.Input<number>;
     }
@@ -1046,7 +1054,7 @@ export namespace aws {
          */
         logConfig?: pulumi.Input<pulumiAws.types.input.cloudwatch.EventBusLogConfig>;
         /**
-         * Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span> matches the <span pulumi-lang-nodejs="`eventSourceName`" pulumi-lang-dotnet="`EventSourceName`" pulumi-lang-go="`eventSourceName`" pulumi-lang-python="`event_source_name`" pulumi-lang-yaml="`eventSourceName`" pulumi-lang-java="`eventSourceName`">`event_source_name`</span>.
+         * Name of the new event bus. The names of custom event buses can't contain the / character. To create a partner event bus, ensure that the <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span> matches the <span pulumi-lang-nodejs="`eventSourceName`" pulumi-lang-dotnet="`EventSourceName`" pulumi-lang-go="`eventSourceName`" pulumi-lang-python="`event_source_name`" pulumi-lang-yaml="`eventSourceName`" pulumi-lang-java="`eventSourceName`">`eventSourceName`</span>.
          *
          * The following arguments are optional:
          */
@@ -1056,7 +1064,7 @@ export namespace aws {
          */
         region?: pulumi.Input<string>;
         /**
-         * Map of tags assigned to the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+         * Map of tags assigned to the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`defaultTags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
          */
         tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     }
@@ -1307,7 +1315,7 @@ export namespace aws {
 
     export interface LambdaOverridesArgs {
         /**
-         * Instruction set architecture for your Lambda function. Valid values are `[<span pulumi-lang-nodejs=""x8664"" pulumi-lang-dotnet=""X8664"" pulumi-lang-go=""x8664"" pulumi-lang-python=""x86_64"" pulumi-lang-yaml=""x8664"" pulumi-lang-java=""x8664"">"x86_64"</span>]` and `["arm64"]`. Default is `[<span pulumi-lang-nodejs=""x8664"" pulumi-lang-dotnet=""X8664"" pulumi-lang-go=""x8664"" pulumi-lang-python=""x86_64"" pulumi-lang-yaml=""x8664"" pulumi-lang-java=""x8664"">"x86_64"</span>]`. Removing this attribute, function's architecture stays the same.
+         * Instruction set architecture for your Lambda function. Valid values are `[<span pulumi-lang-nodejs=""x8664"" pulumi-lang-dotnet=""X8664"" pulumi-lang-go=""x8664"" pulumi-lang-python=""x86_64"" pulumi-lang-yaml=""x8664"" pulumi-lang-java=""x8664"">"x8664"</span>]` and `["arm64"]`. Default is `[<span pulumi-lang-nodejs=""x8664"" pulumi-lang-dotnet=""X8664"" pulumi-lang-go=""x8664"" pulumi-lang-python=""x86_64"" pulumi-lang-yaml=""x8664"" pulumi-lang-java=""x8664"">"x8664"</span>]`. Removing this attribute, function's architecture stays the same.
          */
         architectures?: pulumi.Input<pulumi.Input<string>[]>;
         /**
@@ -1315,11 +1323,11 @@ export namespace aws {
          */
         capacityProviderConfig?: pulumi.Input<pulumiAws.types.input.lambda.FunctionCapacityProviderConfig>;
         /**
-         * Path to the function's deployment package within the local filesystem. Conflicts with <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span> and <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3_bucket`</span>. One of <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span>, <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span>, or <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3_bucket`</span> must be specified.
+         * Path to the function's deployment package within the local filesystem. Conflicts with <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`imageUri`</span> and <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3Bucket`</span>. One of <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span>, <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`imageUri`</span>, or <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3Bucket`</span> must be specified.
          */
         code?: pulumi.Input<pulumi.asset.Archive>;
         /**
-         * Base64-encoded representation the source code package file. Use this argument to trigger updates when the function source code changes. For OCI, this value is relayed directly from the image digest. For zip files, this value is the Base64 encoded SHA-256 hash of the `.zip` file. Layers are not included in the calculation. To trigger updates using a non-standard hashing algorithm, use the <span pulumi-lang-nodejs="`sourceCodeHash`" pulumi-lang-dotnet="`SourceCodeHash`" pulumi-lang-go="`sourceCodeHash`" pulumi-lang-python="`source_code_hash`" pulumi-lang-yaml="`sourceCodeHash`" pulumi-lang-java="`sourceCodeHash`">`source_code_hash`</span> argument instead.
+         * Base64-encoded representation the source code package file. Use this argument to trigger updates when the function source code changes. For OCI, this value is relayed directly from the image digest. For zip files, this value is the Base64 encoded SHA-256 hash of the `.zip` file. Layers are not included in the calculation. To trigger updates using a non-standard hashing algorithm, use the <span pulumi-lang-nodejs="`sourceCodeHash`" pulumi-lang-dotnet="`SourceCodeHash`" pulumi-lang-go="`sourceCodeHash`" pulumi-lang-python="`source_code_hash`" pulumi-lang-yaml="`sourceCodeHash`" pulumi-lang-java="`sourceCodeHash`">`sourceCodeHash`</span> argument instead.
          */
         codeSha256?: pulumi.Input<string>;
         /**
@@ -1335,7 +1343,7 @@ export namespace aws {
          */
         description?: pulumi.Input<string>;
         /**
-         * Configuration block for durable function settings. See below. <span pulumi-lang-nodejs="`durableConfig`" pulumi-lang-dotnet="`DurableConfig`" pulumi-lang-go="`durableConfig`" pulumi-lang-python="`durable_config`" pulumi-lang-yaml="`durableConfig`" pulumi-lang-java="`durableConfig`">`durable_config`</span> may only be available in [limited regions](https://builder.aws.com/build/capabilities), including `us-east-2`.
+         * Configuration block for durable function settings. See below. <span pulumi-lang-nodejs="`durableConfig`" pulumi-lang-dotnet="`DurableConfig`" pulumi-lang-go="`durableConfig`" pulumi-lang-python="`durable_config`" pulumi-lang-yaml="`durableConfig`" pulumi-lang-java="`durableConfig`">`durableConfig`</span> may only be available in [limited regions](https://builder.aws.com/build/capabilities), including `us-east-2`.
          */
         durableConfig?: pulumi.Input<pulumiAws.types.input.lambda.FunctionDurableConfig>;
         /**
@@ -1351,7 +1359,7 @@ export namespace aws {
          */
         fileSystemConfig?: pulumi.Input<pulumiAws.types.input.lambda.FunctionFileSystemConfig>;
         /**
-         * Function entry point in your code. Required if <span pulumi-lang-nodejs="`packageType`" pulumi-lang-dotnet="`PackageType`" pulumi-lang-go="`packageType`" pulumi-lang-python="`package_type`" pulumi-lang-yaml="`packageType`" pulumi-lang-java="`packageType`">`package_type`</span> is `Zip`.
+         * Function entry point in your code. Required if <span pulumi-lang-nodejs="`packageType`" pulumi-lang-dotnet="`PackageType`" pulumi-lang-go="`packageType`" pulumi-lang-python="`package_type`" pulumi-lang-yaml="`packageType`" pulumi-lang-java="`packageType`">`packageType`</span> is `Zip`.
          */
         handler?: pulumi.Input<string>;
         /**
@@ -1359,7 +1367,7 @@ export namespace aws {
          */
         imageConfig?: pulumi.Input<pulumiAws.types.input.lambda.FunctionImageConfig>;
         /**
-         * ECR image URI containing the function's deployment package. Conflicts with <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span> and <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3_bucket`</span>. One of <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span>, <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span>, or <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3_bucket`</span> must be specified.
+         * ECR image URI containing the function's deployment package. Conflicts with <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span> and <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3Bucket`</span>. One of <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span>, <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`imageUri`</span>, or <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3Bucket`</span> must be specified.
          */
         imageUri?: pulumi.Input<string>;
         /**
@@ -1403,7 +1411,7 @@ export namespace aws {
          */
         replaceSecurityGroupsOnDestroy?: pulumi.Input<boolean>;
         /**
-         * List of security group IDs to assign to the function's VPC configuration prior to destruction. Required if <span pulumi-lang-nodejs="`replaceSecurityGroupsOnDestroy`" pulumi-lang-dotnet="`ReplaceSecurityGroupsOnDestroy`" pulumi-lang-go="`replaceSecurityGroupsOnDestroy`" pulumi-lang-python="`replace_security_groups_on_destroy`" pulumi-lang-yaml="`replaceSecurityGroupsOnDestroy`" pulumi-lang-java="`replaceSecurityGroupsOnDestroy`">`replace_security_groups_on_destroy`</span> is <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span>.
+         * List of security group IDs to assign to the function's VPC configuration prior to destruction. Required if <span pulumi-lang-nodejs="`replaceSecurityGroupsOnDestroy`" pulumi-lang-dotnet="`ReplaceSecurityGroupsOnDestroy`" pulumi-lang-go="`replaceSecurityGroupsOnDestroy`" pulumi-lang-python="`replace_security_groups_on_destroy`" pulumi-lang-yaml="`replaceSecurityGroupsOnDestroy`" pulumi-lang-java="`replaceSecurityGroupsOnDestroy`">`replaceSecurityGroupsOnDestroy`</span> is <span pulumi-lang-nodejs="`true`" pulumi-lang-dotnet="`True`" pulumi-lang-go="`true`" pulumi-lang-python="`true`" pulumi-lang-yaml="`true`" pulumi-lang-java="`true`">`true`</span>.
          */
         replacementSecurityGroupIds?: pulumi.Input<pulumi.Input<string>[]>;
         /**
@@ -1417,19 +1425,19 @@ export namespace aws {
          */
         role?: pulumi.Input<string>;
         /**
-         * Identifier of the function's runtime. Required if <span pulumi-lang-nodejs="`packageType`" pulumi-lang-dotnet="`PackageType`" pulumi-lang-go="`packageType`" pulumi-lang-python="`package_type`" pulumi-lang-yaml="`packageType`" pulumi-lang-java="`packageType`">`package_type`</span> is `Zip`. See [Runtimes](https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-Runtime) for valid values.
+         * Identifier of the function's runtime. Required if <span pulumi-lang-nodejs="`packageType`" pulumi-lang-dotnet="`PackageType`" pulumi-lang-go="`packageType`" pulumi-lang-python="`package_type`" pulumi-lang-yaml="`packageType`" pulumi-lang-java="`packageType`">`packageType`</span> is `Zip`. See [Runtimes](https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-Runtime) for valid values.
          */
         runtime?: pulumi.Input<string | pulumiAws.lambda.Runtime>;
         /**
-         * S3 bucket location containing the function's deployment package. Conflicts with <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span> and <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span>. One of <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span>, <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span>, or <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3_bucket`</span> must be specified.
+         * S3 bucket location containing the function's deployment package. Conflicts with <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span> and <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`imageUri`</span>. One of <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span>, <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`imageUri`</span>, or <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3Bucket`</span> must be specified.
          */
         s3Bucket?: pulumi.Input<string>;
         /**
-         * S3 key of an object containing the function's deployment package. Required if <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3_bucket`</span> is set.
+         * S3 key of an object containing the function's deployment package. Required if <span pulumi-lang-nodejs="`s3Bucket`" pulumi-lang-dotnet="`S3Bucket`" pulumi-lang-go="`s3Bucket`" pulumi-lang-python="`s3_bucket`" pulumi-lang-yaml="`s3Bucket`" pulumi-lang-java="`s3Bucket`">`s3Bucket`</span> is set.
          */
         s3Key?: pulumi.Input<string>;
         /**
-         * Object version containing the function's deployment package. Conflicts with <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span> and <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span>.
+         * Object version containing the function's deployment package. Conflicts with <span pulumi-lang-nodejs="`filename`" pulumi-lang-dotnet="`Filename`" pulumi-lang-go="`filename`" pulumi-lang-python="`filename`" pulumi-lang-yaml="`filename`" pulumi-lang-java="`filename`">`filename`</span> and <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`imageUri`</span>.
          */
         s3ObjectVersion?: pulumi.Input<string>;
         /**
@@ -1441,15 +1449,15 @@ export namespace aws {
          */
         snapStart?: pulumi.Input<pulumiAws.types.input.lambda.FunctionSnapStart>;
         /**
-         * User-defined hash of the source code package file. Use this argument to trigger updates when the local function source code changes. This is a synthetic argument tracked only by the AWS provider and does not need to match the hashing algorithm used by Lambda to compute the `CodeSha256` response value. Out-of-band changes to the source code _will not_ be captured by this argument. To include out-of-band source code changes as an update trigger, use the <span pulumi-lang-nodejs="`codeSha256`" pulumi-lang-dotnet="`CodeSha256`" pulumi-lang-go="`codeSha256`" pulumi-lang-python="`code_sha256`" pulumi-lang-yaml="`codeSha256`" pulumi-lang-java="`codeSha256`">`code_sha256`</span> argument instead.
+         * User-defined hash of the source code package file. Use this argument to trigger updates when the local function source code changes. This is a synthetic argument tracked only by the AWS provider and does not need to match the hashing algorithm used by Lambda to compute the `CodeSha256` response value. Out-of-band changes to the source code _will not_ be captured by this argument. To include out-of-band source code changes as an update trigger, use the <span pulumi-lang-nodejs="`codeSha256`" pulumi-lang-dotnet="`CodeSha256`" pulumi-lang-go="`codeSha256`" pulumi-lang-python="`code_sha256`" pulumi-lang-yaml="`codeSha256`" pulumi-lang-java="`codeSha256`">`codeSha256`</span> argument instead.
          */
         sourceCodeHash?: pulumi.Input<string>;
         /**
-         * ARN of the AWS Key Management Service key used to encrypt the function's `.zip` deployment package. Conflicts with <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`image_uri`</span>.
+         * ARN of the AWS Key Management Service key used to encrypt the function's `.zip` deployment package. Conflicts with <span pulumi-lang-nodejs="`imageUri`" pulumi-lang-dotnet="`ImageUri`" pulumi-lang-go="`imageUri`" pulumi-lang-python="`image_uri`" pulumi-lang-yaml="`imageUri`" pulumi-lang-java="`imageUri`">`imageUri`</span>.
          */
         sourceKmsKeyArn?: pulumi.Input<string>;
         /**
-         * Key-value map of tags for the Lambda function. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+         * Key-value map of tags for the Lambda function. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`defaultTags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
          */
         tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         /**
@@ -1643,7 +1651,7 @@ export namespace aws {
          */
         messageRetentionSeconds?: pulumi.Input<number>;
         /**
-         * Name of the queue. Queue names must be made up of only uppercase and lowercase ASCII letters, numbers, underscores, and hyphens, and must be between 1 and 80 characters long. For a FIFO (first-in-first-out) queue, the name must end with the `.fifo` suffix. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+         * Name of the queue. Queue names must be made up of only uppercase and lowercase ASCII letters, numbers, underscores, and hyphens, and must be between 1 and 80 characters long. For a FIFO (first-in-first-out) queue, the name must end with the `.fifo` suffix. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`namePrefix`</span>.
          */
         name?: pulumi.Input<string>;
         /**
@@ -1675,7 +1683,7 @@ export namespace aws {
          */
         sqsManagedSseEnabled?: pulumi.Input<boolean>;
         /**
-         * Map of tags to assign to the queue. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+         * Map of tags to assign to the queue. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`defaultTags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
          */
         tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         /**
@@ -1795,7 +1803,7 @@ export namespace gcp {
          */
         forceDestroy?: pulumi.Input<boolean>;
         /**
-         * The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is documented below. To use this configuration, <span pulumi-lang-nodejs="`uniformBucketLevelAccess`" pulumi-lang-dotnet="`UniformBucketLevelAccess`" pulumi-lang-go="`uniformBucketLevelAccess`" pulumi-lang-python="`uniform_bucket_level_access`" pulumi-lang-yaml="`uniformBucketLevelAccess`" pulumi-lang-java="`uniformBucketLevelAccess`">`uniform_bucket_level_access`</span> must be enabled on bucket.
+         * The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is documented below. To use this configuration, <span pulumi-lang-nodejs="`uniformBucketLevelAccess`" pulumi-lang-dotnet="`UniformBucketLevelAccess`" pulumi-lang-go="`uniformBucketLevelAccess`" pulumi-lang-python="`uniform_bucket_level_access`" pulumi-lang-yaml="`uniformBucketLevelAccess`" pulumi-lang-java="`uniformBucketLevelAccess`">`uniformBucketLevelAccess`</span> must be enabled on bucket.
          */
         hierarchicalNamespace?: pulumi.Input<pulumiGcp.types.input.storage.BucketHierarchicalNamespace>;
         /**
@@ -1897,7 +1905,7 @@ export namespace gcp {
          * A set of key/value label pairs associated with this Cloud Function.
          *
          * **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-         * Please refer to the field <span pulumi-lang-nodejs="`effectiveLabels`" pulumi-lang-dotnet="`EffectiveLabels`" pulumi-lang-go="`effectiveLabels`" pulumi-lang-python="`effective_labels`" pulumi-lang-yaml="`effectiveLabels`" pulumi-lang-java="`effectiveLabels`">`effective_labels`</span> for all of the labels present on the resource.
+         * Please refer to the field <span pulumi-lang-nodejs="`effectiveLabels`" pulumi-lang-dotnet="`EffectiveLabels`" pulumi-lang-go="`effectiveLabels`" pulumi-lang-python="`effective_labels`" pulumi-lang-yaml="`effectiveLabels`" pulumi-lang-java="`effectiveLabels`">`effectiveLabels`</span> for all of the labels present on the resource.
          */
         labels?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
         /**

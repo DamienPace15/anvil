@@ -35,7 +35,7 @@
     "anvil:gcp:FunctionOverrides": {
       "properties": {
         "buildConfig": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:cloudfunctionsv2/FunctionBuildConfig:FunctionBuildConfig",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:cloudfunctionsv2/FunctionBuildConfig:FunctionBuildConfig",
           "description": "Describes the Build step of the function that builds a container\nfrom the given source.\nStructure is documented below.\n"
         },
         "description": {
@@ -43,7 +43,7 @@
           "type": "string"
         },
         "eventTrigger": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:cloudfunctionsv2/FunctionEventTrigger:FunctionEventTrigger",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:cloudfunctionsv2/FunctionEventTrigger:FunctionEventTrigger",
           "description": "An Eventarc trigger managed by Google Cloud Functions that fires events in\nresponse to a condition in another service.\nStructure is documented below.\n"
         },
         "kmsKeyName": {
@@ -54,7 +54,7 @@
           "additionalProperties": {
             "type": "string"
           },
-          "description": "A set of key/value label pairs associated with this Cloud Function.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.\nPlease refer to the field \u003cspan pulumi-lang-nodejs=\"`effectiveLabels`\" pulumi-lang-dotnet=\"`EffectiveLabels`\" pulumi-lang-go=\"`effectiveLabels`\" pulumi-lang-python=\"`effective_labels`\" pulumi-lang-yaml=\"`effectiveLabels`\" pulumi-lang-java=\"`effectiveLabels`\"\u003e`effective_labels`\u003c/span\u003e for all of the labels present on the resource.\n",
+          "description": "A set of key/value label pairs associated with this Cloud Function.\n\n**Note**: This field is non-authoritative, and will only manage the labels present in your configuration.\nPlease refer to the field \u003cspan pulumi-lang-nodejs=\"`effectiveLabels`\" pulumi-lang-dotnet=\"`EffectiveLabels`\" pulumi-lang-go=\"`effectiveLabels`\" pulumi-lang-python=\"`effective_labels`\" pulumi-lang-yaml=\"`effectiveLabels`\" pulumi-lang-java=\"`effectiveLabels`\"\u003e`effectiveLabels`\u003c/span\u003e for all of the labels present on the resource.\n",
           "type": "object"
         },
         "location": {
@@ -73,7 +73,7 @@
           "willReplaceOnChanges": true
         },
         "serviceConfig": {
-          "$ref": "/gcp/v9.15.0/schema.json#/types/gcp:cloudfunctionsv2/FunctionServiceConfig:FunctionServiceConfig",
+          "$ref": "/gcp/v9.23.0/schema.json#/types/gcp:cloudfunctionsv2/FunctionServiceConfig:FunctionServiceConfig",
           "description": "Describes the Service being deployed.\nStructure is documented below.\n"
         }
       },
@@ -137,5 +137,5 @@
   },
   "x-upstream-provider": "gcp",
   "x-upstream-token": "gcp:cloudfunctionsv2/function:Function",
-  "x-upstream-version": "v9.15.0"
+  "x-upstream-version": "v9.23.0"
 }

@@ -57,7 +57,7 @@ class BucketOverridesArgsDict(TypedDict):
     """
     hierarchical_namespace: NotRequired[pulumi.Input['pulumi_gcp.storage.BucketHierarchicalNamespaceArgsDict']]
     """
-    The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is documented below. To use this configuration, <span pulumi-lang-nodejs="`uniformBucketLevelAccess`" pulumi-lang-dotnet="`UniformBucketLevelAccess`" pulumi-lang-go="`uniformBucketLevelAccess`" pulumi-lang-python="`uniform_bucket_level_access`" pulumi-lang-yaml="`uniformBucketLevelAccess`" pulumi-lang-java="`uniformBucketLevelAccess`">`uniform_bucket_level_access`</span> must be enabled on bucket.
+    The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is documented below. To use this configuration, <span pulumi-lang-nodejs="`uniformBucketLevelAccess`" pulumi-lang-dotnet="`UniformBucketLevelAccess`" pulumi-lang-go="`uniformBucketLevelAccess`" pulumi-lang-python="`uniform_bucket_level_access`" pulumi-lang-yaml="`uniformBucketLevelAccess`" pulumi-lang-java="`uniformBucketLevelAccess`">`uniformBucketLevelAccess`</span> must be enabled on bucket.
     """
     ip_filter: NotRequired[pulumi.Input['pulumi_gcp.storage.BucketIpFilterArgsDict']]
     """
@@ -162,7 +162,7 @@ class BucketOverridesArgs:
         :param pulumi.Input[_builtins.bool] enable_object_retention: Enables [object retention](https://cloud.google.com/storage/docs/object-lock) on a storage bucket.
         :param pulumi.Input['pulumi_gcp.storage.BucketEncryptionArgs'] encryption: The bucket's encryption configuration. Structure is documented below.
         :param pulumi.Input[_builtins.bool] force_destroy: When true, before deleting a bucket, delete all objects within the bucket, or Anywhere Caches caching data for that bucket. Otherwise, buckets with objects/caches will fail. Anywhere Cache requires additional permissions to interact with and will be assumed not present when the provider is not permissioned, attempting to delete the bucket anyways. This may result in the objects in the bucket getting destroyed but not the bucket itself if there is a cache in use with the bucket. Force deletion may take a long time to delete buckets with lots of objects or with any Anywhere Caches (80m+).
-        :param pulumi.Input['pulumi_gcp.storage.BucketHierarchicalNamespaceArgs'] hierarchical_namespace: The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is documented below. To use this configuration, <span pulumi-lang-nodejs="`uniformBucketLevelAccess`" pulumi-lang-dotnet="`UniformBucketLevelAccess`" pulumi-lang-go="`uniformBucketLevelAccess`" pulumi-lang-python="`uniform_bucket_level_access`" pulumi-lang-yaml="`uniformBucketLevelAccess`" pulumi-lang-java="`uniformBucketLevelAccess`">`uniform_bucket_level_access`</span> must be enabled on bucket.
+        :param pulumi.Input['pulumi_gcp.storage.BucketHierarchicalNamespaceArgs'] hierarchical_namespace: The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is documented below. To use this configuration, <span pulumi-lang-nodejs="`uniformBucketLevelAccess`" pulumi-lang-dotnet="`UniformBucketLevelAccess`" pulumi-lang-go="`uniformBucketLevelAccess`" pulumi-lang-python="`uniform_bucket_level_access`" pulumi-lang-yaml="`uniformBucketLevelAccess`" pulumi-lang-java="`uniformBucketLevelAccess`">`uniformBucketLevelAccess`</span> must be enabled on bucket.
         :param pulumi.Input['pulumi_gcp.storage.BucketIpFilterArgs'] ip_filter: The bucket IP filtering configuration. Specifies the network sources that can access the bucket, as well as its underlying objects. Structure is documented below.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] labels: A map of key/value label pairs to assign to the bucket.
         :param pulumi.Input[Sequence[pulumi.Input['pulumi_gcp.storage.BucketLifecycleRuleArgs']]] lifecycle_rules: The bucket's [Lifecycle Rules](https://cloud.google.com/storage/docs/lifecycle#configuration) configuration. Multiple blocks of this type are permitted. Structure is documented below.
@@ -320,7 +320,7 @@ class BucketOverridesArgs:
     @pulumi.getter(name="hierarchicalNamespace")
     def hierarchical_namespace(self) -> Optional[pulumi.Input['pulumi_gcp.storage.BucketHierarchicalNamespaceArgs']]:
         """
-        The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is documented below. To use this configuration, <span pulumi-lang-nodejs="`uniformBucketLevelAccess`" pulumi-lang-dotnet="`UniformBucketLevelAccess`" pulumi-lang-go="`uniformBucketLevelAccess`" pulumi-lang-python="`uniform_bucket_level_access`" pulumi-lang-yaml="`uniformBucketLevelAccess`" pulumi-lang-java="`uniformBucketLevelAccess`">`uniform_bucket_level_access`</span> must be enabled on bucket.
+        The bucket's hierarchical namespace policy, which defines the bucket capability to handle folders in logical structure. Structure is documented below. To use this configuration, <span pulumi-lang-nodejs="`uniformBucketLevelAccess`" pulumi-lang-dotnet="`UniformBucketLevelAccess`" pulumi-lang-go="`uniformBucketLevelAccess`" pulumi-lang-python="`uniform_bucket_level_access`" pulumi-lang-yaml="`uniformBucketLevelAccess`" pulumi-lang-java="`uniformBucketLevelAccess`">`uniformBucketLevelAccess`</span> must be enabled on bucket.
         """
         return pulumi.get(self, "hierarchical_namespace")
 
@@ -571,7 +571,7 @@ class FunctionOverridesArgsDict(TypedDict):
     A set of key/value label pairs associated with this Cloud Function.
 
     **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-    Please refer to the field <span pulumi-lang-nodejs="`effectiveLabels`" pulumi-lang-dotnet="`EffectiveLabels`" pulumi-lang-go="`effectiveLabels`" pulumi-lang-python="`effective_labels`" pulumi-lang-yaml="`effectiveLabels`" pulumi-lang-java="`effectiveLabels`">`effective_labels`</span> for all of the labels present on the resource.
+    Please refer to the field <span pulumi-lang-nodejs="`effectiveLabels`" pulumi-lang-dotnet="`EffectiveLabels`" pulumi-lang-go="`effectiveLabels`" pulumi-lang-python="`effective_labels`" pulumi-lang-yaml="`effectiveLabels`" pulumi-lang-java="`effectiveLabels`">`effectiveLabels`</span> for all of the labels present on the resource.
     """
     location: NotRequired[pulumi.Input[_builtins.str]]
     """
@@ -618,7 +618,7 @@ class FunctionOverridesArgs:
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] labels: A set of key/value label pairs associated with this Cloud Function.
                
                **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-               Please refer to the field <span pulumi-lang-nodejs="`effectiveLabels`" pulumi-lang-dotnet="`EffectiveLabels`" pulumi-lang-go="`effectiveLabels`" pulumi-lang-python="`effective_labels`" pulumi-lang-yaml="`effectiveLabels`" pulumi-lang-java="`effectiveLabels`">`effective_labels`</span> for all of the labels present on the resource.
+               Please refer to the field <span pulumi-lang-nodejs="`effectiveLabels`" pulumi-lang-dotnet="`EffectiveLabels`" pulumi-lang-go="`effectiveLabels`" pulumi-lang-python="`effective_labels`" pulumi-lang-yaml="`effectiveLabels`" pulumi-lang-java="`effectiveLabels`">`effectiveLabels`</span> for all of the labels present on the resource.
         :param pulumi.Input[_builtins.str] location: The location of this cloud function.
         :param pulumi.Input[_builtins.str] name: A user-defined name of the function. Function names must
                be unique globally and match pattern `projects/*/locations/*/functions/*`.
@@ -706,7 +706,7 @@ class FunctionOverridesArgs:
         A set of key/value label pairs associated with this Cloud Function.
 
         **Note**: This field is non-authoritative, and will only manage the labels present in your configuration.
-        Please refer to the field <span pulumi-lang-nodejs="`effectiveLabels`" pulumi-lang-dotnet="`EffectiveLabels`" pulumi-lang-go="`effectiveLabels`" pulumi-lang-python="`effective_labels`" pulumi-lang-yaml="`effectiveLabels`" pulumi-lang-java="`effectiveLabels`">`effective_labels`</span> for all of the labels present on the resource.
+        Please refer to the field <span pulumi-lang-nodejs="`effectiveLabels`" pulumi-lang-dotnet="`EffectiveLabels`" pulumi-lang-go="`effectiveLabels`" pulumi-lang-python="`effective_labels`" pulumi-lang-yaml="`effectiveLabels`" pulumi-lang-java="`effectiveLabels`">`effectiveLabels`</span> for all of the labels present on the resource.
         """
         return pulumi.get(self, "labels")
 
