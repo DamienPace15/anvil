@@ -6,6 +6,9 @@ project_name: anvil
 before:
   hooks:
     - go mod tidy
+    # Regenerate the embedded DSQL bootstrap Lambda zip — it is gitignored and
+    # required by //go:embed when compiling the provider binary below.
+    - go run build.go build-dsql-lambda
 
 builds:
   # ── Anvil CLI ───────────────────────────────────────────────

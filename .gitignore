@@ -1,6 +1,10 @@
 # ── Build outputs ──
 bin/
 
+# Compiled provider binary + dev symlink (built via `go run build.go build-provider`)
+provider/pulumi-resource-anvil
+/pulumi-resource-anvil
+
 # SDK build artifacts (source is committed, build output is not)
 sdk/nodejs/bin/
 sdk/nodejs/node_modules/
@@ -53,4 +57,5 @@ test-app-*/.anvil/
 test-*/
 
 dist/provider/aws/dsql/bootstrap/dsql-lambda.zip
+provider/aws/dsql/bootstrap/dsql-lambda.zip
 provider/aws/dsql/bootstrap/bootstrap
