@@ -38,6 +38,10 @@ export class DSQL extends pulumi.ComponentResource {
      */
     declare public /*out*/ readonly clusterArns: pulumi.Output<{[key: string]: string}>;
     /**
+     * The single cluster endpoint for the provider's default region. Convenience for the common single-region case — pass straight to a Lambda env var: { DSQL_ENDPOINT: dsql.endpoint }. For multi-region this is the local-region endpoint; use endpoints[region] for another.
+     */
+    declare public /*out*/ readonly endpoint: pulumi.Output<string>;
+    /**
      * Map of region to cluster endpoint. Single-region: one entry keyed by the provider region. Multi-region: one entry per region. e.g. { "us-east-1": "abc123.dsql.us-east-1.on.aws" }. Pass the relevant endpoint to your Lambda via environment variables.
      */
     declare public /*out*/ readonly endpoints: pulumi.Output<{[key: string]: string}>;
@@ -64,16 +68,18 @@ export class DSQL extends pulumi.ComponentResource {
         if (!opts.id) {
             resourceInputs["backup"] = args?.backup;
             resourceInputs["multiRegion"] = args?.multiRegion;
-            resourceInputs["roles"] = args?.roles;
+            resourceInputs["schemas"] = args?.schemas;
             resourceInputs["transform"] = args?.transform;
             resourceInputs["vpc"] = args?.vpc;
             resourceInputs["clusterArns"] = undefined /*out*/;
+            resourceInputs["endpoint"] = undefined /*out*/;
             resourceInputs["endpoints"] = undefined /*out*/;
             resourceInputs["vpcEndpointIds"] = undefined /*out*/;
             resourceInputs["vpcEndpointSecurityGroupIds"] = undefined /*out*/;
             resourceInputs["rolesTableName"] = undefined /*out*/;
         } else {
             resourceInputs["clusterArns"] = undefined /*out*/;
+            resourceInputs["endpoint"] = undefined /*out*/;
             resourceInputs["endpoints"] = undefined /*out*/;
             resourceInputs["vpcEndpointIds"] = undefined /*out*/;
             resourceInputs["vpcEndpointSecurityGroupIds"] = undefined /*out*/;
@@ -87,28 +93,41 @@ export class DSQL extends pulumi.ComponentResource {
 
 
     /**
-     * Grants connect access (dsql:DbConnect) on this DSQL cluster
-     * to the target compute resource's execution role.
+     * Grants a compute resource connect access to this DSQL cluster.
+     *
+     * Pass one or more { schema, roleName } pairs. The compute may be mapped to
+     * multiple roles and connects as whichever one it chooses at runtime.
      *
      * Creates an anvil:aws:DSQLConnect component that handles:
      * 1. IAM policy (dsql:DbConnect) on all cluster ARNs
-     * 2. DynamoDB IAM mapping item (when roles are configured) that triggers
-     *    the bootstrap Lambda to run: AWS IAM GRANT "dbRole" TO 'arn:...'
+     * 2. One DynamoDB IAM mapping item per role — the bootstrap Lambda runs
+     *    AWS IAM GRANT "<roleName>" TO 'arn:...' for each.
      *
      * @param target - The compute resource to grant access to (Lambda, ECS, etc.).
-     * @param dbRole - The database role name to map this target to (e.g. "app_role").
+     * @param opts.schemas - The { schema, roleName } pairs this compute may connect as.
+     *
+     * @example
+     *   dsql.grantConnect(lambda, { schemas: [{ schema: 'my_app', roleName: 'app_role' }] });
      */
-    public grantConnect(target: grants.GrantTarget, dbRole?: string): void {
+    public grantConnect(
+        target: grants.GrantTarget,
+        opts: { schemas: { schema: string; roleName: string }[] },
+    ): void {
+        const dbRoles = opts.schemas.map((s) => s.roleName);
         const args: any = {
             clusterArns: this.clusterArns,
             targetRoleArn: target.grantRoleArn(),
             targetName: target.grantName(),
-            dbRole: dbRole,
+            dbRoles: dbRoles,
         };
         if (this.rolesTableName) {
             args.rolesTableName = this.rolesTableName;
         }
-        new DSQLConnect(`${this.__name}-${target.grantName()}-connect`, args, { parent: this });
+        // NOT parented to this DSQL component: DSQLConnect depends on this
+        // component's outputs (clusterArns, rolesTableName). Parenting would
+        // create a cycle — the parent's outputs only finalize after its
+        // children complete, but this child needs those outputs to construct.
+        new DSQLConnect(`${this.__name}-${target.grantName()}-connect`, args);
     }
 
 }
@@ -126,9 +145,9 @@ export interface DSQLArgs {
      */
     multiRegion?: pulumi.Input<inputs.aws.DSQLMultiRegionArgsArgs>;
     /**
-     * Database roles to bootstrap at deploy time. Anvil connects as admin using the deployer's credentials and runs the SQL to create schemas, roles, IAM grants, and table-level permissions. Only re-runs when role definitions change. Omit entirely to skip bootstrapping — useful when managing schema separately.
+     * Schemas and the tables within them. Anvil creates each schema and table (additive-only — new tables/columns/indexes are applied; removals are left to humans). Omit to skip table management.
      */
-    roles?: pulumi.Input<pulumi.Input<inputs.aws.DSQLRoleArgs>[]>;
+    schemas?: pulumi.Input<pulumi.Input<inputs.aws.DSQLSchemaArgs>[]>;
     transform?: pulumi.Input<inputs.aws.DsqlTransformArgsArgs>;
     /**
      * Optional VPC configuration. When set without hasNat, Anvil creates interface VPC endpoints (PrivateLink) per region so traffic stays on the AWS backbone. When omitted, the Lambda connects to the public DSQL endpoint over the internet using IAM auth tokens over TLS.

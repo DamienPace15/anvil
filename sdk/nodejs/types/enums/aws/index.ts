@@ -100,6 +100,90 @@ export const CognitoUserPoolUsernameAttribute = {
 
 export type CognitoUserPoolUsernameAttribute = (typeof CognitoUserPoolUsernameAttribute)[keyof typeof CognitoUserPoolUsernameAttribute];
 
+export const DSQLColumnType = {
+    /**
+     * Universally unique identifier (recommended for primary keys).
+     */
+    Uuid: "uuid",
+    /**
+     * Variable-length string up to 1 MiB.
+     */
+    Text: "text",
+    /**
+     * Variable-length string; set length (max 65535).
+     */
+    Varchar: "varchar",
+    /**
+     * Fixed-length string; set length (max 4096).
+     */
+    Char: "char",
+    /**
+     * True/false.
+     */
+    Boolean: "boolean",
+    /**
+     * 2-byte integer.
+     */
+    Smallint: "smallint",
+    /**
+     * 4-byte integer.
+     */
+    Integer: "integer",
+    /**
+     * 8-byte integer.
+     */
+    Bigint: "bigint",
+    /**
+     * 4-byte floating point.
+     */
+    Real: "real",
+    /**
+     * 8-byte floating point.
+     */
+    Double_precision: "double precision",
+    /**
+     * Exact numeric; set precision/scale (max precision 38).
+     */
+    Numeric: "numeric",
+    /**
+     * Calendar date.
+     */
+    Date: "date",
+    /**
+     * Time of day.
+     */
+    Time: "time",
+    /**
+     * Date and time without time zone.
+     */
+    Timestamp: "timestamp",
+    /**
+     * Date and time with time zone.
+     */
+    Timestamptz: "timestamptz",
+    /**
+     * Time span.
+     */
+    Interval: "interval",
+    /**
+     * Binary data up to 1 MiB.
+     */
+    Bytea: "bytea",
+    /**
+     * JSON text.
+     */
+    Json: "json",
+    /**
+     * Binary JSON.
+     */
+    Jsonb: "jsonb",
+} as const;
+
+/**
+ * A DSQL-supported column type. Arrays, enums, serial, money, and xml are intentionally excluded — DSQL does not support them.
+ */
+export type DSQLColumnType = (typeof DSQLColumnType)[keyof typeof DSQLColumnType];
+
 export const DSQLGrant = {
     /**
      * Read rows.

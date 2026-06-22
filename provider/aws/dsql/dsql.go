@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	dsqlbootstrap "github.com/DamienPace15/anvil/provider/aws/dsql/bootstrap"
 	dsqlgrant "github.com/DamienPace15/anvil/provider/aws/dsqlgrant"
 	provider "github.com/DamienPace15/anvil/provider/internal/shared"
 	"github.com/DamienPace15/anvil/provider/internal/transform"
@@ -34,24 +35,111 @@ type DSQLMultiRegionArgs struct {
 	WitnessRegion string   `pulumi:"witnessRegion"`
 }
 
-// DSQLRoleArgs defines a database role to bootstrap at deploy time.
-// Anvil writes the role definition to a DynamoDB table. A DynamoDB stream
-// triggers a bootstrap Lambda (the only entity with dsql:DbConnectAdmin)
-// that runs the required SQL. Only re-runs when role definitions change —
-// idempotent via Pulumi state diffing. The admin endpoint never touches
-// the CI/CD pipeline.
+// DSQLRoleArgs defines a database role within a schema. Declared inside a
+// schema (schemas[].roles[]) — the role's schema is its parent, so each role
+// belongs to exactly one schema. Role names must be globally unique (DSQL
+// roles are database-wide). Anvil writes the role definition to DynamoDB; a
+// stream triggers the bootstrap Lambda (the only entity with dsql:DbConnectAdmin)
+// to run the SQL. The admin endpoint never touches the CI/CD pipeline.
 type DSQLRoleArgs struct {
-	// Name is the Postgres role name. Must be a valid PostgreSQL identifier.
+	// Name is the Postgres role name. Must be a valid PostgreSQL identifier
+	// and globally unique across all schemas.
 	Name string `pulumi:"name"`
 
-	// Schema is the Postgres schema this role operates in.
-	// Anvil creates it if it does not exist and grants USAGE.
-	// Must not be "public" — public schema is owned by admin.
-	Schema string `pulumi:"schema"`
-
-	// Grants are the table-level privileges to apply on all current
-	// and future tables in the schema.
+	// Grants are the table-level privileges granted to this role within its
+	// schema, e.g. ["SELECT", "INSERT", "UPDATE", "DELETE"].
 	Grants []string `pulumi:"grants"`
+
+	// TableScoping optionally narrows the grants to specific tables instead of
+	// the whole schema. When set, the role is granted only on these tables
+	// (which must exist — declare them in the same schema's tables). When
+	// omitted, grants apply schema-wide (all current + future tables).
+	TableScoping []string `pulumi:"tableScoping,optional"`
+}
+
+// DSQLColumnArgs defines a single column in a table.
+// type is a constrained set of DSQL-supported types — arrays, enums, serial,
+// money, xml are deliberately excluded because DSQL does not support them.
+type DSQLColumnArgs struct {
+	// Name is the column name.
+	Name string `pulumi:"name"`
+
+	// Type is the DSQL column type. One of the supported set:
+	// uuid, text, varchar, char, boolean, smallint, integer, bigint,
+	// real, double precision, numeric, date, time, timestamp, timestamptz,
+	// interval, bytea, json, jsonb.
+	Type string `pulumi:"type"`
+
+	// Length is the size for char/varchar (e.g. varchar(255)).
+	// char ≤ 4096, varchar ≤ 65535. Ignored for other types.
+	Length int `pulumi:"length,optional"`
+
+	// Precision is the total digits for numeric (≤ 38). Ignored for other types.
+	Precision int `pulumi:"precision,optional"`
+
+	// Scale is the fractional digits for numeric (≤ 37). Ignored for other types.
+	Scale int `pulumi:"scale,optional"`
+
+	// NotNull adds a NOT NULL constraint. Primary-key columns are auto-NOT-NULL.
+	NotNull bool `pulumi:"notNull,optional"`
+
+	// Unique creates a named async unique index on this column.
+	// Composite/explicit uniqueness goes in the table's indexes instead.
+	Unique bool `pulumi:"unique,optional"`
+
+	// Default is a raw SQL default expression, passed through verbatim.
+	// String literals need inner quotes: "'active'". Functions: "now()".
+	// Anvil cannot validate the expression — it must be DSQL-valid.
+	Default string `pulumi:"default,optional"`
+}
+
+// DSQLIndexArgs defines a secondary index on a table.
+// All indexes are created with CREATE INDEX ASYNC (DSQL requirement) —
+// the build runs in the background; Anvil fires it and logs the job_id.
+type DSQLIndexArgs struct {
+	// Name is the index name. Required so additive diffing is by name.
+	Name string `pulumi:"name"`
+
+	// Columns are the indexed columns, in order (order matters for composite).
+	Columns []string `pulumi:"columns"`
+
+	// Unique creates a unique index (CREATE UNIQUE INDEX ASYNC).
+	Unique bool `pulumi:"unique,optional"`
+}
+
+// DSQLTableArgs defines a table to create in a schema.
+// Additive-only: Anvil creates the table and adds new columns/indexes, but
+// never drops or alters existing ones — destructive changes are left to humans.
+type DSQLTableArgs struct {
+	// Name is the table name (literal — not stage-prefixed).
+	Name string `pulumi:"name"`
+
+	// Columns are the table's columns.
+	Columns []DSQLColumnArgs `pulumi:"columns"`
+
+	// PrimaryKey is the list of column names forming the primary key, in order.
+	// Required — DSQL uses the PK as the distribution key and it cannot be added
+	// after table creation. Composite keys list multiple columns in order.
+	// AWS recommends a uuid PK (generated app-side) to avoid write hotspots.
+	PrimaryKey []string `pulumi:"primaryKey"`
+
+	// Indexes are secondary indexes on the table. Optional.
+	Indexes []DSQLIndexArgs `pulumi:"indexes,optional"`
+}
+
+// DSQLSchemaArgs is the container for a schema, its roles, and its tables.
+// Anvil creates the schema (CREATE SCHEMA IF NOT EXISTS), the roles (scoped to
+// this schema), and the tables.
+type DSQLSchemaArgs struct {
+	// Name is the schema name (literal). Must not be "public".
+	Name string `pulumi:"name"`
+
+	// Roles are the database roles for this schema. Each role's grants apply to
+	// this schema. Role names must be globally unique across all schemas.
+	Roles []DSQLRoleArgs `pulumi:"roles,optional"`
+
+	// Tables are the tables to create in this schema.
+	Tables []DSQLTableArgs `pulumi:"tables,optional"`
 }
 
 // DSQLVpcArgs configures VPC placement and network routing for DSQL.
@@ -84,9 +172,11 @@ type DSQLArgs struct {
 	// default region.
 	MultiRegion *DSQLMultiRegionArgs `pulumi:"multiRegion,optional"`
 
-	// Roles are the database roles to bootstrap at deploy time.
-	// When omitted, no SQL is run — schema management is left to the user.
-	Roles []DSQLRoleArgs `pulumi:"roles,optional"`
+	// Schemas declares schemas, their roles, and their tables. Anvil creates
+	// each schema, its roles (scoped to the schema), and its tables
+	// (additive-only — new tables/columns/indexes are applied; removals are
+	// left to humans). When omitted, no schema management is performed.
+	Schemas []DSQLSchemaArgs `pulumi:"schemas,optional"`
 
 	// Vpc configures VPC placement and network routing.
 	// When omitted, the Lambda connects to the public DSQL endpoint.
@@ -111,6 +201,12 @@ type DSQL struct {
 	// Single-region: one entry keyed by the provider region.
 	// Multi-region: one entry per region.
 	Endpoints pulumi.StringMapOutput `pulumi:"endpoints"`
+
+	// Endpoint is the single cluster endpoint for the provider's default region.
+	// Convenience for the common single-region case — pass it straight to a
+	// Lambda env var: { DSQL_ENDPOINT: dsql.endpoint }. For multi-region this
+	// is the local-region endpoint; use endpoints[region] to pick another.
+	Endpoint pulumi.StringOutput `pulumi:"endpoint"`
 
 	// ClusterArns is a map of region to cluster ARN.
 	ClusterArns pulumi.StringMapOutput `pulumi:"clusterArns"`
@@ -162,6 +258,13 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 	stageId := cfg.Require("stageId")
 
 	opts = provider.WithDefault(opts, true)
+
+	// Validate + normalize schemas/tables before anything else so bad config
+	// fails fast at deploy time with a clear message (auto-NOT-NULL on PK cols
+	// is applied here, mutating args.Schemas).
+	if err := validateSchemas(args.Schemas); err != nil {
+		return nil, fmt.Errorf("invalid DSQL schemas config: %w", err)
+	}
 
 	if err := ctx.RegisterComponentResource(p.GetTypeToken(ctx), name, d, opts...); err != nil {
 		return nil, err
@@ -294,6 +397,16 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 			return nil, fmt.Errorf("creating cluster peering for %s: %w", regionB, err)
 		}
 	}
+
+	// ── Cluster ARN map ────────────────────────────────────────────────────
+	// Assigned here (not in the outputs section) because section 8 (role
+	// bootstrap) needs d.ClusterArns to build the dsql:DbConnectAdmin policy.
+	// Section 9 reuses this — it must not be reassigned to a zero value.
+	clusterArnMap := pulumi.StringMap{}
+	for region, cluster := range clusters {
+		clusterArnMap[region] = cluster.Arn
+	}
+	d.ClusterArns = clusterArnMap.ToStringMapOutput()
 
 	// ── 6. VPC endpoints ───────────────────────────────────────────────────
 	// Only when vpc is set and hasNat is false.
@@ -564,7 +677,7 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 	//
 	//   Limits: DSQL allows max 10 schemas per database, 1 database per cluster.
 	//
-	if len(args.Roles) > 0 {
+	if len(args.Schemas) > 0 {
 
 		// ── 8a. DynamoDB roles table ──────────────────────────────────────
 		rolesTableName := provider.PhysicalName(stage, name, "dsql-roles", stageId)
@@ -705,23 +818,14 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 		}
 
 		// ── 8d. Bootstrap Lambda function ─────────────────────────────────
-		// Code is provided via the dsql-bootstrap zip built during `anvil deploy`.
-		// Checks component-specific key first, then falls back to generic key.
-		bootstrapZipPath := cfg.Get(fmt.Sprintf("dsql-bootstrap-%s", name))
-		if bootstrapZipPath == "" {
-			bootstrapZipPath = cfg.Get("dsql-bootstrap")
+		// Code is embedded in the provider binary at build time.
+		// Built by: go run build.go build-dsql-lambda (runs before build-provider)
+		// Source:   cmd/anvil/dsql-lambda/main.go
+		bootstrapZipPath, err := dsqlbootstrap.WriteDSQLLambdaZip()
+		if err != nil {
+			return nil, fmt.Errorf("extracting bootstrap Lambda zip: %w", err)
 		}
-
-		var bootstrapCode pulumi.Archive
-		if bootstrapZipPath != "" {
-			bootstrapCode = pulumi.NewFileArchive(bootstrapZipPath)
-		} else {
-			// Placeholder — deploy pipeline must build the Lambda first.
-			// See: cmd/anvil/dsql-lambda/main.go and build.go target "build-dsql-lambda"
-			bootstrapCode = pulumi.NewAssetArchive(map[string]interface{}{
-				"bootstrap": pulumi.NewStringAsset("#!/bin/sh\necho 'dsql-lambda not built' && exit 1"),
-			})
-		}
+		bootstrapCode := pulumi.NewFileArchive(bootstrapZipPath)
 
 		// Resolve cluster endpoint for Lambda env var.
 		// Each DSQL component's Lambda gets its own endpoint — no cross-cluster confusion.
@@ -825,41 +929,112 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 				StartingPosition: pulumi.String("TRIM_HORIZON"),
 				BatchSize:        pulumi.Int(1),
 				Enabled:          pulumi.Bool(true),
+				// Bound retries so a poison-pill record can't loop for the full
+				// 24h stream retention (and block records behind it). After the
+				// attempts are exhausted the record is dropped and the stream
+				// advances. INSERT/MODIFY validation happens at deploy time, so
+				// a permanently-failing record is rare; REMOVE is best-effort.
+				MaximumRetryAttempts:     pulumi.Int(3),
+				BisectBatchOnFunctionError: pulumi.Bool(true),
 			},
 			pulumi.Parent(d),
 		); err != nil {
 			return nil, fmt.Errorf("creating bootstrap event source mapping: %w", err)
 		}
 
-		// ── 8f. Role definition items ─────────────────────────────────────
+		// ── 8f. Table definition items ────────────────────────────────────
+		// One DynamoDB item per table, kind="table". The bootstrap Lambda
+		// creates the schema + table, and additively adds new columns/indexes
+		// on change. Removals are no-ops (destructive changes are human-owned).
+		// Validated at deploy time (validateSchemas) before reaching here.
+		//
+		// Created BEFORE role items so that table-scoped role grants
+		// (GRANT ... ON schema.table) run after the tables exist — role items
+		// DependsOn these so the stream delivers tables first.
+		tableItemResources := []pulumi.Resource{rolesTable}
+		for _, schema := range args.Schemas {
+			for _, table := range schema.Tables {
+				table := table
+				schemaName := schema.Name
+
+				itemJSON, err := marshalTableItem(schemaName, table)
+				if err != nil {
+					return nil, fmt.Errorf("marshalling table %s.%s: %w", schemaName, table.Name, err)
+				}
+
+				tableItem := &awsdynamodb.TableItem{}
+				if err := ctx.RegisterResource("aws:dynamodb/tableItem:TableItem",
+					fmt.Sprintf("%s-table-%s-%s", name, schemaName, table.Name),
+					pulumi.Map{
+						"tableName": rolesTable.Name,
+						"hashKey":   pulumi.String("roleName"),
+						"rangeKey":  pulumi.String("sk"),
+						"item":      pulumi.String(itemJSON),
+					},
+					tableItem,
+					pulumi.Parent(d),
+					pulumi.DependsOn([]pulumi.Resource{rolesTable}),
+				); err != nil {
+					return nil, fmt.Errorf("creating table item for %s.%s: %w", schemaName, table.Name, err)
+				}
+				tableItemResources = append(tableItemResources, tableItem)
+			}
+		}
+
+		// ── 8g. Role definition items ─────────────────────────────────────
 		// One DynamoDB item per role with sk="DEFINITION".
-		// Pulumi tracks each as a separate resource.
 		// When roles change → PutItem/DeleteItem → stream fires → Lambda acts.
 		// Endpoint/region are Lambda env vars, not stored per-item.
-		for _, role := range args.Roles {
-			role := role
+		// tableScoping (when set) narrows grants to specific tables — those role
+		// items DependsOn all table items so the tables exist before the grant.
+		for _, schema := range args.Schemas {
+			schemaName := schema.Name
+			for _, role := range schema.Roles {
+				role := role
 
-			itemJSON := marshalDynamoItem(map[string]string{
-				"roleName": role.Name,
-				"sk":       "DEFINITION",
-				"schema":   role.Schema,
-				"grants":   strings.Join(role.Grants, ","),
-			})
+				grantsList := make([]map[string]string, len(role.Grants))
+				for i, g := range role.Grants {
+					grantsList[i] = map[string]string{"S": g}
+				}
 
-			roleItem := &awsdynamodb.TableItem{}
-			if err := ctx.RegisterResource("aws:dynamodb/tableItem:TableItem",
-				fmt.Sprintf("%s-role-%s", name, role.Name),
-				pulumi.Map{
-					"tableName": rolesTable.Name,
-					"hashKey":   pulumi.String("roleName"),
-					"rangeKey":  pulumi.String("sk"),
-					"item":      pulumi.String(itemJSON),
-				},
-				roleItem,
-				pulumi.Parent(d),
-				pulumi.DependsOn([]pulumi.Resource{rolesTable}),
-			); err != nil {
-				return nil, fmt.Errorf("creating role item for %s: %w", role.Name, err)
+				item := map[string]interface{}{
+					"roleName": map[string]string{"S": role.Name},
+					"sk":       map[string]string{"S": "DEFINITION"},
+					"schema":   map[string]string{"S": schemaName},
+					"grants":   map[string]interface{}{"L": grantsList},
+				}
+				if len(role.TableScoping) > 0 {
+					scoping := make([]map[string]string, len(role.TableScoping))
+					for i, t := range role.TableScoping {
+						scoping[i] = map[string]string{"S": t}
+					}
+					item["tableScoping"] = map[string]interface{}{"L": scoping}
+				}
+				itemBytes, _ := json.Marshal(item)
+				itemJSON := string(itemBytes)
+
+				// Table-scoped roles depend on all table items (tables must exist
+				// before GRANT ON schema.table). Schema-wide roles only need the table.
+				deps := []pulumi.Resource{rolesTable}
+				if len(role.TableScoping) > 0 {
+					deps = tableItemResources
+				}
+
+				roleItem := &awsdynamodb.TableItem{}
+				if err := ctx.RegisterResource("aws:dynamodb/tableItem:TableItem",
+					fmt.Sprintf("%s-role-%s", name, role.Name),
+					pulumi.Map{
+						"tableName": rolesTable.Name,
+						"hashKey":   pulumi.String("roleName"),
+						"rangeKey":  pulumi.String("sk"),
+						"item":      pulumi.String(itemJSON),
+					},
+					roleItem,
+					pulumi.Parent(d),
+					pulumi.DependsOn(deps),
+				); err != nil {
+					return nil, fmt.Errorf("creating role item for %s: %w", role.Name, err)
+				}
 			}
 		}
 	}
@@ -870,27 +1045,31 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 	// {identifier}.dsql.{region}.on.aws
 	// Constructed from the Identifier output and the known region string.
 	endpointMap := pulumi.StringMap{}
-	arnMap := pulumi.StringMap{}
 	for region, cluster := range clusters {
 		endpointMap[region] = cluster.Identifier.ApplyT(func(id string) string {
 			return fmt.Sprintf("%s.dsql.%s.on.aws", id, region)
 		}).(pulumi.StringOutput)
-		arnMap[region] = cluster.Arn
 	}
 
 	d.Endpoints = endpointMap.ToStringMapOutput()
-	d.ClusterArns = arnMap.ToStringMapOutput()
+	// Singular convenience endpoint: the provider/default region's cluster.
+	d.Endpoint = clusters[providerRegion].Identifier.ApplyT(func(id string) string {
+		return fmt.Sprintf("%s.dsql.%s.on.aws", id, providerRegion)
+	}).(pulumi.StringOutput)
+	// d.ClusterArns already assigned earlier (before section 6) — do not reassign.
 	d.VpcEndpointIds = vpcEndpointIds.ToStringMapOutput()
 	d.VpcEndpointSecurityGroupIds = vpcEndpointSgIds.ToStringMapOutput()
+	if len(args.Schemas) == 0 {
+		d.RolesTableName = pulumi.String("").ToStringOutput()
+	}
 
 	outputMap := pulumi.Map{
 		"endpoints":                   endpointMap,
-		"clusterArns":                 arnMap,
+		"endpoint":                    d.Endpoint,
+		"clusterArns":                 clusterArnMap,
 		"vpcEndpointIds":              vpcEndpointIds,
 		"vpcEndpointSecurityGroupIds": vpcEndpointSgIds,
-	}
-	if len(args.Roles) > 0 {
-		outputMap["rolesTableName"] = d.RolesTableName
+		"rolesTableName":              d.RolesTableName,
 	}
 	ctx.RegisterResourceOutputs(d, outputMap)
 
@@ -899,12 +1078,21 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 
 // ── Grant methods ──────────────────────────────────────────────────────────
 
+// DSQLConnectRole identifies a role to grant a compute, by schema + name.
+// The schema is for readability/validation; the IAM mapping uses the role name.
+type DSQLConnectRole struct {
+	Schema   string
+	RoleName string
+}
+
 // GrantConnect grants a compute resource connect access to this DSQL cluster.
+// Pass one or more { schema, roleName } pairs — the compute may be mapped to
+// multiple roles and connects as whichever one it chooses at runtime.
 // Creates an anvil:aws:DSQLConnect component that handles:
 //
 //  1. IAM policy — dsql:DbConnect on all cluster ARNs
-//  2. IAM-to-role mapping — DynamoDB item that triggers the bootstrap Lambda
-//     to run: AWS IAM GRANT "dbRole" TO 'arn:aws:iam::...:role/...'
+//  2. IAM-to-role mappings — one DynamoDB item per role, triggering the
+//     bootstrap Lambda to run: AWS IAM GRANT "<role>" TO 'arn:...'
 //
 // When vpc endpoints were created (hasNat false), also wires egress rules
 // from the target's SG to each endpoint SG on port 5432.
@@ -914,23 +1102,31 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 func (d *DSQL) GrantConnect(
 	ctx *pulumi.Context,
 	target provider.GrantTarget,
-	dbRole string,
+	roles []DSQLConnectRole,
 ) error {
+	dbRoles := make([]string, len(roles))
+	for i, r := range roles {
+		dbRoles[i] = r.RoleName
+	}
+
 	grantArgs := dsqlgrant.DSQLConnectArgs{
 		ClusterArns:   d.ClusterArns,
 		TargetRoleArn: target.RoleARN(),
 		TargetName:    target.Name(),
-		DbRole:        dbRole,
+		DbRoles:       dbRoles,
 	}
 
 	if d.RolesTableName != (pulumi.StringOutput{}) {
 		grantArgs.RolesTableName = d.RolesTableName
 	}
 
+	// Not parented to the DSQL component: DSQLConnect depends on this
+	// component's outputs (ClusterArns, RolesTableName). Parenting would
+	// create a dependency cycle — the parent's outputs only finalize after
+	// its children complete, but this child needs those outputs to construct.
 	if _, err := dsqlgrant.NewDSQLConnect(ctx,
 		fmt.Sprintf("%s-%s-dsql-connect", d.name, target.Name()),
 		grantArgs,
-		pulumi.Parent(d),
 	); err != nil {
 		return fmt.Errorf("granting dsql:DbConnect to %s: %w", target.Name(), err)
 	}
@@ -964,6 +1160,211 @@ func marshalDynamoItem(fields map[string]string) string {
 	}
 	b, _ := json.Marshal(item)
 	return string(b)
+}
+
+// ── Table definition serialization ───────────────────────────────────────────
+//
+// A table item stores the full table definition as a single JSON string in the
+// "definition" attribute. The bootstrap Lambda unmarshals it into an identical
+// struct set (cmd/anvil/dsql-lambda) and generates DDL. Keep the json tags here
+// in sync with the Lambda's structs.
+
+type columnDefPayload struct {
+	Name      string `json:"name"`
+	Type      string `json:"type"`
+	Length    int    `json:"length,omitempty"`
+	Precision int    `json:"precision,omitempty"`
+	Scale     int    `json:"scale,omitempty"`
+	NotNull   bool   `json:"notNull,omitempty"`
+	Unique    bool   `json:"unique,omitempty"`
+	Default   string `json:"default,omitempty"`
+}
+
+type indexDefPayload struct {
+	Name    string   `json:"name"`
+	Columns []string `json:"columns"`
+	Unique  bool     `json:"unique,omitempty"`
+}
+
+type tableDefPayload struct {
+	Schema     string             `json:"schema"`
+	Name       string             `json:"name"`
+	PrimaryKey []string           `json:"primaryKey"`
+	Columns    []columnDefPayload `json:"columns"`
+	Indexes    []indexDefPayload  `json:"indexes,omitempty"`
+}
+
+// marshalTableItem builds the DynamoDB item JSON for a table definition.
+// PK reuses the "roleName" attribute (generic id), sk="DEFINITION", kind="table".
+// The full definition is a JSON string in "definition" — the Lambda parses it.
+func marshalTableItem(schema string, t DSQLTableArgs) (string, error) {
+	cols := make([]columnDefPayload, len(t.Columns))
+	for i, c := range t.Columns {
+		cols[i] = columnDefPayload{
+			Name: c.Name, Type: c.Type, Length: c.Length,
+			Precision: c.Precision, Scale: c.Scale,
+			NotNull: c.NotNull, Unique: c.Unique, Default: c.Default,
+		}
+	}
+	idxs := make([]indexDefPayload, len(t.Indexes))
+	for i, x := range t.Indexes {
+		idxs[i] = indexDefPayload{Name: x.Name, Columns: x.Columns, Unique: x.Unique}
+	}
+
+	def := tableDefPayload{
+		Schema:     schema,
+		Name:       t.Name,
+		PrimaryKey: t.PrimaryKey,
+		Columns:    cols,
+		Indexes:    idxs,
+	}
+	defBytes, err := json.Marshal(def)
+	if err != nil {
+		return "", err
+	}
+
+	item := map[string]map[string]string{
+		"roleName":   {"S": fmt.Sprintf("table#%s.%s", schema, t.Name)},
+		"sk":         {"S": "DEFINITION"},
+		"kind":       {"S": "table"},
+		"definition": {"S": string(defBytes)},
+	}
+	itemBytes, err := json.Marshal(item)
+	if err != nil {
+		return "", err
+	}
+	return string(itemBytes), nil
+}
+
+// ── Schema/table validation ──────────────────────────────────────────────────
+
+// dsqlSupportedTypes is the set of DSQL-supported column types.
+// Arrays, enums, serial, money, xml, etc. are deliberately excluded.
+var dsqlSupportedTypes = map[string]bool{
+	"uuid": true, "text": true, "varchar": true, "char": true,
+	"boolean": true, "smallint": true, "integer": true, "bigint": true,
+	"real": true, "double precision": true, "numeric": true,
+	"date": true, "time": true, "timestamp": true, "timestamptz": true,
+	"interval": true, "bytea": true, "json": true, "jsonb": true,
+}
+
+// validateSchemas checks the schemas/roles/tables config at deploy time and
+// applies normalization (auto-NOT-NULL on primary-key columns). Returns a clear
+// error so misconfiguration fails at `anvil deploy`, not silently in the Lambda.
+// Mutates args.Schemas in place to apply auto-NOT-NULL.
+func validateSchemas(schemas []DSQLSchemaArgs) error {
+	distinct := map[string]bool{}
+	roleSchema := map[string]string{} // role name → schema, to enforce global uniqueness
+
+	for si := range schemas {
+		s := &schemas[si]
+		if s.Name == "" {
+			return fmt.Errorf("schema name must not be empty")
+		}
+		if s.Name == "public" {
+			return fmt.Errorf("schema %q: cannot manage the public schema (owned by admin)", s.Name)
+		}
+		distinct[s.Name] = true
+
+		// Roles — names must be globally unique (DSQL roles are database-wide).
+		for ri := range s.Roles {
+			r := &s.Roles[ri]
+			if r.Name == "" {
+				return fmt.Errorf("schema %q: role name must not be empty", s.Name)
+			}
+			if len(r.Grants) == 0 {
+				return fmt.Errorf("schema %q role %q: grants must not be empty", s.Name, r.Name)
+			}
+			if existing, dup := roleSchema[r.Name]; dup {
+				return fmt.Errorf("role %q is declared in both schema %q and %q — role names must be globally unique (DSQL roles are database-wide)", r.Name, existing, s.Name)
+			}
+			roleSchema[r.Name] = s.Name
+		}
+
+		tableNames := map[string]bool{}
+		for ti := range s.Tables {
+			t := &s.Tables[ti]
+			if t.Name == "" {
+				return fmt.Errorf("schema %q: table name must not be empty", s.Name)
+			}
+			tableNames[t.Name] = true
+			if len(t.Columns) == 0 {
+				return fmt.Errorf("table %s.%s: must have at least one column", s.Name, t.Name)
+			}
+			if len(t.PrimaryKey) == 0 {
+				return fmt.Errorf("table %s.%s: primaryKey is required (DSQL needs it as the distribution key and it cannot be added later)", s.Name, t.Name)
+			}
+
+			colByName := map[string]*DSQLColumnArgs{}
+			for ci := range t.Columns {
+				c := &t.Columns[ci]
+				if c.Name == "" {
+					return fmt.Errorf("table %s.%s: column name must not be empty", s.Name, t.Name)
+				}
+				if !dsqlSupportedTypes[c.Type] {
+					return fmt.Errorf("table %s.%s column %q: type %q is not supported by DSQL (no arrays/enums/serial; use uuid for ids)", s.Name, t.Name, c.Name, c.Type)
+				}
+				switch c.Type {
+				case "varchar":
+					if c.Length > 65535 {
+						return fmt.Errorf("table %s.%s column %q: varchar length %d exceeds DSQL max 65535", s.Name, t.Name, c.Name, c.Length)
+					}
+				case "char":
+					if c.Length > 4096 {
+						return fmt.Errorf("table %s.%s column %q: char length %d exceeds DSQL max 4096", s.Name, t.Name, c.Name, c.Length)
+					}
+				case "numeric":
+					if c.Precision > 38 {
+						return fmt.Errorf("table %s.%s column %q: numeric precision %d exceeds DSQL max 38", s.Name, t.Name, c.Name, c.Precision)
+					}
+					if c.Scale > 37 {
+						return fmt.Errorf("table %s.%s column %q: numeric scale %d exceeds DSQL max 37", s.Name, t.Name, c.Name, c.Scale)
+					}
+				}
+				colByName[c.Name] = c
+			}
+
+			// Primary key columns must exist; auto-apply NOT NULL.
+			for _, pk := range t.PrimaryKey {
+				col, ok := colByName[pk]
+				if !ok {
+					return fmt.Errorf("table %s.%s: primaryKey column %q is not defined in columns", s.Name, t.Name, pk)
+				}
+				col.NotNull = true // auto-NOT-NULL: PK columns are NOT NULL by definition
+			}
+
+			// Index columns must exist; index needs a name.
+			for _, idx := range t.Indexes {
+				if idx.Name == "" {
+					return fmt.Errorf("table %s.%s: every index requires a name", s.Name, t.Name)
+				}
+				if len(idx.Columns) == 0 {
+					return fmt.Errorf("table %s.%s index %q: must reference at least one column", s.Name, t.Name, idx.Name)
+				}
+				for _, ic := range idx.Columns {
+					if _, ok := colByName[ic]; !ok {
+						return fmt.Errorf("table %s.%s index %q: column %q is not defined", s.Name, t.Name, idx.Name, ic)
+					}
+				}
+			}
+		}
+
+		// Role tableScoping must reference tables declared in this schema
+		// (they must exist before the scoped GRANT runs).
+		for ri := range s.Roles {
+			r := &s.Roles[ri]
+			for _, scoped := range r.TableScoping {
+				if !tableNames[scoped] {
+					return fmt.Errorf("schema %q role %q: tableScoping references table %q which is not declared in this schema's tables", s.Name, r.Name, scoped)
+				}
+			}
+		}
+	}
+
+	if len(distinct) > 10 {
+		return fmt.Errorf("DSQL allows at most 10 schemas per database; %d declared", len(distinct))
+	}
+	return nil
 }
 
 // ── Doc notes ──────────────────────────────────────────────────────────────

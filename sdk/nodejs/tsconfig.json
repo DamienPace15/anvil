@@ -10,7 +10,8 @@
         "experimentalDecorators": true,
         "noFallthroughCasesInSwitch": true,
         "forceConsistentCasingInFileNames": true,
-        "strict": true
+        "strict": true,
+        "ignoreDeprecations": "6.0"
     },
     "files": [
         "aws/bucket.ts",

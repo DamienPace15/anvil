@@ -7,19 +7,7 @@ import * as utilities from "../utilities";
 /**
  * Grants a compute resource (Lambda, ECS, etc.) connect access to an Anvil DSQL cluster. Creates the IAM policy (dsql:DbConnect) and optionally a DynamoDB IAM mapping item that triggers the bootstrap Lambda to run AWS IAM GRANT, mapping the compute resource's IAM role to a Postgres database role.
  */
-export class DSQLConnect extends pulumi.CustomResource {
-    /**
-     * Get an existing DSQLConnect resource's state with the given name, ID, and optional extra
-     * properties used to qualify the lookup.
-     *
-     * @param name The _unique_ name of the resulting resource.
-     * @param id The _unique_ provider ID of the resource to lookup.
-     * @param opts Optional settings to control the behavior of the CustomResource.
-     */
-    public static get(name: string, id: pulumi.Input<pulumi.ID>, opts?: pulumi.CustomResourceOptions): DSQLConnect {
-        return new DSQLConnect(name, undefined as any, { ...opts, id: id });
-    }
-
+export class DSQLConnect extends pulumi.ComponentResource {
     /** @internal */
     public static readonly __pulumiType = 'anvil:aws:DSQLConnect';
 
@@ -42,7 +30,7 @@ export class DSQLConnect extends pulumi.CustomResource {
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args: DSQLConnectArgs, opts?: pulumi.CustomResourceOptions) {
+    constructor(name: string, args: DSQLConnectArgs, opts?: pulumi.ComponentResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
@@ -56,14 +44,14 @@ export class DSQLConnect extends pulumi.CustomResource {
                 throw new Error("Missing required property 'targetRoleArn'");
             }
             resourceInputs["clusterArns"] = args?.clusterArns;
-            resourceInputs["dbRole"] = args?.dbRole;
+            resourceInputs["dbRoles"] = args?.dbRoles;
             resourceInputs["rolesTableName"] = args?.rolesTableName;
             resourceInputs["targetName"] = args?.targetName;
             resourceInputs["targetRoleArn"] = args?.targetRoleArn;
         } else {
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        super(DSQLConnect.__pulumiType, name, resourceInputs, opts);
+        super(DSQLConnect.__pulumiType, name, resourceInputs, opts, true /*remote*/);
     }
 }
 
@@ -76,9 +64,9 @@ export interface DSQLConnectArgs {
      */
     clusterArns: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     /**
-     * Postgres database role name to map this IAM identity to (e.g. "app_role"). The bootstrap Lambda runs: AWS IAM GRANT "dbRole" TO 'arn:...'. Optional — omit when roles are not configured on the DSQL component.
+     * Postgres database role names to map this IAM identity to. One mapping is created per role; the bootstrap Lambda runs AWS IAM GRANT "<role>" TO 'arn:...' for each. The compute connects as whichever role it chooses at runtime.
      */
-    dbRole?: pulumi.Input<string>;
+    dbRoles?: pulumi.Input<pulumi.Input<string>[]>;
     /**
      * DynamoDB table name for role bootstrap. Pass dsql.rolesTableName from the DSQL component. When set with dbRole, a TableItem is created to trigger the bootstrap Lambda. Optional — omit when roles are not configured.
      */

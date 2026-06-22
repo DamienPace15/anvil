@@ -1,6 +1,7 @@
 {
   "resources": {
     "anvil:aws:DSQLConnect": {
+      "isComponent": true,
       "description": "Grants a compute resource (Lambda, ECS, etc.) connect access to an Anvil DSQL cluster. Creates the IAM policy (dsql:DbConnect) and optionally a DynamoDB IAM mapping item that triggers the bootstrap Lambda to run AWS IAM GRANT, mapping the compute resource's IAM role to a Postgres database role.",
       "inputProperties": {
         "clusterArns": {
@@ -16,9 +17,10 @@
           "type": "string",
           "description": "Logical name of the compute resource. Used for naming child resources."
         },
-        "dbRole": {
-          "type": "string",
-          "description": "Postgres database role name to map this IAM identity to (e.g. \"app_role\"). The bootstrap Lambda runs: AWS IAM GRANT \"dbRole\" TO 'arn:...'. Optional — omit when roles are not configured on the DSQL component."
+        "dbRoles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Postgres database role names to map this IAM identity to. One mapping is created per role; the bootstrap Lambda runs AWS IAM GRANT \"<role>\" TO 'arn:...' for each. The compute connects as whichever role it chooses at runtime."
         },
         "rolesTableName": {
           "type": "string",

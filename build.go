@@ -140,8 +140,39 @@ func targetGenGoSDK() {
 func targetBuildProvider() {
 	targetGenGoSDK()
 	targetRegistry()
+	targetBuildDsqlLambda()
 	must(os.MkdirAll("bin", 0o755))
 	run("provider", nil, "go", "build", "-o", "../bin/pulumi-resource-anvil", "./cmd/anvil/")
+	installProviderToPluginCache()
+}
+
+// providerVersion is the version the provider reports to Pulumi.
+// MUST match the version in scripts/registry/generate_registry.go and the SDK
+// package versions, or Pulumi resolves a stale/missing plugin from the cache.
+const providerVersion = "0.0.15"
+
+// installProviderToPluginCache copies the freshly built provider into the
+// Pulumi plugin cache (~/.pulumi/plugins/resource-anvil-v{version}/).
+// Pulumi resolves versioned providers from this cache BEFORE checking PATH —
+// without this, a rebuilt provider is ignored and the stale cached copy is used.
+func installProviderToPluginCache() {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log("⚠ could not resolve home dir, skipping plugin cache install: %v", err)
+		return
+	}
+	cacheDir := filepath.Join(home, ".pulumi", "plugins", "resource-anvil-v"+providerVersion)
+	if err := os.MkdirAll(cacheDir, 0o755); err != nil {
+		log("⚠ could not create plugin cache dir: %v", err)
+		return
+	}
+	dst := filepath.Join(cacheDir, "pulumi-resource-anvil")
+	if err := copyFile("bin/pulumi-resource-anvil", dst); err != nil {
+		log("⚠ could not install provider to plugin cache: %v", err)
+		return
+	}
+	os.Chmod(dst, 0o755)
+	log("✅ Installed provider to plugin cache → %s", dst)
 }
 
 func targetGenNodejs() {
@@ -237,22 +268,26 @@ func targetClean() {
 // ── DSQL Lambda ─────────────────────────────────────────────────────────────
 
 func targetBuildDsqlLambda() {
-	must(os.MkdirAll(".anvil/internal", 0o755))
+	embedDir := filepath.Join("provider", "aws", "dsql", "bootstrap")
+	must(os.MkdirAll(embedDir, 0o755))
+
+	binaryPath := filepath.Join(embedDir, "bootstrap")
 
 	// Cross-compile for Lambda (linux/arm64, custom runtime)
+	// GOWORK=off because dsql-lambda is a separate Go module.
 	run("cmd/anvil/dsql-lambda",
-		[]string{"GOOS=linux", "GOARCH=arm64", "CGO_ENABLED=0"},
+		[]string{"GOOS=linux", "GOARCH=arm64", "CGO_ENABLED=0", "GOWORK=off"},
 		"go", "build", "-tags", "lambda.norpc",
-		"-o", "../../../.anvil/internal/bootstrap", ".",
+		"-o", filepath.Join("..", "..", "..", binaryPath), ".",
 	)
 
 	// Zip the binary as "bootstrap" (required name for provided.al2023 runtime)
-	run(".anvil/internal", nil, "zip", "-j", "dsql-lambda.zip", "bootstrap")
+	run(embedDir, nil, "zip", "-j", "dsql-lambda.zip", "bootstrap")
 
 	// Clean up the raw binary
-	remove(".anvil/internal/bootstrap")
+	remove(binaryPath)
 
-	log("✅ DSQL bootstrap Lambda built → .anvil/internal/dsql-lambda.zip")
+	log("✅ DSQL bootstrap Lambda built → %s/dsql-lambda.zip", embedDir)
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -361,6 +396,7 @@ func fatal(format string, args ...any) {
 
 func targetInstall() {
 	targetBuildProvider()
+	targetBuildDsqlLambda()
 	run(".", nil, "go", "build", "-o", "anvil", "./cmd/anvil")
 
 	installDir := os.Getenv("ANVIL_INSTALL_DIR")

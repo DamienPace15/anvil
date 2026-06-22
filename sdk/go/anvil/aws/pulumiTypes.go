@@ -5991,6 +5991,287 @@ func (o DSQLBackupArgsPtrOutput) VaultArn() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
+// A single column in a table.
+type DSQLColumn struct {
+	// Raw SQL default expression, passed through verbatim. String literals need inner quotes: "'active'". Functions: "now()".
+	Default *string `pulumi:"default"`
+	// Length for char/varchar. char <= 4096, varchar <= 65535.
+	Length *int `pulumi:"length"`
+	// Column name.
+	Name string `pulumi:"name"`
+	// Adds NOT NULL. Primary-key columns are auto-NOT-NULL.
+	NotNull *bool `pulumi:"notNull"`
+	// Total digits for numeric (<= 38).
+	Precision *int `pulumi:"precision"`
+	// Fractional digits for numeric (<= 37).
+	Scale *int `pulumi:"scale"`
+	// DSQL column type.
+	Type DSQLColumnType `pulumi:"type"`
+	// Creates a named async unique index on this column.
+	Unique *bool `pulumi:"unique"`
+}
+
+// DSQLColumnInput is an input type that accepts DSQLColumnArgs and DSQLColumnOutput values.
+// You can construct a concrete instance of `DSQLColumnInput` via:
+//
+//	DSQLColumnArgs{...}
+type DSQLColumnInput interface {
+	pulumi.Input
+
+	ToDSQLColumnOutput() DSQLColumnOutput
+	ToDSQLColumnOutputWithContext(context.Context) DSQLColumnOutput
+}
+
+// A single column in a table.
+type DSQLColumnArgs struct {
+	// Raw SQL default expression, passed through verbatim. String literals need inner quotes: "'active'". Functions: "now()".
+	Default pulumi.StringPtrInput `pulumi:"default"`
+	// Length for char/varchar. char <= 4096, varchar <= 65535.
+	Length pulumi.IntPtrInput `pulumi:"length"`
+	// Column name.
+	Name pulumi.StringInput `pulumi:"name"`
+	// Adds NOT NULL. Primary-key columns are auto-NOT-NULL.
+	NotNull pulumi.BoolPtrInput `pulumi:"notNull"`
+	// Total digits for numeric (<= 38).
+	Precision pulumi.IntPtrInput `pulumi:"precision"`
+	// Fractional digits for numeric (<= 37).
+	Scale pulumi.IntPtrInput `pulumi:"scale"`
+	// DSQL column type.
+	Type DSQLColumnTypeInput `pulumi:"type"`
+	// Creates a named async unique index on this column.
+	Unique pulumi.BoolPtrInput `pulumi:"unique"`
+}
+
+func (DSQLColumnArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLColumn)(nil)).Elem()
+}
+
+func (i DSQLColumnArgs) ToDSQLColumnOutput() DSQLColumnOutput {
+	return i.ToDSQLColumnOutputWithContext(context.Background())
+}
+
+func (i DSQLColumnArgs) ToDSQLColumnOutputWithContext(ctx context.Context) DSQLColumnOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLColumnOutput)
+}
+
+// DSQLColumnArrayInput is an input type that accepts DSQLColumnArray and DSQLColumnArrayOutput values.
+// You can construct a concrete instance of `DSQLColumnArrayInput` via:
+//
+//	DSQLColumnArray{ DSQLColumnArgs{...} }
+type DSQLColumnArrayInput interface {
+	pulumi.Input
+
+	ToDSQLColumnArrayOutput() DSQLColumnArrayOutput
+	ToDSQLColumnArrayOutputWithContext(context.Context) DSQLColumnArrayOutput
+}
+
+type DSQLColumnArray []DSQLColumnInput
+
+func (DSQLColumnArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DSQLColumn)(nil)).Elem()
+}
+
+func (i DSQLColumnArray) ToDSQLColumnArrayOutput() DSQLColumnArrayOutput {
+	return i.ToDSQLColumnArrayOutputWithContext(context.Background())
+}
+
+func (i DSQLColumnArray) ToDSQLColumnArrayOutputWithContext(ctx context.Context) DSQLColumnArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLColumnArrayOutput)
+}
+
+// A single column in a table.
+type DSQLColumnOutput struct{ *pulumi.OutputState }
+
+func (DSQLColumnOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLColumn)(nil)).Elem()
+}
+
+func (o DSQLColumnOutput) ToDSQLColumnOutput() DSQLColumnOutput {
+	return o
+}
+
+func (o DSQLColumnOutput) ToDSQLColumnOutputWithContext(ctx context.Context) DSQLColumnOutput {
+	return o
+}
+
+// Raw SQL default expression, passed through verbatim. String literals need inner quotes: "'active'". Functions: "now()".
+func (o DSQLColumnOutput) Default() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v DSQLColumn) *string { return v.Default }).(pulumi.StringPtrOutput)
+}
+
+// Length for char/varchar. char <= 4096, varchar <= 65535.
+func (o DSQLColumnOutput) Length() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v DSQLColumn) *int { return v.Length }).(pulumi.IntPtrOutput)
+}
+
+// Column name.
+func (o DSQLColumnOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v DSQLColumn) string { return v.Name }).(pulumi.StringOutput)
+}
+
+// Adds NOT NULL. Primary-key columns are auto-NOT-NULL.
+func (o DSQLColumnOutput) NotNull() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v DSQLColumn) *bool { return v.NotNull }).(pulumi.BoolPtrOutput)
+}
+
+// Total digits for numeric (<= 38).
+func (o DSQLColumnOutput) Precision() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v DSQLColumn) *int { return v.Precision }).(pulumi.IntPtrOutput)
+}
+
+// Fractional digits for numeric (<= 37).
+func (o DSQLColumnOutput) Scale() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v DSQLColumn) *int { return v.Scale }).(pulumi.IntPtrOutput)
+}
+
+// DSQL column type.
+func (o DSQLColumnOutput) Type() DSQLColumnTypeOutput {
+	return o.ApplyT(func(v DSQLColumn) DSQLColumnType { return v.Type }).(DSQLColumnTypeOutput)
+}
+
+// Creates a named async unique index on this column.
+func (o DSQLColumnOutput) Unique() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v DSQLColumn) *bool { return v.Unique }).(pulumi.BoolPtrOutput)
+}
+
+type DSQLColumnArrayOutput struct{ *pulumi.OutputState }
+
+func (DSQLColumnArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DSQLColumn)(nil)).Elem()
+}
+
+func (o DSQLColumnArrayOutput) ToDSQLColumnArrayOutput() DSQLColumnArrayOutput {
+	return o
+}
+
+func (o DSQLColumnArrayOutput) ToDSQLColumnArrayOutputWithContext(ctx context.Context) DSQLColumnArrayOutput {
+	return o
+}
+
+func (o DSQLColumnArrayOutput) Index(i pulumi.IntInput) DSQLColumnOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) DSQLColumn {
+		return vs[0].([]DSQLColumn)[vs[1].(int)]
+	}).(DSQLColumnOutput)
+}
+
+// A secondary index on a table. Created with CREATE INDEX ASYNC (DSQL requirement); the build runs in the background.
+type DSQLIndex struct {
+	// Indexed columns, in order.
+	Columns []string `pulumi:"columns"`
+	// Index name (required, used for additive diffing).
+	Name string `pulumi:"name"`
+	// Creates a unique index.
+	Unique *bool `pulumi:"unique"`
+}
+
+// DSQLIndexInput is an input type that accepts DSQLIndexArgs and DSQLIndexOutput values.
+// You can construct a concrete instance of `DSQLIndexInput` via:
+//
+//	DSQLIndexArgs{...}
+type DSQLIndexInput interface {
+	pulumi.Input
+
+	ToDSQLIndexOutput() DSQLIndexOutput
+	ToDSQLIndexOutputWithContext(context.Context) DSQLIndexOutput
+}
+
+// A secondary index on a table. Created with CREATE INDEX ASYNC (DSQL requirement); the build runs in the background.
+type DSQLIndexArgs struct {
+	// Indexed columns, in order.
+	Columns pulumi.StringArrayInput `pulumi:"columns"`
+	// Index name (required, used for additive diffing).
+	Name pulumi.StringInput `pulumi:"name"`
+	// Creates a unique index.
+	Unique pulumi.BoolPtrInput `pulumi:"unique"`
+}
+
+func (DSQLIndexArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLIndex)(nil)).Elem()
+}
+
+func (i DSQLIndexArgs) ToDSQLIndexOutput() DSQLIndexOutput {
+	return i.ToDSQLIndexOutputWithContext(context.Background())
+}
+
+func (i DSQLIndexArgs) ToDSQLIndexOutputWithContext(ctx context.Context) DSQLIndexOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLIndexOutput)
+}
+
+// DSQLIndexArrayInput is an input type that accepts DSQLIndexArray and DSQLIndexArrayOutput values.
+// You can construct a concrete instance of `DSQLIndexArrayInput` via:
+//
+//	DSQLIndexArray{ DSQLIndexArgs{...} }
+type DSQLIndexArrayInput interface {
+	pulumi.Input
+
+	ToDSQLIndexArrayOutput() DSQLIndexArrayOutput
+	ToDSQLIndexArrayOutputWithContext(context.Context) DSQLIndexArrayOutput
+}
+
+type DSQLIndexArray []DSQLIndexInput
+
+func (DSQLIndexArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DSQLIndex)(nil)).Elem()
+}
+
+func (i DSQLIndexArray) ToDSQLIndexArrayOutput() DSQLIndexArrayOutput {
+	return i.ToDSQLIndexArrayOutputWithContext(context.Background())
+}
+
+func (i DSQLIndexArray) ToDSQLIndexArrayOutputWithContext(ctx context.Context) DSQLIndexArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLIndexArrayOutput)
+}
+
+// A secondary index on a table. Created with CREATE INDEX ASYNC (DSQL requirement); the build runs in the background.
+type DSQLIndexOutput struct{ *pulumi.OutputState }
+
+func (DSQLIndexOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLIndex)(nil)).Elem()
+}
+
+func (o DSQLIndexOutput) ToDSQLIndexOutput() DSQLIndexOutput {
+	return o
+}
+
+func (o DSQLIndexOutput) ToDSQLIndexOutputWithContext(ctx context.Context) DSQLIndexOutput {
+	return o
+}
+
+// Indexed columns, in order.
+func (o DSQLIndexOutput) Columns() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v DSQLIndex) []string { return v.Columns }).(pulumi.StringArrayOutput)
+}
+
+// Index name (required, used for additive diffing).
+func (o DSQLIndexOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v DSQLIndex) string { return v.Name }).(pulumi.StringOutput)
+}
+
+// Creates a unique index.
+func (o DSQLIndexOutput) Unique() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v DSQLIndex) *bool { return v.Unique }).(pulumi.BoolPtrOutput)
+}
+
+type DSQLIndexArrayOutput struct{ *pulumi.OutputState }
+
+func (DSQLIndexArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DSQLIndex)(nil)).Elem()
+}
+
+func (o DSQLIndexArrayOutput) ToDSQLIndexArrayOutput() DSQLIndexArrayOutput {
+	return o
+}
+
+func (o DSQLIndexArrayOutput) ToDSQLIndexArrayOutputWithContext(ctx context.Context) DSQLIndexArrayOutput {
+	return o
+}
+
+func (o DSQLIndexArrayOutput) Index(i pulumi.IntInput) DSQLIndexOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) DSQLIndex {
+		return vs[0].([]DSQLIndex)[vs[1].(int)]
+	}).(DSQLIndexOutput)
+}
+
 // Multi-region configuration for DSQL. When set, Anvil creates one cluster per region and links them via ClusterPeering. Both regions are active-active — reads and writes are accepted at either endpoint with strong consistency.
 type DSQLMultiRegionArgs struct {
 	// The two AWS regions to deploy the cluster into. Anvil creates one cluster per region using internally-created regional providers. AWS validates the region and witness region combination — Anvil passes through without inference.
@@ -6158,14 +6439,14 @@ type DSQLOverrides struct {
 	Tags map[string]string `pulumi:"tags"`
 }
 
-// A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.
+// A database role within a schema (its parent). Role names must be globally unique across all schemas — DSQL roles are database-wide. grants apply to the parent schema; tableScoping optionally narrows to specific tables.
 type DSQLRole struct {
 	// Table-level privileges to grant to this role on all current and future tables in the schema. e.g. ["SELECT", "INSERT", "UPDATE", "DELETE"]. Applied via GRANT ... ON ALL TABLES and ALTER DEFAULT PRIVILEGES.
 	Grants []DSQLGrant `pulumi:"grants"`
 	// The Postgres role name. e.g. "app_role". Must be a valid PostgreSQL identifier.
 	Name string `pulumi:"name"`
-	// The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
-	Schema string `pulumi:"schema"`
+	// Optionally narrow the grants to specific tables instead of the whole schema. When set, the role is granted only on these tables (which must exist — declare them in schemas[]). When omitted, grants apply schema-wide (current + future tables).
+	TableScoping []string `pulumi:"tableScoping"`
 }
 
 // DSQLRoleInput is an input type that accepts DSQLRoleArgs and DSQLRoleOutput values.
@@ -6179,14 +6460,14 @@ type DSQLRoleInput interface {
 	ToDSQLRoleOutputWithContext(context.Context) DSQLRoleOutput
 }
 
-// A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.
+// A database role within a schema (its parent). Role names must be globally unique across all schemas — DSQL roles are database-wide. grants apply to the parent schema; tableScoping optionally narrows to specific tables.
 type DSQLRoleArgs struct {
 	// Table-level privileges to grant to this role on all current and future tables in the schema. e.g. ["SELECT", "INSERT", "UPDATE", "DELETE"]. Applied via GRANT ... ON ALL TABLES and ALTER DEFAULT PRIVILEGES.
 	Grants DSQLGrantArrayInput `pulumi:"grants"`
 	// The Postgres role name. e.g. "app_role". Must be a valid PostgreSQL identifier.
 	Name pulumi.StringInput `pulumi:"name"`
-	// The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
-	Schema pulumi.StringInput `pulumi:"schema"`
+	// Optionally narrow the grants to specific tables instead of the whole schema. When set, the role is granted only on these tables (which must exist — declare them in schemas[]). When omitted, grants apply schema-wide (current + future tables).
+	TableScoping pulumi.StringArrayInput `pulumi:"tableScoping"`
 }
 
 func (DSQLRoleArgs) ElementType() reflect.Type {
@@ -6226,7 +6507,7 @@ func (i DSQLRoleArray) ToDSQLRoleArrayOutputWithContext(ctx context.Context) DSQ
 	return pulumi.ToOutputWithContext(ctx, i).(DSQLRoleArrayOutput)
 }
 
-// A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.
+// A database role within a schema (its parent). Role names must be globally unique across all schemas — DSQL roles are database-wide. grants apply to the parent schema; tableScoping optionally narrows to specific tables.
 type DSQLRoleOutput struct{ *pulumi.OutputState }
 
 func (DSQLRoleOutput) ElementType() reflect.Type {
@@ -6251,9 +6532,9 @@ func (o DSQLRoleOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v DSQLRole) string { return v.Name }).(pulumi.StringOutput)
 }
 
-// The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
-func (o DSQLRoleOutput) Schema() pulumi.StringOutput {
-	return o.ApplyT(func(v DSQLRole) string { return v.Schema }).(pulumi.StringOutput)
+// Optionally narrow the grants to specific tables instead of the whole schema. When set, the role is granted only on these tables (which must exist — declare them in schemas[]). When omitted, grants apply schema-wide (current + future tables).
+func (o DSQLRoleOutput) TableScoping() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v DSQLRole) []string { return v.TableScoping }).(pulumi.StringArrayOutput)
 }
 
 type DSQLRoleArrayOutput struct{ *pulumi.OutputState }
@@ -6274,6 +6555,251 @@ func (o DSQLRoleArrayOutput) Index(i pulumi.IntInput) DSQLRoleOutput {
 	return pulumi.All(o, i).ApplyT(func(vs []interface{}) DSQLRole {
 		return vs[0].([]DSQLRole)[vs[1].(int)]
 	}).(DSQLRoleOutput)
+}
+
+// A schema and the tables within it. Anvil creates the schema (CREATE SCHEMA IF NOT EXISTS) and each table.
+type DSQLSchema struct {
+	// Schema name (literal). Must not be "public".
+	Name string `pulumi:"name"`
+	// Database roles for this schema. Each role's grants apply to this schema. Role names must be globally unique across all schemas.
+	Roles []DSQLRole `pulumi:"roles"`
+	// Tables to create in this schema.
+	Tables []DSQLTable `pulumi:"tables"`
+}
+
+// DSQLSchemaInput is an input type that accepts DSQLSchemaArgs and DSQLSchemaOutput values.
+// You can construct a concrete instance of `DSQLSchemaInput` via:
+//
+//	DSQLSchemaArgs{...}
+type DSQLSchemaInput interface {
+	pulumi.Input
+
+	ToDSQLSchemaOutput() DSQLSchemaOutput
+	ToDSQLSchemaOutputWithContext(context.Context) DSQLSchemaOutput
+}
+
+// A schema and the tables within it. Anvil creates the schema (CREATE SCHEMA IF NOT EXISTS) and each table.
+type DSQLSchemaArgs struct {
+	// Schema name (literal). Must not be "public".
+	Name pulumi.StringInput `pulumi:"name"`
+	// Database roles for this schema. Each role's grants apply to this schema. Role names must be globally unique across all schemas.
+	Roles DSQLRoleArrayInput `pulumi:"roles"`
+	// Tables to create in this schema.
+	Tables DSQLTableArrayInput `pulumi:"tables"`
+}
+
+func (DSQLSchemaArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLSchema)(nil)).Elem()
+}
+
+func (i DSQLSchemaArgs) ToDSQLSchemaOutput() DSQLSchemaOutput {
+	return i.ToDSQLSchemaOutputWithContext(context.Background())
+}
+
+func (i DSQLSchemaArgs) ToDSQLSchemaOutputWithContext(ctx context.Context) DSQLSchemaOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLSchemaOutput)
+}
+
+// DSQLSchemaArrayInput is an input type that accepts DSQLSchemaArray and DSQLSchemaArrayOutput values.
+// You can construct a concrete instance of `DSQLSchemaArrayInput` via:
+//
+//	DSQLSchemaArray{ DSQLSchemaArgs{...} }
+type DSQLSchemaArrayInput interface {
+	pulumi.Input
+
+	ToDSQLSchemaArrayOutput() DSQLSchemaArrayOutput
+	ToDSQLSchemaArrayOutputWithContext(context.Context) DSQLSchemaArrayOutput
+}
+
+type DSQLSchemaArray []DSQLSchemaInput
+
+func (DSQLSchemaArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DSQLSchema)(nil)).Elem()
+}
+
+func (i DSQLSchemaArray) ToDSQLSchemaArrayOutput() DSQLSchemaArrayOutput {
+	return i.ToDSQLSchemaArrayOutputWithContext(context.Background())
+}
+
+func (i DSQLSchemaArray) ToDSQLSchemaArrayOutputWithContext(ctx context.Context) DSQLSchemaArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLSchemaArrayOutput)
+}
+
+// A schema and the tables within it. Anvil creates the schema (CREATE SCHEMA IF NOT EXISTS) and each table.
+type DSQLSchemaOutput struct{ *pulumi.OutputState }
+
+func (DSQLSchemaOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLSchema)(nil)).Elem()
+}
+
+func (o DSQLSchemaOutput) ToDSQLSchemaOutput() DSQLSchemaOutput {
+	return o
+}
+
+func (o DSQLSchemaOutput) ToDSQLSchemaOutputWithContext(ctx context.Context) DSQLSchemaOutput {
+	return o
+}
+
+// Schema name (literal). Must not be "public".
+func (o DSQLSchemaOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v DSQLSchema) string { return v.Name }).(pulumi.StringOutput)
+}
+
+// Database roles for this schema. Each role's grants apply to this schema. Role names must be globally unique across all schemas.
+func (o DSQLSchemaOutput) Roles() DSQLRoleArrayOutput {
+	return o.ApplyT(func(v DSQLSchema) []DSQLRole { return v.Roles }).(DSQLRoleArrayOutput)
+}
+
+// Tables to create in this schema.
+func (o DSQLSchemaOutput) Tables() DSQLTableArrayOutput {
+	return o.ApplyT(func(v DSQLSchema) []DSQLTable { return v.Tables }).(DSQLTableArrayOutput)
+}
+
+type DSQLSchemaArrayOutput struct{ *pulumi.OutputState }
+
+func (DSQLSchemaArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DSQLSchema)(nil)).Elem()
+}
+
+func (o DSQLSchemaArrayOutput) ToDSQLSchemaArrayOutput() DSQLSchemaArrayOutput {
+	return o
+}
+
+func (o DSQLSchemaArrayOutput) ToDSQLSchemaArrayOutputWithContext(ctx context.Context) DSQLSchemaArrayOutput {
+	return o
+}
+
+func (o DSQLSchemaArrayOutput) Index(i pulumi.IntInput) DSQLSchemaOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) DSQLSchema {
+		return vs[0].([]DSQLSchema)[vs[1].(int)]
+	}).(DSQLSchemaOutput)
+}
+
+// A table to create in a schema. Additive-only: Anvil creates the table and adds new columns/indexes, but never drops or alters existing ones.
+type DSQLTable struct {
+	// The table's columns.
+	Columns []DSQLColumn `pulumi:"columns"`
+	// Secondary indexes.
+	Indexes []DSQLIndex `pulumi:"indexes"`
+	// Table name (literal, not stage-prefixed).
+	Name string `pulumi:"name"`
+	// Column names forming the primary key, in order. Required — DSQL uses the PK as the distribution key and it cannot be added after creation. AWS recommends a uuid PK generated app-side.
+	PrimaryKey []string `pulumi:"primaryKey"`
+}
+
+// DSQLTableInput is an input type that accepts DSQLTableArgs and DSQLTableOutput values.
+// You can construct a concrete instance of `DSQLTableInput` via:
+//
+//	DSQLTableArgs{...}
+type DSQLTableInput interface {
+	pulumi.Input
+
+	ToDSQLTableOutput() DSQLTableOutput
+	ToDSQLTableOutputWithContext(context.Context) DSQLTableOutput
+}
+
+// A table to create in a schema. Additive-only: Anvil creates the table and adds new columns/indexes, but never drops or alters existing ones.
+type DSQLTableArgs struct {
+	// The table's columns.
+	Columns DSQLColumnArrayInput `pulumi:"columns"`
+	// Secondary indexes.
+	Indexes DSQLIndexArrayInput `pulumi:"indexes"`
+	// Table name (literal, not stage-prefixed).
+	Name pulumi.StringInput `pulumi:"name"`
+	// Column names forming the primary key, in order. Required — DSQL uses the PK as the distribution key and it cannot be added after creation. AWS recommends a uuid PK generated app-side.
+	PrimaryKey pulumi.StringArrayInput `pulumi:"primaryKey"`
+}
+
+func (DSQLTableArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLTable)(nil)).Elem()
+}
+
+func (i DSQLTableArgs) ToDSQLTableOutput() DSQLTableOutput {
+	return i.ToDSQLTableOutputWithContext(context.Background())
+}
+
+func (i DSQLTableArgs) ToDSQLTableOutputWithContext(ctx context.Context) DSQLTableOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLTableOutput)
+}
+
+// DSQLTableArrayInput is an input type that accepts DSQLTableArray and DSQLTableArrayOutput values.
+// You can construct a concrete instance of `DSQLTableArrayInput` via:
+//
+//	DSQLTableArray{ DSQLTableArgs{...} }
+type DSQLTableArrayInput interface {
+	pulumi.Input
+
+	ToDSQLTableArrayOutput() DSQLTableArrayOutput
+	ToDSQLTableArrayOutputWithContext(context.Context) DSQLTableArrayOutput
+}
+
+type DSQLTableArray []DSQLTableInput
+
+func (DSQLTableArray) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DSQLTable)(nil)).Elem()
+}
+
+func (i DSQLTableArray) ToDSQLTableArrayOutput() DSQLTableArrayOutput {
+	return i.ToDSQLTableArrayOutputWithContext(context.Background())
+}
+
+func (i DSQLTableArray) ToDSQLTableArrayOutputWithContext(ctx context.Context) DSQLTableArrayOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(DSQLTableArrayOutput)
+}
+
+// A table to create in a schema. Additive-only: Anvil creates the table and adds new columns/indexes, but never drops or alters existing ones.
+type DSQLTableOutput struct{ *pulumi.OutputState }
+
+func (DSQLTableOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLTable)(nil)).Elem()
+}
+
+func (o DSQLTableOutput) ToDSQLTableOutput() DSQLTableOutput {
+	return o
+}
+
+func (o DSQLTableOutput) ToDSQLTableOutputWithContext(ctx context.Context) DSQLTableOutput {
+	return o
+}
+
+// The table's columns.
+func (o DSQLTableOutput) Columns() DSQLColumnArrayOutput {
+	return o.ApplyT(func(v DSQLTable) []DSQLColumn { return v.Columns }).(DSQLColumnArrayOutput)
+}
+
+// Secondary indexes.
+func (o DSQLTableOutput) Indexes() DSQLIndexArrayOutput {
+	return o.ApplyT(func(v DSQLTable) []DSQLIndex { return v.Indexes }).(DSQLIndexArrayOutput)
+}
+
+// Table name (literal, not stage-prefixed).
+func (o DSQLTableOutput) Name() pulumi.StringOutput {
+	return o.ApplyT(func(v DSQLTable) string { return v.Name }).(pulumi.StringOutput)
+}
+
+// Column names forming the primary key, in order. Required — DSQL uses the PK as the distribution key and it cannot be added after creation. AWS recommends a uuid PK generated app-side.
+func (o DSQLTableOutput) PrimaryKey() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v DSQLTable) []string { return v.PrimaryKey }).(pulumi.StringArrayOutput)
+}
+
+type DSQLTableArrayOutput struct{ *pulumi.OutputState }
+
+func (DSQLTableArrayOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*[]DSQLTable)(nil)).Elem()
+}
+
+func (o DSQLTableArrayOutput) ToDSQLTableArrayOutput() DSQLTableArrayOutput {
+	return o
+}
+
+func (o DSQLTableArrayOutput) ToDSQLTableArrayOutputWithContext(ctx context.Context) DSQLTableArrayOutput {
+	return o
+}
+
+func (o DSQLTableArrayOutput) Index(i pulumi.IntInput) DSQLTableOutput {
+	return pulumi.All(o, i).ApplyT(func(vs []interface{}) DSQLTable {
+		return vs[0].([]DSQLTable)[vs[1].(int)]
+	}).(DSQLTableOutput)
 }
 
 type DSQLTransformArgs struct {
@@ -15023,10 +15549,18 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTransformArgsPtrInput)(nil)).Elem(), CognitoUserPoolTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLBackupArgsInput)(nil)).Elem(), DSQLBackupArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLBackupArgsPtrInput)(nil)).Elem(), DSQLBackupArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLColumnInput)(nil)).Elem(), DSQLColumnArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLColumnArrayInput)(nil)).Elem(), DSQLColumnArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLIndexInput)(nil)).Elem(), DSQLIndexArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLIndexArrayInput)(nil)).Elem(), DSQLIndexArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLMultiRegionArgsInput)(nil)).Elem(), DSQLMultiRegionArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLMultiRegionArgsPtrInput)(nil)).Elem(), DSQLMultiRegionArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLRoleInput)(nil)).Elem(), DSQLRoleArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLRoleArrayInput)(nil)).Elem(), DSQLRoleArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLSchemaInput)(nil)).Elem(), DSQLSchemaArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLSchemaArrayInput)(nil)).Elem(), DSQLSchemaArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLTableInput)(nil)).Elem(), DSQLTableArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLTableArrayInput)(nil)).Elem(), DSQLTableArray{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLVpcArgsInput)(nil)).Elem(), DSQLVpcArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLVpcArgsPtrInput)(nil)).Elem(), DSQLVpcArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DsqlOverridesInput)(nil)).Elem(), DsqlOverridesArgs{})
@@ -15168,10 +15702,18 @@ func init() {
 	pulumi.RegisterOutputType(CognitoUserPoolTransformArgsPtrOutput{})
 	pulumi.RegisterOutputType(DSQLBackupArgsOutput{})
 	pulumi.RegisterOutputType(DSQLBackupArgsPtrOutput{})
+	pulumi.RegisterOutputType(DSQLColumnOutput{})
+	pulumi.RegisterOutputType(DSQLColumnArrayOutput{})
+	pulumi.RegisterOutputType(DSQLIndexOutput{})
+	pulumi.RegisterOutputType(DSQLIndexArrayOutput{})
 	pulumi.RegisterOutputType(DSQLMultiRegionArgsOutput{})
 	pulumi.RegisterOutputType(DSQLMultiRegionArgsPtrOutput{})
 	pulumi.RegisterOutputType(DSQLRoleOutput{})
 	pulumi.RegisterOutputType(DSQLRoleArrayOutput{})
+	pulumi.RegisterOutputType(DSQLSchemaOutput{})
+	pulumi.RegisterOutputType(DSQLSchemaArrayOutput{})
+	pulumi.RegisterOutputType(DSQLTableOutput{})
+	pulumi.RegisterOutputType(DSQLTableArrayOutput{})
 	pulumi.RegisterOutputType(DSQLVpcArgsOutput{})
 	pulumi.RegisterOutputType(DSQLVpcArgsPtrOutput{})
 	pulumi.RegisterOutputType(DsqlOverridesOutput{})

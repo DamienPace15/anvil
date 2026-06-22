@@ -61,6 +61,23 @@ function patchTypeScript(): void {
 
   console.log('📦 Patching TypeScript SDK...');
 
+  // ── 0. Patch tsconfig.json ─────────────────────────────
+  // gen-sdk emits moduleResolution: "node" (a.k.a. node10), which newer
+  // TypeScript flags as deprecated and exits non-zero on — breaking the
+  // `tsc && cp package.json bin/` build chain. Silence the deprecation so
+  // the build completes and package.json is copied into bin/ (required at
+  // runtime by utilities.getVersion()).
+  const tsconfigPath = path.join(sdkDir, 'tsconfig.json');
+  if (fs.existsSync(tsconfigPath)) {
+    const tsconfig = JSON.parse(fs.readFileSync(tsconfigPath, 'utf8'));
+    tsconfig.compilerOptions = tsconfig.compilerOptions || {};
+    if (tsconfig.compilerOptions.ignoreDeprecations !== '6.0') {
+      tsconfig.compilerOptions.ignoreDeprecations = '6.0';
+      fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 4) + '\n');
+      console.log('  ✔ Patched tsconfig.json → ignoreDeprecations: "6.0"');
+    }
+  }
+
   // ── 1. Patch index.ts ──────────────────────────────────
   const indexPath = path.join(sdkDir, 'index.ts');
   if (fs.existsSync(indexPath)) {

@@ -82,12 +82,12 @@ type DSQLConnectArgs struct {
 	// Used for naming child resources (e.g. "api-handler").
 	TargetName string `pulumi:"targetName"`
 
-	// DbRole is the Postgres database role name to map this IAM identity to.
-	// e.g. "app_role", "readonly". The bootstrap Lambda runs:
-	//   AWS IAM GRANT "dbRole" TO 'arn:aws:iam::...:role/target-role';
-	// When omitted (and roles are not configured on the DSQL component),
-	// only the IAM policy is created — no database-level mapping.
-	DbRole string `pulumi:"dbRole,optional"`
+	// DbRoles are the Postgres database role names to map this IAM identity to.
+	// One mapping item is created per role; the bootstrap Lambda runs:
+	//   AWS IAM GRANT "<role>" TO 'arn:aws:iam::...:role/target-role';
+	// for each. The compute connects as whichever role it chooses at runtime.
+	// When empty, only the IAM policy is created — no database-level mapping.
+	DbRoles []string `pulumi:"dbRoles,optional"`
 
 	// RolesTableName is the DynamoDB table name for role bootstrap.
 	// Passed from dsql.rolesTableName. When set (along with dbRole),
@@ -171,38 +171,39 @@ func NewDSQLConnect(ctx *pulumi.Context, name string, args DSQLConnectArgs, opts
 		return nil, fmt.Errorf("creating dsql:DbConnect policy: %w", err)
 	}
 
-	// ── 2. IAM mapping item — triggers bootstrap Lambda ───────────────
-	// Written to the DSQL component's roles DynamoDB table.
-	// PK = dbRole name, SK = target's IAM role ARN.
+	// ── 2. IAM mapping items — trigger bootstrap Lambda ───────────────
+	// One item per database role. PK = role name, SK = target's IAM role ARN.
 	// The DynamoDB stream fires INSERT → bootstrap Lambda runs:
-	//   AWS IAM GRANT "dbRole" TO 'arn:aws:iam::...:role/target-role';
-	// On delete, stream fires REMOVE → bootstrap Lambda runs:
-	//   AWS IAM REVOKE "dbRole" FROM 'arn:aws:iam::...:role/target-role';
-	// Skipped when dbRole or rolesTableName is empty (roles not configured).
-	if args.DbRole != "" && args.RolesTableName != nil {
-		itemJSON := args.TargetRoleArn.ToStringOutput().ApplyT(func(arn string) (string, error) {
-			item := map[string]map[string]string{
-				"roleName": {"S": args.DbRole},
-				"sk":       {"S": arn},
-			}
-			b, err := json.Marshal(item)
-			if err != nil {
-				return "", fmt.Errorf("failed to marshal IAM mapping item: %w", err)
-			}
-			return string(b), nil
-		}).(pulumi.StringOutput)
+	//   AWS IAM GRANT "<role>" TO 'arn:aws:iam::...:role/target-role';
+	// On delete, stream fires REMOVE → bootstrap Lambda runs AWS IAM REVOKE.
+	// Skipped when no roles or no rolesTableName (roles not configured).
+	if args.RolesTableName != nil {
+		for _, dbRole := range args.DbRoles {
+			dbRole := dbRole
+			itemJSON := args.TargetRoleArn.ToStringOutput().ApplyT(func(arn string) (string, error) {
+				item := map[string]map[string]string{
+					"roleName": {"S": dbRole},
+					"sk":       {"S": arn},
+				}
+				b, err := json.Marshal(item)
+				if err != nil {
+					return "", fmt.Errorf("failed to marshal IAM mapping item: %w", err)
+				}
+				return string(b), nil
+			}).(pulumi.StringOutput)
 
-		if _, err := dynamodb.NewTableItem(ctx,
-			fmt.Sprintf("%s-iam-mapping", name),
-			&dynamodb.TableItemArgs{
-				TableName: args.RolesTableName.ToStringOutput(),
-				HashKey:   pulumi.String("roleName"),
-				RangeKey:  pulumi.String("sk"),
-				Item:      itemJSON,
-			},
-			pulumi.Parent(g),
-		); err != nil {
-			return nil, fmt.Errorf("creating IAM mapping for %s → %s: %w", args.TargetName, args.DbRole, err)
+			if _, err := dynamodb.NewTableItem(ctx,
+				fmt.Sprintf("%s-iam-mapping-%s", name, dbRole),
+				&dynamodb.TableItemArgs{
+					TableName: args.RolesTableName.ToStringOutput(),
+					HashKey:   pulumi.String("roleName"),
+					RangeKey:  pulumi.String("sk"),
+					Item:      itemJSON,
+				},
+				pulumi.Parent(g),
+			); err != nil {
+				return nil, fmt.Errorf("creating IAM mapping for %s → %s: %w", args.TargetName, dbRole, err)
+			}
 		}
 	}
 

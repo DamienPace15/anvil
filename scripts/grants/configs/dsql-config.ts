@@ -24,45 +24,60 @@ export const DSQL_CUSTOM_GRANT_CONFIG: CustomGrantConfig = {
   ],
   tsMethod: `
     /**
-     * Grants connect access (dsql:DbConnect) on this DSQL cluster
-     * to the target compute resource's execution role.
+     * Grants a compute resource connect access to this DSQL cluster.
+     *
+     * Pass one or more { schema, roleName } pairs. The compute may be mapped to
+     * multiple roles and connects as whichever one it chooses at runtime.
      *
      * Creates an anvil:aws:DSQLConnect component that handles:
      * 1. IAM policy (dsql:DbConnect) on all cluster ARNs
-     * 2. DynamoDB IAM mapping item (when roles are configured) that triggers
-     *    the bootstrap Lambda to run: AWS IAM GRANT "dbRole" TO 'arn:...'
+     * 2. One DynamoDB IAM mapping item per role — the bootstrap Lambda runs
+     *    AWS IAM GRANT "<roleName>" TO 'arn:...' for each.
      *
      * @param target - The compute resource to grant access to (Lambda, ECS, etc.).
-     * @param dbRole - The database role name to map this target to (e.g. "app_role").
+     * @param opts.schemas - The { schema, roleName } pairs this compute may connect as.
+     *
+     * @example
+     *   dsql.grantConnect(lambda, { schemas: [{ schema: 'my_app', roleName: 'app_role' }] });
      */
-    public grantConnect(target: grants.GrantTarget, dbRole?: string): void {
+    public grantConnect(
+        target: grants.GrantTarget,
+        opts: { schemas: { schema: string; roleName: string }[] },
+    ): void {
+        const dbRoles = opts.schemas.map((s) => s.roleName);
         const args: any = {
             clusterArns: this.clusterArns,
             targetRoleArn: target.grantRoleArn(),
             targetName: target.grantName(),
-            dbRole: dbRole,
+            dbRoles: dbRoles,
         };
         if (this.rolesTableName) {
             args.rolesTableName = this.rolesTableName;
         }
-        new DSQLConnect(\`\${this.__name}-\${target.grantName()}-connect\`, args, { parent: this });
+        // NOT parented to this DSQL component: DSQLConnect depends on this
+        // component's outputs (clusterArns, rolesTableName). Parenting would
+        // create a cycle — the parent's outputs only finalize after its
+        // children complete, but this child needs those outputs to construct.
+        new DSQLConnect(\`\${this.__name}-\${target.grantName()}-connect\`, args);
     }`,
   pyMethod: `
-    def grant_connect(self, target: "grants.GrantTarget", db_role: str = None) -> None:
-        """Grants connect access on this DSQL cluster to the target's execution role.
+    def grant_connect(self, target: "grants.GrantTarget", schemas: list = None) -> None:
+        """Grants a compute resource connect access to this DSQL cluster.
 
-        Creates an anvil:aws:DSQLConnect component that handles the IAM policy
-        and optional DynamoDB IAM mapping for role bootstrap.
+        Pass one or more {"schema", "role_name"} pairs. The compute may be mapped
+        to multiple roles and connects as whichever one it chooses at runtime.
 
         Args:
             target: The compute resource to grant access to (Lambda, ECS, etc.).
-            db_role: The database role name to map this target to (e.g. "app_role").
+            schemas: List of {"schema": ..., "role_name": ...} pairs.
         """
+        schemas = schemas or []
+        db_roles = [s["role_name"] for s in schemas]
         DSQLConnect(f"{self._name}-{target.grant_name()}-connect",
             cluster_arns=self.cluster_arns,
             target_role_arn=target.grant_role_arn(),
             target_name=target.grant_name(),
-            db_role=db_role,
+            db_roles=db_roles,
             roles_table_name=self.roles_table_name,
             opts=pulumi.ResourceOptions(parent=self),
         )

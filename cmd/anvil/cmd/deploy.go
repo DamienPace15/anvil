@@ -3,11 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"os"
-	"os/exec"
-	"path/filepath"
 
-	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/events"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optup"
 	"github.com/spf13/cobra"
@@ -86,11 +82,6 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// ── Step 4b: Build DSQL bootstrap Lambda (if needed) ─
-	if err := buildAndSetDsqlBootstrap(ctx, s); err != nil {
-		return fmt.Errorf("DSQL bootstrap build failed: %w", err)
-	}
-
 	// ── Step 5: Real deploy ────────────────────────────
 	handler := NewEventHandler(deployVerbose, "deploy")
 	eventCh := make(chan events.EngineEvent)
@@ -109,7 +100,7 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 		upOpts = append(upOpts, optup.Refresh())
 	}
 
-	_, err = s.Up(ctx, upOpts...)
+	_, upErr := s.Up(ctx, upOpts...)
 
 	handler.PrintSummary(stage)
 
@@ -117,60 +108,8 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("deploy failed")
 	}
 
-	return nil
-}
-
-// buildAndSetDsqlBootstrap compiles the DSQL bootstrap Lambda (Go, arm64) and
-// sets its zip path in Pulumi config so the DSQL provider can reference it.
-// Only builds if the source directory exists. Skips silently if not needed.
-func buildAndSetDsqlBootstrap(ctx context.Context, s auto.Stack) error {
-	lambdaDir := "cmd/anvil/dsql-lambda"
-	if _, err := os.Stat(filepath.Join(lambdaDir, "main.go")); os.IsNotExist(err) {
-		return nil
-	}
-
-	outDir := ".anvil/internal"
-	if err := os.MkdirAll(outDir, 0o755); err != nil {
-		return fmt.Errorf("creating output dir: %w", err)
-	}
-
-	binaryPath := filepath.Join(outDir, "bootstrap")
-	zipPath := filepath.Join(outDir, "dsql-lambda.zip")
-
-	// Cross-compile for Lambda
-	buildCmd := exec.Command("go", "build", "-tags", "lambda.norpc", "-o",
-		filepath.Join("..", "..", "..", binaryPath), ".")
-	buildCmd.Dir = lambdaDir
-	buildCmd.Env = append(os.Environ(), "GOOS=linux", "GOARCH=arm64", "CGO_ENABLED=0")
-	buildCmd.Stdout = os.Stdout
-	buildCmd.Stderr = os.Stderr
-	if err := buildCmd.Run(); err != nil {
-		return fmt.Errorf("compiling dsql-lambda: %w", err)
-	}
-
-	// Zip the binary
-	zipCmd := exec.Command("zip", "-j", "dsql-lambda.zip", "bootstrap")
-	zipCmd.Dir = outDir
-	zipCmd.Stdout = os.Stdout
-	zipCmd.Stderr = os.Stderr
-	if err := zipCmd.Run(); err != nil {
-		return fmt.Errorf("zipping dsql-lambda: %w", err)
-	}
-
-	os.Remove(binaryPath)
-
-	absZip, err := filepath.Abs(zipPath)
-	if err != nil {
-		return fmt.Errorf("resolving zip path: %w", err)
-	}
-
-	// Set config for ALL DSQL components. The provider reads
-	// "anvil:dsql-bootstrap-{componentName}" — we use a wildcard key pattern
-	// since we don't know component names at build time.
-	// For now, set the generic key that the provider falls back to.
-	key := "anvil:dsql-bootstrap"
-	if err := s.SetConfig(ctx, key, auto.ConfigValue{Value: absZip}); err != nil {
-		return fmt.Errorf("setting dsql-bootstrap config: %w", err)
+	if upErr != nil {
+		return fmt.Errorf("deploy failed: %w", upErr)
 	}
 
 	return nil

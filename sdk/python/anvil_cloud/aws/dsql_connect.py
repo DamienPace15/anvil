@@ -22,7 +22,7 @@ class DSQLConnectArgs:
                  cluster_arns: pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]],
                  target_name: pulumi.Input[_builtins.str],
                  target_role_arn: pulumi.Input[_builtins.str],
-                 db_role: Optional[pulumi.Input[_builtins.str]] = None,
+                 db_roles: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  roles_table_name: Optional[pulumi.Input[_builtins.str]] = None):
         """
         The set of arguments for constructing a DSQLConnect resource.
@@ -30,14 +30,14 @@ class DSQLConnectArgs:
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] cluster_arns: Map of region to cluster ARN from the DSQL component. Used to scope the dsql:DbConnect IAM policy.
         :param pulumi.Input[_builtins.str] target_name: Logical name of the compute resource. Used for naming child resources.
         :param pulumi.Input[_builtins.str] target_role_arn: IAM execution role ARN of the compute resource (Lambda, ECS task, etc.) that will connect to the cluster.
-        :param pulumi.Input[_builtins.str] db_role: Postgres database role name to map this IAM identity to (e.g. "app_role"). The bootstrap Lambda runs: AWS IAM GRANT "dbRole" TO 'arn:...'. Optional — omit when roles are not configured on the DSQL component.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] db_roles: Postgres database role names to map this IAM identity to. One mapping is created per role; the bootstrap Lambda runs AWS IAM GRANT "<role>" TO 'arn:...' for each. The compute connects as whichever role it chooses at runtime.
         :param pulumi.Input[_builtins.str] roles_table_name: DynamoDB table name for role bootstrap. Pass dsql.rolesTableName from the DSQL component. When set with dbRole, a TableItem is created to trigger the bootstrap Lambda. Optional — omit when roles are not configured.
         """
         pulumi.set(__self__, "cluster_arns", cluster_arns)
         pulumi.set(__self__, "target_name", target_name)
         pulumi.set(__self__, "target_role_arn", target_role_arn)
-        if db_role is not None:
-            pulumi.set(__self__, "db_role", db_role)
+        if db_roles is not None:
+            pulumi.set(__self__, "db_roles", db_roles)
         if roles_table_name is not None:
             pulumi.set(__self__, "roles_table_name", roles_table_name)
 
@@ -78,16 +78,16 @@ class DSQLConnectArgs:
         pulumi.set(self, "target_role_arn", value)
 
     @_builtins.property
-    @pulumi.getter(name="dbRole")
-    def db_role(self) -> Optional[pulumi.Input[_builtins.str]]:
+    @pulumi.getter(name="dbRoles")
+    def db_roles(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
         """
-        Postgres database role name to map this IAM identity to (e.g. "app_role"). The bootstrap Lambda runs: AWS IAM GRANT "dbRole" TO 'arn:...'. Optional — omit when roles are not configured on the DSQL component.
+        Postgres database role names to map this IAM identity to. One mapping is created per role; the bootstrap Lambda runs AWS IAM GRANT "<role>" TO 'arn:...' for each. The compute connects as whichever role it chooses at runtime.
         """
-        return pulumi.get(self, "db_role")
+        return pulumi.get(self, "db_roles")
 
-    @db_role.setter
-    def db_role(self, value: Optional[pulumi.Input[_builtins.str]]):
-        pulumi.set(self, "db_role", value)
+    @db_roles.setter
+    def db_roles(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "db_roles", value)
 
     @_builtins.property
     @pulumi.getter(name="rolesTableName")
@@ -103,13 +103,13 @@ class DSQLConnectArgs:
 
 
 @pulumi.type_token("anvil:aws:DSQLConnect")
-class DSQLConnect(pulumi.CustomResource):
+class DSQLConnect(pulumi.ComponentResource):
     @overload
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  cluster_arns: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
-                 db_role: Optional[pulumi.Input[_builtins.str]] = None,
+                 db_roles: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  roles_table_name: Optional[pulumi.Input[_builtins.str]] = None,
                  target_name: Optional[pulumi.Input[_builtins.str]] = None,
                  target_role_arn: Optional[pulumi.Input[_builtins.str]] = None,
@@ -121,7 +121,7 @@ class DSQLConnect(pulumi.CustomResource):
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] cluster_arns: Map of region to cluster ARN from the DSQL component. Used to scope the dsql:DbConnect IAM policy.
-        :param pulumi.Input[_builtins.str] db_role: Postgres database role name to map this IAM identity to (e.g. "app_role"). The bootstrap Lambda runs: AWS IAM GRANT "dbRole" TO 'arn:...'. Optional — omit when roles are not configured on the DSQL component.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] db_roles: Postgres database role names to map this IAM identity to. One mapping is created per role; the bootstrap Lambda runs AWS IAM GRANT "<role>" TO 'arn:...' for each. The compute connects as whichever role it chooses at runtime.
         :param pulumi.Input[_builtins.str] roles_table_name: DynamoDB table name for role bootstrap. Pass dsql.rolesTableName from the DSQL component. When set with dbRole, a TableItem is created to trigger the bootstrap Lambda. Optional — omit when roles are not configured.
         :param pulumi.Input[_builtins.str] target_name: Logical name of the compute resource. Used for naming child resources.
         :param pulumi.Input[_builtins.str] target_role_arn: IAM execution role ARN of the compute resource (Lambda, ECS task, etc.) that will connect to the cluster.
@@ -152,7 +152,7 @@ class DSQLConnect(pulumi.CustomResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  cluster_arns: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
-                 db_role: Optional[pulumi.Input[_builtins.str]] = None,
+                 db_roles: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
                  roles_table_name: Optional[pulumi.Input[_builtins.str]] = None,
                  target_name: Optional[pulumi.Input[_builtins.str]] = None,
                  target_role_arn: Optional[pulumi.Input[_builtins.str]] = None,
@@ -160,7 +160,9 @@ class DSQLConnect(pulumi.CustomResource):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
             raise TypeError('Expected resource options to be a ResourceOptions instance')
-        if opts.id is None:
+        if opts.id is not None:
+            raise ValueError('ComponentResource classes do not support opts.id')
+        else:
             if __props__ is not None:
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = DSQLConnectArgs.__new__(DSQLConnectArgs)
@@ -168,7 +170,7 @@ class DSQLConnect(pulumi.CustomResource):
             if cluster_arns is None and not opts.urn:
                 raise TypeError("Missing required property 'cluster_arns'")
             __props__.__dict__["cluster_arns"] = cluster_arns
-            __props__.__dict__["db_role"] = db_role
+            __props__.__dict__["db_roles"] = db_roles
             __props__.__dict__["roles_table_name"] = roles_table_name
             if target_name is None and not opts.urn:
                 raise TypeError("Missing required property 'target_name'")
@@ -180,23 +182,6 @@ class DSQLConnect(pulumi.CustomResource):
             'anvil:aws:DSQLConnect',
             resource_name,
             __props__,
-            opts)
-
-    @staticmethod
-    def get(resource_name: str,
-            id: pulumi.Input[str],
-            opts: Optional[pulumi.ResourceOptions] = None) -> 'DSQLConnect':
-        """
-        Get an existing DSQLConnect resource's state with the given name, id, and optional extra
-        properties used to qualify the lookup.
-
-        :param str resource_name: The unique name of the resulting resource.
-        :param pulumi.Input[str] id: The unique provider ID of the resource to lookup.
-        :param pulumi.ResourceOptions opts: Options for the resource.
-        """
-        opts = pulumi.ResourceOptions.merge(opts, pulumi.ResourceOptions(id=id))
-
-        __props__ = DSQLConnectArgs.__new__(DSQLConnectArgs)
-
-        return DSQLConnect(resource_name, opts=opts, __props__=__props__)
+            opts,
+            remote=True)
 

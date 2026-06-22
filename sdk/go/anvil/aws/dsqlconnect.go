@@ -14,7 +14,7 @@ import (
 
 // Grants a compute resource (Lambda, ECS, etc.) connect access to an Anvil DSQL cluster. Creates the IAM policy (dsql:DbConnect) and optionally a DynamoDB IAM mapping item that triggers the bootstrap Lambda to run AWS IAM GRANT, mapping the compute resource's IAM role to a Postgres database role.
 type DSQLConnect struct {
-	pulumi.CustomResourceState
+	pulumi.ResourceState
 }
 
 // NewDSQLConnect registers a new resource with the given unique name, arguments, and options.
@@ -35,41 +35,18 @@ func NewDSQLConnect(ctx *pulumi.Context,
 	}
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource DSQLConnect
-	err := ctx.RegisterResource("anvil:aws:DSQLConnect", name, args, &resource, opts...)
+	err := ctx.RegisterRemoteComponentResource("anvil:aws:DSQLConnect", name, args, &resource, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return &resource, nil
-}
-
-// GetDSQLConnect gets an existing DSQLConnect resource's state with the given name, ID, and optional
-// state properties that are used to uniquely qualify the lookup (nil if not required).
-func GetDSQLConnect(ctx *pulumi.Context,
-	name string, id pulumi.IDInput, state *DSQLConnectState, opts ...pulumi.ResourceOption) (*DSQLConnect, error) {
-	var resource DSQLConnect
-	err := ctx.ReadResource("anvil:aws:DSQLConnect", name, id, state, &resource, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &resource, nil
-}
-
-// Input properties used for looking up and filtering DSQLConnect resources.
-type dsqlconnectState struct {
-}
-
-type DSQLConnectState struct {
-}
-
-func (DSQLConnectState) ElementType() reflect.Type {
-	return reflect.TypeOf((*dsqlconnectState)(nil)).Elem()
 }
 
 type dsqlconnectArgs struct {
 	// Map of region to cluster ARN from the DSQL component. Used to scope the dsql:DbConnect IAM policy.
 	ClusterArns map[string]string `pulumi:"clusterArns"`
-	// Postgres database role name to map this IAM identity to (e.g. "app_role"). The bootstrap Lambda runs: AWS IAM GRANT "dbRole" TO 'arn:...'. Optional — omit when roles are not configured on the DSQL component.
-	DbRole *string `pulumi:"dbRole"`
+	// Postgres database role names to map this IAM identity to. One mapping is created per role; the bootstrap Lambda runs AWS IAM GRANT "<role>" TO 'arn:...' for each. The compute connects as whichever role it chooses at runtime.
+	DbRoles []string `pulumi:"dbRoles"`
 	// DynamoDB table name for role bootstrap. Pass dsql.rolesTableName from the DSQL component. When set with dbRole, a TableItem is created to trigger the bootstrap Lambda. Optional — omit when roles are not configured.
 	RolesTableName *string `pulumi:"rolesTableName"`
 	// Logical name of the compute resource. Used for naming child resources.
@@ -82,8 +59,8 @@ type dsqlconnectArgs struct {
 type DSQLConnectArgs struct {
 	// Map of region to cluster ARN from the DSQL component. Used to scope the dsql:DbConnect IAM policy.
 	ClusterArns pulumi.StringMapInput
-	// Postgres database role name to map this IAM identity to (e.g. "app_role"). The bootstrap Lambda runs: AWS IAM GRANT "dbRole" TO 'arn:...'. Optional — omit when roles are not configured on the DSQL component.
-	DbRole pulumi.StringPtrInput
+	// Postgres database role names to map this IAM identity to. One mapping is created per role; the bootstrap Lambda runs AWS IAM GRANT "<role>" TO 'arn:...' for each. The compute connects as whichever role it chooses at runtime.
+	DbRoles pulumi.StringArrayInput
 	// DynamoDB table name for role bootstrap. Pass dsql.rolesTableName from the DSQL component. When set with dbRole, a TableItem is created to trigger the bootstrap Lambda. Optional — omit when roles are not configured.
 	RolesTableName pulumi.StringPtrInput
 	// Logical name of the compute resource. Used for naming child resources.

@@ -13,6 +13,7 @@ __all__ = [
     'CognitoUserPoolMfaMode',
     'CognitoUserPoolOAuthFlow',
     'CognitoUserPoolUsernameAttribute',
+    'DSQLColumnType',
     'DSQLGrant',
     'DynamoDBAttributeType',
     'DynamoDBProjectionType',
@@ -117,6 +118,89 @@ class CognitoUserPoolUsernameAttribute(_builtins.str, Enum):
     PHONE_NUMBER = "phone_number"
     """
     Users sign in with their phone number.
+    """
+
+
+@pulumi.type_token("anvil:aws:DSQLColumnType")
+class DSQLColumnType(_builtins.str, Enum):
+    """
+    A DSQL-supported column type. Arrays, enums, serial, money, and xml are intentionally excluded — DSQL does not support them.
+    """
+    UUID = "uuid"
+    """
+    Universally unique identifier (recommended for primary keys).
+    """
+    TEXT = "text"
+    """
+    Variable-length string up to 1 MiB.
+    """
+    VARCHAR = "varchar"
+    """
+    Variable-length string; set length (max 65535).
+    """
+    CHAR = "char"
+    """
+    Fixed-length string; set length (max 4096).
+    """
+    BOOLEAN = "boolean"
+    """
+    True/false.
+    """
+    SMALLINT = "smallint"
+    """
+    2-byte integer.
+    """
+    INTEGER = "integer"
+    """
+    4-byte integer.
+    """
+    BIGINT = "bigint"
+    """
+    8-byte integer.
+    """
+    REAL = "real"
+    """
+    4-byte floating point.
+    """
+    DOUBLE_PRECISION = "double precision"
+    """
+    8-byte floating point.
+    """
+    NUMERIC = "numeric"
+    """
+    Exact numeric; set precision/scale (max precision 38).
+    """
+    DATE = "date"
+    """
+    Calendar date.
+    """
+    TIME = "time"
+    """
+    Time of day.
+    """
+    TIMESTAMP = "timestamp"
+    """
+    Date and time without time zone.
+    """
+    TIMESTAMPTZ = "timestamptz"
+    """
+    Date and time with time zone.
+    """
+    INTERVAL = "interval"
+    """
+    Time span.
+    """
+    BYTEA = "bytea"
+    """
+    Binary data up to 1 MiB.
+    """
+    JSON = "json"
+    """
+    JSON text.
+    """
+    JSONB = "jsonb"
+    """
+    Binary JSON.
     """
 
 
