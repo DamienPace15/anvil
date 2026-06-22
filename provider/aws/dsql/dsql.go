@@ -1488,3 +1488,203 @@ func validateSchemas(schemas []DSQLSchemaArgs) error {
 //     - Get one role:   GetItem(roleName="app_role", sk="DEFINITION")
 //     - List IAM mappings for a role: Query(roleName="app_role", sk begins_with "arn:")
 //     - List all mappings: Scan with FilterExpression sk begins_with "arn:"
+
+// ════════════════════════════════════════════════════════════════════════════
+// DSQL — FULL FEATURE REFERENCE (for SDK docs / frontend dashboard authors)
+// ════════════════════════════════════════════════════════════════════════════
+//
+// This is the canonical reference for everything the DSQL component implements:
+// the cluster, declarative schema/role/table management, and compute access via
+// grantConnect. Use it as the source of truth when writing user-facing docs.
+//
+// ── 1. WHAT IT IS ───────────────────────────────────────────────────────────
+//
+// An Anvil-managed Aurora DSQL cluster (serverless, distributed, Postgres-
+// compatible) with:
+//   - single- or multi-region active-active clusters
+//   - declarative, additive-only schema + table management
+//   - declarative database roles with schema-wide or per-table grants
+//   - compute-to-database access wiring (grantConnect) with zero admin
+//     credentials in the CI/CD pipeline
+//   - optional AWS Backup and VPC PrivateLink
+//
+// ── 2. THE API (single source of truth) ─────────────────────────────────────
+//
+//   new anvil.aws.DSQL("orders", {
+//     // optional: multiRegion, vpc, backup, transform
+//     schemas: [
+//       {
+//         name: "myapp",                              // schema (namespace)
+//         roles: [
+//           { name: "app_role", grants: ["SELECT","INSERT","UPDATE"] },        // schema-wide
+//           { name: "reader",   grants: ["SELECT"], tableScoping: ["users"] }, // table-scoped
+//         ],
+//         tables: [
+//           {
+//             name: "users",
+//             columns: [
+//               { name: "id",         type: "uuid", notNull: true },
+//               { name: "email",      type: "varchar", length: 255, notNull: true, unique: true },
+//               { name: "created_at", type: "timestamptz", default: "now()" },
+//             ],
+//             primaryKey: ["id"],                       // required; composite via order
+//             indexes: [{ name: "users_created_idx", columns: ["created_at"] }],
+//           },
+//         ],
+//       },
+//     ],
+//   });
+//
+//   // Access — map a compute resource to one or more roles. The compute may
+//   // connect as any of them (picks via the connection's `user` field).
+//   dsql.grantConnect(lambda, {
+//     schemas: [
+//       { schema: "myapp", roleName: "app_role" },
+//       { schema: "myapp", roleName: "reader" },
+//     ],
+//   });
+//
+// STRUCTURE: schemas[] is the container. Each schema holds roles[] (scoped to
+// that schema) and tables[]. Roles are NOT repeated per schema — a role belongs
+// to exactly one schema, and role NAMES must be globally unique (DSQL roles are
+// database-wide). The schema in grantConnect pairs is for readability; the IAM
+// mapping itself only needs the role name.
+//
+// ── 3. SUPPORTED COLUMN TYPES (constrained enum: DSQLColumnType) ─────────────
+//
+//   uuid, text, varchar, char, boolean,
+//   smallint, integer, bigint, real, double precision, numeric,
+//   date, time, timestamp, timestamptz, interval,
+//   bytea, json, jsonb
+//
+//   Parameterized via structured fields (NOT inline):
+//     varchar/char → length    (char ≤ 4096, varchar ≤ 65535)
+//     numeric      → precision (≤ 38), scale (≤ 37)
+//
+//   Deliberately UNSUPPORTED (DSQL limitation — rejected at deploy time):
+//     arrays (text[]), enums, serial (use uuid + app-generated id), money, xml.
+//
+//   Column options: notNull, unique (→ named async unique index), default
+//   (raw passthrough SQL expression — string literals need inner quotes:
+//   "'active'"; functions: "now()").
+//
+// ── 4. PRIMARY KEYS ─────────────────────────────────────────────────────────
+//
+//   - Required on every table (DSQL uses the PK as the distribution key).
+//   - Cannot be added after creation — get it right up front.
+//   - Composite: primaryKey: ["tenant_id", "id"] (order matters).
+//   - PK columns are auto-NOT-NULL.
+//   - AWS recommends a uuid PK generated app-side (crypto.randomUUID()) to
+//     avoid write hotspots — sequential/identity PKs are an anti-pattern on
+//     a distributed DB. Anvil does not provide an identity/serial shorthand.
+//
+// ── 5. GRANTS ───────────────────────────────────────────────────────────────
+//
+//   Schema-wide (no tableScoping): role gets the grants on ALL current AND
+//   future tables in the schema (GRANT ON ALL TABLES + ALTER DEFAULT PRIVILEGES).
+//
+//   Table-scoped (tableScoping: [...]): role gets the grants ONLY on the named
+//   tables (which must be declared in the same schema). Does NOT auto-cover
+//   future tables — add them to tableScoping explicitly. Tables are created
+//   before the scoped grant runs (Pulumi DependsOn ordering).
+//
+// ── 6. COMPUTE ACCESS — grantConnect ────────────────────────────────────────
+//
+//   grantConnect(target, { schemas: [{ schema, roleName }, ...] }) does two
+//   things for the target compute (Lambda, ECS, anything implementing the
+//   GrantTarget interface):
+//     1. IAM-level: attaches a dsql:DbConnect policy scoped to the cluster ARNs
+//        so the compute can mint a connection token.
+//     2. Database-level: writes one DynamoDB mapping item per role; the
+//        bootstrap Lambda runs AWS IAM GRANT "<role>" TO '<compute-iam-arn>'.
+//   Both are required — miss either and the runtime gets `access denied`.
+//
+//   Multiple roles: a compute can be mapped to several roles and connects as
+//   whichever one it chooses per connection (one role per connection).
+//
+//   Removing a grant (or the compute) deletes the policy + mapping item; the
+//   stream fires REMOVE → bootstrap Lambda runs AWS IAM REVOKE.
+//
+// ── 7. RUNTIME — HOW A COMPUTE CONNECTS ─────────────────────────────────────
+//
+//   The compute connects as a CUSTOM role (not admin):
+//     1. token = getDbConnectAuthToken()      // NON-admin token (TS/JS)
+//                                              // Go: auth.GenerateDbConnectAuthToken
+//     2. connect: user=<roleName>, password=token, port=5432, sslmode=verify-full,
+//                 database=postgres
+//   The cluster endpoint is dsql.endpoint (single, provider-region) or
+//   dsql.endpoints[region] (multi-region map). Wire it to the compute as an
+//   env var; Anvil does NOT inject it automatically.
+//
+// ── 8. COMPONENT OUTPUTS ────────────────────────────────────────────────────
+//
+//   endpoint        string                 - provider-region cluster endpoint (convenience)
+//   endpoints       map[region]string      - all cluster endpoints
+//   clusterArns     map[region]string      - cluster ARNs (one per region)
+//   rolesTableName  string                 - DynamoDB bootstrap table name (empty if no schemas)
+//   vpcEndpointIds, vpcEndpointSecurityGroupIds - only when vpc set & hasNat=false
+//
+// ── 9. ARCHITECTURE / SECURITY MODEL ────────────────────────────────────────
+//
+//   Pulumi (deploy) ──► DynamoDB item ──► DynamoDB Stream ──► Bootstrap Lambda ──► DSQL
+//                       (definitions)                          (dsql:DbConnectAdmin)
+//
+//   - The bootstrap Lambda is the ONLY holder of dsql:DbConnectAdmin and can
+//     ONLY be triggered by the stream (no lambda:InvokeFunction granted).
+//   - The pipeline only writes definitions to DynamoDB — it never holds admin
+//     DB credentials. Pipeline compromise can at most alter definitions, never
+//     run arbitrary SQL.
+//   - Each DSQL component has its own DynamoDB table + bootstrap Lambda. The
+//     cluster endpoint/region are Lambda env vars, not per-item — multi-cluster
+//     deployments are fully isolated.
+//
+// ── 10. DYNAMODB ITEM SCHEMA (frontend reads this for live state) ────────────
+//
+//   Table name: {stage}-{componentName}-dsql-roles-{stageId}
+//   Composite key: PK "roleName", SK "sk".
+//
+//   Role definition:  roleName=<role>, sk="DEFINITION", schema=<s>,
+//                     grants=[...], tableScoping=[...] (optional)
+//   IAM mapping:      roleName=<role>, sk=<iam-arn>
+//   Table definition: roleName="table#<schema>.<name>", sk="DEFINITION",
+//                     kind="table", definition=<JSON: columns, primaryKey, indexes>
+//
+//   Frontend query patterns:
+//     - List roles:    Scan, FilterExpression sk = "DEFINITION" AND attribute_not_exists(kind)
+//     - List tables:   Scan, FilterExpression kind = "table"
+//     - Role mappings: Query roleName=<role>, sk begins_with "arn:"
+//
+// ── 11. ADDITIVE-ONLY SEMANTICS (tables & columns) ──────────────────────────
+//
+//   Anvil only ever moves the schema FORWARD. Destructive changes are the
+//   operator's responsibility — Anvil never runs them.
+//     - New table      → CREATE TABLE
+//     - New column     → ALTER TABLE ADD COLUMN
+//     - New index      → CREATE INDEX ASYNC
+//     - Removed column → no-op (column stays in DSQL)
+//     - Removed table  → no-op (table stays in DSQL)
+//     - Type change    → no-op (not additive)
+//   Roles ARE fully reconciled (revoke-all-then-re-grant on change; dropped on
+//   removal) — that's safe because roles carry no data.
+//
+// ── 12. DSQL CONSTRAINTS THAT SHAPE THE DESIGN ──────────────────────────────
+//
+//   - Max 10 schemas per database; max 1 database per cluster.
+//   - One DDL statement per transaction; DDL and DML cannot mix.
+//   - CREATE INDEX must be ASYNC (background build; returns job_id; monitor
+//     via sys.jobs). Anvil fires-and-logs, does not block.
+//   - No CREATE ROLE IF NOT EXISTS — bootstrap checks pg_roles then conditionally
+//     creates (idempotent).
+//   - No DROP OWNED BY — role removal revokes grants then DROP ROLE (best-effort).
+//   - AWS IAM GRANT/REVOKE is a DSQL extension — works over pgx/psql but many
+//     GUI SQL clients reject it client-side (use psql / CloudShell / DSQL console).
+//   - OCC: transactions abort at commit under contention; apps must retry.
+//
+// ── 13. SOURCE MAP (where each piece lives) ─────────────────────────────────
+//
+//   provider/aws/dsql/dsql.go        - DSQL component, args, validation, bootstrap wiring
+//   provider/aws/dsqlgrant/          - DSQLConnect component (grantConnect under the hood)
+//   provider/aws/dsql/bootstrap/     - embedded bootstrap Lambda zip (//go:embed)
+//   cmd/anvil/dsql-lambda/main.go    - bootstrap Lambda source (stream handler + SQL)
+//   scripts/grants/configs/dsql-config.ts - SDK grantConnect method generation
+//   build.go: build-dsql-lambda      - cross-compiles + embeds the bootstrap Lambda
