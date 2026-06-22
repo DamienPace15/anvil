@@ -149,7 +149,7 @@ func targetBuildProvider() {
 // providerVersion is the version the provider reports to Pulumi.
 // MUST match the version in scripts/registry/generate_registry.go and the SDK
 // package versions, or Pulumi resolves a stale/missing plugin from the cache.
-const providerVersion = "0.0.15"
+const providerVersion = "0.0.16"
 
 // installProviderToPluginCache copies the freshly built provider into the
 // Pulumi plugin cache (~/.pulumi/plugins/resource-anvil-v{version}/).
