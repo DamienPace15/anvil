@@ -17,6 +17,8 @@ type DSQL struct {
 
 	// Map of region to cluster ARN. Single-region: one entry. Multi-region: one entry per region. e.g. { "us-east-1": "arn:aws:dsql:us-east-1:..." }.
 	ClusterArns pulumi.StringMapOutput `pulumi:"clusterArns"`
+	// The single cluster endpoint for the provider's default region. Convenience for the common single-region case — pass straight to a Lambda env var: { DSQL_ENDPOINT: dsql.endpoint }. For multi-region this is the local-region endpoint; use endpoints[region] for another.
+	Endpoint pulumi.StringOutput `pulumi:"endpoint"`
 	// Map of region to cluster endpoint. Single-region: one entry keyed by the provider region. Multi-region: one entry per region. e.g. { "us-east-1": "abc123.dsql.us-east-1.on.aws" }. Pass the relevant endpoint to your Lambda via environment variables.
 	Endpoints pulumi.StringMapOutput `pulumi:"endpoints"`
 	// Map of region to VPC endpoint ID. Only populated when vpc is set and hasNat is false. Pass to LambdaVpcEndpointArgs.endpointId.
@@ -46,8 +48,8 @@ type dsqlArgs struct {
 	Backup *DSQLBackupArgs `pulumi:"backup"`
 	// Opt-in multi-region configuration. When set, Anvil creates two clusters in the specified regions and links them via ClusterPeering. When omitted, a single-region cluster is created in the provider's default region.
 	MultiRegion *DSQLMultiRegionArgs `pulumi:"multiRegion"`
-	// Database roles to bootstrap at deploy time. Anvil connects as admin using the deployer's credentials and runs the SQL to create schemas, roles, IAM grants, and table-level permissions. Only re-runs when role definitions change. Omit entirely to skip bootstrapping — useful when managing schema separately.
-	Roles     []DSQLRole         `pulumi:"roles"`
+	// Schemas and the tables within them. Anvil creates each schema and table (additive-only — new tables/columns/indexes are applied; removals are left to humans). Omit to skip table management.
+	Schemas   []DSQLSchema       `pulumi:"schemas"`
 	Transform *DsqlTransformArgs `pulumi:"transform"`
 	// Optional VPC configuration. When set without hasNat, Anvil creates interface VPC endpoints (PrivateLink) per region so traffic stays on the AWS backbone. When omitted, the Lambda connects to the public DSQL endpoint over the internet using IAM auth tokens over TLS.
 	Vpc *DSQLVpcArgs `pulumi:"vpc"`
@@ -59,8 +61,8 @@ type DSQLArgs struct {
 	Backup DSQLBackupArgsPtrInput
 	// Opt-in multi-region configuration. When set, Anvil creates two clusters in the specified regions and links them via ClusterPeering. When omitted, a single-region cluster is created in the provider's default region.
 	MultiRegion DSQLMultiRegionArgsPtrInput
-	// Database roles to bootstrap at deploy time. Anvil connects as admin using the deployer's credentials and runs the SQL to create schemas, roles, IAM grants, and table-level permissions. Only re-runs when role definitions change. Omit entirely to skip bootstrapping — useful when managing schema separately.
-	Roles     DSQLRoleArrayInput
+	// Schemas and the tables within them. Anvil creates each schema and table (additive-only — new tables/columns/indexes are applied; removals are left to humans). Omit to skip table management.
+	Schemas   DSQLSchemaArrayInput
 	Transform DsqlTransformArgsPtrInput
 	// Optional VPC configuration. When set without hasNat, Anvil creates interface VPC endpoints (PrivateLink) per region so traffic stays on the AWS backbone. When omitted, the Lambda connects to the public DSQL endpoint over the internet using IAM auth tokens over TLS.
 	Vpc DSQLVpcArgsPtrInput
@@ -156,6 +158,11 @@ func (o DSQLOutput) ToDSQLOutputWithContext(ctx context.Context) DSQLOutput {
 // Map of region to cluster ARN. Single-region: one entry. Multi-region: one entry per region. e.g. { "us-east-1": "arn:aws:dsql:us-east-1:..." }.
 func (o DSQLOutput) ClusterArns() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *DSQL) pulumi.StringMapOutput { return v.ClusterArns }).(pulumi.StringMapOutput)
+}
+
+// The single cluster endpoint for the provider's default region. Convenience for the common single-region case — pass straight to a Lambda env var: { DSQL_ENDPOINT: dsql.endpoint }. For multi-region this is the local-region endpoint; use endpoints[region] for another.
+func (o DSQLOutput) Endpoint() pulumi.StringOutput {
+	return o.ApplyT(func(v *DSQL) pulumi.StringOutput { return v.Endpoint }).(pulumi.StringOutput)
 }
 
 // Map of region to cluster endpoint. Single-region: one entry keyed by the provider region. Multi-region: one entry per region. e.g. { "us-east-1": "abc123.dsql.us-east-1.on.aws" }. Pass the relevant endpoint to your Lambda via environment variables.

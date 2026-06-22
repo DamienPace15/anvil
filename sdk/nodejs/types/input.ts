@@ -716,6 +716,62 @@ export namespace aws {
     }
 
     /**
+     * A single column in a table.
+     */
+    export interface DSQLColumnArgs {
+        /**
+         * Raw SQL default expression, passed through verbatim. String literals need inner quotes: "'active'". Functions: "now()".
+         */
+        default?: pulumi.Input<string>;
+        /**
+         * Length for char/varchar. char <= 4096, varchar <= 65535.
+         */
+        length?: pulumi.Input<number>;
+        /**
+         * Column name.
+         */
+        name: pulumi.Input<string>;
+        /**
+         * Adds NOT NULL. Primary-key columns are auto-NOT-NULL.
+         */
+        notNull?: pulumi.Input<boolean>;
+        /**
+         * Total digits for numeric (<= 38).
+         */
+        precision?: pulumi.Input<number>;
+        /**
+         * Fractional digits for numeric (<= 37).
+         */
+        scale?: pulumi.Input<number>;
+        /**
+         * DSQL column type.
+         */
+        type: pulumi.Input<enums.aws.DSQLColumnType>;
+        /**
+         * Creates a named async unique index on this column.
+         */
+        unique?: pulumi.Input<boolean>;
+    }
+
+    /**
+     * A secondary index on a table. Created with CREATE INDEX ASYNC (DSQL requirement); the build runs in the background.
+     */
+    export interface DSQLIndexArgs {
+        /**
+         * Indexed columns, in order.
+         */
+        columns: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Index name (required, used for additive diffing).
+         */
+        name: pulumi.Input<string>;
+        /**
+         * Creates a unique index.
+         */
+        unique?: pulumi.Input<boolean>;
+    }
+
+    /**
      * Multi-region configuration for DSQL. When set, Anvil creates one cluster per region and links them via ClusterPeering. Both regions are active-active — reads and writes are accepted at either endpoint with strong consistency.
      */
     export interface DSQLMultiRegionArgsArgs {
@@ -730,7 +786,7 @@ export namespace aws {
     }
 
     /**
-     * A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.
+     * A database role within a schema (its parent). Role names must be globally unique across all schemas — DSQL roles are database-wide. grants apply to the parent schema; tableScoping optionally narrows to specific tables.
      */
     export interface DSQLRoleArgs {
         /**
@@ -742,9 +798,49 @@ export namespace aws {
          */
         name: pulumi.Input<string>;
         /**
-         * The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
+         * Optionally narrow the grants to specific tables instead of the whole schema. When set, the role is granted only on these tables (which must exist — declare them in schemas[]). When omitted, grants apply schema-wide (current + future tables).
          */
-        schema: pulumi.Input<string>;
+        tableScoping?: pulumi.Input<pulumi.Input<string>[]>;
+    }
+
+    /**
+     * A schema and the tables within it. Anvil creates the schema (CREATE SCHEMA IF NOT EXISTS) and each table.
+     */
+    export interface DSQLSchemaArgs {
+        /**
+         * Schema name (literal). Must not be "public".
+         */
+        name: pulumi.Input<string>;
+        /**
+         * Database roles for this schema. Each role's grants apply to this schema. Role names must be globally unique across all schemas.
+         */
+        roles?: pulumi.Input<pulumi.Input<inputs.aws.DSQLRoleArgs>[]>;
+        /**
+         * Tables to create in this schema.
+         */
+        tables?: pulumi.Input<pulumi.Input<inputs.aws.DSQLTableArgs>[]>;
+    }
+
+    /**
+     * A table to create in a schema. Additive-only: Anvil creates the table and adds new columns/indexes, but never drops or alters existing ones.
+     */
+    export interface DSQLTableArgs {
+        /**
+         * The table's columns.
+         */
+        columns: pulumi.Input<pulumi.Input<inputs.aws.DSQLColumnArgs>[]>;
+        /**
+         * Secondary indexes.
+         */
+        indexes?: pulumi.Input<pulumi.Input<inputs.aws.DSQLIndexArgs>[]>;
+        /**
+         * Table name (literal, not stage-prefixed).
+         */
+        name: pulumi.Input<string>;
+        /**
+         * Column names forming the primary key, in order. Required — DSQL uses the PK as the distribution key and it cannot be added after creation. AWS recommends a uuid PK generated app-side.
+         */
+        primaryKey: pulumi.Input<pulumi.Input<string>[]>;
     }
 
     /**

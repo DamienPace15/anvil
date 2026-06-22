@@ -10,13 +10,15 @@
         "experimentalDecorators": true,
         "noFallthroughCasesInSwitch": true,
         "forceConsistentCasingInFileNames": true,
-        "strict": true
+        "strict": true,
+        "ignoreDeprecations": "6.0"
     },
     "files": [
         "aws/bucket.ts",
         "aws/cognitoAuth.ts",
         "aws/cognitoUserPool.ts",
         "aws/dsql.ts",
+        "aws/dsqlconnect.ts",
         "aws/dynamoDB.ts",
         "aws/eventBus.ts",
         "aws/httpApi.ts",

@@ -25,6 +25,11 @@ export type DSQL = import("./dsql").DSQL;
 export const DSQL: typeof import("./dsql").DSQL = null as any;
 utilities.lazyLoad(exports, ["DSQL"], () => require("./dsql"));
 
+export { DSQLConnectArgs } from "./dsqlconnect";
+export type DSQLConnect = import("./dsqlconnect").DSQLConnect;
+export const DSQLConnect: typeof import("./dsqlconnect").DSQLConnect = null as any;
+utilities.lazyLoad(exports, ["DSQLConnect"], () => require("./dsqlconnect"));
+
 export { DynamoDBArgs } from "./dynamoDB";
 export type DynamoDB = import("./dynamoDB").DynamoDB;
 export const DynamoDB: typeof import("./dynamoDB").DynamoDB = null as any;
@@ -86,6 +91,8 @@ const _module = {
                 return new CognitoUserPool(name, <any>undefined, { urn })
             case "anvil:aws:DSQL":
                 return new DSQL(name, <any>undefined, { urn })
+            case "anvil:aws:DSQLConnect":
+                return new DSQLConnect(name, <any>undefined, { urn })
             case "anvil:aws:DynamoDB":
                 return new DynamoDB(name, <any>undefined, { urn })
             case "anvil:aws:EventBus":

@@ -11,6 +11,7 @@ from .bucket import *
 from .cognito_auth import *
 from .cognito_user_pool import *
 from .dsql import *
+from .dsql_connect import *
 from .dynamo_db import *
 from .event_bus import *
 from .http_api import *

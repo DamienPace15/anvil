@@ -100,12 +100,16 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 		upOpts = append(upOpts, optup.Refresh())
 	}
 
-	_, err = s.Up(ctx, upOpts...)
+	_, upErr := s.Up(ctx, upOpts...)
 
 	handler.PrintSummary(stage)
 
 	if handler.HasErrors() {
 		return fmt.Errorf("deploy failed")
+	}
+
+	if upErr != nil {
+		return fmt.Errorf("deploy failed: %w", upErr)
 	}
 
 	return nil

@@ -27,7 +27,7 @@ class DSQLArgs:
     def __init__(__self__, *,
                  backup: Optional[pulumi.Input['DSQLBackupArgsArgs']] = None,
                  multi_region: Optional[pulumi.Input['DSQLMultiRegionArgsArgs']] = None,
-                 roles: Optional[pulumi.Input[Sequence[pulumi.Input['DSQLRoleArgs']]]] = None,
+                 schemas: Optional[pulumi.Input[Sequence[pulumi.Input['DSQLSchemaArgs']]]] = None,
                  transform: Optional[pulumi.Input['DsqlTransformArgsArgs']] = None,
                  vpc: Optional[pulumi.Input['DSQLVpcArgsArgs']] = None):
         """
@@ -35,15 +35,15 @@ class DSQLArgs:
 
         :param pulumi.Input['DSQLBackupArgsArgs'] backup: AWS Backup configuration. Omit to disable. When set, Anvil opts in the DSQL resource type per region, creates a backup plan with retention and schedule, and for multi-region clusters automatically adds cross-region copy rules.
         :param pulumi.Input['DSQLMultiRegionArgsArgs'] multi_region: Opt-in multi-region configuration. When set, Anvil creates two clusters in the specified regions and links them via ClusterPeering. When omitted, a single-region cluster is created in the provider's default region.
-        :param pulumi.Input[Sequence[pulumi.Input['DSQLRoleArgs']]] roles: Database roles to bootstrap at deploy time. Anvil connects as admin using the deployer's credentials and runs the SQL to create schemas, roles, IAM grants, and table-level permissions. Only re-runs when role definitions change. Omit entirely to skip bootstrapping — useful when managing schema separately.
+        :param pulumi.Input[Sequence[pulumi.Input['DSQLSchemaArgs']]] schemas: Schemas and the tables within them. Anvil creates each schema and table (additive-only — new tables/columns/indexes are applied; removals are left to humans). Omit to skip table management.
         :param pulumi.Input['DSQLVpcArgsArgs'] vpc: Optional VPC configuration. When set without hasNat, Anvil creates interface VPC endpoints (PrivateLink) per region so traffic stays on the AWS backbone. When omitted, the Lambda connects to the public DSQL endpoint over the internet using IAM auth tokens over TLS.
         """
         if backup is not None:
             pulumi.set(__self__, "backup", backup)
         if multi_region is not None:
             pulumi.set(__self__, "multi_region", multi_region)
-        if roles is not None:
-            pulumi.set(__self__, "roles", roles)
+        if schemas is not None:
+            pulumi.set(__self__, "schemas", schemas)
         if transform is not None:
             pulumi.set(__self__, "transform", transform)
         if vpc is not None:
@@ -75,15 +75,15 @@ class DSQLArgs:
 
     @_builtins.property
     @pulumi.getter
-    def roles(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['DSQLRoleArgs']]]]:
+    def schemas(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['DSQLSchemaArgs']]]]:
         """
-        Database roles to bootstrap at deploy time. Anvil connects as admin using the deployer's credentials and runs the SQL to create schemas, roles, IAM grants, and table-level permissions. Only re-runs when role definitions change. Omit entirely to skip bootstrapping — useful when managing schema separately.
+        Schemas and the tables within them. Anvil creates each schema and table (additive-only — new tables/columns/indexes are applied; removals are left to humans). Omit to skip table management.
         """
-        return pulumi.get(self, "roles")
+        return pulumi.get(self, "schemas")
 
-    @roles.setter
-    def roles(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['DSQLRoleArgs']]]]):
-        pulumi.set(self, "roles", value)
+    @schemas.setter
+    def schemas(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['DSQLSchemaArgs']]]]):
+        pulumi.set(self, "schemas", value)
 
     @_builtins.property
     @pulumi.getter
@@ -115,7 +115,7 @@ class DSQL(pulumi.ComponentResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  backup: Optional[pulumi.Input[Union['DSQLBackupArgsArgs', 'DSQLBackupArgsArgsDict']]] = None,
                  multi_region: Optional[pulumi.Input[Union['DSQLMultiRegionArgsArgs', 'DSQLMultiRegionArgsArgsDict']]] = None,
-                 roles: Optional[pulumi.Input[Sequence[pulumi.Input[Union['DSQLRoleArgs', 'DSQLRoleArgsDict']]]]] = None,
+                 schemas: Optional[pulumi.Input[Sequence[pulumi.Input[Union['DSQLSchemaArgs', 'DSQLSchemaArgsDict']]]]] = None,
                  transform: Optional[pulumi.Input[Union['DsqlTransformArgsArgs', 'DsqlTransformArgsArgsDict']]] = None,
                  vpc: Optional[pulumi.Input[Union['DSQLVpcArgsArgs', 'DSQLVpcArgsArgsDict']]] = None,
                  __props__=None):
@@ -127,7 +127,7 @@ class DSQL(pulumi.ComponentResource):
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[Union['DSQLBackupArgsArgs', 'DSQLBackupArgsArgsDict']] backup: AWS Backup configuration. Omit to disable. When set, Anvil opts in the DSQL resource type per region, creates a backup plan with retention and schedule, and for multi-region clusters automatically adds cross-region copy rules.
         :param pulumi.Input[Union['DSQLMultiRegionArgsArgs', 'DSQLMultiRegionArgsArgsDict']] multi_region: Opt-in multi-region configuration. When set, Anvil creates two clusters in the specified regions and links them via ClusterPeering. When omitted, a single-region cluster is created in the provider's default region.
-        :param pulumi.Input[Sequence[pulumi.Input[Union['DSQLRoleArgs', 'DSQLRoleArgsDict']]]] roles: Database roles to bootstrap at deploy time. Anvil connects as admin using the deployer's credentials and runs the SQL to create schemas, roles, IAM grants, and table-level permissions. Only re-runs when role definitions change. Omit entirely to skip bootstrapping — useful when managing schema separately.
+        :param pulumi.Input[Sequence[pulumi.Input[Union['DSQLSchemaArgs', 'DSQLSchemaArgsDict']]]] schemas: Schemas and the tables within them. Anvil creates each schema and table (additive-only — new tables/columns/indexes are applied; removals are left to humans). Omit to skip table management.
         :param pulumi.Input[Union['DSQLVpcArgsArgs', 'DSQLVpcArgsArgsDict']] vpc: Optional VPC configuration. When set without hasNat, Anvil creates interface VPC endpoints (PrivateLink) per region so traffic stays on the AWS backbone. When omitted, the Lambda connects to the public DSQL endpoint over the internet using IAM auth tokens over TLS.
         """
         ...
@@ -157,7 +157,7 @@ class DSQL(pulumi.ComponentResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  backup: Optional[pulumi.Input[Union['DSQLBackupArgsArgs', 'DSQLBackupArgsArgsDict']]] = None,
                  multi_region: Optional[pulumi.Input[Union['DSQLMultiRegionArgsArgs', 'DSQLMultiRegionArgsArgsDict']]] = None,
-                 roles: Optional[pulumi.Input[Sequence[pulumi.Input[Union['DSQLRoleArgs', 'DSQLRoleArgsDict']]]]] = None,
+                 schemas: Optional[pulumi.Input[Sequence[pulumi.Input[Union['DSQLSchemaArgs', 'DSQLSchemaArgsDict']]]]] = None,
                  transform: Optional[pulumi.Input[Union['DsqlTransformArgsArgs', 'DsqlTransformArgsArgsDict']]] = None,
                  vpc: Optional[pulumi.Input[Union['DSQLVpcArgsArgs', 'DSQLVpcArgsArgsDict']]] = None,
                  __props__=None):
@@ -173,10 +173,11 @@ class DSQL(pulumi.ComponentResource):
 
             __props__.__dict__["backup"] = backup
             __props__.__dict__["multi_region"] = multi_region
-            __props__.__dict__["roles"] = roles
+            __props__.__dict__["schemas"] = schemas
             __props__.__dict__["transform"] = transform
             __props__.__dict__["vpc"] = vpc
             __props__.__dict__["cluster_arns"] = None
+            __props__.__dict__["endpoint"] = None
             __props__.__dict__["endpoints"] = None
             __props__.__dict__["vpc_endpoint_ids"] = None
             __props__.__dict__["vpc_endpoint_security_group_ids"] = None
@@ -194,6 +195,14 @@ class DSQL(pulumi.ComponentResource):
         Map of region to cluster ARN. Single-region: one entry. Multi-region: one entry per region. e.g. { "us-east-1": "arn:aws:dsql:us-east-1:..." }.
         """
         return pulumi.get(self, "cluster_arns")
+
+    @_builtins.property
+    @pulumi.getter
+    def endpoint(self) -> pulumi.Output[_builtins.str]:
+        """
+        The single cluster endpoint for the provider's default region. Convenience for the common single-region case — pass straight to a Lambda env var: { DSQL_ENDPOINT: dsql.endpoint }. For multi-region this is the local-region endpoint; use endpoints[region] for another.
+        """
+        return pulumi.get(self, "endpoint")
 
     @_builtins.property
     @pulumi.getter
@@ -219,21 +228,24 @@ class DSQL(pulumi.ComponentResource):
         """
         return pulumi.get(self, "vpc_endpoint_security_group_ids")
 
-    def grant_connect(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants connect access on this dsql to the target's execution role.
-        Scoped to all ARNs in cluster_arns — one per region.
+    def grant_connect(self, target: "grants.GrantTarget", schemas: list = None) -> None:
+        """Grants a compute resource connect access to this DSQL cluster.
+
+        Pass one or more {"schema", "role_name"} pairs. The compute may be mapped
+        to multiple roles and connects as whichever one it chooses at runtime.
+
+        Args:
+            target: The compute resource to grant access to (Lambda, ECS, etc.).
+            schemas: List of {"schema": ..., "role_name": ...} pairs.
         """
-        import json
-        import pulumi_aws as aws
-        name = f"{self._name}-{target.grant_name()}-connect"
-        policy_document = self.cluster_arns.apply(
-            lambda arns: json.dumps({
-                "Version": "2012-10-17",
-                "Statement": [{"Effect": "Allow", "Action": ["dsql:DbConnect"], "Resource": list(arns.values())}],
-            })
+        schemas = schemas or []
+        db_roles = [s["role_name"] for s in schemas]
+        DSQLConnect(f"{self._name}-{target.grant_name()}-connect",
+            cluster_arns=self.cluster_arns,
+            target_role_arn=target.grant_role_arn(),
+            target_name=target.grant_name(),
+            db_roles=db_roles,
+            roles_table_name=self.roles_table_name,
+            opts=pulumi.ResourceOptions(parent=self),
         )
-        role_name = target.grant_role_arn().apply(
-            lambda arn: arn[arn.rfind("/") + 1:] if "/" in arn else arn
-        )
-        aws.iam.RolePolicy(name, role=role_name, policy=policy_document, opts=pulumi.ResourceOptions(parent=self))
 

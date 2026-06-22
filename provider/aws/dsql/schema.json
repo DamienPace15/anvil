@@ -11,10 +11,10 @@
           "$ref": "#/types/anvil:aws:DSQLMultiRegionArgs",
           "description": "Opt-in multi-region configuration. When set, Anvil creates two clusters in the specified regions and links them via ClusterPeering. When omitted, a single-region cluster is created in the provider's default region."
         },
-        "roles": {
-          "description": "Database roles to bootstrap at deploy time. Anvil connects as admin using the deployer's credentials and runs the SQL to create schemas, roles, IAM grants, and table-level permissions. Only re-runs when role definitions change. Omit entirely to skip bootstrapping — useful when managing schema separately.",
+        "schemas": {
+          "description": "Schemas and the tables within them. Anvil creates each schema and table (additive-only — new tables/columns/indexes are applied; removals are left to humans). Omit to skip table management.",
           "items": {
-            "$ref": "#/types/anvil:aws:DSQLRole"
+            "$ref": "#/types/anvil:aws:DSQLSchema"
           },
           "type": "array"
         },
@@ -34,6 +34,10 @@
           },
           "description": "Map of region to cluster ARN. Single-region: one entry. Multi-region: one entry per region. e.g. { \"us-east-1\": \"arn:aws:dsql:us-east-1:...\" }.",
           "type": "object"
+        },
+        "endpoint": {
+          "description": "The single cluster endpoint for the provider's default region. Convenience for the common single-region case — pass straight to a Lambda env var: { DSQL_ENDPOINT: dsql.endpoint }. For multi-region this is the local-region endpoint; use endpoints[region] for another.",
+          "type": "string"
         },
         "endpoints": {
           "additionalProperties": {
@@ -59,7 +63,8 @@
       },
       "required": [
         "endpoints",
-        "clusterArns"
+        "clusterArns",
+        "endpoint"
       ],
       "requiredInputs": []
     }
@@ -86,6 +91,130 @@
         }
       },
       "type": "object"
+    },
+    "anvil:aws:DSQLColumn": {
+      "description": "A single column in a table.",
+      "properties": {
+        "default": {
+          "description": "Raw SQL default expression, passed through verbatim. String literals need inner quotes: \"'active'\". Functions: \"now()\".",
+          "type": "string"
+        },
+        "length": {
+          "description": "Length for char/varchar. char \u003c= 4096, varchar \u003c= 65535.",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Column name.",
+          "type": "string"
+        },
+        "notNull": {
+          "description": "Adds NOT NULL. Primary-key columns are auto-NOT-NULL.",
+          "type": "boolean"
+        },
+        "precision": {
+          "description": "Total digits for numeric (\u003c= 38).",
+          "type": "integer"
+        },
+        "scale": {
+          "description": "Fractional digits for numeric (\u003c= 37).",
+          "type": "integer"
+        },
+        "type": {
+          "$ref": "#/types/anvil:aws:DSQLColumnType",
+          "description": "DSQL column type."
+        },
+        "unique": {
+          "description": "Creates a named async unique index on this column.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:DSQLColumnType": {
+      "description": "A DSQL-supported column type. Arrays, enums, serial, money, and xml are intentionally excluded — DSQL does not support them.",
+      "enum": [
+        {
+          "description": "Universally unique identifier (recommended for primary keys).",
+          "value": "uuid"
+        },
+        {
+          "description": "Variable-length string up to 1 MiB.",
+          "value": "text"
+        },
+        {
+          "description": "Variable-length string; set length (max 65535).",
+          "value": "varchar"
+        },
+        {
+          "description": "Fixed-length string; set length (max 4096).",
+          "value": "char"
+        },
+        {
+          "description": "True/false.",
+          "value": "boolean"
+        },
+        {
+          "description": "2-byte integer.",
+          "value": "smallint"
+        },
+        {
+          "description": "4-byte integer.",
+          "value": "integer"
+        },
+        {
+          "description": "8-byte integer.",
+          "value": "bigint"
+        },
+        {
+          "description": "4-byte floating point.",
+          "value": "real"
+        },
+        {
+          "description": "8-byte floating point.",
+          "value": "double precision"
+        },
+        {
+          "description": "Exact numeric; set precision/scale (max precision 38).",
+          "value": "numeric"
+        },
+        {
+          "description": "Calendar date.",
+          "value": "date"
+        },
+        {
+          "description": "Time of day.",
+          "value": "time"
+        },
+        {
+          "description": "Date and time without time zone.",
+          "value": "timestamp"
+        },
+        {
+          "description": "Date and time with time zone.",
+          "value": "timestamptz"
+        },
+        {
+          "description": "Time span.",
+          "value": "interval"
+        },
+        {
+          "description": "Binary data up to 1 MiB.",
+          "value": "bytea"
+        },
+        {
+          "description": "JSON text.",
+          "value": "json"
+        },
+        {
+          "description": "Binary JSON.",
+          "value": "jsonb"
+        }
+      ],
+      "type": "string"
     },
     "anvil:aws:DSQLGrant": {
       "description": "A PostgreSQL table-level privilege.",
@@ -116,6 +245,31 @@
         }
       ],
       "type": "string"
+    },
+    "anvil:aws:DSQLIndex": {
+      "description": "A secondary index on a table. Created with CREATE INDEX ASYNC (DSQL requirement); the build runs in the background.",
+      "properties": {
+        "columns": {
+          "description": "Indexed columns, in order.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "name": {
+          "description": "Index name (required, used for additive diffing).",
+          "type": "string"
+        },
+        "unique": {
+          "description": "Creates a unique index.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "columns"
+      ],
+      "type": "object"
     },
     "anvil:aws:DSQLMultiRegionArgs": {
       "description": "Multi-region configuration for DSQL. When set, Anvil creates one cluster per region and links them via ClusterPeering. Both regions are active-active — reads and writes are accepted at either endpoint with strong consistency.",
@@ -156,7 +310,7 @@
       "type": "object"
     },
     "anvil:aws:DSQLRole": {
-      "description": "A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.",
+      "description": "A database role within a schema (its parent). Role names must be globally unique across all schemas — DSQL roles are database-wide. grants apply to the parent schema; tableScoping optionally narrows to specific tables.",
       "properties": {
         "grants": {
           "description": "Table-level privileges to grant to this role on all current and future tables in the schema. e.g. [\"SELECT\", \"INSERT\", \"UPDATE\", \"DELETE\"]. Applied via GRANT ... ON ALL TABLES and ALTER DEFAULT PRIVILEGES.",
@@ -169,15 +323,80 @@
           "description": "The Postgres role name. e.g. \"app_role\". Must be a valid PostgreSQL identifier.",
           "type": "string"
         },
-        "schema": {
-          "description": "The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be \"public\".",
-          "type": "string"
+        "tableScoping": {
+          "description": "Optionally narrow the grants to specific tables instead of the whole schema. When set, the role is granted only on these tables (which must exist — declare them in schemas[]). When omitted, grants apply schema-wide (current + future tables).",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         }
       },
       "required": [
         "name",
-        "schema",
         "grants"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:DSQLSchema": {
+      "description": "A schema and the tables within it. Anvil creates the schema (CREATE SCHEMA IF NOT EXISTS) and each table.",
+      "properties": {
+        "name": {
+          "description": "Schema name (literal). Must not be \"public\".",
+          "type": "string"
+        },
+        "roles": {
+          "description": "Database roles for this schema. Each role's grants apply to this schema. Role names must be globally unique across all schemas.",
+          "items": {
+            "$ref": "#/types/anvil:aws:DSQLRole"
+          },
+          "type": "array"
+        },
+        "tables": {
+          "description": "Tables to create in this schema.",
+          "items": {
+            "$ref": "#/types/anvil:aws:DSQLTable"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "anvil:aws:DSQLTable": {
+      "description": "A table to create in a schema. Additive-only: Anvil creates the table and adds new columns/indexes, but never drops or alters existing ones.",
+      "properties": {
+        "columns": {
+          "description": "The table's columns.",
+          "items": {
+            "$ref": "#/types/anvil:aws:DSQLColumn"
+          },
+          "type": "array"
+        },
+        "indexes": {
+          "description": "Secondary indexes.",
+          "items": {
+            "$ref": "#/types/anvil:aws:DSQLIndex"
+          },
+          "type": "array"
+        },
+        "name": {
+          "description": "Table name (literal, not stage-prefixed).",
+          "type": "string"
+        },
+        "primaryKey": {
+          "description": "Column names forming the primary key, in order. Required — DSQL uses the PK as the distribution key and it cannot be added after creation. AWS recommends a uuid PK generated app-side.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "columns",
+        "primaryKey"
       ],
       "type": "object"
     },

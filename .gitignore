@@ -52,4 +52,5 @@ test-app-*/
 test-app-*/.anvil/
 test-*/
 
-dist/
+dist/provider/aws/dsql/bootstrap/dsql-lambda.zip
+provider/aws/dsql/bootstrap/bootstrap

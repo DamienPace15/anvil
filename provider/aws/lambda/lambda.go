@@ -142,7 +142,8 @@ type LambdaArgs struct {
 	Timeout int `pulumi:"timeout,optional"`
 
 	// Environment variables available to the function at runtime.
-	Environment map[string]string `pulumi:"environment,optional"`
+	// Values accept plain strings and Pulumi outputs (e.g. dsql.endpoint).
+	Environment map[string]pulumi.StringInput `pulumi:"environment,optional"`
 
 	// Architecture is the CPU architecture. Default: "arm64" (Graviton).
 	Architecture string `pulumi:"architecture,optional"`
@@ -503,7 +504,7 @@ func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi
 	if len(args.Environment) > 0 {
 		envVars := pulumi.StringMap{}
 		for k, v := range args.Environment {
-			envVars[k] = pulumi.String(v)
+			envVars[k] = v.ToStringOutput()
 		}
 		lambdaMap["environment"] = pulumi.Map{
 			"variables": envVars,

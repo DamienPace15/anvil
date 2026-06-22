@@ -69,10 +69,18 @@ __all__ = [
     'CognitoUserPoolTransformArgsArgsDict',
     'DSQLBackupArgsArgs',
     'DSQLBackupArgsArgsDict',
+    'DSQLColumnArgs',
+    'DSQLColumnArgsDict',
+    'DSQLIndexArgs',
+    'DSQLIndexArgsDict',
     'DSQLMultiRegionArgsArgs',
     'DSQLMultiRegionArgsArgsDict',
     'DSQLRoleArgs',
     'DSQLRoleArgsDict',
+    'DSQLSchemaArgs',
+    'DSQLSchemaArgsDict',
+    'DSQLTableArgs',
+    'DSQLTableArgsDict',
     'DSQLVpcArgsArgs',
     'DSQLVpcArgsArgsDict',
     'DsqlOverridesArgs',
@@ -3481,6 +3489,250 @@ class DSQLBackupArgsArgs:
         pulumi.set(self, "vault_arn", value)
 
 
+class DSQLColumnArgsDict(TypedDict):
+    """
+    A single column in a table.
+    """
+    name: pulumi.Input[_builtins.str]
+    """
+    Column name.
+    """
+    type: pulumi.Input['DSQLColumnType']
+    """
+    DSQL column type.
+    """
+    default: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Raw SQL default expression, passed through verbatim. String literals need inner quotes: "'active'". Functions: "now()".
+    """
+    length: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Length for char/varchar. char <= 4096, varchar <= 65535.
+    """
+    not_null: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Adds NOT NULL. Primary-key columns are auto-NOT-NULL.
+    """
+    precision: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Total digits for numeric (<= 38).
+    """
+    scale: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Fractional digits for numeric (<= 37).
+    """
+    unique: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Creates a named async unique index on this column.
+    """
+
+@pulumi.input_type
+class DSQLColumnArgs:
+    def __init__(__self__, *,
+                 name: pulumi.Input[_builtins.str],
+                 type: pulumi.Input['DSQLColumnType'],
+                 default: Optional[pulumi.Input[_builtins.str]] = None,
+                 length: Optional[pulumi.Input[_builtins.int]] = None,
+                 not_null: Optional[pulumi.Input[_builtins.bool]] = None,
+                 precision: Optional[pulumi.Input[_builtins.int]] = None,
+                 scale: Optional[pulumi.Input[_builtins.int]] = None,
+                 unique: Optional[pulumi.Input[_builtins.bool]] = None):
+        """
+        A single column in a table.
+
+        :param pulumi.Input[_builtins.str] name: Column name.
+        :param pulumi.Input['DSQLColumnType'] type: DSQL column type.
+        :param pulumi.Input[_builtins.str] default: Raw SQL default expression, passed through verbatim. String literals need inner quotes: "'active'". Functions: "now()".
+        :param pulumi.Input[_builtins.int] length: Length for char/varchar. char <= 4096, varchar <= 65535.
+        :param pulumi.Input[_builtins.bool] not_null: Adds NOT NULL. Primary-key columns are auto-NOT-NULL.
+        :param pulumi.Input[_builtins.int] precision: Total digits for numeric (<= 38).
+        :param pulumi.Input[_builtins.int] scale: Fractional digits for numeric (<= 37).
+        :param pulumi.Input[_builtins.bool] unique: Creates a named async unique index on this column.
+        """
+        pulumi.set(__self__, "name", name)
+        pulumi.set(__self__, "type", type)
+        if default is not None:
+            pulumi.set(__self__, "default", default)
+        if length is not None:
+            pulumi.set(__self__, "length", length)
+        if not_null is not None:
+            pulumi.set(__self__, "not_null", not_null)
+        if precision is not None:
+            pulumi.set(__self__, "precision", precision)
+        if scale is not None:
+            pulumi.set(__self__, "scale", scale)
+        if unique is not None:
+            pulumi.set(__self__, "unique", unique)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> pulumi.Input[_builtins.str]:
+        """
+        Column name.
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def type(self) -> pulumi.Input['DSQLColumnType']:
+        """
+        DSQL column type.
+        """
+        return pulumi.get(self, "type")
+
+    @type.setter
+    def type(self, value: pulumi.Input['DSQLColumnType']):
+        pulumi.set(self, "type", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def default(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Raw SQL default expression, passed through verbatim. String literals need inner quotes: "'active'". Functions: "now()".
+        """
+        return pulumi.get(self, "default")
+
+    @default.setter
+    def default(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "default", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def length(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Length for char/varchar. char <= 4096, varchar <= 65535.
+        """
+        return pulumi.get(self, "length")
+
+    @length.setter
+    def length(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "length", value)
+
+    @_builtins.property
+    @pulumi.getter(name="notNull")
+    def not_null(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Adds NOT NULL. Primary-key columns are auto-NOT-NULL.
+        """
+        return pulumi.get(self, "not_null")
+
+    @not_null.setter
+    def not_null(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "not_null", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def precision(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Total digits for numeric (<= 38).
+        """
+        return pulumi.get(self, "precision")
+
+    @precision.setter
+    def precision(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "precision", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def scale(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Fractional digits for numeric (<= 37).
+        """
+        return pulumi.get(self, "scale")
+
+    @scale.setter
+    def scale(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "scale", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def unique(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Creates a named async unique index on this column.
+        """
+        return pulumi.get(self, "unique")
+
+    @unique.setter
+    def unique(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "unique", value)
+
+
+class DSQLIndexArgsDict(TypedDict):
+    """
+    A secondary index on a table. Created with CREATE INDEX ASYNC (DSQL requirement); the build runs in the background.
+    """
+    columns: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]
+    """
+    Indexed columns, in order.
+    """
+    name: pulumi.Input[_builtins.str]
+    """
+    Index name (required, used for additive diffing).
+    """
+    unique: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Creates a unique index.
+    """
+
+@pulumi.input_type
+class DSQLIndexArgs:
+    def __init__(__self__, *,
+                 columns: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]],
+                 name: pulumi.Input[_builtins.str],
+                 unique: Optional[pulumi.Input[_builtins.bool]] = None):
+        """
+        A secondary index on a table. Created with CREATE INDEX ASYNC (DSQL requirement); the build runs in the background.
+
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] columns: Indexed columns, in order.
+        :param pulumi.Input[_builtins.str] name: Index name (required, used for additive diffing).
+        :param pulumi.Input[_builtins.bool] unique: Creates a unique index.
+        """
+        pulumi.set(__self__, "columns", columns)
+        pulumi.set(__self__, "name", name)
+        if unique is not None:
+            pulumi.set(__self__, "unique", unique)
+
+    @_builtins.property
+    @pulumi.getter
+    def columns(self) -> pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]:
+        """
+        Indexed columns, in order.
+        """
+        return pulumi.get(self, "columns")
+
+    @columns.setter
+    def columns(self, value: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]):
+        pulumi.set(self, "columns", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> pulumi.Input[_builtins.str]:
+        """
+        Index name (required, used for additive diffing).
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def unique(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Creates a unique index.
+        """
+        return pulumi.get(self, "unique")
+
+    @unique.setter
+    def unique(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "unique", value)
+
+
 class DSQLMultiRegionArgsArgsDict(TypedDict):
     """
     Multi-region configuration for DSQL. When set, Anvil creates one cluster per region and links them via ClusterPeering. Both regions are active-active — reads and writes are accepted at either endpoint with strong consistency.
@@ -3535,7 +3787,7 @@ class DSQLMultiRegionArgsArgs:
 
 class DSQLRoleArgsDict(TypedDict):
     """
-    A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.
+    A database role within a schema (its parent). Role names must be globally unique across all schemas — DSQL roles are database-wide. grants apply to the parent schema; tableScoping optionally narrows to specific tables.
     """
     grants: pulumi.Input[Sequence[pulumi.Input['DSQLGrant']]]
     """
@@ -3545,9 +3797,9 @@ class DSQLRoleArgsDict(TypedDict):
     """
     The Postgres role name. e.g. "app_role". Must be a valid PostgreSQL identifier.
     """
-    schema: pulumi.Input[_builtins.str]
+    table_scoping: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
     """
-    The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
+    Optionally narrow the grants to specific tables instead of the whole schema. When set, the role is granted only on these tables (which must exist — declare them in schemas[]). When omitted, grants apply schema-wide (current + future tables).
     """
 
 @pulumi.input_type
@@ -3555,17 +3807,18 @@ class DSQLRoleArgs:
     def __init__(__self__, *,
                  grants: pulumi.Input[Sequence[pulumi.Input['DSQLGrant']]],
                  name: pulumi.Input[_builtins.str],
-                 schema: pulumi.Input[_builtins.str]):
+                 table_scoping: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None):
         """
-        A database role to bootstrap at deploy time. Anvil connects as admin and runs: CREATE SCHEMA IF NOT EXISTS, CREATE ROLE WITH LOGIN, AWS IAM GRANT to the Lambda's IAM role ARN, GRANT USAGE ON SCHEMA, GRANT table-level permissions, and ALTER DEFAULT PRIVILEGES so future tables are automatically accessible.
+        A database role within a schema (its parent). Role names must be globally unique across all schemas — DSQL roles are database-wide. grants apply to the parent schema; tableScoping optionally narrows to specific tables.
 
         :param pulumi.Input[Sequence[pulumi.Input['DSQLGrant']]] grants: Table-level privileges to grant to this role on all current and future tables in the schema. e.g. ["SELECT", "INSERT", "UPDATE", "DELETE"]. Applied via GRANT ... ON ALL TABLES and ALTER DEFAULT PRIVILEGES.
         :param pulumi.Input[_builtins.str] name: The Postgres role name. e.g. "app_role". Must be a valid PostgreSQL identifier.
-        :param pulumi.Input[_builtins.str] schema: The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] table_scoping: Optionally narrow the grants to specific tables instead of the whole schema. When set, the role is granted only on these tables (which must exist — declare them in schemas[]). When omitted, grants apply schema-wide (current + future tables).
         """
         pulumi.set(__self__, "grants", grants)
         pulumi.set(__self__, "name", name)
-        pulumi.set(__self__, "schema", schema)
+        if table_scoping is not None:
+            pulumi.set(__self__, "table_scoping", table_scoping)
 
     @_builtins.property
     @pulumi.getter
@@ -3592,16 +3845,180 @@ class DSQLRoleArgs:
         pulumi.set(self, "name", value)
 
     @_builtins.property
-    @pulumi.getter
-    def schema(self) -> pulumi.Input[_builtins.str]:
+    @pulumi.getter(name="tableScoping")
+    def table_scoping(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
         """
-        The schema this role operates in. Anvil creates the schema if it does not exist and grants USAGE to this role. Admin users own the schema — non-admin roles are granted access. Must not be "public".
+        Optionally narrow the grants to specific tables instead of the whole schema. When set, the role is granted only on these tables (which must exist — declare them in schemas[]). When omitted, grants apply schema-wide (current + future tables).
         """
-        return pulumi.get(self, "schema")
+        return pulumi.get(self, "table_scoping")
 
-    @schema.setter
-    def schema(self, value: pulumi.Input[_builtins.str]):
-        pulumi.set(self, "schema", value)
+    @table_scoping.setter
+    def table_scoping(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "table_scoping", value)
+
+
+class DSQLSchemaArgsDict(TypedDict):
+    """
+    A schema and the tables within it. Anvil creates the schema (CREATE SCHEMA IF NOT EXISTS) and each table.
+    """
+    name: pulumi.Input[_builtins.str]
+    """
+    Schema name (literal). Must not be "public".
+    """
+    roles: NotRequired[pulumi.Input[Sequence[pulumi.Input['DSQLRoleArgsDict']]]]
+    """
+    Database roles for this schema. Each role's grants apply to this schema. Role names must be globally unique across all schemas.
+    """
+    tables: NotRequired[pulumi.Input[Sequence[pulumi.Input['DSQLTableArgsDict']]]]
+    """
+    Tables to create in this schema.
+    """
+
+@pulumi.input_type
+class DSQLSchemaArgs:
+    def __init__(__self__, *,
+                 name: pulumi.Input[_builtins.str],
+                 roles: Optional[pulumi.Input[Sequence[pulumi.Input['DSQLRoleArgs']]]] = None,
+                 tables: Optional[pulumi.Input[Sequence[pulumi.Input['DSQLTableArgs']]]] = None):
+        """
+        A schema and the tables within it. Anvil creates the schema (CREATE SCHEMA IF NOT EXISTS) and each table.
+
+        :param pulumi.Input[_builtins.str] name: Schema name (literal). Must not be "public".
+        :param pulumi.Input[Sequence[pulumi.Input['DSQLRoleArgs']]] roles: Database roles for this schema. Each role's grants apply to this schema. Role names must be globally unique across all schemas.
+        :param pulumi.Input[Sequence[pulumi.Input['DSQLTableArgs']]] tables: Tables to create in this schema.
+        """
+        pulumi.set(__self__, "name", name)
+        if roles is not None:
+            pulumi.set(__self__, "roles", roles)
+        if tables is not None:
+            pulumi.set(__self__, "tables", tables)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> pulumi.Input[_builtins.str]:
+        """
+        Schema name (literal). Must not be "public".
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def roles(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['DSQLRoleArgs']]]]:
+        """
+        Database roles for this schema. Each role's grants apply to this schema. Role names must be globally unique across all schemas.
+        """
+        return pulumi.get(self, "roles")
+
+    @roles.setter
+    def roles(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['DSQLRoleArgs']]]]):
+        pulumi.set(self, "roles", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def tables(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['DSQLTableArgs']]]]:
+        """
+        Tables to create in this schema.
+        """
+        return pulumi.get(self, "tables")
+
+    @tables.setter
+    def tables(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['DSQLTableArgs']]]]):
+        pulumi.set(self, "tables", value)
+
+
+class DSQLTableArgsDict(TypedDict):
+    """
+    A table to create in a schema. Additive-only: Anvil creates the table and adds new columns/indexes, but never drops or alters existing ones.
+    """
+    columns: pulumi.Input[Sequence[pulumi.Input['DSQLColumnArgsDict']]]
+    """
+    The table's columns.
+    """
+    name: pulumi.Input[_builtins.str]
+    """
+    Table name (literal, not stage-prefixed).
+    """
+    primary_key: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]
+    """
+    Column names forming the primary key, in order. Required — DSQL uses the PK as the distribution key and it cannot be added after creation. AWS recommends a uuid PK generated app-side.
+    """
+    indexes: NotRequired[pulumi.Input[Sequence[pulumi.Input['DSQLIndexArgsDict']]]]
+    """
+    Secondary indexes.
+    """
+
+@pulumi.input_type
+class DSQLTableArgs:
+    def __init__(__self__, *,
+                 columns: pulumi.Input[Sequence[pulumi.Input['DSQLColumnArgs']]],
+                 name: pulumi.Input[_builtins.str],
+                 primary_key: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]],
+                 indexes: Optional[pulumi.Input[Sequence[pulumi.Input['DSQLIndexArgs']]]] = None):
+        """
+        A table to create in a schema. Additive-only: Anvil creates the table and adds new columns/indexes, but never drops or alters existing ones.
+
+        :param pulumi.Input[Sequence[pulumi.Input['DSQLColumnArgs']]] columns: The table's columns.
+        :param pulumi.Input[_builtins.str] name: Table name (literal, not stage-prefixed).
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] primary_key: Column names forming the primary key, in order. Required — DSQL uses the PK as the distribution key and it cannot be added after creation. AWS recommends a uuid PK generated app-side.
+        :param pulumi.Input[Sequence[pulumi.Input['DSQLIndexArgs']]] indexes: Secondary indexes.
+        """
+        pulumi.set(__self__, "columns", columns)
+        pulumi.set(__self__, "name", name)
+        pulumi.set(__self__, "primary_key", primary_key)
+        if indexes is not None:
+            pulumi.set(__self__, "indexes", indexes)
+
+    @_builtins.property
+    @pulumi.getter
+    def columns(self) -> pulumi.Input[Sequence[pulumi.Input['DSQLColumnArgs']]]:
+        """
+        The table's columns.
+        """
+        return pulumi.get(self, "columns")
+
+    @columns.setter
+    def columns(self, value: pulumi.Input[Sequence[pulumi.Input['DSQLColumnArgs']]]):
+        pulumi.set(self, "columns", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> pulumi.Input[_builtins.str]:
+        """
+        Table name (literal, not stage-prefixed).
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter(name="primaryKey")
+    def primary_key(self) -> pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]:
+        """
+        Column names forming the primary key, in order. Required — DSQL uses the PK as the distribution key and it cannot be added after creation. AWS recommends a uuid PK generated app-side.
+        """
+        return pulumi.get(self, "primary_key")
+
+    @primary_key.setter
+    def primary_key(self, value: pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]):
+        pulumi.set(self, "primary_key", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def indexes(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['DSQLIndexArgs']]]]:
+        """
+        Secondary indexes.
+        """
+        return pulumi.get(self, "indexes")
+
+    @indexes.setter
+    def indexes(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['DSQLIndexArgs']]]]):
+        pulumi.set(self, "indexes", value)
 
 
 class DSQLVpcArgsArgsDict(TypedDict):

@@ -42,6 +42,22 @@ export interface GrantTargetConfig {
 }
 
 /**
+ * CustomGrantConfig is for resources with non-standard grant patterns
+ * that can't be expressed by the generic generators. The method body
+ * is provided as raw TS/Python strings.
+ */
+export interface CustomGrantConfig {
+  tsFile: string;
+  pyFile: string;
+  detectMethod: string;
+  tsMethod: string;
+  pyMethod: string;
+  tsImports?: string[];
+  tsPropertyDeclarations?: string[];
+  tsResourceInputs?: string[];
+}
+
+/**
  * GrantMapConfig is for resources where the ARN property is
  * Output<Record<string, string>> rather than Output<string>.
  * Used when a component exposes multiple ARNs keyed by region

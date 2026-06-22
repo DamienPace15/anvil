@@ -1167,6 +1167,225 @@ func (o CognitoUserPoolUsernameAttributeArrayOutput) Index(i pulumi.IntInput) Co
 	}).(CognitoUserPoolUsernameAttributeOutput)
 }
 
+// A DSQL-supported column type. Arrays, enums, serial, money, and xml are intentionally excluded — DSQL does not support them.
+type DSQLColumnType string
+
+const (
+	// Universally unique identifier (recommended for primary keys).
+	DSQLColumnTypeUuid = DSQLColumnType("uuid")
+	// Variable-length string up to 1 MiB.
+	DSQLColumnTypeText = DSQLColumnType("text")
+	// Variable-length string; set length (max 65535).
+	DSQLColumnTypeVarchar = DSQLColumnType("varchar")
+	// Fixed-length string; set length (max 4096).
+	DSQLColumnTypeChar = DSQLColumnType("char")
+	// True/false.
+	DSQLColumnTypeBoolean = DSQLColumnType("boolean")
+	// 2-byte integer.
+	DSQLColumnTypeSmallint = DSQLColumnType("smallint")
+	// 4-byte integer.
+	DSQLColumnTypeInteger = DSQLColumnType("integer")
+	// 8-byte integer.
+	DSQLColumnTypeBigint = DSQLColumnType("bigint")
+	// 4-byte floating point.
+	DSQLColumnTypeReal = DSQLColumnType("real")
+	// 8-byte floating point.
+	DSQLColumnType_Double_precision = DSQLColumnType("double precision")
+	// Exact numeric; set precision/scale (max precision 38).
+	DSQLColumnTypeNumeric = DSQLColumnType("numeric")
+	// Calendar date.
+	DSQLColumnTypeDate = DSQLColumnType("date")
+	// Time of day.
+	DSQLColumnTypeTime = DSQLColumnType("time")
+	// Date and time without time zone.
+	DSQLColumnTypeTimestamp = DSQLColumnType("timestamp")
+	// Date and time with time zone.
+	DSQLColumnTypeTimestamptz = DSQLColumnType("timestamptz")
+	// Time span.
+	DSQLColumnTypeInterval = DSQLColumnType("interval")
+	// Binary data up to 1 MiB.
+	DSQLColumnTypeBytea = DSQLColumnType("bytea")
+	// JSON text.
+	DSQLColumnTypeJson = DSQLColumnType("json")
+	// Binary JSON.
+	DSQLColumnTypeJsonb = DSQLColumnType("jsonb")
+)
+
+func (DSQLColumnType) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLColumnType)(nil)).Elem()
+}
+
+func (e DSQLColumnType) ToDSQLColumnTypeOutput() DSQLColumnTypeOutput {
+	return pulumi.ToOutput(e).(DSQLColumnTypeOutput)
+}
+
+func (e DSQLColumnType) ToDSQLColumnTypeOutputWithContext(ctx context.Context) DSQLColumnTypeOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(DSQLColumnTypeOutput)
+}
+
+func (e DSQLColumnType) ToDSQLColumnTypePtrOutput() DSQLColumnTypePtrOutput {
+	return e.ToDSQLColumnTypePtrOutputWithContext(context.Background())
+}
+
+func (e DSQLColumnType) ToDSQLColumnTypePtrOutputWithContext(ctx context.Context) DSQLColumnTypePtrOutput {
+	return DSQLColumnType(e).ToDSQLColumnTypeOutputWithContext(ctx).ToDSQLColumnTypePtrOutputWithContext(ctx)
+}
+
+func (e DSQLColumnType) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DSQLColumnType) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e DSQLColumnType) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e DSQLColumnType) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type DSQLColumnTypeOutput struct{ *pulumi.OutputState }
+
+func (DSQLColumnTypeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*DSQLColumnType)(nil)).Elem()
+}
+
+func (o DSQLColumnTypeOutput) ToDSQLColumnTypeOutput() DSQLColumnTypeOutput {
+	return o
+}
+
+func (o DSQLColumnTypeOutput) ToDSQLColumnTypeOutputWithContext(ctx context.Context) DSQLColumnTypeOutput {
+	return o
+}
+
+func (o DSQLColumnTypeOutput) ToDSQLColumnTypePtrOutput() DSQLColumnTypePtrOutput {
+	return o.ToDSQLColumnTypePtrOutputWithContext(context.Background())
+}
+
+func (o DSQLColumnTypeOutput) ToDSQLColumnTypePtrOutputWithContext(ctx context.Context) DSQLColumnTypePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v DSQLColumnType) *DSQLColumnType {
+		return &v
+	}).(DSQLColumnTypePtrOutput)
+}
+
+func (o DSQLColumnTypeOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o DSQLColumnTypeOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DSQLColumnType) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o DSQLColumnTypeOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DSQLColumnTypeOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e DSQLColumnType) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type DSQLColumnTypePtrOutput struct{ *pulumi.OutputState }
+
+func (DSQLColumnTypePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**DSQLColumnType)(nil)).Elem()
+}
+
+func (o DSQLColumnTypePtrOutput) ToDSQLColumnTypePtrOutput() DSQLColumnTypePtrOutput {
+	return o
+}
+
+func (o DSQLColumnTypePtrOutput) ToDSQLColumnTypePtrOutputWithContext(ctx context.Context) DSQLColumnTypePtrOutput {
+	return o
+}
+
+func (o DSQLColumnTypePtrOutput) Elem() DSQLColumnTypeOutput {
+	return o.ApplyT(func(v *DSQLColumnType) DSQLColumnType {
+		if v != nil {
+			return *v
+		}
+		var ret DSQLColumnType
+		return ret
+	}).(DSQLColumnTypeOutput)
+}
+
+func (o DSQLColumnTypePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o DSQLColumnTypePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *DSQLColumnType) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// DSQLColumnTypeInput is an input type that accepts values of the DSQLColumnType enum
+// A concrete instance of `DSQLColumnTypeInput` can be one of the following:
+//
+//	DSQLColumnTypeUuid
+//	DSQLColumnTypeText
+//	DSQLColumnTypeVarchar
+//	DSQLColumnTypeChar
+//	DSQLColumnTypeBoolean
+//	DSQLColumnTypeSmallint
+//	DSQLColumnTypeInteger
+//	DSQLColumnTypeBigint
+//	DSQLColumnTypeReal
+//	DSQLColumnType_Double_precision
+//	DSQLColumnTypeNumeric
+//	DSQLColumnTypeDate
+//	DSQLColumnTypeTime
+//	DSQLColumnTypeTimestamp
+//	DSQLColumnTypeTimestamptz
+//	DSQLColumnTypeInterval
+//	DSQLColumnTypeBytea
+//	DSQLColumnTypeJson
+//	DSQLColumnTypeJsonb
+type DSQLColumnTypeInput interface {
+	pulumi.Input
+
+	ToDSQLColumnTypeOutput() DSQLColumnTypeOutput
+	ToDSQLColumnTypeOutputWithContext(context.Context) DSQLColumnTypeOutput
+}
+
+var dsqlcolumnTypePtrType = reflect.TypeOf((**DSQLColumnType)(nil)).Elem()
+
+type DSQLColumnTypePtrInput interface {
+	pulumi.Input
+
+	ToDSQLColumnTypePtrOutput() DSQLColumnTypePtrOutput
+	ToDSQLColumnTypePtrOutputWithContext(context.Context) DSQLColumnTypePtrOutput
+}
+
+type dsqlcolumnTypePtr string
+
+func DSQLColumnTypePtr(v string) DSQLColumnTypePtrInput {
+	return (*dsqlcolumnTypePtr)(&v)
+}
+
+func (*dsqlcolumnTypePtr) ElementType() reflect.Type {
+	return dsqlcolumnTypePtrType
+}
+
+func (in *dsqlcolumnTypePtr) ToDSQLColumnTypePtrOutput() DSQLColumnTypePtrOutput {
+	return pulumi.ToOutput(in).(DSQLColumnTypePtrOutput)
+}
+
+func (in *dsqlcolumnTypePtr) ToDSQLColumnTypePtrOutputWithContext(ctx context.Context) DSQLColumnTypePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(DSQLColumnTypePtrOutput)
+}
+
 // A PostgreSQL table-level privilege.
 type DSQLGrant string
 
@@ -3280,6 +3499,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolUsernameAttributeInput)(nil)).Elem(), CognitoUserPoolUsernameAttribute("email"))
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolUsernameAttributePtrInput)(nil)).Elem(), CognitoUserPoolUsernameAttribute("email"))
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolUsernameAttributeArrayInput)(nil)).Elem(), CognitoUserPoolUsernameAttributeArray{})
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLColumnTypeInput)(nil)).Elem(), DSQLColumnType("uuid"))
+	pulumi.RegisterInputType(reflect.TypeOf((*DSQLColumnTypePtrInput)(nil)).Elem(), DSQLColumnType("uuid"))
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLGrantInput)(nil)).Elem(), DSQLGrant("SELECT"))
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLGrantPtrInput)(nil)).Elem(), DSQLGrant("SELECT"))
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLGrantArrayInput)(nil)).Elem(), DSQLGrantArray{})
@@ -3320,6 +3541,8 @@ func init() {
 	pulumi.RegisterOutputType(CognitoUserPoolUsernameAttributeOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolUsernameAttributePtrOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolUsernameAttributeArrayOutput{})
+	pulumi.RegisterOutputType(DSQLColumnTypeOutput{})
+	pulumi.RegisterOutputType(DSQLColumnTypePtrOutput{})
 	pulumi.RegisterOutputType(DSQLGrantOutput{})
 	pulumi.RegisterOutputType(DSQLGrantPtrOutput{})
 	pulumi.RegisterOutputType(DSQLGrantArrayOutput{})

@@ -12,7 +12,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { GrantConfig, GrantTargetConfig, GrantMapConfig } from './types';
+import { GrantConfig, GrantTargetConfig, GrantMapConfig, CustomGrantConfig } from './types';
 import {
   BUCKET_GRANT_CONFIG,
   LAMBDA_GRANT_CONFIG,
@@ -21,6 +21,7 @@ import {
   EVENTBUS_GRANT_CONFIG,
   DYNAMODB_GRANT_CONFIG,
   DSQL_GRANT_CONFIG,
+  DSQL_CUSTOM_GRANT_CONFIG,
 } from './configs';
 import {
   generateTSGrantMethod,
@@ -56,6 +57,7 @@ const GRANT_CONFIGS: GrantConfig[] = [
 ];
 const GRANT_TARGET_CONFIGS: GrantTargetConfig[] = [LAMBDA_GRANT_TARGET_CONFIG];
 const GRANT_MAP_CONFIGS: GrantMapConfig[] = [DSQL_GRANT_CONFIG];
+const CUSTOM_GRANT_CONFIGS: CustomGrantConfig[] = [DSQL_CUSTOM_GRANT_CONFIG];
 
 // ── TS file helpers ────────────────────────────────────────
 
@@ -383,4 +385,120 @@ if (doPython) {
     patchPyMapFile(config.pyFile, config);
   }
   console.log('✔ Python map grant patching complete\n');
+}
+
+// Custom grants — hand-written methods that wrap Anvil components
+function patchTSCustomFile(config: CustomGrantConfig): void {
+  const filePath = path.join(tsDir, config.tsFile);
+  if (!fs.existsSync(filePath)) {
+    console.log(`  ⚠ ${config.tsFile} not found — skipping`);
+    return;
+  }
+
+  let content = fs.readFileSync(filePath, 'utf8');
+
+  // Skip if already patched with the custom version (DSQLConnect component).
+  // If the old map-generated grantConnect exists, it will be replaced on
+  // the next full build (gen-sdk produces a clean file, then this runs).
+  if (content.includes(`${config.detectMethod}(`)) {
+    console.log(`  ⏭ ${config.tsFile} already patched — skipping`);
+    return;
+  }
+
+  content = ensureGrantsImport(content);
+  content = ensureNameProperty(content);
+
+  // Inject extra imports
+  if (config.tsImports) {
+    for (const imp of config.tsImports) {
+      if (!content.includes(imp)) {
+        const lastImportIdx = content.lastIndexOf('import ');
+        const nextNewline = content.indexOf('\n', lastImportIdx);
+        content =
+          content.slice(0, nextNewline) +
+          '\n' + imp +
+          content.slice(nextNewline);
+      }
+    }
+  }
+
+  // Inject extra property declarations after the last existing declare line
+  if (config.tsPropertyDeclarations) {
+    for (const decl of config.tsPropertyDeclarations) {
+      const declTrimmed = decl.trim();
+      if (!content.includes(declTrimmed)) {
+        const lastDeclare = content.lastIndexOf('declare public /*out*/');
+        if (lastDeclare >= 0) {
+          const endOfLine = content.indexOf('\n', content.indexOf(';', lastDeclare));
+          content = content.slice(0, endOfLine + 1) + decl + '\n' + content.slice(endOfLine + 1);
+        }
+      }
+    }
+  }
+
+  // Inject extra resourceInputs in both branches of the constructor
+  if (config.tsResourceInputs) {
+    for (const input of config.tsResourceInputs) {
+      if (!content.includes(input.trim())) {
+        const marker = 'resourceInputs["vpcEndpointSecurityGroupIds"] = undefined /*out*/;';
+        let searchFrom = 0;
+        while (true) {
+          const idx = content.indexOf(marker, searchFrom);
+          if (idx < 0) break;
+          const endOfLine = content.indexOf('\n', idx);
+          content = content.slice(0, endOfLine + 1) + input + '\n' + content.slice(endOfLine + 1);
+          searchFrom = endOfLine + input.length + 2;
+        }
+      }
+    }
+  }
+
+  const classEnd = findClassEnd(content);
+  if (classEnd >= 0) {
+    content =
+      content.slice(0, classEnd) +
+      '\n' +
+      config.tsMethod +
+      '\n' +
+      content.slice(classEnd);
+  }
+
+  fs.writeFileSync(filePath, content);
+  console.log(`  ✔ Patched ${config.tsFile} → ${config.detectMethod}`);
+}
+
+function patchPyCustomFile(config: CustomGrantConfig): void {
+  const filePath = path.join(pyDir, config.pyFile);
+  if (!fs.existsSync(filePath)) {
+    console.log(`  ⚠ ${config.pyFile} not found — skipping`);
+    return;
+  }
+
+  let content = fs.readFileSync(filePath, 'utf8');
+  const pyMethod = toSnakeCase(config.detectMethod);
+  if (content.includes(`def ${pyMethod}`)) {
+    console.log(`  ⏭ ${config.pyFile} already patched — skipping`);
+    return;
+  }
+
+  content = ensurePyGrantsImport(content);
+  content = content.trimEnd() + '\n' + config.pyMethod + '\n';
+
+  fs.writeFileSync(filePath, content);
+  console.log(`  ✔ Patched ${config.pyFile} → ${pyMethod}`);
+}
+
+if (doTS) {
+  console.log('🔐 Patching TypeScript SDK with custom grant methods...');
+  for (const config of CUSTOM_GRANT_CONFIGS) {
+    patchTSCustomFile(config);
+  }
+  console.log('✔ TypeScript custom grant patching complete\n');
+}
+if (doPython) {
+  console.log('🔐 Patching Python SDK with custom grant methods...');
+  for (const config of CUSTOM_GRANT_CONFIGS) {
+    patchPyCustomFile(config);
+  }
+  console.log('✔ Python custom grant patching complete\n');
 }
