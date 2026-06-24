@@ -195,20 +195,30 @@ func handleModify(ctx context.Context, oldImage, newImage map[string]events.Dyna
 	// Revoke-all-then-re-grant: reset everything the role had on the old schema,
 	// then apply the new spec (schema-wide or table-scoped). Safe and simple —
 	// no per-privilege diffing. Runs only at deploy time, not on app traffic.
-	statements := []string{
+	//
+	// Phase 1 — revoke old privileges, BEST-EFFORT. The old schema may no longer
+	// exist (e.g. it was renamed or dropped), in which case the REVOKE fails with
+	// 3F000 and there is simply nothing left to revoke. These must NOT abort the
+	// re-grant below: doing so would leave the role with zero privileges on the
+	// new schema (the exact failure mode where a schema rename strands a role).
+	revokes := []string{
 		fmt.Sprintf("REVOKE ALL ON ALL TABLES IN SCHEMA %s FROM %s",
 			pgIdent(oldRole.Schema), pgIdent(oldRole.RoleName)),
 		fmt.Sprintf("ALTER DEFAULT PRIVILEGES IN SCHEMA %s REVOKE ALL ON TABLES FROM %s",
 			pgIdent(oldRole.Schema), pgIdent(oldRole.RoleName)),
 	}
-
 	if oldRole.Schema != newRole.Schema {
-		statements = append(statements,
-			fmt.Sprintf("REVOKE USAGE ON SCHEMA %s FROM %s", pgIdent(oldRole.Schema), pgIdent(oldRole.RoleName)),
-			fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s", pgIdent(newRole.Schema)),
-		)
+		revokes = append(revokes,
+			fmt.Sprintf("REVOKE USAGE ON SCHEMA %s FROM %s", pgIdent(oldRole.Schema), pgIdent(oldRole.RoleName)))
 	}
+	execBestEffort(ctx, conn, revokes)
 
+	// Phase 2 — apply the new spec. These MUST succeed (the schema/tables may not
+	// exist yet on the first attempt, in which case the stream retries until the
+	// table-creation records have run — same self-healing path as INSERT).
+	statements := []string{
+		fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s", pgIdent(newRole.Schema)),
+	}
 	statements = append(statements, buildRoleGrantStatements(newRole)...)
 
 	return execAll(ctx, conn, statements)

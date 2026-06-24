@@ -1,0 +1,50 @@
+{
+  "dsql": {
+    "orders": {
+      "schemas": [
+        {
+          "name": "myapp",
+          "tables": [
+            {
+              "name": "users",
+              "columns": [
+                { "name": "id", "type": "uuid", "notNull": true },
+                { "name": "email", "type": "varchar", "length": 255, "unique": true },
+                { "name": "display_name", "type": "text" },
+                { "name": "is_active", "type": "boolean", "notNull": true, "default": "true" },
+                { "name": "login_count", "type": "integer", "notNull": true, "default": "0" },
+                { "name": "created_at", "type": "timestamptz", "default": "now()" },
+                { "name": "metadata", "type": "jsonb" }
+              ],
+              "primaryKey": ["id"],
+              "indexes": [
+                { "name": "users_email_idx", "columns": ["email"], "unique": true },
+                { "name": "users_created_idx", "columns": ["created_at"] }
+              ]
+            },
+            {
+              "name": "orders",
+              "columns": [
+                { "name": "id", "type": "uuid", "notNull": true },
+                { "name": "user_id", "type": "uuid", "notNull": true },
+                { "name": "total_amount", "type": "numeric", "precision": 12, "scale": 2, "notNull": true },
+                { "name": "status", "type": "varchar", "length": 50, "notNull": true, "default": "'pending'" },
+                { "name": "notes", "type": "text" },
+                { "name": "placed_at", "type": "timestamptz", "default": "now()" }
+              ],
+              "primaryKey": ["id"],
+              "indexes": [
+                { "name": "orders_user_idx", "columns": ["user_id"] },
+                { "name": "orders_status_idx", "columns": ["status"] }
+              ]
+            }
+          ],
+          "roles": [
+            { "name": "app_role", "grants": ["SELECT", "INSERT", "UPDATE"] },
+            { "name": "reader", "grants": ["SELECT"], "tableScoping": ["users"] }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -112,5 +112,12 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("deploy failed: %w", upErr)
 	}
 
+	// ── Step 6: Refresh generated types ───────────────
+	// Re-read the manifest written during discovery (step 1) and regenerate
+	// typed database client code so generated types stay in sync after deploy.
+	if manifest, err := readFullManifest(); err == nil && manifest != nil && len(manifest.Schemas) > 0 {
+		refreshGeneratedTypes(manifest, stage)
+	}
+
 	return nil
 }
