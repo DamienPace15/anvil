@@ -84,45 +84,10 @@ function patchTypeScript(): void {
     let indexContent = fs.readFileSync(indexPath, 'utf8');
     let changed = false;
 
-    // Forward-reference namespace wrapping.
-    // gen-sdk emits plain `import * as aws from "./aws"` + `export { aws, gcp,
-    // types }`. Rewrite it so the aws/gcp namespaces are wrapped by
-    // wrapNamespace() — this auto-registers each constructed component into the
-    // active Stack so ctx.ref(...) forward references resolve. See stack.ts.
-    if (!indexContent.includes('wrapNamespace')) {
-      const wrapped = [
-        'import * as awsRaw from "./aws";',
-        'import * as gcpRaw from "./gcp";',
-        'import * as types from "./types";',
-        'import { wrapNamespace } from "./stack";',
-        '',
-        '// Wrap the component namespaces so constructing any component',
-        '// auto-registers it into the active Stack under its logical name,',
-        '// powering ctx.ref(...) forward references. See ./stack.ts.',
-        'const aws: typeof awsRaw = wrapNamespace(awsRaw);',
-        'const gcp: typeof gcpRaw = wrapNamespace(gcpRaw);',
-        '',
-        'export {',
-        '    aws,',
-        '    gcp,',
-        '    types,',
-        '};',
-      ].join('\n');
-
-      const rawNamespaceBlock =
-        /import \* as aws from "\.\/aws";\s*\nimport \* as gcp from "\.\/gcp";\s*\nimport \* as types from "\.\/types";\s*\n\s*\nexport \{\s*\n\s*aws,\s*\n\s*gcp,\s*\n\s*types,\s*\n\};/;
-
-      if (rawNamespaceBlock.test(indexContent)) {
-        indexContent = indexContent.replace(rawNamespaceBlock, wrapped);
-        changed = true;
-      } else {
-        console.warn(
-          '  ⚠ Could not find the generated namespace export block in index.ts ' +
-            '— forward-reference wrapping NOT applied. The gen-sdk output format ' +
-            'may have changed; update scripts/sdk/fix-sdk.ts.'
-        );
-      }
-    }
+    // NOTE: forward-reference auto-registration is NOT wired here. The generated
+    // `export { aws, gcp, types }` namespace form is kept as-is so that
+    // `anvil.aws.X` stays usable as a *type*. Construction wrapping is injected
+    // into utilities.lazyLoad instead (see patchUtilities below / stack.ts).
 
     // App class
     const appExport =
@@ -192,6 +157,42 @@ function patchTypeScript(): void {
       console.log(
         '  ✔ Patched index.ts → added App, Block, grants, and Pulumi re-exports'
       );
+    }
+  }
+
+  // ── 1b. Patch utilities.ts → lazyLoad auto-registration ─
+  // Wrap component classes as they're resolved by lazyLoad so constructing one
+  // auto-registers it into the active Stack (powers ctx.ref forward references).
+  // Done here (not around the namespace export) so `anvil.aws.X` stays a usable
+  // type. See sdk/nodejs/stack.ts (maybeWrapComponent).
+  const utilsPath = path.join(sdkDir, 'utilities.ts');
+  if (fs.existsSync(utilsPath)) {
+    let utils = fs.readFileSync(utilsPath, 'utf8');
+    let utilsChanged = false;
+
+    if (!utils.includes('maybeWrapComponent')) {
+      // 1. import
+      utils = utils.replace(
+        'import * as pulumi from "@pulumi/pulumi";',
+        'import * as pulumi from "@pulumi/pulumi";\nimport { maybeWrapComponent } from "./stack";'
+      );
+      // 2. wrap the lazyLoad getter's return value
+      utils = utils.replace(
+        'return loadModule()[property];',
+        'return maybeWrapComponent(loadModule()[property]);'
+      );
+      utilsChanged = utils.includes('maybeWrapComponent');
+      if (!utilsChanged) {
+        console.warn(
+          '  ⚠ utilities.ts: lazyLoad anchor not found — ctx.ref auto-registration ' +
+            'NOT wired. The gen-sdk output may have changed; update fix-sdk.ts.'
+        );
+      }
+    }
+
+    if (utilsChanged) {
+      fs.writeFileSync(utilsPath, utils);
+      console.log('  ✔ Patched utilities.ts → lazyLoad component auto-registration');
     }
   }
 

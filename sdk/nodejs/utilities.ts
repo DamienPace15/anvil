@@ -4,6 +4,7 @@
 
 import * as runtime from "@pulumi/pulumi/runtime";
 import * as pulumi from "@pulumi/pulumi";
+import { maybeWrapComponent } from "./stack";
 
 export function getEnv(...vars: string[]): string | undefined {
     for (const v of vars) {
@@ -62,7 +63,11 @@ export function lazyLoad(exports: any, props: string[], loadModule: any) {
         Object.defineProperty(exports, property, {
             enumerable: true,
             get: function() {
-                return loadModule()[property];
+                // Wrap component classes so constructing them auto-registers into
+                // the active Stack (powers ctx.ref forward references). Doing it
+                // here keeps `anvil.aws.X` a real namespace — usable as a type.
+                // See ./stack.ts (maybeWrapComponent). Non-components pass through.
+                return maybeWrapComponent(loadModule()[property]);
             },
         });
     }
