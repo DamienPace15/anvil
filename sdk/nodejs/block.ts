@@ -1,4 +1,5 @@
 import * as pulumi from '@pulumi/pulumi';
+import { getActiveStack } from './stack';
 
 /**
  * Block is an optional organisational grouping for Anvil resources.
@@ -48,6 +49,31 @@ export class Block extends pulumi.ComponentResource {
   public readonly project: string;
 
   /**
+   * The block's published outputs — its public surface for `ctx.ref(...)`.
+   * Populated by `this.output(...)`. The object is registered with the active
+   * Stack at construction time and mutated as outputs are published, so forward
+   * references to a block's outputs resolve once `run()` completes.
+   * @internal
+   */
+  private readonly __outputs: Record<string, pulumi.Output<any>> = {};
+
+  /**
+   * Publishes an output on this block, making it reachable via
+   * `ctx.ref<ThisBlock>('blockName').<name>`. A block may only publish outputs
+   * that originate from the resources it owns — it is a container for its own
+   * resources, not a relay for others'.
+   *
+   * @param name  The public output name.
+   * @param value The value to expose (typically a child resource's output).
+   *
+   * @example
+   *   this.output('bucketName', events.bucketName);
+   */
+  protected output(name: string, value: pulumi.Input<any>): void {
+    this.__outputs[name] = pulumi.output(value);
+  }
+
+  /**
    * Creates a new Block.
    *
    * @param name  The unique name of this Block within the stack.
@@ -65,5 +91,10 @@ export class Block extends pulumi.ComponentResource {
     const anvilConfig = new pulumi.Config('anvil');
     this.stage = anvilConfig.require('stage');
     this.project = pulumi.getProject();
+
+    // Register the block's output surface with the forward-reference registry.
+    // The object is registered now (empty) and populated by this.output(...) as
+    // the subclass constructor body runs; refs resolve after run() completes.
+    getActiveStack()?.register(name, this.__outputs);
   }
 }

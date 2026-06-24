@@ -181,6 +181,7 @@ class DSQL(pulumi.ComponentResource):
             __props__.__dict__["endpoints"] = None
             __props__.__dict__["vpc_endpoint_ids"] = None
             __props__.__dict__["vpc_endpoint_security_group_ids"] = None
+            __props__.__dict__["roles_table_name"] = None
         super(DSQL, __self__).__init__(
             'anvil:aws:DSQL',
             resource_name,
@@ -228,6 +229,15 @@ class DSQL(pulumi.ComponentResource):
         """
         return pulumi.get(self, "vpc_endpoint_security_group_ids")
 
+    @_builtins.property
+    @pulumi.getter(name="rolesTableName")
+    def roles_table_name(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        DynamoDB table name for role bootstrap. Pass to DSQLConnect (via grant_connect) so it can create the IAM role-mapping item. Empty when no roles are configured.
+        """
+        return pulumi.get(self, "roles_table_name")
+
+
     def grant_connect(self, target: "grants.GrantTarget", schemas: list = None) -> None:
         """Grants a compute resource connect access to this DSQL cluster.
 
@@ -238,6 +248,7 @@ class DSQL(pulumi.ComponentResource):
             target: The compute resource to grant access to (Lambda, ECS, etc.).
             schemas: List of {"schema": ..., "role_name": ...} pairs.
         """
+        from .dsql_connect import DSQLConnect
         schemas = schemas or []
         db_roles = [s["role_name"] for s in schemas]
         DSQLConnect(f"{self._name}-{target.grant_name()}-connect",

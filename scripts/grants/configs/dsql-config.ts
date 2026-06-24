@@ -22,6 +22,18 @@ export const DSQL_CUSTOM_GRANT_CONFIG: CustomGrantConfig = {
   tsResourceInputs: [
     '            resourceInputs["rolesTableName"] = undefined /*out*/;',
   ],
+  pyResourceInputs: [
+    '            __props__.__dict__["roles_table_name"] = None',
+  ],
+  pyPropertyDeclarations: [
+    `    @_builtins.property
+    @pulumi.getter(name="rolesTableName")
+    def roles_table_name(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        DynamoDB table name for role bootstrap. Pass to DSQLConnect (via grant_connect) so it can create the IAM role-mapping item. Empty when no roles are configured.
+        """
+        return pulumi.get(self, "roles_table_name")`,
+  ],
   tsMethod: `
     /**
      * Grants a compute resource connect access to this DSQL cluster.
@@ -71,6 +83,7 @@ export const DSQL_CUSTOM_GRANT_CONFIG: CustomGrantConfig = {
             target: The compute resource to grant access to (Lambda, ECS, etc.).
             schemas: List of {"schema": ..., "role_name": ...} pairs.
         """
+        from .dsql_connect import DSQLConnect
         schemas = schemas or []
         db_roles = [s["role_name"] for s in schemas]
         DSQLConnect(f"{self._name}-{target.grant_name()}-connect",

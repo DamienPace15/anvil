@@ -16,9 +16,10 @@ Example::
 from typing import Any, Callable, Dict, List, Literal, Optional
 
 # ── Resource base classes ──────────────────────────────────
+# Note: Python Pulumi has no ``ComponentResourceOptions`` (that is a TypeScript
+# concept) — component resources use ``ResourceOptions``.
 from pulumi import (
     ComponentResource,
-    ComponentResourceOptions,
     CustomResource,
     ResourceOptions,
     ProviderResource,
@@ -32,14 +33,18 @@ from pulumi import (
 )
 
 # ── Utility functions ──────────────────────────────────────
+# Note: Python Pulumi has no top-level ``secret`` — it is ``Output.secret(...)``.
 from pulumi import (
     export,
     get_project,
     get_stack,
     Config,
     output,
-    secret,
 )
+
+#: Mark a value secret. Aliased to the Output staticmethod for API parity with
+#: the TypeScript SDK's ``anvil.secret``.
+secret = Output.secret
 
 # ── Escape hatch ───────────────────────────────────────────
 # For anything not re-exported above, users can access the

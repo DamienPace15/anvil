@@ -84,6 +84,46 @@ function patchTypeScript(): void {
     let indexContent = fs.readFileSync(indexPath, 'utf8');
     let changed = false;
 
+    // Forward-reference namespace wrapping.
+    // gen-sdk emits plain `import * as aws from "./aws"` + `export { aws, gcp,
+    // types }`. Rewrite it so the aws/gcp namespaces are wrapped by
+    // wrapNamespace() — this auto-registers each constructed component into the
+    // active Stack so ctx.ref(...) forward references resolve. See stack.ts.
+    if (!indexContent.includes('wrapNamespace')) {
+      const wrapped = [
+        'import * as awsRaw from "./aws";',
+        'import * as gcpRaw from "./gcp";',
+        'import * as types from "./types";',
+        'import { wrapNamespace } from "./stack";',
+        '',
+        '// Wrap the component namespaces so constructing any component',
+        '// auto-registers it into the active Stack under its logical name,',
+        '// powering ctx.ref(...) forward references. See ./stack.ts.',
+        'const aws: typeof awsRaw = wrapNamespace(awsRaw);',
+        'const gcp: typeof gcpRaw = wrapNamespace(gcpRaw);',
+        '',
+        'export {',
+        '    aws,',
+        '    gcp,',
+        '    types,',
+        '};',
+      ].join('\n');
+
+      const rawNamespaceBlock =
+        /import \* as aws from "\.\/aws";\s*\nimport \* as gcp from "\.\/gcp";\s*\nimport \* as types from "\.\/types";\s*\n\s*\nexport \{\s*\n\s*aws,\s*\n\s*gcp,\s*\n\s*types,\s*\n\};/;
+
+      if (rawNamespaceBlock.test(indexContent)) {
+        indexContent = indexContent.replace(rawNamespaceBlock, wrapped);
+        changed = true;
+      } else {
+        console.warn(
+          '  ⚠ Could not find the generated namespace export block in index.ts ' +
+            '— forward-reference wrapping NOT applied. The gen-sdk output format ' +
+            'may have changed; update scripts/sdk/fix-sdk.ts.'
+        );
+      }
+    }
+
     // App class
     const appExport =
       'export { App, AppConfig, Context, AwsProviderConfig, GcpProviderConfig, DefaultsConfig, ComplianceFramework } from "./app";';
@@ -537,6 +577,35 @@ Apache-2.0
     let init = fs.readFileSync(initPath, 'utf8');
     let changed = false;
 
+    // Forward-reference namespace wrapping.
+    // gen-sdk emits `aws = _utilities.lazy_import('anvil_cloud.aws')` (and gcp)
+    // in the runtime branch. Wrap them with wrap_namespace() so constructing any
+    // component auto-registers it into the active Stack — powering ctx.ref(...)
+    // forward references. See stack.py.
+    if (!init.includes('wrap_namespace')) {
+      const rawLazyImports =
+        /    aws = _utilities\.lazy_import\('anvil_cloud\.aws'\)\n    gcp = _utilities\.lazy_import\('anvil_cloud\.gcp'\)/;
+      const wrappedLazyImports = [
+        '    from .stack import wrap_namespace as _wrap_namespace',
+        '    # Wrap the component namespaces so constructing any component',
+        '    # auto-registers it into the active Stack under its logical name,',
+        '    # powering ctx.ref(...) forward references. See stack.py.',
+        "    aws = _wrap_namespace(_utilities.lazy_import('anvil_cloud.aws'))",
+        "    gcp = _wrap_namespace(_utilities.lazy_import('anvil_cloud.gcp'))",
+      ].join('\n');
+
+      if (rawLazyImports.test(init)) {
+        init = init.replace(rawLazyImports, wrappedLazyImports);
+        changed = true;
+      } else {
+        console.warn(
+          '  ⚠ Could not find the generated lazy_import block in __init__.py ' +
+            '— forward-reference wrapping NOT applied. The gen-sdk output format ' +
+            'may have changed; update scripts/sdk/fix-sdk.ts.'
+        );
+      }
+    }
+
     if (!init.includes('from .app import run')) {
       init += '\n# Typed entry point\nfrom .app import run\n';
       changed = true;
@@ -708,7 +777,8 @@ Apache-2.0
       `    def from_id(`,
       `        name: str,`,
       `        args: '${patch.pyArgsType}',`,
-      `        opts: Optional[pulumi.ComponentResourceOptions] = None`,
+      // Python Pulumi has no ComponentResourceOptions (TS-only) — use ResourceOptions.
+      `        opts: Optional[pulumi.ResourceOptions] = None`,
       `    ) -> '${patch.className}':`,
       `        """`,
       `        Imports an existing ${patch.className} into Anvil without managing or modifying it.`,

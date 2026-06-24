@@ -24,6 +24,42 @@ Every Anvil program starts with `anvil.App()`. The `run` callback receives a `Co
 - `ctx.project` — project name from `anvil.yaml`
 - `ctx.export(name, value)` — export stack outputs
 - `ctx.providers` — named cloud providers for multi-region / multi-account
+- `ctx.ref(id)` — reference a resource declared elsewhere (see below)
+
+## Forward references (`ctx.ref`)
+
+Normally you reference a resource through the variable it's assigned to, which
+means it must be declared first. `ctx.ref("id")` lets you reference a resource by
+its **logical name** — even one declared **later** in the program:
+
+```python
+def infra(ctx: anvil.Context):
+    fn = anvil.aws.Lambda("processor",
+        runtime=LambdaRuntime.NODEJS20_X,
+        handler="index.handler",
+        environment={
+            # forward reference — `db` is declared below
+            "DSQL_ENDPOINT": ctx.ref("db").endpoint,
+        },
+    )
+
+    db = anvil.aws.DSQL("db", schemas=[...])
+```
+
+`ctx.ref("db").endpoint` resolves to the *same* output as `db.endpoint` — they're
+interchangeable.
+
+This is an **escape hatch** for cases where declaration order is awkward; most
+code references resources directly. Two things to know:
+
+- **Keep references flowing one direction.** Because you can point either way, you
+  can accidentally create a cycle (A references B's output *and* B references A's).
+  That deadlocks the deploy rather than erroring cleanly — so don't do it.
+- A typo or never-declared id fails with a clear error before anything deploys.
+
+> Running locally: `anvil deploy` uses whatever `python3` is on your `PATH`, so
+> **activate your project venv first** (`source .venv/bin/activate`) or the program
+> can't import `pulumi`.
 
 ## Grants
 

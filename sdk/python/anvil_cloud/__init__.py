@@ -16,8 +16,12 @@ if typing.TYPE_CHECKING:
     import anvil_cloud.gcp as __gcp
     gcp = __gcp
 else:
-    aws = _utilities.lazy_import('anvil_cloud.aws')
-    gcp = _utilities.lazy_import('anvil_cloud.gcp')
+    from .stack import wrap_namespace as _wrap_namespace
+    # Wrap the component namespaces so constructing any component
+    # auto-registers it into the active Stack under its logical name,
+    # powering ctx.ref(...) forward references. See stack.py.
+    aws = _wrap_namespace(_utilities.lazy_import('anvil_cloud.aws'))
+    gcp = _wrap_namespace(_utilities.lazy_import('anvil_cloud.gcp'))
 
 _utilities.register(
     resource_modules="""

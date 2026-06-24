@@ -249,7 +249,7 @@ class Vpc(pulumi.ComponentResource):
     def from_id(
         name: str,
         args: 'VpcLookupArgs',
-        opts: Optional[pulumi.ComponentResourceOptions] = None
+        opts: Optional[pulumi.ResourceOptions] = None
     ) -> 'Vpc':
         """
         Imports an existing Vpc into Anvil without managing or modifying it.

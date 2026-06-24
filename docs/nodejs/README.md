@@ -24,6 +24,42 @@ Every Anvil program starts with `new App()`. The `run` callback receives a `Cont
 - `ctx.project` — project name from `anvil.yaml`
 - `ctx.export(name, value)` — export stack outputs
 - `ctx.providers` — named cloud providers for multi-region / multi-account
+- `ctx.ref(id)` — reference a resource declared elsewhere (see below)
+
+## Forward references (`ctx.ref`)
+
+Normally you reference a resource through the variable it's assigned to, which
+means it must be declared first. `ctx.ref('id')` lets you reference a resource by
+its **logical name** — even one declared **later** in the program:
+
+```typescript
+export default new App({
+  run(ctx) {
+    const fn = new anvil.aws.Lambda('processor', {
+      runtime: 'nodejs20.x',
+      handler: 'index.handler',
+      code: './src',
+      environment: {
+        // forward reference — `db` is declared below
+        DSQL_ENDPOINT: ctx.ref<anvil.aws.DSQL>('db').endpoint,
+      },
+    });
+
+    const db = new anvil.aws.DSQL('db', { /* ... */ });
+  },
+});
+```
+
+`ctx.ref('db').endpoint` resolves to the *same* output as `db.endpoint` — they're
+interchangeable. The generic (`<anvil.aws.DSQL>`) is just for autocomplete.
+
+This is an **escape hatch** for cases where declaration order is awkward; most
+code references resources directly. Two things to know:
+
+- **Keep references flowing one direction.** Because you can point either way, you
+  can accidentally create a cycle (A references B's output *and* B references A's).
+  That deadlocks the deploy rather than erroring cleanly — so don't do it.
+- A typo or never-declared id fails with a clear error before anything deploys.
 
 ## Grants
 
