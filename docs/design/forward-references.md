@@ -26,9 +26,11 @@ Resources construct **eagerly**, exactly as before. The mechanism is purely
 additive:
 
 1. A per-program **`Stack` registry** maps each resource's logical id → its
-   constructed object. Components **auto-register on construction** (via a
-   namespace `Proxy` in TS, a wrapping subclass in Python), so the
-   `new anvil.aws.X('id', …)` syntax is unchanged.
+   constructed object. Components **auto-register on construction** — in TS by
+   wrapping each component class inside `utilities.lazyLoad` (so `anvil.aws.X`
+   stays a real namespace, usable as a *type*; a namespace `Proxy` would break
+   that); in Python via a wrapping subclass. The `new anvil.aws.X('id', …)`
+   syntax is unchanged.
 2. `ctx.ref('id').<output>` returns a **deferred `pulumi.Output`** backed by a
    per-id future/promise that resolves when `id` registers — which may happen
    **later** in the same synchronous `run()`.
@@ -142,7 +144,8 @@ ctx.ref<Storage>('storage').bucketName   // ok — published output
 
 ## Per-language status
 
-- **TypeScript** — promise-backed `ctx.ref`; namespace `Proxy` auto-registration.
+- **TypeScript** — promise-backed `ctx.ref`; auto-registration by wrapping
+  component classes inside `utilities.lazyLoad` (keeps `anvil.aws.X` a usable type).
 - **Python** — per-id `asyncio.Future` resolved by `register()`, surfaced via
   `Output.from_input(coro).apply(...)`; namespace wrapped via a proxy + per-class
   subclass. Verified on Python 3.13 / pulumi 3.247: unit tests + build-mode
