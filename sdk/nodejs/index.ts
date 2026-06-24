@@ -15,9 +15,6 @@ utilities.lazyLoad(exports, ["Provider"], () => require("./provider"));
 export * from "./types/enums";
 
 // Export sub-modules:
-// Components auto-register for ctx.ref(...) forward references via a wrap inside
-// utilities.lazyLoad (runtime only), so these stay plain namespace re-exports —
-// keeping `anvil.aws.X` usable as a *type* as well as a value. See ./stack.ts.
 import * as aws from "./aws";
 import * as gcp from "./gcp";
 import * as types from "./types";

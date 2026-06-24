@@ -11,9 +11,11 @@ after it is declared**, decoupling declaration order from dependency order:
 
 ```ts
 const lam = new anvil.aws.Lambda('lam', {
-  environment: { DSQL_ENDPOINT: ctx.ref<anvil.aws.DSQL>('db').endpoint },  // forward ref
+  environment: { DSQL_ENDPOINT: ctx.ref<anvil.aws.DSQL>('db').endpoint }, // forward ref
 });
-const db = new anvil.aws.DSQL('db', { /* ... */ });   // declared AFTER — fine
+const db = new anvil.aws.DSQL('db', {
+  /* ... */
+}); // declared AFTER — fine
 ```
 
 It's an **escape hatch** for mature codebases where something occasionally needs to
@@ -28,7 +30,7 @@ additive:
 1. A per-program **`Stack` registry** maps each resource's logical id → its
    constructed object. Components **auto-register on construction** — in TS by
    wrapping each component class inside `utilities.lazyLoad` (so `anvil.aws.X`
-   stays a real namespace, usable as a *type*; a namespace `Proxy` would break
+   stays a real namespace, usable as a _type_; a namespace `Proxy` would break
    that); in Python via a wrapping subclass. The `new anvil.aws.X('id', …)`
    syntax is unchanged.
 2. `ctx.ref('id').<output>` returns a **deferred `pulumi.Output`** backed by a
@@ -51,7 +53,7 @@ topologically sort, then materialize in dependency order (what CDKTF and Pulumi
 YAML do internally). It gives **static** cycle/typo detection. We rejected it
 because **the SDKs are codegen'd** — deferring construction would mean rewriting
 the generators for every component. Approach A is additive and leans on real
-Outputs. The trade-off: some errors two-phase catches *statically* become
+Outputs. The trade-off: some errors two-phase catches _statically_ become
 **runtime** issues here (see Limits & gotchas).
 
 ## The API
@@ -63,17 +65,19 @@ Outputs. The trade-off: some errors two-phase catches *statically* become
 
 ## Scope: Mode 1 (pass), not Mode 2 (transform)
 
-- **Mode 1 — shipping.** *Pass* a forward-referenced output into another
+- **Mode 1 — shipping.** _Pass_ a forward-referenced output into another
   resource's args or into `ctx.export`. Resolves to the real output at deploy.
   ```ts
-  environment: { DSQL_ENDPOINT: ctx.ref('db').endpoint }   // ok
-  ctx.export('endpoint', ctx.ref('db').endpoint)           // ok
+  environment: {
+    DSQL_ENDPOINT: ctx.ref('db').endpoint;
+  } // ok
+  ctx.export('endpoint', ctx.ref('db').endpoint); // ok
   ```
-- **Mode 2 — not built.** *Transforming* a forward ref at declaration time
+- **Mode 2 — not built.** _Transforming_ a forward ref at declaration time
   (`.apply`, `interpolate`) before the resource exists. The `Ref` keeps the seam
   open, but it is not implemented — forward refs are rare and transforms on them
   rarer.
-- **Grant targets — not supported.** `ctx.ref` surfaces *outputs only*; it is not
+- **Grant targets — not supported.** `ctx.ref` surfaces _outputs only_; it is not
   a valid grant target (`dsql.grantConnect(ctx.ref('fn'), …)` won't work because a
   ref doesn't implement `grantName()`/`grantRoleArn()`). Call grants on the real
   object. A possible follow-up.
@@ -84,7 +88,7 @@ A block is **transparent to the dependency graph** — Pulumi parenting affects 
 and grouping, never ordering — so forward refs across block boundaries are
 ordinary refs.
 
-- **Block-level references only.** Reference a block's *public outputs*, not its
+- **Block-level references only.** Reference a block's _public outputs_, not its
   internal children (keeps encapsulation, avoids child-name collisions).
 - **Explicit output surface.** A block publishes via `this.output(name, value)`
   (symmetric with `ctx.export`); `ctx.ref<Block>('id').name` reaches it.
@@ -96,23 +100,26 @@ ordinary refs.
 class Storage extends anvil.Block {
   constructor(name: string) {
     super(name);
-    const events = new anvil.aws.Bucket('events', { /* ... */ });
-    this.output('bucketName', events.bucketName);   // public contract
+    const events = new anvil.aws.Bucket('events', {
+      /* ... */
+    });
+    this.output('bucketName', events.bucketName); // public contract
   }
 }
-ctx.ref<Storage>('storage').bucketName   // ok — published output
+ctx.ref<Storage>('storage').bucketName; // ok — published output
 ```
 
 ## Limits & gotchas (learned in practice)
 
 1. **Cycles deadlock — they are not statically detected.** Forward refs make it
    easy to write a cycle that in-order code couldn't, e.g.:
+
    - Queue's consumer = `ctx.ref('fn').arn` (Queue needs the Lambda), **and**
    - Lambda's env = `ctx.ref('queue').url` (Lambda needs the Queue).
 
    Queue ⇄ Lambda. The program runs fine (both refs resolve), but the resulting
    dependency graph has a cycle and **Pulumi's engine hangs at apply** — each
-   resource waits on the other's output forever. It creates everything *outside*
+   resource waits on the other's output forever. It creates everything _outside_
    the cycle, then stalls, with **no "cycle detected" error**. This is the sharpest
    downside of Approach A (a two-phase model would catch it statically).
    **Keep references flowing one direction.** (The Queue/Lambda fix: drop the
@@ -135,12 +142,12 @@ ctx.ref<Storage>('storage').bucketName   // ok — published output
 
 ## Error behaviour
 
-| Case | What happens |
-| --- | --- |
-| Undeclared id (typo / never declared) | `validate()` raises after `run()` — clean pre-deploy error |
-| Duplicate id | `register()` raises immediately |
-| Unknown output on a ref | rejected Output at apply time (`"id" has no output "x"`) — not static |
-| Circular dependency | **deadlock / hang at apply** — *not* detected (see Limits) |
+| Case                                  | What happens                                                          |
+| ------------------------------------- | --------------------------------------------------------------------- |
+| Undeclared id (typo / never declared) | `validate()` raises after `run()` — clean pre-deploy error            |
+| Duplicate id                          | `register()` raises immediately                                       |
+| Unknown output on a ref               | rejected Output at apply time (`"id" has no output "x"`) — not static |
+| Circular dependency                   | **deadlock / hang at apply** — _not_ detected (see Limits)            |
 
 ## Per-language status
 

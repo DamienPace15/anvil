@@ -63,10 +63,6 @@ export function lazyLoad(exports: any, props: string[], loadModule: any) {
         Object.defineProperty(exports, property, {
             enumerable: true,
             get: function() {
-                // Wrap component classes so constructing them auto-registers into
-                // the active Stack (powers ctx.ref forward references). Doing it
-                // here keeps `anvil.aws.X` a real namespace — usable as a type.
-                // See ./stack.ts (maybeWrapComponent). Non-components pass through.
                 return maybeWrapComponent(loadModule()[property]);
             },
         });

@@ -192,7 +192,9 @@ function patchTypeScript(): void {
 
     if (utilsChanged) {
       fs.writeFileSync(utilsPath, utils);
-      console.log('  ✔ Patched utilities.ts → lazyLoad component auto-registration');
+      console.log(
+        '  ✔ Patched utilities.ts → lazyLoad component auto-registration'
+      );
     }
   }
 
