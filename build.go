@@ -182,13 +182,13 @@ func targetGenNodejs() {
 	must(os.MkdirAll(backupDir, 0o755))
 	defer os.RemoveAll(backupDir)
 
-	backupFiles("sdk/nodejs", backupDir, "app.ts", "block.ts", "grants.ts")
+	backupFiles("sdk/nodejs", backupDir, "app.ts", "block.ts", "grants.ts", "stack.ts")
 
 	run("provider", nil,
 		"pulumi", "package", "gen-sdk", "schema.json", "--language", "nodejs", "--out", "../sdk",
 	)
 
-	restoreFiles(backupDir, "sdk/nodejs", "app.ts", "block.ts", "grants.ts")
+	restoreFiles(backupDir, "sdk/nodejs", "app.ts", "block.ts", "grants.ts", "stack.ts")
 
 	run(".", nil, "npx", "ts-node", "scripts/sdk/fix-sdk.ts", "--ts")
 	run(".", nil, "npx", "ts-node", "scripts/grants/fix-sdk-grants.ts", "--ts")
@@ -208,13 +208,13 @@ func targetGenPythonSDK() {
 	must(os.MkdirAll(backupDir, 0o755))
 	defer os.RemoveAll(backupDir)
 
-	backupFiles("sdk/python/anvil_cloud", backupDir, "app.py", "block.py", "types.py", "grants.py")
+	backupFiles("sdk/python/anvil_cloud", backupDir, "app.py", "block.py", "types.py", "grants.py", "stack.py")
 
 	run("provider", nil,
 		"pulumi", "package", "gen-sdk", "schema.json", "--language", "python", "--out", "../sdk",
 	)
 
-	restoreFiles(backupDir, "sdk/python/anvil_cloud", "app.py", "block.py", "types.py", "grants.py")
+	restoreFiles(backupDir, "sdk/python/anvil_cloud", "app.py", "block.py", "types.py", "grants.py", "stack.py")
 
 	run(".", nil, "npx", "ts-node", "scripts/sdk/fix-sdk.ts", "--python")
 	run(".", nil, "npx", "ts-node", "scripts/grants/fix-sdk-grants.ts", "--python")

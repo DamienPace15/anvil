@@ -482,7 +482,33 @@ function patchPyCustomFile(config: CustomGrantConfig): void {
   }
 
   content = ensurePyGrantsImport(content);
-  content = content.trimEnd() + '\n' + config.pyMethod + '\n';
+
+  // Register injected outputs in _internal_init, right after the last
+  // `__props__.__dict__["x"] = None` line (the output-defaults block).
+  if (config.pyResourceInputs && config.pyResourceInputs.length > 0) {
+    const lines = content.split('\n');
+    let lastIdx = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (/^\s*__props__\.__dict__\[".*"\] = None\s*$/.test(lines[i])) lastIdx = i;
+    }
+    if (lastIdx >= 0) {
+      lines.splice(lastIdx + 1, 0, ...config.pyResourceInputs);
+      content = lines.join('\n');
+    } else {
+      console.warn(
+        `  ⚠ ${config.pyFile}: no __props__ output block found — pyResourceInputs NOT applied.`
+      );
+    }
+  }
+
+  // Append class-level property getters, then the grant method. Both are class
+  // members appended to the end of the (last) component class in the file.
+  let appended = '';
+  if (config.pyPropertyDeclarations) {
+    for (const decl of config.pyPropertyDeclarations) appended += '\n' + decl + '\n';
+  }
+  appended += '\n' + config.pyMethod + '\n';
+  content = content.trimEnd() + '\n' + appended;
 
   fs.writeFileSync(filePath, content);
   console.log(`  ✔ Patched ${config.pyFile} → ${pyMethod}`);

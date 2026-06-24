@@ -15,9 +15,16 @@ utilities.lazyLoad(exports, ["Provider"], () => require("./provider"));
 export * from "./types/enums";
 
 // Export sub-modules:
-import * as aws from "./aws";
-import * as gcp from "./gcp";
+import * as awsRaw from "./aws";
+import * as gcpRaw from "./gcp";
 import * as types from "./types";
+import { wrapNamespace } from "./stack";
+
+// Wrap the component namespaces so constructing any component
+// auto-registers it into the active Stack under its logical name,
+// powering ctx.ref(...) forward references. See ./stack.ts.
+const aws: typeof awsRaw = wrapNamespace(awsRaw);
+const gcp: typeof gcpRaw = wrapNamespace(gcpRaw);
 
 export {
     aws,

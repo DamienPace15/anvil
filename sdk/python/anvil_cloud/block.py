@@ -1,8 +1,11 @@
 """Block base class for organisational grouping of Anvil resources."""
 
-from typing import Any, Mapping, Optional
+from typing import Any, Dict, Mapping, Optional
 
 import pulumi
+
+from .stack import get_active_stack
+
 
 class Block(pulumi.ComponentResource):
     """An optional organisational grouping for Anvil resources.
@@ -63,3 +66,24 @@ class Block(pulumi.ComponentResource):
         anvil_config = pulumi.Config("anvil")
         self.stage = anvil_config.require("stage")
         self.project = pulumi.get_project()
+
+        # The block's published outputs — its public surface for ctx.ref(...).
+        # Registered now (empty) and mutated by self.output(...) as the subclass
+        # constructor body runs; forward references resolve after run() completes.
+        self.__outputs: Dict[str, pulumi.Output] = {}
+        stack = get_active_stack()
+        if stack is not None:
+            stack.register(name, self.__outputs)
+
+    def output(self, name: str, value: pulumi.Input) -> None:
+        """Publish an output on this block, making it reachable via
+        ``ctx.ref(...).<name>``.
+
+        A block may only publish outputs that originate from the resources it
+        owns — it is a container for its own resources, not a relay for others'.
+
+        Example::
+
+            self.output("bucket_name", events.bucket_name)
+        """
+        self.__outputs[name] = pulumi.Output.from_input(value)

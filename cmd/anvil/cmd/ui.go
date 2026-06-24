@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -280,6 +281,12 @@ type EventHandler struct {
 	errors    []diagError
 	spinner   *spinner
 	startTime time.Time
+
+	// logFile is a full, unfiltered run log written to .anvil/<command>.log.
+	// Unlike stdout (which is summarised and TTY-gated), it captures every
+	// resource op and the raw diagnostic messages — including program
+	// tracebacks — so failures are debuggable after the fact.
+	logFile *os.File
 }
 
 type diagError struct {
@@ -288,11 +295,63 @@ type diagError struct {
 }
 
 func NewEventHandler(verbose bool, command string) *EventHandler {
-	return &EventHandler{
+	h := &EventHandler{
 		verbose:   verbose,
 		command:   command,
 		resources: make(map[string]*trackedResource),
 		startTime: time.Now(),
+	}
+	h.openLog()
+	return h
+}
+
+// openLog creates .anvil/<command>.log for this run. Best-effort: if the path
+// can't be resolved or created, the command proceeds without a log file.
+func (h *EventHandler) openLog() {
+	root, err := findProjectRoot()
+	if err != nil {
+		return
+	}
+	anvilDir := filepath.Join(root, ".anvil")
+	if err := os.MkdirAll(anvilDir, 0755); err != nil {
+		return
+	}
+	f, err := os.Create(filepath.Join(anvilDir, h.command+".log"))
+	if err != nil {
+		return
+	}
+	h.logFile = f
+	fmt.Fprintf(f, "# anvil %s — %s\n\n", h.command, h.startTime.Format(time.RFC3339))
+}
+
+// logf writes a single timestamped, ANSI-free line to the run log (best-effort).
+func (h *EventHandler) logf(format string, args ...interface{}) {
+	if h.logFile == nil {
+		return
+	}
+	msg := stripAnsi(fmt.Sprintf(format, args...))
+	fmt.Fprintf(h.logFile, "%s  %s\n", time.Now().Format("15:04:05"), strings.TrimRight(msg, "\n"))
+}
+
+// logRaw writes a message verbatim (ANSI stripped) to the run log, preserving
+// multi-line content such as program tracebacks.
+func (h *EventHandler) logRaw(s string) {
+	if h.logFile == nil {
+		return
+	}
+	out := stripAnsi(s)
+	fmt.Fprint(h.logFile, out)
+	if !strings.HasSuffix(out, "\n") {
+		fmt.Fprintln(h.logFile)
+	}
+}
+
+// Close flushes and closes the run log. Safe to call multiple times.
+func (h *EventHandler) Close() {
+	if h.logFile != nil {
+		fmt.Fprintf(h.logFile, "\n# finished — %s\n", time.Now().Format(time.RFC3339))
+		h.logFile.Close()
+		h.logFile = nil
 	}
 }
 
@@ -384,6 +443,12 @@ func (h *EventHandler) handleResOutputs(e *apitype.ResOutputsEvent) {
 	}
 	tr.endTime = time.Now()
 
+	// Full log captures every resource (incl. internal/child), unlike stdout.
+	if tr.op != "same" && tr.op != "read" {
+		h.logf("%-10s %s :: %s (%s)", opVerb(tr.op, h.isPreview()),
+			tr.typeName, tr.name, formatDuration(tr.endTime.Sub(tr.startTime)))
+	}
+
 	if isInternalResource(tr.typeName, h.verbose) {
 		return
 	}
@@ -408,6 +473,8 @@ func (h *EventHandler) handleResOpFailed(e *apitype.ResOpFailedEvent) {
 	tr.failed = true
 	tr.endTime = time.Now()
 
+	h.logf("FAILED     %s :: %s", tr.typeName, tr.name)
+
 	if isInternalResource(tr.typeName, h.verbose) {
 		return
 	}
@@ -421,6 +488,18 @@ func (h *EventHandler) handleResOpFailed(e *apitype.ResOpFailedEvent) {
 }
 
 func (h *EventHandler) handleDiagnostic(e *apitype.DiagnosticEvent) {
+	// Capture the raw, unfiltered diagnostic to the run log first. This is the
+	// full message — program tracebacks, provider errors, plugin warnings — that
+	// the stdout UI summarises away via mapError() or drops as noise.
+	if raw := strings.TrimRight(e.Message, "\n"); strings.TrimSpace(stripAnsi(raw)) != "" {
+		where := ""
+		if e.URN != "" {
+			_, name := parseURN(e.URN)
+			where = name + ": "
+		}
+		h.logRaw(fmt.Sprintf("[%s] %s%s", e.Severity, where, raw))
+	}
+
 	switch e.Severity {
 	case "error":
 		h.errors = append(h.errors, diagError{
@@ -496,6 +575,10 @@ func (h *EventHandler) printResourceLine(tr *trackedResource) {
 }
 
 func (h *EventHandler) PrintSummary(stage string) {
+	// The run log is complete once we reach the summary — flush and close it,
+	// whichever branch below returns.
+	defer h.Close()
+
 	totalDuration := time.Since(h.startTime)
 
 	if h.spinner != nil {

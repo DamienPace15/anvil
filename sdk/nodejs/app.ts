@@ -1,6 +1,7 @@
 import * as pulumi from '@pulumi/pulumi';
 import * as aws from '@pulumi/aws';
 import * as gcp from '@pulumi/gcp';
+import { Stack, setActiveStack, RefHandle } from './stack';
 
 // ── Compliance ─────────────────────────────────────────────
 
@@ -41,6 +42,25 @@ export interface Context {
 
   /** Export a stack output value without importing Pulumi. */
   export(name: string, value: pulumi.Input<any>): void;
+
+  /**
+   * Forward-reference a resource or block by its logical id, before or after it
+   * is declared. Property access yields the referenced resource's Output, so
+   * declaration order no longer matters.
+   *
+   * The generic gives editor autocomplete on the referenced type's outputs:
+   *
+   * ```ts
+   * const l = new anvil.aws.Lambda('lam', {
+   *   environment: { DSQL_ENDPOINT: ctx.ref<anvil.aws.DSQL>('db').endpoint },
+   * });
+   * const db = new anvil.aws.DSQL('db', { ... }); // declared after — fine
+   * ```
+   *
+   * A reference to an id that is never declared is a static error thrown after
+   * `run()` completes — it will not hang the deployment.
+   */
+  ref<T = any>(id: string): RefHandle<T>;
 }
 
 /** AWS provider configuration. */
@@ -310,6 +330,11 @@ export class App {
     // Pulumi picks up all enumerable properties as stack outputs.
     const self = this;
 
+    // ── Create the forward-reference registry ──────────
+    // Resources construct eagerly; the Stack records them by id so `ctx.ref`
+    // can resolve references declared in any order. See ./stack.ts.
+    const stack = new Stack();
+
     // ── Create Context ─────────────────────────────────
     const ctx: Context = {
       stage,
@@ -318,13 +343,22 @@ export class App {
       export(name: string, value: pulumi.Input<any>) {
         self[name] = value;
       },
+      ref<T = any>(id: string): RefHandle<T> {
+        return stack.ref<T>(id);
+      },
     };
 
     // ── Execute ────────────────────────────────────────
+    // The active stack is set for the duration of `run()` so that component
+    // construction (and Block outputs) auto-register into it. After `run()`
+    // returns, validate() turns any never-declared forward reference into a
+    // clean error instead of a hung promise.
+    setActiveStack(stack);
     try {
       config.run(ctx);
-    } catch (error) {
-      throw error;
+      stack.validate();
+    } finally {
+      setActiveStack(undefined);
     }
   }
 }

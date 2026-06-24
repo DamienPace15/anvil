@@ -55,6 +55,11 @@ export interface CustomGrantConfig {
   tsImports?: string[];
   tsPropertyDeclarations?: string[];
   tsResourceInputs?: string[];
+  // Python counterparts. Without these, a custom grant whose body references an
+  // injected output (e.g. DSQL.roles_table_name) compiles in TS but raises
+  // AttributeError in Python. pyMethod handles imports via a local `from ...`.
+  pyPropertyDeclarations?: string[]; // class-level @property getters (full indentation)
+  pyResourceInputs?: string[]; // `__props__.__dict__["x"] = None` lines for _internal_init
 }
 
 /**
