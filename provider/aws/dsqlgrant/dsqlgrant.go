@@ -3,6 +3,7 @@ package dsqlgrant
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/dynamodb"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/iam"
@@ -115,6 +116,17 @@ func NewDSQLConnect(ctx *pulumi.Context, name string, args DSQLConnectArgs, opts
 
 	if err := ctx.RegisterComponentResource(p.GetTypeToken(ctx), name, g, opts...); err != nil {
 		return nil, err
+	}
+
+	// Build mode runs a metadata-only preview (anvil generate / deploy schema
+	// discovery). DSQLConnect contributes no schema or function metadata, and
+	// its inputs (e.g. the target role ARN) are empty in build mode — attempting
+	// to create the real IAM/DynamoDB resources would error and tear down the
+	// discovery preview before the manifest is fully written. Short-circuit to a
+	// registered no-op.
+	if os.Getenv("ANVIL_BUILD_MODE") == "true" {
+		ctx.RegisterResourceOutputs(g, pulumi.Map{})
+		return g, nil
 	}
 
 	// ── 1. IAM policy — dsql:DbConnect on all cluster ARNs ────────────

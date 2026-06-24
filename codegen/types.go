@@ -85,7 +85,7 @@ var typeMappings = map[string]TypeMapping{
 	"date":             {"string", "date", "time.Time", "chrono::NaiveDate"},
 	"time":             {"string", "time", "string", "chrono::NaiveTime"},
 	"timestamp":        {"Date", "datetime", "time.Time", "chrono::NaiveDateTime"},
-	"timestamptz":      {"Date", "datetime", "time.Time", "chrono::DateTime<Utc>"},
+	"timestamptz":      {"Date", "datetime", "time.Time", "chrono::DateTime<chrono::Utc>"},
 	"interval":         {"string", "timedelta", "string", "String"},
 	"bytea":            {"Buffer", "bytes", "[]byte", "Vec<u8>"},
 	"json":             {"unknown", "Any", "json.RawMessage", "serde_json::Value"},

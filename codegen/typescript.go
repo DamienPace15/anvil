@@ -187,8 +187,9 @@ func writeTSFindMany(b *strings.Builder, row, qualifiedTable, selectCols string)
 
 func writeTSInsert(b *strings.Builder, ins, row, qualifiedTable string) {
 	fmt.Fprintf(b, "      insert: async (row: %s): Promise<%s> => {\n", ins, row)
-	b.WriteString("        const cols = Object.keys(row).filter(k => (row as Record<string, unknown>)[k] !== undefined);\n")
-	b.WriteString("        const vals = cols.map(k => (row as Record<string, unknown>)[k]);\n")
+	b.WriteString("        const data = row as unknown as Record<string, unknown>;\n")
+	b.WriteString("        const cols = Object.keys(data).filter(k => data[k] !== undefined);\n")
+	b.WriteString("        const vals = cols.map(k => data[k]);\n")
 	b.WriteString("        const placeholders = cols.map((_, i) => `$${i + 1}`).join(', ');\n")
 	fmt.Fprintf(b, "        const r = await client.query<%s>(\n", row)
 	fmt.Fprintf(b, "          `INSERT INTO %s (${cols.join(', ')}) VALUES (${placeholders}) RETURNING *`,\n", qualifiedTable)

@@ -265,6 +265,36 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 				return nil, fmt.Errorf("build manifest write failed for %s: %w", name, err)
 			}
 		}
+
+		// Build mode runs a Pulumi preview to extract schema metadata without
+		// creating real cloud resources. We still must register the component
+		// and its output properties: returning an unregistered component leaves
+		// the pulumi:"..." output fields nil, which panics the provider when he
+		// engine serializes the component's outputs (or a consumer such as t
+		// Lambda env var references dsql.endpoint / dsql.clusterArns).a
+		opts = provider.WithDefault(opts, true)
+		if err := ctx.RegisterComponentResource(p.GetTypeToken(ctx), name, d, opts...); err != nil {
+			return nil, err
+		}
+
+		empty := pulumi.StringMap{}.ToStringMapOutput()
+		emptyStr := pulumi.String("").ToStringOutput()
+		d.Endpoints = empty
+		d.Endpoint = emptyStr
+		d.ClusterArns = empty
+		d.VpcEndpointIds = empty
+		d.VpcEndpointSecurityGroupIds = empty
+		d.RolesTableName = emptyStr
+
+		ctx.RegisterResourceOutputs(d, pulumi.Map{
+			"endpoints":                   d.Endpoints,
+			"endpoint":                    d.Endpoint,
+			"clusterArns":                 d.ClusterArns,
+			"vpcEndpointIds":              d.VpcEndpointIds,
+			"vpcEndpointSecurityGroupIds": d.VpcEndpointSecurityGroupIds,
+			"rolesTableName":              d.RolesTableName,
+		})
+
 		return d, nil
 	}
 
@@ -709,7 +739,7 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 						"type": pulumi.String("S"),
 					},
 				},
-				"billingMode":              pulumi.String("PAY_PER_REQUEST"),
+				"billingMode":               pulumi.String("PAY_PER_REQUEST"),
 				"deletionProtectionEnabled": pulumi.Bool(true),
 				"pointInTimeRecovery": pulumi.Map{
 					"enabled": pulumi.Bool(true),
@@ -944,7 +974,7 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 				// attempts are exhausted the record is dropped and the stream
 				// advances. INSERT/MODIFY validation happens at deploy time, so
 				// a permanently-failing record is rare; REMOVE is best-effort.
-				MaximumRetryAttempts:     pulumi.Int(3),
+				MaximumRetryAttempts:       pulumi.Int(3),
 				BisectBatchOnFunctionError: pulumi.Bool(true),
 			},
 			pulumi.Parent(d),
@@ -1160,16 +1190,6 @@ func (d *DSQL) GrantConnect(
 	}
 
 	return nil
-}
-
-// marshalDynamoItem builds a DynamoDB-format JSON string from a flat string map.
-func marshalDynamoItem(fields map[string]string) string {
-	item := make(map[string]map[string]string, len(fields))
-	for k, v := range fields {
-		item[k] = map[string]string{"S": v}
-	}
-	b, _ := json.Marshal(item)
-	return string(b)
 }
 
 // ── Table definition serialization ───────────────────────────────────────────

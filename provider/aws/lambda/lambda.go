@@ -245,12 +245,39 @@ const blankHandler = `exports.handler = async () => ({
 
 func NewLambda(ctx *pulumi.Context, name string, args LambdaArgs, opts ...pulumi.ResourceOption) (*Lambda, error) {
 	if os.Getenv("ANVIL_BUILD_MODE") == "true" {
+		l := &Lambda{name: name}
 		if args.Entry != "" {
 			if err := appendToManifest(name, args); err != nil {
 				return nil, fmt.Errorf("build manifest write failed for %s: %w", name, err)
 			}
 		}
-		return &Lambda{name: name}, nil
+
+		// Build mode runs a Pulumi preview to extract metadata without creating
+		// real cloud resources. The component and its output properties must
+		// still be registered: an unregistered component leaves the pulumi:"..."
+		// output fields nil, which panics the provider when the engine
+		// serializes the component's outputs.
+		opts = provider.WithDefault(opts, true)
+		if err := ctx.RegisterComponentResource(p.GetTypeToken(ctx), name, l, opts...); err != nil {
+			return nil, err
+		}
+
+		emptyStr := pulumi.String("").ToStringOutput()
+		l.Arn = emptyStr
+		l.FunctionName = emptyStr
+		l.RoleArn = emptyStr
+		l.FunctionUrl = emptyStr
+		l.SecurityGroupID = emptyStr
+
+		ctx.RegisterResourceOutputs(l, pulumi.Map{
+			"arn":             l.Arn,
+			"functionName":    l.FunctionName,
+			"roleArn":         l.RoleArn,
+			"functionUrl":     l.FunctionUrl,
+			"securityGroupId": l.SecurityGroupID,
+		})
+
+		return l, nil
 	}
 
 	l := &Lambda{name: name}
@@ -577,6 +604,10 @@ type manifestEntry struct {
 
 type manifest struct {
 	Functions []manifestEntry `json:"functions"`
+	// Schemas is preserved verbatim so a Lambda write does not clobber DSQL
+	// schema entries already in the manifest (both components write to the
+	// same file during a build-mode preview, in declaration order).
+	Schemas []json.RawMessage `json:"schemas,omitempty"`
 }
 
 func appendToManifest(name string, args LambdaArgs) error {

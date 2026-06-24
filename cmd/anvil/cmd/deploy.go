@@ -116,7 +116,7 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 	// Re-read the manifest written during discovery (step 1) and regenerate
 	// typed database client code so generated types stay in sync after deploy.
 	if manifest, err := readFullManifest(); err == nil && manifest != nil && len(manifest.Schemas) > 0 {
-		refreshGeneratedTypes(manifest)
+		refreshGeneratedTypes(manifest, stage)
 	}
 
 	return nil
