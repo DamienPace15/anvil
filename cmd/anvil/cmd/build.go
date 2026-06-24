@@ -26,8 +26,17 @@ type FunctionSpec struct {
 	Architecture string `json:"architecture"`
 }
 
+// SchemaSpec holds the metadata for a single DSQL component's schemas
+// discovered from the build manifest.
+type SchemaSpec struct {
+	Component string          `json:"component"`
+	Type      string          `json:"type"`
+	Schemas   json.RawMessage `json:"schemas"`
+}
+
 type buildManifest struct {
 	Functions []FunctionSpec `json:"functions"`
+	Schemas   []SchemaSpec   `json:"schemas,omitempty"`
 }
 
 // discoverFunctions runs the user's Pulumi program with ANVIL_BUILD_MODE=true,
@@ -113,6 +122,18 @@ func discoverFunctions(ctx context.Context, stage string) ([]FunctionSpec, error
 // readManifest reads and parses .anvil/build-manifest.json.
 // Returns nil if the manifest does not exist.
 func readManifest() ([]FunctionSpec, error) {
+	m, err := readFullManifest()
+	if err != nil {
+		return nil, err
+	}
+	if m == nil {
+		return nil, nil
+	}
+	return m.Functions, nil
+}
+
+// readFullManifest reads the complete build manifest including schemas.
+func readFullManifest() (*buildManifest, error) {
 	data, err := os.ReadFile(manifestPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -126,7 +147,7 @@ func readManifest() ([]FunctionSpec, error) {
 		return nil, fmt.Errorf("invalid build manifest: %w", err)
 	}
 
-	return m.Functions, nil
+	return &m, nil
 }
 
 // buildFunctions bundles all discovered Lambda functions and returns

@@ -62,6 +62,37 @@ func RunAll(schemaPath string, generators []Generator, outDir string) error {
 	return nil
 }
 
+// RunFromManifest runs a generator using schema data extracted from the build manifest.
+// Each entry maps a component name to raw JSON schemas (matching DSQLComponent.Schemas).
+func RunFromManifest(entries []ManifestSchemaEntry, gen Generator, outDir string) error {
+	schemas := make(map[string]DSQLComponent)
+	for _, e := range entries {
+		var comp DSQLComponent
+		if err := json.Unmarshal(e.SchemasJSON, &comp.Schemas); err != nil {
+			return fmt.Errorf("parsing schemas for component %q: %w", e.Component, err)
+		}
+		schemas[e.Component] = comp
+	}
+
+	sf := &SchemaFile{DSQL: schemas}
+	if err := validate(sf); err != nil {
+		return err
+	}
+	normalize(sf)
+
+	if err := os.MkdirAll(outDir, 0o755); err != nil {
+		return fmt.Errorf("creating output directory: %w", err)
+	}
+
+	return gen.Generate(sf.DSQL, outDir)
+}
+
+// ManifestSchemaEntry represents a single DSQL component's schemas from the build manifest.
+type ManifestSchemaEntry struct {
+	Component   string
+	SchemasJSON json.RawMessage
+}
+
 // validate mirrors the validation logic from provider/aws/dsql/dsql.go:validateSchemas.
 func validate(sf *SchemaFile) error {
 	for componentName, comp := range sf.DSQL {

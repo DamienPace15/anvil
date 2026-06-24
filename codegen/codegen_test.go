@@ -1,6 +1,7 @@
 package codegen
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -182,6 +183,35 @@ func TestRustGeneration(t *testing.T) {
 	assertFileContains(t, filepath.Join(outDir, "myapp.rs"), "impl<'a> UsersQueries<'a>")
 	assertFileContains(t, filepath.Join(outDir, "myapp.rs"), "pub struct OrdersRow")
 	assertFileContains(t, filepath.Join(outDir, "mod.rs"), "pub mod myapp")
+}
+
+func TestRunFromManifest(t *testing.T) {
+	sf, err := ParseSchemaFile(filepath.Join("testdata", "anvil.schema.json"))
+	if err != nil {
+		t.Fatalf("ParseSchemaFile: %v", err)
+	}
+
+	var entries []ManifestSchemaEntry
+	for name, comp := range sf.DSQL {
+		raw, err := json.Marshal(comp.Schemas)
+		if err != nil {
+			t.Fatalf("marshaling schemas: %v", err)
+		}
+		entries = append(entries, ManifestSchemaEntry{
+			Component:   name,
+			SchemasJSON: raw,
+		})
+	}
+
+	outDir := t.TempDir()
+	gen := &TypeScriptGenerator{}
+	if err := RunFromManifest(entries, gen, outDir); err != nil {
+		t.Fatalf("RunFromManifest: %v", err)
+	}
+
+	assertFileContains(t, filepath.Join(outDir, "myapp.ts"), "export interface UsersRow")
+	assertFileContains(t, filepath.Join(outDir, "myapp.ts"), "createMyappQueries")
+	assertFileContains(t, filepath.Join(outDir, "index.ts"), "export * from './myapp'")
 }
 
 func TestNameConversions(t *testing.T) {

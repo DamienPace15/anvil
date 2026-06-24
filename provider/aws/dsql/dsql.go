@@ -3,6 +3,7 @@ package dsql
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 
 	dsqlbootstrap "github.com/DamienPace15/anvil/provider/aws/dsql/bootstrap"
@@ -44,17 +45,17 @@ type DSQLMultiRegionArgs struct {
 type DSQLRoleArgs struct {
 	// Name is the Postgres role name. Must be a valid PostgreSQL identifier
 	// and globally unique across all schemas.
-	Name string `pulumi:"name"`
+	Name string `pulumi:"name" json:"name"`
 
 	// Grants are the table-level privileges granted to this role within its
 	// schema, e.g. ["SELECT", "INSERT", "UPDATE", "DELETE"].
-	Grants []string `pulumi:"grants"`
+	Grants []string `pulumi:"grants" json:"grants"`
 
 	// TableScoping optionally narrows the grants to specific tables instead of
 	// the whole schema. When set, the role is granted only on these tables
 	// (which must exist — declare them in the same schema's tables). When
 	// omitted, grants apply schema-wide (all current + future tables).
-	TableScoping []string `pulumi:"tableScoping,optional"`
+	TableScoping []string `pulumi:"tableScoping,optional" json:"tableScoping,omitempty"`
 }
 
 // DSQLColumnArgs defines a single column in a table.
@@ -62,35 +63,35 @@ type DSQLRoleArgs struct {
 // money, xml are deliberately excluded because DSQL does not support them.
 type DSQLColumnArgs struct {
 	// Name is the column name.
-	Name string `pulumi:"name"`
+	Name string `pulumi:"name" json:"name"`
 
 	// Type is the DSQL column type. One of the supported set:
 	// uuid, text, varchar, char, boolean, smallint, integer, bigint,
 	// real, double precision, numeric, date, time, timestamp, timestamptz,
 	// interval, bytea, json, jsonb.
-	Type string `pulumi:"type"`
+	Type string `pulumi:"type" json:"type"`
 
 	// Length is the size for char/varchar (e.g. varchar(255)).
 	// char ≤ 4096, varchar ≤ 65535. Ignored for other types.
-	Length int `pulumi:"length,optional"`
+	Length int `pulumi:"length,optional" json:"length,omitempty"`
 
 	// Precision is the total digits for numeric (≤ 38). Ignored for other types.
-	Precision int `pulumi:"precision,optional"`
+	Precision int `pulumi:"precision,optional" json:"precision,omitempty"`
 
 	// Scale is the fractional digits for numeric (≤ 37). Ignored for other types.
-	Scale int `pulumi:"scale,optional"`
+	Scale int `pulumi:"scale,optional" json:"scale,omitempty"`
 
 	// NotNull adds a NOT NULL constraint. Primary-key columns are auto-NOT-NULL.
-	NotNull bool `pulumi:"notNull,optional"`
+	NotNull bool `pulumi:"notNull,optional" json:"notNull,omitempty"`
 
 	// Unique creates a named async unique index on this column.
 	// Composite/explicit uniqueness goes in the table's indexes instead.
-	Unique bool `pulumi:"unique,optional"`
+	Unique bool `pulumi:"unique,optional" json:"unique,omitempty"`
 
 	// Default is a raw SQL default expression, passed through verbatim.
 	// String literals need inner quotes: "'active'". Functions: "now()".
 	// Anvil cannot validate the expression — it must be DSQL-valid.
-	Default string `pulumi:"default,optional"`
+	Default string `pulumi:"default,optional" json:"default,omitempty"`
 }
 
 // DSQLIndexArgs defines a secondary index on a table.
@@ -98,13 +99,13 @@ type DSQLColumnArgs struct {
 // the build runs in the background; Anvil fires it and logs the job_id.
 type DSQLIndexArgs struct {
 	// Name is the index name. Required so additive diffing is by name.
-	Name string `pulumi:"name"`
+	Name string `pulumi:"name" json:"name"`
 
 	// Columns are the indexed columns, in order (order matters for composite).
-	Columns []string `pulumi:"columns"`
+	Columns []string `pulumi:"columns" json:"columns"`
 
 	// Unique creates a unique index (CREATE UNIQUE INDEX ASYNC).
-	Unique bool `pulumi:"unique,optional"`
+	Unique bool `pulumi:"unique,optional" json:"unique,omitempty"`
 }
 
 // DSQLTableArgs defines a table to create in a schema.
@@ -112,19 +113,19 @@ type DSQLIndexArgs struct {
 // never drops or alters existing ones — destructive changes are left to humans.
 type DSQLTableArgs struct {
 	// Name is the table name (literal — not stage-prefixed).
-	Name string `pulumi:"name"`
+	Name string `pulumi:"name" json:"name"`
 
 	// Columns are the table's columns.
-	Columns []DSQLColumnArgs `pulumi:"columns"`
+	Columns []DSQLColumnArgs `pulumi:"columns" json:"columns"`
 
 	// PrimaryKey is the list of column names forming the primary key, in order.
 	// Required — DSQL uses the PK as the distribution key and it cannot be added
 	// after table creation. Composite keys list multiple columns in order.
 	// AWS recommends a uuid PK (generated app-side) to avoid write hotspots.
-	PrimaryKey []string `pulumi:"primaryKey"`
+	PrimaryKey []string `pulumi:"primaryKey" json:"primaryKey"`
 
 	// Indexes are secondary indexes on the table. Optional.
-	Indexes []DSQLIndexArgs `pulumi:"indexes,optional"`
+	Indexes []DSQLIndexArgs `pulumi:"indexes,optional" json:"indexes,omitempty"`
 }
 
 // DSQLSchemaArgs is the container for a schema, its roles, and its tables.
@@ -132,14 +133,14 @@ type DSQLTableArgs struct {
 // this schema), and the tables.
 type DSQLSchemaArgs struct {
 	// Name is the schema name (literal). Must not be "public".
-	Name string `pulumi:"name"`
+	Name string `pulumi:"name" json:"name"`
 
 	// Roles are the database roles for this schema. Each role's grants apply to
 	// this schema. Role names must be globally unique across all schemas.
-	Roles []DSQLRoleArgs `pulumi:"roles,optional"`
+	Roles []DSQLRoleArgs `pulumi:"roles,optional" json:"roles,omitempty"`
 
 	// Tables are the tables to create in this schema.
-	Tables []DSQLTableArgs `pulumi:"tables,optional"`
+	Tables []DSQLTableArgs `pulumi:"tables,optional" json:"tables,omitempty"`
 }
 
 // DSQLVpcArgs configures VPC placement and network routing for DSQL.
@@ -251,6 +252,22 @@ func (d *DSQL) Annotate(a infer.Annotator) {
 func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.ResourceOption) (*DSQL, error) {
 	d := &DSQL{name: name}
 
+	// Validate + normalize schemas/tables before anything else so bad config
+	// fails fast with a clear message (auto-NOT-NULL on PK cols is applied
+	// here, mutating args.Schemas).
+	if err := validateSchemas(args.Schemas); err != nil {
+		return nil, fmt.Errorf("invalid DSQL schemas config: %w", err)
+	}
+
+	if os.Getenv("ANVIL_BUILD_MODE") == "true" {
+		if len(args.Schemas) > 0 {
+			if err := appendSchemasToManifest(name, args.Schemas); err != nil {
+				return nil, fmt.Errorf("build manifest write failed for %s: %w", name, err)
+			}
+		}
+		return d, nil
+	}
+
 	provider.NewContext(ctx)
 
 	cfg := c.New(ctx, "anvil")
@@ -258,13 +275,6 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 	stageId := cfg.Require("stageId")
 
 	opts = provider.WithDefault(opts, true)
-
-	// Validate + normalize schemas/tables before anything else so bad config
-	// fails fast at deploy time with a clear message (auto-NOT-NULL on PK cols
-	// is applied here, mutating args.Schemas).
-	if err := validateSchemas(args.Schemas); err != nil {
-		return nil, fmt.Errorf("invalid DSQL schemas config: %w", err)
-	}
 
 	if err := ctx.RegisterComponentResource(p.GetTypeToken(ctx), name, d, opts...); err != nil {
 		return nil, err
@@ -1365,6 +1375,45 @@ func validateSchemas(schemas []DSQLSchemaArgs) error {
 		return fmt.Errorf("DSQL allows at most 10 schemas per database; %d declared", len(distinct))
 	}
 	return nil
+}
+
+// ── Build manifest ────────────────────────────────────────────────────────
+
+type schemaManifestEntry struct {
+	Component string           `json:"component"`
+	Type      string           `json:"type"`
+	Schemas   []DSQLSchemaArgs `json:"schemas"`
+}
+
+type schemaManifest struct {
+	Functions []json.RawMessage     `json:"functions,omitempty"`
+	Schemas   []schemaManifestEntry `json:"schemas,omitempty"`
+}
+
+func appendSchemasToManifest(name string, schemas []DSQLSchemaArgs) error {
+	const manifestPath = ".anvil/build-manifest.json"
+
+	if err := os.MkdirAll(".anvil", 0755); err != nil {
+		return err
+	}
+
+	m := schemaManifest{}
+	if data, err := os.ReadFile(manifestPath); err == nil {
+		_ = json.Unmarshal(data, &m)
+	}
+
+	m.Schemas = append(m.Schemas, schemaManifestEntry{
+		Component: name,
+		Type:      "anvil:aws:DSQL",
+		Schemas:   schemas,
+	})
+
+	data, err := json.MarshalIndent(m, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(manifestPath, data, 0644)
 }
 
 // ── Doc notes ──────────────────────────────────────────────────────────────
