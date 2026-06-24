@@ -178,32 +178,31 @@ export function getActiveStack(): Stack | undefined {
   return activeStack;
 }
 
-// ── Namespace auto-registration ────────────────────────────
+// ── Auto-registration (via utilities.lazyLoad) ─────────────
+
+const wrapCache = new WeakMap<object, any>();
 
 /**
- * Wraps a generated component namespace (e.g. `aws`, `gcp`) so that constructing
- * any component auto-registers it into the active Stack under its logical name.
- * This is what lets `ctx.ref('id')` find a resource without the user registering
- * it explicitly — the syntax `new anvil.aws.DSQL('id', ...)` is unchanged.
+ * Given a value resolved by `utilities.lazyLoad`, return a construction-wrapped
+ * version if it's a component class, otherwise the value unchanged.
  *
- * Component classes are wrapped lazily on first access and cached, so identity is
- * stable and future components work with zero extra wiring. Non-component exports
- * (enums, helpers, type-only) pass through untouched.
+ * This is the hook that powers `ctx.ref('id')`: constructing any component
+ * auto-registers it into the active Stack under its logical name. Wrapping
+ * happens here (inside lazyLoad) rather than around the namespace export so that
+ * `anvil.aws.X` stays a real namespace — usable as a **type** as well as a value.
+ *
+ * Wrapped classes are cached by identity, so `===` and `instanceof` stay stable
+ * and any future component works with zero extra wiring. Non-component values
+ * (enums, helpers, providers, type-only exports) pass through untouched.
  */
-export function wrapNamespace<T extends object>(ns: T): T {
-  const cache = new Map<string | symbol, any>();
-  return new Proxy(ns, {
-    get(target, prop, receiver) {
-      const value = Reflect.get(target, prop, receiver);
-      if (!isComponentClass(value)) return value;
-      let wrapped = cache.get(prop);
-      if (!wrapped) {
-        wrapped = wrapComponentClass(value);
-        cache.set(prop, wrapped);
-      }
-      return wrapped;
-    },
-  });
+export function maybeWrapComponent(value: any): any {
+  if (!isComponentClass(value)) return value;
+  let wrapped = wrapCache.get(value);
+  if (!wrapped) {
+    wrapped = wrapComponentClass(value);
+    wrapCache.set(value, wrapped);
+  }
+  return wrapped;
 }
 
 function isComponentClass(value: any): boolean {

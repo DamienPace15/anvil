@@ -4,6 +4,7 @@
 
 import * as runtime from "@pulumi/pulumi/runtime";
 import * as pulumi from "@pulumi/pulumi";
+import { maybeWrapComponent } from "./stack";
 
 export function getEnv(...vars: string[]): string | undefined {
     for (const v of vars) {
@@ -62,7 +63,7 @@ export function lazyLoad(exports: any, props: string[], loadModule: any) {
         Object.defineProperty(exports, property, {
             enumerable: true,
             get: function() {
-                return loadModule()[property];
+                return maybeWrapComponent(loadModule()[property]);
             },
         });
     }
