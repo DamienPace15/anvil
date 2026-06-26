@@ -3,19 +3,14 @@
 // Patches the auto-generated SDKs after pulumi gen-sdk:
 //
 // TypeScript (sdk/nodejs/):
-//   1. Patches index.ts to export hand-written classes (App, Block, grants)
-//   2. Patches index.ts to re-export Pulumi primitives
-//   3. Patches package.json build mechanics (main/types/version/build script)
-//   4. Patches component files with boolean | ObjectType shorthands (config-driven)
-//   5. Patches component files with static fromId() methods (config-driven)
+//   1. Wires the hand-written overlay barrel (_extras) into index.ts
+//   2. Patches package.json build mechanics (main/types/version/build script)
 //
 // Python (sdk/python/):
 //   1. Fills pyproject.toml version (gen-sdk emits a 0.0.0 placeholder)
 //   2. Copies/creates README.md
 //   3. Patches _utilities.py for correct package name lookup
-//   4. Patches __init__.py with App, Block, types, grants, and export imports
-//   5. Patches component files with boolean | ObjectType shorthands (config-driven)
-//   6. Patches component files with static from_id() methods (config-driven)
+//   4. Patches __init__.py with wrap_namespace + the overlay barrel (_extras)
 //
 // SDK metadata (name, description, license, deps, pyproject) is authored in
 // provider/base-schema.json and emitted natively by gen-sdk — not patched here.
@@ -29,8 +24,6 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { BOOLEAN_SHORTHAND_PATCHES } from './boolean-shorthand-patches';
-import { FROMID_PATCHES } from './fromid-patches';
 
 const cliArgs = process.argv.slice(2);
 const tsOnly = cliArgs.includes('--ts');
@@ -165,163 +158,6 @@ function patchTypeScript(): void {
 
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
     console.log('  ✔ Patched package.json → @anvil-cloud/sdk');
-  }
-
-  // ── 3. Patch boolean shorthands ────────────────────────
-  // Upgrades field?: ObjectType to field?: boolean | ObjectType so users
-  // can write bastion: true instead of bastion: {} for defaults.
-  //
-  // NOTE: Pulumi's SDK generator appends "Args" to nested object type names,
-  // so VpcBastionArgs in the schema becomes VpcBastionArgsArgs in the
-  // generated TypeScript. The patch uses tsObjectType + "Args" to match.
-  for (const patch of BOOLEAN_SHORTHAND_PATCHES) {
-    const filePath = path.join(sdkDir, patch.tsFile);
-    if (!fs.existsSync(filePath)) {
-      console.log(
-        `  ⚠ ${patch.tsFile} not found — skipping boolean shorthand patches`
-      );
-      continue;
-    }
-
-    let content = fs.readFileSync(filePath, 'utf8');
-    let changed = false;
-
-    for (const field of patch.fields) {
-      // Pulumi generates VpcBastionArgsArgs (double Args) for nested types.
-      // tsObjectType is "VpcBastionArgs" so generated name is tsObjectType + "Args".
-      const generatedType = `inputs.aws.${field.tsObjectType}Args`;
-
-      // Patch the pulumi.Input wrapped form (VpcArgs interface)
-      const plainInputForm = `${field.field}?: pulumi.Input<${generatedType}>;`;
-      const unionInputForm = `${field.field}?: pulumi.Input<boolean | ${generatedType}>;`;
-      if (
-        content.includes(plainInputForm) &&
-        !content.includes(unionInputForm)
-      ) {
-        content = content.replace(plainInputForm, unionInputForm);
-        changed = true;
-      }
-
-      // Patch the plain object form (other interfaces)
-      const plainForm = `${field.field}?: ${generatedType};`;
-      const unionForm = `${field.field}?: boolean | ${generatedType};`;
-      if (content.includes(plainForm) && !content.includes(unionForm)) {
-        content = content.replace(plainForm, unionForm);
-        changed = true;
-      }
-
-      // Inject normalise helper once per field if not already present.
-      // Uses the generated type name (with double Args) throughout so
-      // TypeScript resolves it correctly.
-      const normName = `normalise${field.field
-        .charAt(0)
-        .toUpperCase()}${field.field.slice(1)}`;
-      if (!content.includes(normName)) {
-        const helper = [
-          '',
-          `/**`,
-          ` * Normalises the \`${field.field}\` shorthand so the Pulumi provider`,
-          ` * always receives an object, never a raw boolean.`,
-          ` *`,
-          ` *   ${field.field}: true          // enable with all defaults`,
-          ` *   ${field.field}: {}            // identical to true`,
-          ` *   ${field.field}: { ... }       // enable with custom config`,
-          ` */`,
-          `export function ${normName}(`,
-          `  val: boolean | ${generatedType} | undefined`,
-          `): ${generatedType} | undefined {`,
-          `  if (val === undefined || val === false) return undefined;`,
-          `  if (val === true) return {};`,
-          `  return val;`,
-          `}`,
-          '',
-        ].join('\n');
-        content = content.trimEnd() + '\n' + helper;
-        changed = true;
-      }
-    }
-
-    if (changed) {
-      fs.writeFileSync(filePath, content);
-      const fields = patch.fields.map((f) => f.field).join(', ');
-      console.log(
-        `  ✔ Patched ${patch.tsFile} → boolean shorthand for ${fields}`
-      );
-    } else {
-      console.log(
-        `  ⏭ ${patch.tsFile} boolean shorthands already patched — skipping`
-      );
-    }
-  }
-
-  // ── 4. Patch fromId static methods ────────────────────
-  for (const patch of FROMID_PATCHES) {
-    const filePath = path.join(sdkDir, patch.tsFile);
-    if (!fs.existsSync(filePath)) {
-      console.log(`  ⚠ ${patch.tsFile} not found — skipping fromId patch`);
-      continue;
-    }
-
-    let content = fs.readFileSync(filePath, 'utf8');
-
-    if (content.includes('static fromId(')) {
-      console.log(`  ⏭ ${patch.tsFile} fromId already patched — skipping`);
-      continue;
-    }
-
-    const fromIdMethod = [
-      '',
-      '    /**',
-      `     * Imports an existing ${patch.className} into Anvil without managing or modifying it.`,
-      `     * Returns an identical output shape to \`new ${patch.className}()\`.`,
-      `     *`,
-      `     * Flow logs, NAT, and bastion are not available on an imported VPC.`,
-      `     *`,
-      `     * If subnet IDs are omitted, Anvil auto-discovers them by inspecting`,
-      `     * route tables. Provide IDs explicitly if auto-discovery fails.`,
-      `     *`,
-      `     * @example`,
-      `     * const network = ${patch.className}.fromId("existing", {`,
-      `     *   vpcId: "vpc-0abc123def456",`,
-      `     * });`,
-      `     */`,
-      `    static fromId(`,
-      `      name: string,`,
-      `      args: {`,
-      `        vpcId: string;`,
-      `        privateSubnetIds?: string[];`,
-      `        publicSubnetIds?: string[];`,
-      `      },`,
-      `      opts?: pulumi.ComponentResourceOptions`,
-      `    ): ${patch.className} {`,
-      `      return new ${patch.className}(name, args as any, {`,
-      `        ...opts,`,
-      `        id: args.vpcId,`,
-      `      });`,
-      `    }`,
-      '',
-    ].join('\n');
-
-    // Insert before the closing brace of the class, which sits just before
-    // the first exported interface that follows it.
-    const interfaceIdx = content.indexOf('\nexport interface ');
-    const insertAt =
-      interfaceIdx >= 0
-        ? content.lastIndexOf('\n}', interfaceIdx)
-        : content.lastIndexOf('\n}');
-
-    if (insertAt >= 0) {
-      content =
-        content.slice(0, insertAt) + fromIdMethod + content.slice(insertAt);
-      fs.writeFileSync(filePath, content);
-      console.log(
-        `  ✔ Patched ${patch.tsFile} → static fromId() on ${patch.className}`
-      );
-    } else {
-      console.log(
-        `  ⚠ Could not find class end in ${patch.tsFile} — skipping fromId patch`
-      );
-    }
   }
 
   console.log('✔ TypeScript SDK patching complete\n');
@@ -480,111 +316,6 @@ Apache-2.0
         '  ✔ Patched __init__.py → wrap_namespace + from ._extras import *'
       );
     }
-  }
-
-  const pyCloudDir = path.join(sdkDir, 'anvil_cloud');
-
-  // ── 5. Patch boolean shorthands ────────────────────────
-  // Upgrades field: Optional[ObjectType] to Optional[Union[bool, ObjectType]]
-  // so users can write bastion=True instead of bastion={} for defaults.
-  for (const patch of BOOLEAN_SHORTHAND_PATCHES) {
-    const filePath = path.join(pyCloudDir, patch.pyFile);
-    if (!fs.existsSync(filePath)) {
-      console.log(
-        `  ⚠ ${patch.pyFile} not found — skipping boolean shorthand patches`
-      );
-      continue;
-    }
-
-    let content = fs.readFileSync(filePath, 'utf8');
-    let changed = false;
-
-    for (const field of patch.fields) {
-      const pyField = toSnakeCase(field.field);
-      const plainType = `Optional['${field.pyObjectType}']`;
-      const unionType = `Optional[Union[bool, '${field.pyObjectType}']]`;
-
-      const fieldPattern = new RegExp(
-        `(${pyField}\\s*:\\s*)Optional\\['${field.pyObjectType}'\\]`
-      );
-
-      if (fieldPattern.test(content) && !content.includes(unionType)) {
-        if (!content.includes('Union')) {
-          content = content.replace(
-            'from typing import',
-            'from typing import Union,'
-          );
-        }
-        content = content.replace(fieldPattern, `$1${unionType}`);
-        changed = true;
-      }
-    }
-
-    if (changed) {
-      fs.writeFileSync(filePath, content);
-      const fields = patch.fields.map((f) => toSnakeCase(f.field)).join(', ');
-      console.log(
-        `  ✔ Patched ${patch.pyFile} → boolean shorthand for ${fields}`
-      );
-    } else {
-      console.log(
-        `  ⏭ ${patch.pyFile} boolean shorthands already patched — skipping`
-      );
-    }
-  }
-
-  // ── 6. Patch fromId static methods ────────────────────
-  for (const patch of FROMID_PATCHES) {
-    const filePath = path.join(pyCloudDir, patch.pyFile);
-    if (!fs.existsSync(filePath)) {
-      console.log(`  ⚠ ${patch.pyFile} not found — skipping fromId patch`);
-      continue;
-    }
-
-    let content = fs.readFileSync(filePath, 'utf8');
-
-    if (content.includes('def from_id(')) {
-      console.log(`  ⏭ ${patch.pyFile} from_id already patched — skipping`);
-      continue;
-    }
-
-    // Ensure Optional is imported — from_id uses it for opts.
-    if (!content.includes('from typing import')) {
-      content = 'from typing import Optional\n' + content;
-    } else if (!content.includes('Optional')) {
-      content = content.replace(
-        'from typing import',
-        'from typing import Optional,'
-      );
-    }
-
-    const fromIdMethod = [
-      '',
-      '    @staticmethod',
-      `    def from_id(`,
-      `        name: str,`,
-      `        args: '${patch.pyArgsType}',`,
-      // Python Pulumi has no ComponentResourceOptions (TS-only) — use ResourceOptions.
-      `        opts: Optional[pulumi.ResourceOptions] = None`,
-      `    ) -> '${patch.className}':`,
-      `        """`,
-      `        Imports an existing ${patch.className} into Anvil without managing or modifying it.`,
-      `        Returns an identical output shape to constructing a new ${patch.className}.`,
-      ``,
-      `        Flow logs, NAT, and bastion are not available on an imported VPC.`,
-      ``,
-      `        If subnet IDs are omitted, Anvil auto-discovers them by inspecting`,
-      `        route tables. Provide IDs explicitly if auto-discovery fails.`,
-      `        """`,
-      `        return ${patch.className}(name, args, opts)  # type: ignore`,
-      '',
-    ].join('\n');
-
-    content = content.trimEnd() + '\n' + fromIdMethod + '\n';
-    fs.writeFileSync(filePath, content);
-    console.log(
-      `  ✔ Patched ${patch.pyFile} → static from_id() on ${patch.className}`
-    );
   }
 
   console.log(`✔ Python SDK patched → anvil-cloud v${version}`);
