@@ -1,9 +1,15 @@
 {
   "name": "anvil",
   "version": "0.0.16",
+  "description": "Anvil \u2014 secure-by-default cloud infrastructure components",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/anvil-cloud/anvil",
+  "repository": "https://github.com/DamienPace15/anvil",
+  "publisher": "Damien Pace",
   "language": {
     "nodejs": {
       "packageName": "@anvil-cloud/sdk",
+      "packageDescription": "Anvil \u2014 secure-by-default cloud infrastructure components",
       "dependencies": {
         "@pulumi/pulumi": "^3.0.0",
         "@pulumi/aws": "^7.21.0",
@@ -12,10 +18,13 @@
     },
     "python": {
       "packageName": "anvil_cloud",
+      "pyproject": {
+        "enabled": true
+      },
       "requires": {
         "pulumi": ">=3.0.0,<4.0.0",
-        "pulumi-aws": "^7.21.0",
-        "pulumi-gcp": "^9.0.0"
+        "pulumi-aws": ">=7.21.0,<8.0.0",
+        "pulumi-gcp": ">=9.0.0,<10.0.0"
       }
     },
     "go": {
@@ -39,18 +48,54 @@
     "anvil:index:ComplianceFramework": {
       "type": "string",
       "enum": [
-        { "value": "soc2", "description": "SOC 2 Type II" },
-        { "value": "iso27001", "description": "ISO/IEC 27001" },
-        { "value": "cis", "description": "CIS AWS Foundations Benchmark" },
-        { "value": "pci-dss", "description": "PCI DSS" },
-        { "value": "hipaa", "description": "HIPAA" },
-        { "value": "fedramp", "description": "FedRAMP" },
-        { "value": "hitrust", "description": "HITRUST CSF" },
-        { "value": "gdpr", "description": "GDPR" },
-        { "value": "soc1", "description": "SOC 1 Type II" },
-        { "value": "irap", "description": "IRAP (Australian Government)" },
-        { "value": "nist-csf", "description": "NIST Cybersecurity Framework" },
-        { "value": "csa-star", "description": "CSA STAR" }
+        {
+          "value": "soc2",
+          "description": "SOC 2 Type II"
+        },
+        {
+          "value": "iso27001",
+          "description": "ISO/IEC 27001"
+        },
+        {
+          "value": "cis",
+          "description": "CIS AWS Foundations Benchmark"
+        },
+        {
+          "value": "pci-dss",
+          "description": "PCI DSS"
+        },
+        {
+          "value": "hipaa",
+          "description": "HIPAA"
+        },
+        {
+          "value": "fedramp",
+          "description": "FedRAMP"
+        },
+        {
+          "value": "hitrust",
+          "description": "HITRUST CSF"
+        },
+        {
+          "value": "gdpr",
+          "description": "GDPR"
+        },
+        {
+          "value": "soc1",
+          "description": "SOC 1 Type II"
+        },
+        {
+          "value": "irap",
+          "description": "IRAP (Australian Government)"
+        },
+        {
+          "value": "nist-csf",
+          "description": "NIST Cybersecurity Framework"
+        },
+        {
+          "value": "csa-star",
+          "description": "CSA STAR"
+        }
       ]
     }
   }

@@ -70,20 +70,5 @@ _utilities.register(
 """
 )
 
-# Typed entry point
-from .app import run
-
-# Hand-written App class
-from .app import App, Context
-
-# Hand-written Block class
-from .block import Block
-
-# Config classes
-from .types import AppConfig, DefaultsConfig, AwsProviderConfig, GcpProviderConfig, AssumeRoleConfig
-
-# Re-export core Pulumi functions so users never need to import pulumi directly.
-from pulumi import export
-
-# Grant helpers
-from .grants import GrantTarget, GrantOptions, create_grant, build_resource_arns
+# Hand-written overlay exports (run, App, Block, types, grants, export)
+from ._extras import *  # noqa: F401,F403

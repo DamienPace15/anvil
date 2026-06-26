@@ -5,19 +5,22 @@
 // TypeScript (sdk/nodejs/):
 //   1. Patches index.ts to export hand-written classes (App, Block, grants)
 //   2. Patches index.ts to re-export Pulumi primitives
-//   3. Patches package.json for npm publishing
-//   4. Patches component files with correct enum types (config-driven)
-//   5. Patches component files with boolean | ObjectType shorthands (config-driven)
-//   6. Patches component files with static fromId() methods (config-driven)
+//   3. Patches package.json build mechanics (main/types/version/build script)
+//   4. Patches component files with boolean | ObjectType shorthands (config-driven)
+//   5. Patches component files with static fromId() methods (config-driven)
 //
 // Python (sdk/python/):
-//   1. Replaces setup.py with pyproject.toml for PyPI publishing
-//   2. Patches __init__.py with App, Block, types, grants, and export imports
+//   1. Fills pyproject.toml version (gen-sdk emits a 0.0.0 placeholder)
+//   2. Copies/creates README.md
 //   3. Patches _utilities.py for correct package name lookup
-//   4. Copies/creates README.md
-//   5. Patches component files with correct enum types (config-driven)
-//   6. Patches component files with boolean | ObjectType shorthands (config-driven)
-//   7. Patches component files with static from_id() methods (config-driven)
+//   4. Patches __init__.py with App, Block, types, grants, and export imports
+//   5. Patches component files with boolean | ObjectType shorthands (config-driven)
+//   6. Patches component files with static from_id() methods (config-driven)
+//
+// SDK metadata (name, description, license, deps, pyproject) is authored in
+// provider/base-schema.json and emitted natively by gen-sdk — not patched here.
+// The version is the single source of truth in base-schema.json, passed in via
+// ANVIL_VERSION by build.go (see getVersion).
 //
 // Usage:
 //   npx ts-node scripts/sdk/fix-sdk.ts           # patches both TS and Python
@@ -44,6 +47,12 @@ const schemaPath = path.join(
 );
 
 function getVersion(): string {
+  // Prefer the version passed in by build.go (single read of base-schema.json).
+  // Fall back to reading base-schema.json directly so the script still works
+  // when run by hand. base-schema.json remains the single source of truth.
+  if (process.env.ANVIL_VERSION) {
+    return process.env.ANVIL_VERSION;
+  }
   if (fs.existsSync(schemaPath)) {
     const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
     return (schema.version as string) || '0.0.1';
@@ -77,85 +86,27 @@ function patchTypeScript(): void {
     }
   }
 
-  // ── 1. Patch index.ts ──────────────────────────────────
+  // ── 1. Wire the hand-written overlay barrel into index.ts ──
+  // The hand-written App/Block/grants modules + Pulumi re-exports live as real
+  // files in sdk/overlays/nodejs/ (copied into sdk/nodejs/ by build.go before
+  // this runs). gen-sdk emits a fresh index.ts that knows nothing about them,
+  // so append a single re-export of the overlay barrel (_extras.ts).
+  //
+  // NOTE: forward-reference auto-registration is NOT wired here. The generated
+  // `export { aws, gcp, types }` namespace form is kept as-is so that
+  // `anvil.aws.X` stays usable as a *type*. Construction wrapping is injected
+  // into utilities.lazyLoad instead (see patchUtilities below / stack.ts).
   const indexPath = path.join(sdkDir, 'index.ts');
   if (fs.existsSync(indexPath)) {
     let indexContent = fs.readFileSync(indexPath, 'utf8');
-    let changed = false;
 
-    // NOTE: forward-reference auto-registration is NOT wired here. The generated
-    // `export { aws, gcp, types }` namespace form is kept as-is so that
-    // `anvil.aws.X` stays usable as a *type*. Construction wrapping is injected
-    // into utilities.lazyLoad instead (see patchUtilities below / stack.ts).
-
-    // App class
-    const appExport =
-      'export { App, AppConfig, Context, AwsProviderConfig, GcpProviderConfig, DefaultsConfig, ComplianceFramework } from "./app";';
-
-    if (!indexContent.includes('./app')) {
+    if (!indexContent.includes('./_extras')) {
       indexContent =
         indexContent.trimEnd() +
-        '\n\n// Hand-written App class\n' +
-        appExport +
-        '\n';
-      changed = true;
-    }
-
-    // Block class
-    const blockExport = 'export { Block, BlockArgs } from "./block";';
-    if (!indexContent.includes('./block')) {
-      indexContent =
-        indexContent.trimEnd() +
-        '\n\n// Hand-written Block class\n' +
-        blockExport +
-        '\n';
-      changed = true;
-    }
-
-    // Grants
-    if (!indexContent.includes('./grants')) {
-      indexContent =
-        indexContent.trimEnd() +
-        '\n\n// Grant helpers\nexport * from "./grants";\n';
-      changed = true;
-    }
-
-    // Pulumi primitive re-exports
-    if (!indexContent.includes('Re-exported Pulumi primitives')) {
-      const pulumiReExports = [
-        '',
-        '// Re-exported Pulumi primitives',
-        '// Users can import anvil.Output, anvil.ComponentResource, etc. without @pulumi/pulumi',
-        'export {',
-        '  ComponentResource,',
-        '  ComponentResourceOptions,',
-        '  CustomResource,',
-        '  ResourceOptions,',
-        '  ProviderResource,',
-        '  Config,',
-        '  output,',
-        '  all,',
-        '  secret,',
-        '  interpolate,',
-        '  concat,',
-        '  getProject,',
-        '  getStack,',
-        '} from "@pulumi/pulumi";',
-        'export type { Output, Input, Inputs } from "@pulumi/pulumi";',
-        '',
-        '',
-        '// Escape hatch — full Pulumi namespace for anything not re-exported',
-        'export { pulumi };',
-      ].join('\n');
-      indexContent = indexContent.trimEnd() + '\n' + pulumiReExports + '\n';
-      changed = true;
-    }
-
-    if (changed) {
+        '\n\n// Hand-written overlay exports (App, Block, grants, Pulumi primitives)\n' +
+        'export * from "./_extras";\n';
       fs.writeFileSync(indexPath, indexContent);
-      console.log(
-        '  ✔ Patched index.ts → added App, Block, grants, and Pulumi re-exports'
-      );
+      console.log('  ✔ Wired index.ts → export * from "./_extras"');
     }
   }
 
@@ -206,17 +157,8 @@ function patchTypeScript(): void {
     if (!pkg.version || pkg.version.includes('${')) {
       pkg.version = getVersion();
     }
-    pkg.description =
-      'Anvil — secure-by-default cloud infrastructure components';
     pkg.main = 'bin/index.js';
     pkg.types = 'bin/index.d.ts';
-    pkg.license = 'Apache-2.0';
-    pkg.homepage = 'https://github.com/anvil-cloud/anvil';
-    pkg.repository = {
-      type: 'git',
-      url: 'github.com/DamienPace15/anvil',
-      directory: 'sdk/nodejs',
-    };
 
     pkg.scripts = pkg.scripts || {};
     pkg.scripts.build = 'tsc && cp package.json bin/';
@@ -389,17 +331,6 @@ function patchTypeScript(): void {
 // Python
 // ════════════════════════════════════════════════════════════
 
-function caretToPip(spec: string): string {
-  const m = spec.match(/^\^(\d+)\.(\d+)\.(\d+)$/);
-  if (!m) return spec;
-  const [, majStr, minStr, patchStr] = m;
-  const maj = Number(majStr);
-  const min = Number(minStr);
-  const patch = Number(patchStr);
-  if (maj === 0) return `>=${maj}.${min}.${patch},<${maj}.${min + 1}.0`;
-  return `>=${maj}.${min}.${patch},<${maj + 1}.0.0`;
-}
-
 function patchPython(): void {
   const sdkDir = path.join(__dirname, '..', '..', 'sdk', 'python');
   const readmeSrc = path.join(
@@ -415,62 +346,27 @@ function patchPython(): void {
 
   console.log('📦 Patching Python SDK...');
 
-  const dependencies = [
-    'pulumi>=3.0.0,<4.0.0',
-    `pulumi-aws${caretToPip('^7.21.0')}`,
-    `pulumi-gcp${caretToPip('^9.0.0')}`,
-  ];
-
-  // ── 1. Remove setup.py, write pyproject.toml ───────────
-  const setupPy = path.join(sdkDir, 'setup.py');
-  if (fs.existsSync(setupPy)) {
-    fs.unlinkSync(setupPy);
-    console.log('  ✔ Removed generated setup.py');
+  // ── 1. Fill pyproject.toml version ─────────────────────
+  // gen-sdk's native pyproject (language.python.pyproject.enabled) emits a
+  // placeholder `version = "0.0.0"`, like nodejs's `${VERSION}`. Substitute the
+  // real version (base-schema.json via getVersion) so wheels publish correctly.
+  const pyprojectPath = path.join(sdkDir, 'pyproject.toml');
+  if (fs.existsSync(pyprojectPath)) {
+    let pyproject = fs.readFileSync(pyprojectPath, 'utf8');
+    if (pyproject.includes('version = "0.0.0"')) {
+      pyproject = pyproject.replace(
+        'version = "0.0.0"',
+        `version = "${version}"`
+      );
+      fs.writeFileSync(pyprojectPath, pyproject);
+      console.log(`  ✔ Patched pyproject.toml → version ${version}`);
+    } else if (!pyproject.includes(`version = "${version}"`)) {
+      console.warn(
+        '  ⚠ pyproject.toml: placeholder `version = "0.0.0"` not found — version ' +
+          'NOT set. gen-sdk output may have changed; update scripts/sdk/fix-sdk.ts.'
+      );
+    }
   }
-
-  const pyproject = `[build-system]
-requires = ["setuptools>=68.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "anvil-cloud"
-version = "${version}"
-description = "Anvil — secure-by-default cloud infrastructure components"
-readme = "README.md"
-license = "Apache-2.0"
-requires-python = ">=3.8"
-authors = [
-    { name = "Damien Pace" },
-]
-keywords = ["pulumi", "anvil", "aws", "gcp", "cloud", "infrastructure"]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Software Development :: Libraries",
-]
-dependencies = [
-${dependencies.map((d) => `    "${d}",`).join('\n')}
-]
-
-[project.urls]
-Homepage = "https://github.com/anvil-cloud/anvil"
-Repository = "https://github.com/anvil-cloud/anvil"
-Documentation = "https://github.com/anvil-cloud/anvil#readme"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["anvil_cloud*"]
-`;
-
-  fs.writeFileSync(path.join(sdkDir, 'pyproject.toml'), pyproject);
-  console.log('  ✔ Wrote pyproject.toml');
 
   // ── 2. Copy/create README ──────────────────────────────
   if (fs.existsSync(readmeSrc)) {
@@ -569,43 +465,19 @@ Apache-2.0
       }
     }
 
-    if (!init.includes('from .app import run')) {
-      init += '\n# Typed entry point\nfrom .app import run\n';
-      changed = true;
-    }
-
-    if (!init.includes('from .app import App')) {
-      init += '\n# Hand-written App class\nfrom .app import App, Context\n';
-      changed = true;
-    }
-
-    if (!init.includes('from .block import')) {
-      init += '\n# Hand-written Block class\nfrom .block import Block\n';
-      changed = true;
-    }
-
-    if (!init.includes('from .types import AppConfig')) {
-      init +=
-        '\n# Config classes\nfrom .types import AppConfig, DefaultsConfig, AwsProviderConfig, GcpProviderConfig, AssumeRoleConfig\n';
-      changed = true;
-    }
-
-    if (!init.includes('from pulumi import export')) {
-      init +=
-        '\n# Re-export core Pulumi functions so users never need to import pulumi directly.\nfrom pulumi import export\n';
-      changed = true;
-    }
-
-    if (!init.includes('from .grants import')) {
-      init +=
-        '\n# Grant helpers\nfrom .grants import GrantTarget, GrantOptions, create_grant, build_resource_arns\n';
+    // The hand-written App/Block/types/grants modules + the `export` re-export
+    // live as real files in sdk/overlays/python/ (copied into anvil_cloud/ by
+    // build.go). _extras.py pulls them into the package namespace; wire it with
+    // a single barrel import instead of injecting each import as a string here.
+    if (!init.includes('from ._extras import')) {
+      init += '\n# Hand-written overlay exports (run, App, Block, types, grants, export)\nfrom ._extras import *  # noqa: F401,F403\n';
       changed = true;
     }
 
     if (changed) {
       fs.writeFileSync(initPath, init);
       console.log(
-        '  ✔ Patched __init__.py → added run, App, Block, types, grants, and export imports'
+        '  ✔ Patched __init__.py → wrap_namespace + from ._extras import *'
       );
     }
   }
