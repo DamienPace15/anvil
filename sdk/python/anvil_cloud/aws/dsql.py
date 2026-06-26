@@ -16,9 +16,6 @@ from .. import _utilities
 from ._enums import *
 from ._inputs import *
 import pulumi_aws
-from typing import Optional
-from anvil_cloud import grants
-
 
 __all__ = ['DSQLArgs', 'DSQL']
 
@@ -179,9 +176,9 @@ class DSQL(pulumi.ComponentResource):
             __props__.__dict__["cluster_arns"] = None
             __props__.__dict__["endpoint"] = None
             __props__.__dict__["endpoints"] = None
+            __props__.__dict__["roles_table_name"] = None
             __props__.__dict__["vpc_endpoint_ids"] = None
             __props__.__dict__["vpc_endpoint_security_group_ids"] = None
-            __props__.__dict__["roles_table_name"] = None
         super(DSQL, __self__).__init__(
             'anvil:aws:DSQL',
             resource_name,
@@ -214,6 +211,14 @@ class DSQL(pulumi.ComponentResource):
         return pulumi.get(self, "endpoints")
 
     @_builtins.property
+    @pulumi.getter(name="rolesTableName")
+    def roles_table_name(self) -> pulumi.Output[Optional[_builtins.str]]:
+        """
+        DynamoDB table name for role bootstrap. Passed to DSQLConnect (via grantConnect) so it can create the IAM role-mapping item. Empty when no roles are configured.
+        """
+        return pulumi.get(self, "roles_table_name")
+
+    @_builtins.property
     @pulumi.getter(name="vpcEndpointIds")
     def vpc_endpoint_ids(self) -> pulumi.Output[Optional[Mapping[str, _builtins.str]]]:
         """
@@ -228,35 +233,4 @@ class DSQL(pulumi.ComponentResource):
         Map of region to VPC endpoint security group ID. Only populated when vpc is set and hasNat is false. Pass to LambdaVpcEndpointArgs.securityGroupId so Anvil can wire the egress rule from the Lambda SG to the endpoint SG on port 5432.
         """
         return pulumi.get(self, "vpc_endpoint_security_group_ids")
-
-    @_builtins.property
-    @pulumi.getter(name="rolesTableName")
-    def roles_table_name(self) -> pulumi.Output[Optional[_builtins.str]]:
-        """
-        DynamoDB table name for role bootstrap. Pass to DSQLConnect (via grant_connect) so it can create the IAM role-mapping item. Empty when no roles are configured.
-        """
-        return pulumi.get(self, "roles_table_name")
-
-
-    def grant_connect(self, target: "grants.GrantTarget", schemas: list = None) -> None:
-        """Grants a compute resource connect access to this DSQL cluster.
-
-        Pass one or more {"schema", "role_name"} pairs. The compute may be mapped
-        to multiple roles and connects as whichever one it chooses at runtime.
-
-        Args:
-            target: The compute resource to grant access to (Lambda, ECS, etc.).
-            schemas: List of {"schema": ..., "role_name": ...} pairs.
-        """
-        from .dsql_connect import DSQLConnect
-        schemas = schemas or []
-        db_roles = [s["role_name"] for s in schemas]
-        DSQLConnect(f"{self._name}-{target.grant_name()}-connect",
-            cluster_arns=self.cluster_arns,
-            target_role_arn=target.grant_role_arn(),
-            target_name=target.grant_name(),
-            db_roles=db_roles,
-            roles_table_name=self.roles_table_name,
-            opts=pulumi.ResourceOptions(parent=self),
-        )
 

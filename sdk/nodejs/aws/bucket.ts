@@ -8,14 +8,10 @@ import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 import * as pulumiAws from "@pulumi/aws";
-import * as grants from "../grants";
 
 export class Bucket extends pulumi.ComponentResource {
     /** @internal */
     public static readonly __pulumiType = 'anvil:aws:Bucket';
-
-    /** @internal Logical resource name for grant policy naming. */
-    private __name: string;
 
     /**
      * Returns true if the given object is an instance of Bucket.  This is designed to work even
@@ -63,91 +59,7 @@ export class Bucket extends pulumi.ComponentResource {
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(Bucket.__pulumiType, name, resourceInputs, opts, true /*remote*/);
-        this.__name = name;
     }
-
-    /**
-     * Grants read access (s3:GetObject, s3:ListBucket) on this bucket
-     * to the target compute resource's execution role.
-     *
-     * @param target - The compute resource to grant access to.
-     * @param paths - Optional array of path prefixes to scope access (e.g. ["uploads/*"]).
-     * @param opts - Optional grant options (justification for audit trail).
-     */
-    public grantRead(target: grants.GrantTarget, paths?: string[], opts?: grants.GrantOptions): void {
-        const name = `${this.__name}-${target.grantName()}-read`;
-        const arns = grants.buildResourceArns(this.arn, paths);
-        grants.createGrant(this, name, target, ["s3:GetObject", "s3:ListBucket"], arns, opts);
-    }
-
-    /**
-     * Grants write access (s3:PutObject) on this bucket
-     * to the target compute resource's execution role.
-     *
-     * @param target - The compute resource to grant access to.
-     * @param paths - Optional array of path prefixes to scope access (e.g. ["uploads/*"]).
-     * @param opts - Optional grant options (justification for audit trail).
-     */
-    public grantWrite(target: grants.GrantTarget, paths?: string[], opts?: grants.GrantOptions): void {
-        const name = `${this.__name}-${target.grantName()}-write`;
-        const arns = grants.buildResourceArns(this.arn, paths);
-        grants.createGrant(this, name, target, ["s3:PutObject"], arns, opts);
-    }
-
-    /**
-     * Grants readwrite access (s3:GetObject, s3:ListBucket, s3:PutObject) on this bucket
-     * to the target compute resource's execution role.
-     *
-     * @param target - The compute resource to grant access to.
-     * @param paths - Optional array of path prefixes to scope access (e.g. ["uploads/*"]).
-     * @param opts - Optional grant options (justification for audit trail).
-     */
-    public grantReadWrite(target: grants.GrantTarget, paths?: string[], opts?: grants.GrantOptions): void {
-        const name = `${this.__name}-${target.grantName()}-readwrite`;
-        const arns = grants.buildResourceArns(this.arn, paths);
-        grants.createGrant(this, name, target, ["s3:GetObject", "s3:ListBucket", "s3:PutObject"], arns, opts);
-    }
-
-    /**
-     * Grants delete access (s3:DeleteObject) on this bucket
-     * to the target compute resource's execution role.
-     *
-     * @param target - The compute resource to grant access to.
-     * @param paths - Optional array of path prefixes to scope access (e.g. ["uploads/*"]).
-     * @param opts - Optional grant options (justification for audit trail).
-     */
-    public grantDelete(target: grants.GrantTarget, paths?: string[], opts?: grants.GrantOptions): void {
-        const name = `${this.__name}-${target.grantName()}-delete`;
-        const arns = grants.buildResourceArns(this.arn, paths);
-        grants.createGrant(this, name, target, ["s3:DeleteObject"], arns, opts);
-    }
-
-    /**
-     * Grants full access (s3:GetObject, s3:ListBucket, s3:PutObject, s3:DeleteObject) on this bucket
-     * to the target compute resource's execution role.
-     *
-     * This is an escape hatch — prefer scoped grants (grantRead, grantWrite, etc.).
-     * A warning is logged if no justification is provided.
-     */
-    public grantFullAccess(target: grants.GrantTarget, opts?: grants.GrantOptions): void {
-        if (!opts?.justification) {
-            pulumi.log.warn(
-                `⚠ ${this.__name} → ${target.grantName()}: full access granted with no justification. ` +
-                `Consider scoping with grantRead, grantWrite, or grantDelete, ` +
-                `or add a justification.`,
-                this,
-            );
-        } else {
-            pulumi.log.info(
-                `ℹ ${this.__name} → ${target.grantName()}: full access granted. Justification: "${opts.justification}"`,
-                this,
-            );
-        }
-        const name = `${this.__name}-${target.grantName()}-fullaccess`;
-        const arns = grants.buildResourceArns(this.arn, undefined);
-        grants.createGrant(this, name, target, ["s3:GetObject", "s3:ListBucket", "s3:PutObject", "s3:DeleteObject"], arns, opts);
-    }
-
 }
 
 /**

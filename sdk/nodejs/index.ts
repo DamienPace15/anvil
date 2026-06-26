@@ -34,34 +34,13 @@ pulumi.runtime.registerResourcePackage("anvil", {
     },
 });
 
-// Hand-written App class
-export { App, AppConfig, Context, AwsProviderConfig, GcpProviderConfig, DefaultsConfig, ComplianceFramework } from "./app";
+// Hand-written overlay exports (App, Block, grants, Pulumi primitives)
+export * from "./_extras";
 
-// Hand-written Block class
-export { Block, BlockArgs } from "./block";
-
-// Grant helpers
-export * from "./grants";
-
-// Re-exported Pulumi primitives
-// Users can import anvil.Output, anvil.ComponentResource, etc. without @pulumi/pulumi
-export {
-  ComponentResource,
-  ComponentResourceOptions,
-  CustomResource,
-  ResourceOptions,
-  ProviderResource,
-  Config,
-  output,
-  all,
-  secret,
-  interpolate,
-  concat,
-  getProject,
-  getStack,
-} from "@pulumi/pulumi";
-export type { Output, Input, Inputs } from "@pulumi/pulumi";
-
-
-// Escape hatch — full Pulumi namespace for anything not re-exported
-export { pulumi };
+// Anvil grant companions (side-effect imports — attach grant methods to the generated classes)
+import "./aws/bucket.grants";
+import "./aws/lambda.grants";
+import "./aws/queue.grants";
+import "./aws/eventBus.grants";
+import "./aws/dynamoDB.grants";
+import "./aws/dsql.grants";

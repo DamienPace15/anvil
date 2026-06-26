@@ -1,6 +1,10 @@
 {
   "name": "@anvil-cloud/sdk",
   "version": "0.0.16",
+  "description": "Anvil — secure-by-default cloud infrastructure components",
+  "homepage": "https://github.com/anvil-cloud/anvil",
+  "repository": "https://github.com/DamienPace15/anvil",
+  "license": "Apache-2.0",
   "scripts": {
     "build": "tsc && cp package.json bin/"
   },
@@ -17,14 +21,6 @@
     "resource": true,
     "name": "anvil"
   },
-  "description": "Anvil — secure-by-default cloud infrastructure components",
   "main": "bin/index.js",
-  "types": "bin/index.d.ts",
-  "license": "Apache-2.0",
-  "homepage": "https://github.com/anvil-cloud/anvil",
-  "repository": {
-    "type": "git",
-    "url": "github.com/DamienPace15/anvil",
-    "directory": "sdk/nodejs"
-  }
+  "types": "bin/index.d.ts"
 }

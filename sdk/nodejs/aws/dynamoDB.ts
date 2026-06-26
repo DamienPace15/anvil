@@ -8,7 +8,6 @@ import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 import * as pulumiAws from "@pulumi/aws";
-import * as grants from "../grants";
 
 /**
  * Serverless key-value and document store. Secure-by-default DynamoDB table with GSI support, optional streams, and Lambda/EventBridge consumers. First data layer component — pairs naturally with anvil.aws.Lambda.
@@ -16,9 +15,6 @@ import * as grants from "../grants";
 export class DynamoDB extends pulumi.ComponentResource {
     /** @internal */
     public static readonly __pulumiType = 'anvil:aws:DynamoDB';
-
-    /** @internal Logical resource name for grant policy naming. */
-    private __name: string;
 
     /**
      * Returns true if the given object is an instance of DynamoDB.  This is designed to work even
@@ -75,73 +71,7 @@ export class DynamoDB extends pulumi.ComponentResource {
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(DynamoDB.__pulumiType, name, resourceInputs, opts, true /*remote*/);
-        this.__name = name;
     }
-
-      /**
-       * Grants read access (dynamodb:GetItem, dynamodb:BatchGetItem, dynamodb:Query, dynamodb:Scan) on this dynamodb
-       * to the target compute resource's execution role.
-       *
-       * @param target - The compute resource to grant access to.
-       * @param opts - Optional. indexes: scope to specific GSI names only.
-       *               If omitted, grants table access only — no index access.
-       * @param opts.justification - Optional audit trail note.
-       */
-      public grantRead(target: grants.GrantTarget, opts?: { indexes?: string[]; justification?: string }): void {
-          const name = `${this.__name}-${target.grantName()}-read`;
-          const indexPaths = opts?.indexes?.map(i => `index/${i}`) ?? null;
-          const arns = grants.buildResourceArns(this.tableArn, indexPaths);
-          grants.createGrant(this, name, target, ["dynamodb:GetItem", "dynamodb:BatchGetItem", "dynamodb:Query", "dynamodb:Scan"], arns, { justification: opts?.justification });
-      }
-
-      /**
-       * Grants write access (dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:BatchWriteItem) on this dynamodb
-       * to the target compute resource's execution role.
-       *
-       * @param target - The compute resource to grant access to.
-       * @param opts - Optional. indexes: scope to specific GSI names only.
-       *               If omitted, grants table access only — no index access.
-       * @param opts.justification - Optional audit trail note.
-       */
-      public grantWrite(target: grants.GrantTarget, opts?: { indexes?: string[]; justification?: string }): void {
-          const name = `${this.__name}-${target.grantName()}-write`;
-          const indexPaths = opts?.indexes?.map(i => `index/${i}`) ?? null;
-          const arns = grants.buildResourceArns(this.tableArn, indexPaths);
-          grants.createGrant(this, name, target, ["dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:BatchWriteItem"], arns, { justification: opts?.justification });
-      }
-
-      /**
-       * Grants readwrite access (dynamodb:GetItem, dynamodb:BatchGetItem, dynamodb:Query, dynamodb:Scan, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:BatchWriteItem) on this dynamodb
-       * to the target compute resource's execution role.
-       *
-       * @param target - The compute resource to grant access to.
-       * @param opts - Optional. indexes: scope to specific GSI names only.
-       *               If omitted, grants table access only — no index access.
-       * @param opts.justification - Optional audit trail note.
-       */
-      public grantReadWrite(target: grants.GrantTarget, opts?: { indexes?: string[]; justification?: string }): void {
-          const name = `${this.__name}-${target.grantName()}-readwrite`;
-          const indexPaths = opts?.indexes?.map(i => `index/${i}`) ?? null;
-          const arns = grants.buildResourceArns(this.tableArn, indexPaths);
-          grants.createGrant(this, name, target, ["dynamodb:GetItem", "dynamodb:BatchGetItem", "dynamodb:Query", "dynamodb:Scan", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:BatchWriteItem"], arns, { justification: opts?.justification });
-      }
-
-      /**
-       * Grants delete access (dynamodb:DeleteItem) on this dynamodb
-       * to the target compute resource's execution role.
-       *
-       * @param target - The compute resource to grant access to.
-       * @param opts - Optional. indexes: scope to specific GSI names only.
-       *               If omitted, grants table access only — no index access.
-       * @param opts.justification - Optional audit trail note.
-       */
-      public grantDelete(target: grants.GrantTarget, opts?: { indexes?: string[]; justification?: string }): void {
-          const name = `${this.__name}-${target.grantName()}-delete`;
-          const indexPaths = opts?.indexes?.map(i => `index/${i}`) ?? null;
-          const arns = grants.buildResourceArns(this.tableArn, indexPaths);
-          grants.createGrant(this, name, target, ["dynamodb:DeleteItem"], arns, { justification: opts?.justification });
-      }
-
 }
 
 /**

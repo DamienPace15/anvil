@@ -1,4 +1,6 @@
 {
+  "description": "Anvil — secure-by-default cloud infrastructure components",
+  "homepage": "https://github.com/anvil-cloud/anvil",
   "language": {
     "csharp": {
       "packageReferences": {
@@ -21,18 +23,25 @@
         "@pulumi/gcp": "^9.0.0",
         "@pulumi/pulumi": "^3.0.0"
       },
+      "packageDescription": "Anvil — secure-by-default cloud infrastructure components",
       "packageName": "@anvil-cloud/sdk"
     },
     "python": {
       "packageName": "anvil_cloud",
+      "pyproject": {
+        "enabled": true
+      },
       "requires": {
         "pulumi": "\u003e=3.0.0,\u003c4.0.0",
-        "pulumi-aws": "^7.21.0",
-        "pulumi-gcp": "^9.0.0"
+        "pulumi-aws": "\u003e=7.21.0,\u003c8.0.0",
+        "pulumi-gcp": "\u003e=9.0.0,\u003c10.0.0"
       }
     }
   },
+  "license": "Apache-2.0",
   "name": "anvil",
+  "publisher": "Damien Pace",
+  "repository": "https://github.com/DamienPace15/anvil",
   "resources": {
     "anvil:aws:Bucket": {
       "inputProperties": {
@@ -278,6 +287,10 @@
           },
           "description": "Map of region to cluster endpoint. Single-region: one entry keyed by the provider region. Multi-region: one entry per region. e.g. { \"us-east-1\": \"abc123.dsql.us-east-1.on.aws\" }. Pass the relevant endpoint to your Lambda via environment variables.",
           "type": "object"
+        },
+        "rolesTableName": {
+          "description": "DynamoDB table name for role bootstrap. Passed to DSQLConnect (via grantConnect) so it can create the IAM role-mapping item. Empty when no roles are configured.",
+          "type": "string"
         },
         "vpcEndpointIds": {
           "additionalProperties": {

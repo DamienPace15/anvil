@@ -16,10 +16,6 @@ from .. import _utilities
 from ._enums import *
 from ._inputs import *
 import pulumi_aws
-from .. import _enums as enums
-from typing import Optional
-from anvil_cloud import grants
-
 
 __all__ = ['LambdaArgs', 'Lambda']
 
@@ -408,18 +404,4 @@ class Lambda(pulumi.ComponentResource):
         The ID of the dedicated security group created for this Lambda. Only populated when vpc is set. Use this to grant other resources access to this Lambda via the grant system.
         """
         return pulumi.get(self, "security_group_id")
-
-    def grant_invoke(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants invoke access on this resource."""
-        name = f"{self._name}-{target.grant_name()}-invoke"
-        arns = grants.build_resource_arns(self.arn, None)
-        grants.create_grant(self, name, target, ["lambda:InvokeFunction"], arns, opts)
-
-    def grant_name(self) -> str:
-        """Implements GrantTarget — returns the logical resource name."""
-        return self._name
-
-    def grant_role_arn(self):
-        """Implements GrantTarget — returns the IAM execution role ARN."""
-        return self.role_arn
 

@@ -85,35 +85,6 @@ export class Vpc extends pulumi.ComponentResource {
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(Vpc.__pulumiType, name, resourceInputs, opts, true /*remote*/);
     }
-    /**
-     * Imports an existing Vpc into Anvil without managing or modifying it.
-     * Returns an identical output shape to `new Vpc()`.
-     *
-     * Flow logs, NAT, and bastion are not available on an imported VPC.
-     *
-     * If subnet IDs are omitted, Anvil auto-discovers them by inspecting
-     * route tables. Provide IDs explicitly if auto-discovery fails.
-     *
-     * @example
-     * const network = Vpc.fromId("existing", {
-     *   vpcId: "vpc-0abc123def456",
-     * });
-     */
-    static fromId(
-      name: string,
-      args: {
-        vpcId: string;
-        privateSubnetIds?: string[];
-        publicSubnetIds?: string[];
-      },
-      opts?: pulumi.ComponentResourceOptions
-    ): Vpc {
-      return new Vpc(name, args as any, {
-        ...opts,
-        id: args.vpcId,
-      });
-    }
-
 }
 
 /**
@@ -127,7 +98,7 @@ export interface VpcArgs {
     /**
      * Optional SSM bastion host for private network access. No SSH, no port 22 — access via AWS SSM Session Manager only. Use to connect to RDS, ElastiCache, and other private resources locally.
      */
-    bastion?: pulumi.Input<boolean | inputs.aws.VpcBastionArgsArgs>;
+    bastion?: pulumi.Input<inputs.aws.VpcBastionArgsArgs>;
     /**
      * The IPv4 CIDR block for the VPC. Default: '10.0.0.0/16'. Public subnets carved from offset 0 (/24 each), private subnets from offset 10 (/24 each).
      */
@@ -140,20 +111,4 @@ export interface VpcArgs {
      * Optional NAT configuration for outbound internet access from private subnets. Omit for a fully private VPC.
      */
     nat?: pulumi.Input<inputs.aws.VpcNatArgsArgs>;
-}
-
-/**
- * Normalises the `bastion` shorthand so the Pulumi provider
- * always receives an object, never a raw boolean.
- *
- *   bastion: true          // enable with all defaults
- *   bastion: {}            // identical to true
- *   bastion: { ... }       // enable with custom config
- */
-export function normaliseBastion(
-  val: boolean | inputs.aws.VpcBastionArgsArgs | undefined
-): inputs.aws.VpcBastionArgsArgs | undefined {
-  if (val === undefined || val === false) return undefined;
-  if (val === true) return {};
-  return val;
 }

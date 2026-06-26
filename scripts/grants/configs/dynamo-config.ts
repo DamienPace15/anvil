@@ -5,8 +5,8 @@
 import { GrantConfig } from '../types';
 
 export const DYNAMODB_GRANT_CONFIG: GrantConfig = {
-  tsFile: 'aws/dynamoDB.ts', // verify after gen-sdk
-  pyFile: 'aws/dynamo_db.py', // verify after gen-sdk
+  tsFile: 'aws/dynamoDB.ts',
+  pyFile: 'aws/dynamo_db.py',
   className: 'DynamoDB',
   arnProperty: 'tableArn',
   supportsPaths: false, // DynamoDB grants are always table + /index/* — no user-facing path scoping
@@ -51,10 +51,3 @@ export const DYNAMODB_GRANT_CONFIG: GrantConfig = {
     },
   ],
 };
-
-// In fix-sdk-grants.ts:
-// 1. Add to imports:
-//    import { ..., DYNAMODB_GRANT_CONFIG } from './configs';
-//
-// 2. Add to GRANT_CONFIGS array:
-//    DYNAMODB_GRANT_CONFIG,

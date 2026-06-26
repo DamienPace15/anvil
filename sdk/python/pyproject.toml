@@ -1,41 +1,21 @@
-[build-system]
-requires = ["setuptools>=68.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "anvil-cloud"
-version = "0.0.16"
-description = "Anvil — secure-by-default cloud infrastructure components"
-readme = "README.md"
-license = "Apache-2.0"
-requires-python = ">=3.8"
-authors = [
-    { name = "Damien Pace" },
-]
-keywords = ["pulumi", "anvil", "aws", "gcp", "cloud", "infrastructure"]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Software Development :: Libraries",
-]
-dependencies = [
-    "pulumi>=3.0.0,<4.0.0",
-    "pulumi-aws>=7.21.0,<8.0.0",
-    "pulumi-gcp>=9.0.0,<10.0.0",
-]
+  name = "anvil_cloud"
+  description = "Anvil — secure-by-default cloud infrastructure components"
+  dependencies = ["parver>=0.2.1", "pulumi>=3.0.0,<4.0.0", "pulumi-aws>=7.21.0,<8.0.0", "pulumi-gcp>=9.0.0,<10.0.0", "semver>=2.8.1", "typing-extensions>=4.11,<5; python_version < \"3.11\""]
+  readme = "README.md"
+  requires-python = ">=3.9"
+  version = "0.0.16"
+  [project.license]
+    text = "Apache-2.0"
+  [project.urls]
+    Homepage = "https://github.com/anvil-cloud/anvil"
+    Repository = "https://github.com/DamienPace15/anvil"
 
-[project.urls]
-Homepage = "https://github.com/anvil-cloud/anvil"
-Repository = "https://github.com/anvil-cloud/anvil"
-Documentation = "https://github.com/anvil-cloud/anvil#readme"
+[build-system]
+  requires = ["setuptools>=61.0"]
+  build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["anvil_cloud*"]
+[tool]
+  [tool.setuptools]
+    [tool.setuptools.package-data]
+      anvil_cloud = ["py.typed", "pulumi-plugin.json"]

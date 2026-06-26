@@ -1,2 +1,2 @@
-// Package anvil exports types, functions, subpackages for provisioning anvil resources.
+// Anvil — secure-by-default cloud infrastructure components
 package anvil

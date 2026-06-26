@@ -11,6 +11,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -18,6 +19,26 @@ import (
 	"path/filepath"
 	"strings"
 )
+
+// readVersion returns the single source-of-truth version from
+// provider/base-schema.json. Every other version (provider binary, registry,
+// nodejs/python/go SDK packages) is derived from this — bump it in one place.
+func readVersion() string {
+	data, err := os.ReadFile("provider/base-schema.json")
+	if err != nil {
+		fatal("could not read provider/base-schema.json for version: %v", err)
+	}
+	var schema struct {
+		Version string `json:"version"`
+	}
+	if err := json.Unmarshal(data, &schema); err != nil {
+		fatal("could not parse provider/base-schema.json: %v", err)
+	}
+	if schema.Version == "" {
+		fatal("provider/base-schema.json has no \"version\" field")
+	}
+	return schema.Version
+}
 
 // ── Entry point ──────────────────────────────────────────────────────────────
 
@@ -108,29 +129,33 @@ func targetMerge() {
 
 func targetRegistry() {
 	targetMerge()
-	run("provider", env("GOWORK", "off"), "go", "run", "../scripts/registry/generate_registry.go")
+	// Pass the single source-of-truth version so the generator bakes it into the
+	// generated provider main.go (which reports it to Pulumi).
+	run("provider", env("GOWORK", "off"), "go", "run", "../scripts/registry/generate_registry.go", readVersion())
 }
 
 func targetGenGoSDK() {
 	targetMerge()
 
-	backupDir := filepath.Join(os.TempDir(), "anvil-sdk-backup", "go")
-	must(os.MkdirAll(backupDir, 0o755))
-	defer os.RemoveAll(backupDir)
-
-	backupFiles("sdk/go/anvil", backupDir, "go.mod", "go.sum", "app.go", "block.go", "grants.go")
+	// gen-sdk wipes sdk/go/anvil and does NOT emit a go.mod, but go.work lists
+	// that module so go.mod/go.sum must exist there at all times. They can't live
+	// in the overlay (the workspace needs them at rest), so preserve just these
+	// two module artifacts across the regen. The hand-written *.go sources are
+	// safe in sdk/overlays/go and restored via copyDir below — no filename list.
+	tmp := filepath.Join(os.TempDir(), "anvil-go-mod")
+	must(os.MkdirAll(tmp, 0o755))
+	defer os.RemoveAll(tmp)
+	preserve(tmp, "sdk/go/anvil", "go.mod", "go.sum")
 
 	run("provider", env("GOWORK", "off"),
 		"pulumi", "package", "gen-sdk", "schema.json", "--language", "go", "--out", "../sdk",
 	)
 
-	if err := copyFile(filepath.Join(backupDir, "go.mod"), "sdk/go/anvil/go.mod"); err != nil {
-		run("sdk/go/anvil", env("GOWORK", "off"),
-			"go", "mod", "init", "github.com/DamienPace15/anvil/sdk/go/anvil",
-		)
-	}
+	preserve("sdk/go/anvil", tmp, "go.mod", "go.sum")
 
-	restoreFiles(backupDir, "sdk/go/anvil", "go.sum", "app.go", "block.go", "grants.go")
+	// Copy the hand-written overlay (app.go, block.go, grants.go) into the
+	// freshly generated package.
+	copyDir("sdk/overlays/go", "sdk/go/anvil")
 
 	must(copyFile("docs/go/README.md", "sdk/go/anvil/README.md"))
 
@@ -146,22 +171,20 @@ func targetBuildProvider() {
 	installProviderToPluginCache()
 }
 
-// providerVersion is the version the provider reports to Pulumi.
-// MUST match the version in scripts/registry/generate_registry.go and the SDK
-// package versions, or Pulumi resolves a stale/missing plugin from the cache.
-const providerVersion = "0.0.16"
-
 // installProviderToPluginCache copies the freshly built provider into the
 // Pulumi plugin cache (~/.pulumi/plugins/resource-anvil-v{version}/).
 // Pulumi resolves versioned providers from this cache BEFORE checking PATH —
 // without this, a rebuilt provider is ignored and the stale cached copy is used.
+// The version comes from provider/base-schema.json (readVersion) — the same
+// source the registry generator bakes into the provider binary — so the cache
+// dir always matches the version the provider reports to Pulumi.
 func installProviderToPluginCache() {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		log("⚠ could not resolve home dir, skipping plugin cache install: %v", err)
 		return
 	}
-	cacheDir := filepath.Join(home, ".pulumi", "plugins", "resource-anvil-v"+providerVersion)
+	cacheDir := filepath.Join(home, ".pulumi", "plugins", "resource-anvil-v"+readVersion())
 	if err := os.MkdirAll(cacheDir, 0o755); err != nil {
 		log("⚠ could not create plugin cache dir: %v", err)
 		return
@@ -178,20 +201,17 @@ func installProviderToPluginCache() {
 func targetGenNodejs() {
 	targetMerge()
 
-	backupDir := filepath.Join(os.TempDir(), "anvil-sdk-backup", "nodejs")
-	must(os.MkdirAll(backupDir, 0o755))
-	defer os.RemoveAll(backupDir)
-
-	backupFiles("sdk/nodejs", backupDir, "app.ts", "block.ts", "grants.ts", "stack.ts")
-
 	run("provider", nil,
 		"pulumi", "package", "gen-sdk", "schema.json", "--language", "nodejs", "--out", "../sdk",
 	)
 
-	restoreFiles(backupDir, "sdk/nodejs", "app.ts", "block.ts", "grants.ts", "stack.ts")
+	// Copy the hand-written overlay (app.ts, block.ts, grants.ts, stack.ts,
+	// _extras.ts) into the freshly generated SDK before patching. Sources live
+	// outside the gen-sdk output dir — no backup/restore needed.
+	copyDir("sdk/overlays/nodejs", "sdk/nodejs")
 
-	run(".", nil, "npx", "ts-node", "scripts/sdk/fix-sdk.ts", "--ts")
-	run(".", nil, "npx", "ts-node", "scripts/grants/fix-sdk-grants.ts", "--ts")
+	run(".", env("ANVIL_VERSION", readVersion()), "npx", "ts-node", "scripts/sdk/fix-sdk.ts", "--ts")
+	run(".", nil, "npx", "ts-node", "scripts/grants/generate-grants.ts", "--ts")
 }
 
 func targetBuildSDK() {
@@ -204,20 +224,17 @@ func targetBuildSDK() {
 func targetGenPythonSDK() {
 	targetMerge()
 
-	backupDir := filepath.Join(os.TempDir(), "anvil-sdk-backup", "python")
-	must(os.MkdirAll(backupDir, 0o755))
-	defer os.RemoveAll(backupDir)
-
-	backupFiles("sdk/python/anvil_cloud", backupDir, "app.py", "block.py", "types.py", "grants.py", "stack.py")
-
 	run("provider", nil,
 		"pulumi", "package", "gen-sdk", "schema.json", "--language", "python", "--out", "../sdk",
 	)
 
-	restoreFiles(backupDir, "sdk/python/anvil_cloud", "app.py", "block.py", "types.py", "grants.py", "stack.py")
+	// Copy the hand-written overlay (app.py, block.py, types.py, grants.py,
+	// stack.py, _extras.py) into the freshly generated package before patching.
+	// Sources live outside the gen-sdk output dir — no backup/restore needed.
+	copyDir("sdk/overlays/python", "sdk/python/anvil_cloud")
 
-	run(".", nil, "npx", "ts-node", "scripts/sdk/fix-sdk.ts", "--python")
-	run(".", nil, "npx", "ts-node", "scripts/grants/fix-sdk-grants.ts", "--python")
+	run(".", env("ANVIL_VERSION", readVersion()), "npx", "ts-node", "scripts/sdk/fix-sdk.ts", "--python")
+	run(".", nil, "npx", "ts-node", "scripts/grants/generate-grants.ts", "--python")
 }
 
 func targetBuildPythonSDK() {
@@ -327,23 +344,37 @@ func runInteractive(dir string, extraEnv []string, name string, args ...string) 
 
 func env(key, value string) []string { return []string{key + "=" + value} }
 
-func backupFiles(srcDir, dstDir string, files ...string) {
+// preserve copies the named files from srcDir to dstDir, tolerating any that
+// don't exist yet (e.g. go.sum before the first `go mod tidy`). Used only to
+// carry the Go module artifacts across gen-sdk, which wipes its output dir.
+func preserve(dstDir, srcDir string, files ...string) {
 	for _, f := range files {
-		src := filepath.Join(srcDir, f)
-		dst := filepath.Join(dstDir, f)
-		if err := copyFile(src, dst); err != nil && !os.IsNotExist(err) {
-			fatal("backup failed for %s: %v", f, err)
+		if err := copyFile(filepath.Join(srcDir, f), filepath.Join(dstDir, f)); err != nil && !os.IsNotExist(err) {
+			fatal("preserve %s: %v", f, err)
 		}
 	}
 }
 
-func restoreFiles(srcDir, dstDir string, files ...string) {
-	for _, f := range files {
-		src := filepath.Join(srcDir, f)
-		dst := filepath.Join(dstDir, f)
-		if err := copyFile(src, dst); err != nil && !os.IsNotExist(err) {
-			fatal("restore failed for %s: %v", f, err)
+// copyDir copies every file under srcDir into dstDir, preserving the relative
+// sub-path of each file. Used to overlay the hand-written SDK sources onto the
+// freshly generated SDK. It copies whatever is in srcDir — there is no filename
+// list to keep in sync, so a new overlay file is picked up automatically.
+func copyDir(srcDir, dstDir string) {
+	err := filepath.Walk(srcDir, func(p string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
 		}
+		if info.IsDir() {
+			return nil
+		}
+		rel, err := filepath.Rel(srcDir, p)
+		if err != nil {
+			return err
+		}
+		return copyFile(p, filepath.Join(dstDir, rel))
+	})
+	if err != nil {
+		fatal("copyDir %s → %s: %v", srcDir, dstDir, err)
 	}
 }
 

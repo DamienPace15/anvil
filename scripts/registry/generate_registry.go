@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -11,9 +12,33 @@ import (
 	"time"
 )
 
-// Runs from provider/ directory (cd provider && go run ../scripts/registry/generate_registry.go)
+// Runs from provider/ directory (cd provider && go run ../scripts/registry/generate_registry.go [version])
 
 const moduleName = "github.com/DamienPace15/anvil/provider"
+
+// resolveVersion returns the provider version to bake into main.go. It prefers
+// the version passed by build.go (os.Args[1]) and falls back to reading
+// base-schema.json directly so the script still works when run by hand. This
+// keeps provider/base-schema.json the single source of truth for the version.
+func resolveVersion() string {
+	if len(os.Args) > 1 && os.Args[1] != "" {
+		return os.Args[1]
+	}
+	data, err := os.ReadFile("base-schema.json")
+	if err != nil {
+		log.Fatalf("❌ Could not read base-schema.json for version: %v", err)
+	}
+	var schema struct {
+		Version string `json:"version"`
+	}
+	if err := json.Unmarshal(data, &schema); err != nil {
+		log.Fatalf("❌ Could not parse base-schema.json: %v", err)
+	}
+	if schema.Version == "" {
+		log.Fatal("❌ base-schema.json has no \"version\" field")
+	}
+	return schema.Version
+}
 
 type Component struct {
 	ImportPath  string
@@ -49,7 +74,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	p.Run(context.Background(), "anvil", "0.0.16")
+	p.Run(context.Background(), "anvil", "{{ .Version }}")
 }
 `))
 
@@ -128,6 +153,7 @@ func main() {
 
 	if err := mainTemplate.Execute(f, map[string]interface{}{
 		"Components": components,
+		"Version":    resolveVersion(),
 	}); err != nil {
 		log.Fatalf("❌ Template error: %v", err)
 	}
