@@ -14,9 +14,6 @@ else:
     from typing_extensions import NotRequired, TypedDict, TypeAlias
 from .. import _utilities
 from ._inputs import *
-from typing import Optional
-from anvil_cloud import grants
-
 
 __all__ = ['QueueArgs', 'Queue']
 
@@ -205,32 +202,4 @@ class Queue(pulumi.ComponentResource):
         The URL of the SQS queue. Use this to send and receive messages.
         """
         return pulumi.get(self, "url")
-
-    def grant_send_message(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants sendmessage access on this resource."""
-        name = f"{self._name}-{target.grant_name()}-sendmessage"
-        arns = grants.build_resource_arns(self.arn, None)
-        grants.create_grant(self, name, target, ["sqs:SendMessage"], arns, opts)
-
-    def grant_consume_messages(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants consumemessages access on this resource."""
-        name = f"{self._name}-{target.grant_name()}-consumemessages"
-        arns = grants.build_resource_arns(self.arn, None)
-        grants.create_grant(self, name, target, ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"], arns, opts)
-
-    def grant_full_access(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants full access on this resource. Prefer scoped grants."""
-        if not opts or not opts.justification:
-            pulumi.log.warn(
-                f"⚠ {self._name} → {target.grant_name()}: full access granted with no justification.",
-                self,
-            )
-        else:
-            pulumi.log.info(
-                f"ℹ {self._name} → {target.grant_name()}: full access granted. Justification: \"{opts.justification}\"",
-                self,
-            )
-        name = f"{self._name}-{target.grant_name()}-fullaccess"
-        arns = grants.build_resource_arns(self.arn, None)
-        grants.create_grant(self, name, target, ["sqs:SendMessage", "sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes", "sqs:ChangeMessageVisibility", "sqs:PurgeQueue"], arns, opts)
 

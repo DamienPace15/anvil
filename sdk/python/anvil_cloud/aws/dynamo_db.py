@@ -16,9 +16,6 @@ from .. import _utilities
 from ._enums import *
 from ._inputs import *
 import pulumi_aws
-from typing import Optional
-from anvil_cloud import grants
-
 
 __all__ = ['DynamoDBArgs', 'DynamoDB']
 
@@ -250,60 +247,4 @@ class DynamoDB(pulumi.ComponentResource):
         The physical DynamoDB table name. Scoped as {name}-{stage}.
         """
         return pulumi.get(self, "table_name")
-
-    def grant_read(self, target: "grants.GrantTarget", indexes: Optional[list] = None, justification: Optional[str] = None) -> None:
-        """Grants read access on this resource.
-
-        Args:
-            target: The compute resource to grant access to.
-            indexes: Optional list of GSI names to scope access (e.g. ["by_status"]).
-                     If omitted, grants table access only — no index access.
-            justification: Optional audit trail note.
-        """
-        name = f"{self._name}-{target.grant_name()}-read"
-        index_paths = [f"index/{i}" for i in indexes] if indexes else None
-        arns = grants.build_resource_arns(self.table_arn, index_paths)
-        grants.create_grant(self, name, target, ["dynamodb:GetItem", "dynamodb:BatchGetItem", "dynamodb:Query", "dynamodb:Scan"], arns, grants.GrantOptions(justification=justification) if justification else None)
-
-    def grant_write(self, target: "grants.GrantTarget", indexes: Optional[list] = None, justification: Optional[str] = None) -> None:
-        """Grants write access on this resource.
-
-        Args:
-            target: The compute resource to grant access to.
-            indexes: Optional list of GSI names to scope access (e.g. ["by_status"]).
-                     If omitted, grants table access only — no index access.
-            justification: Optional audit trail note.
-        """
-        name = f"{self._name}-{target.grant_name()}-write"
-        index_paths = [f"index/{i}" for i in indexes] if indexes else None
-        arns = grants.build_resource_arns(self.table_arn, index_paths)
-        grants.create_grant(self, name, target, ["dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:BatchWriteItem"], arns, grants.GrantOptions(justification=justification) if justification else None)
-
-    def grant_read_write(self, target: "grants.GrantTarget", indexes: Optional[list] = None, justification: Optional[str] = None) -> None:
-        """Grants readwrite access on this resource.
-
-        Args:
-            target: The compute resource to grant access to.
-            indexes: Optional list of GSI names to scope access (e.g. ["by_status"]).
-                     If omitted, grants table access only — no index access.
-            justification: Optional audit trail note.
-        """
-        name = f"{self._name}-{target.grant_name()}-readwrite"
-        index_paths = [f"index/{i}" for i in indexes] if indexes else None
-        arns = grants.build_resource_arns(self.table_arn, index_paths)
-        grants.create_grant(self, name, target, ["dynamodb:GetItem", "dynamodb:BatchGetItem", "dynamodb:Query", "dynamodb:Scan", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:BatchWriteItem"], arns, grants.GrantOptions(justification=justification) if justification else None)
-
-    def grant_delete(self, target: "grants.GrantTarget", indexes: Optional[list] = None, justification: Optional[str] = None) -> None:
-        """Grants delete access on this resource.
-
-        Args:
-            target: The compute resource to grant access to.
-            indexes: Optional list of GSI names to scope access (e.g. ["by_status"]).
-                     If omitted, grants table access only — no index access.
-            justification: Optional audit trail note.
-        """
-        name = f"{self._name}-{target.grant_name()}-delete"
-        index_paths = [f"index/{i}" for i in indexes] if indexes else None
-        arns = grants.build_resource_arns(self.table_arn, index_paths)
-        grants.create_grant(self, name, target, ["dynamodb:DeleteItem"], arns, grants.GrantOptions(justification=justification) if justification else None)
 

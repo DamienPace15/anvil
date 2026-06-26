@@ -220,6 +220,14 @@ function wrapComponentClass(Cls: any): any {
       const name = args[0];
       const opts = args[2];
 
+      // Stash the logical name on the instance so grant methods can build
+      // synchronous child-resource names (e.g. the IAM RolePolicy) without the
+      // SDK class itself having to declare/assign it. Read via grantResourceName
+      // in grants.ts. Set for every construction, including reconstruction.
+      if (typeof name === 'string') {
+        (instance as any).__anvilName = name;
+      }
+
       // Skip Pulumi's internal resource reconstruction (deserialization from a
       // URN), which passes { urn } as opts — only auto-register genuine
       // user-authored top-level constructions.

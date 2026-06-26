@@ -288,6 +288,10 @@
           "description": "Map of region to cluster endpoint. Single-region: one entry keyed by the provider region. Multi-region: one entry per region. e.g. { \"us-east-1\": \"abc123.dsql.us-east-1.on.aws\" }. Pass the relevant endpoint to your Lambda via environment variables.",
           "type": "object"
         },
+        "rolesTableName": {
+          "description": "DynamoDB table name for role bootstrap. Passed to DSQLConnect (via grantConnect) so it can create the IAM role-mapping item. Empty when no roles are configured.",
+          "type": "string"
+        },
         "vpcEndpointIds": {
           "additionalProperties": {
             "type": "string"

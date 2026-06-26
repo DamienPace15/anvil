@@ -85,35 +85,6 @@ export class Vpc extends pulumi.ComponentResource {
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(Vpc.__pulumiType, name, resourceInputs, opts, true /*remote*/);
     }
-    /**
-     * Imports an existing Vpc into Anvil without managing or modifying it.
-     * Returns an identical output shape to `new Vpc()`.
-     *
-     * Flow logs, NAT, and bastion are not available on an imported VPC.
-     *
-     * If subnet IDs are omitted, Anvil auto-discovers them by inspecting
-     * route tables. Provide IDs explicitly if auto-discovery fails.
-     *
-     * @example
-     * const network = Vpc.fromId("existing", {
-     *   vpcId: "vpc-0abc123def456",
-     * });
-     */
-    static fromId(
-      name: string,
-      args: {
-        vpcId: string;
-        privateSubnetIds?: string[];
-        publicSubnetIds?: string[];
-      },
-      opts?: pulumi.ComponentResourceOptions
-    ): Vpc {
-      return new Vpc(name, args as any, {
-        ...opts,
-        id: args.vpcId,
-      });
-    }
-
 }
 
 /**

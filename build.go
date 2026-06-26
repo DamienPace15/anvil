@@ -211,7 +211,7 @@ func targetGenNodejs() {
 	copyDir("sdk/overlays/nodejs", "sdk/nodejs")
 
 	run(".", env("ANVIL_VERSION", readVersion()), "npx", "ts-node", "scripts/sdk/fix-sdk.ts", "--ts")
-	run(".", nil, "npx", "ts-node", "scripts/grants/fix-sdk-grants.ts", "--ts")
+	run(".", nil, "npx", "ts-node", "scripts/grants/generate-grants.ts", "--ts")
 }
 
 func targetBuildSDK() {
@@ -234,7 +234,7 @@ func targetGenPythonSDK() {
 	copyDir("sdk/overlays/python", "sdk/python/anvil_cloud")
 
 	run(".", env("ANVIL_VERSION", readVersion()), "npx", "ts-node", "scripts/sdk/fix-sdk.ts", "--python")
-	run(".", nil, "npx", "ts-node", "scripts/grants/fix-sdk-grants.ts", "--python")
+	run(".", nil, "npx", "ts-node", "scripts/grants/generate-grants.ts", "--python")
 }
 
 func targetBuildPythonSDK() {

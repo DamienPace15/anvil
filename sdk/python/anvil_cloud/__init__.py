@@ -72,3 +72,11 @@ _utilities.register(
 
 # Hand-written overlay exports (run, App, Block, types, grants, export)
 from ._extras import *  # noqa: F401,F403
+
+# Anvil grant companions (side-effect imports — attach grant methods)
+from .aws import bucket_grants  # noqa: F401
+from .aws import lambda_grants  # noqa: F401
+from .aws import queue_grants  # noqa: F401
+from .aws import event_bus_grants  # noqa: F401
+from .aws import dynamo_db_grants  # noqa: F401
+from .aws import dsql_grants  # noqa: F401

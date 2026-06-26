@@ -23,6 +23,23 @@ class GrantOptions:
         self.justification = justification
 
 
+def grant_resource_name(resource) -> str:
+    """Return the logical name a component was constructed with.
+
+    The name is stashed on the instance by the construction wrapper (stack.py),
+    so grant methods can build synchronous child-resource names without the
+    generated SDK class declaring the attribute itself.
+    """
+    name = getattr(resource, "_anvil_name", None)
+    if not isinstance(name, str):
+        raise ValueError(
+            "Anvil grant: could not resolve the resource name. Construct "
+            "components via the anvil namespace (e.g. anvil.aws.Bucket(...)) "
+            "so grants work."
+        )
+    return name
+
+
 def create_grant(
     parent: pulumi.Resource,
     name: str,

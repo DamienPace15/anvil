@@ -36,3 +36,11 @@ pulumi.runtime.registerResourcePackage("anvil", {
 
 // Hand-written overlay exports (App, Block, grants, Pulumi primitives)
 export * from "./_extras";
+
+// Anvil grant companions (side-effect imports — attach grant methods to the generated classes)
+import "./aws/bucket.grants";
+import "./aws/lambda.grants";
+import "./aws/queue.grants";
+import "./aws/eventBus.grants";
+import "./aws/dynamoDB.grants";
+import "./aws/dsql.grants";

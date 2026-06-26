@@ -15,9 +15,6 @@ else:
 from .. import _utilities
 from ._inputs import *
 import pulumi_aws
-from typing import Optional
-from anvil_cloud import grants
-
 
 __all__ = ['EventBusArgs', 'EventBus']
 
@@ -139,10 +136,4 @@ class EventBus(pulumi.ComponentResource):
         The name of the EventBridge event bus. Pass to HttpApi consumer: { eventBridge: { name: bus.name } }
         """
         return pulumi.get(self, "name")
-
-    def grant_put_events(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants putevents access on this resource."""
-        name = f"{self._name}-{target.grant_name()}-putevents"
-        arns = grants.build_resource_arns(self.arn, None)
-        grants.create_grant(self, name, target, ["events:PutEvents"], arns, opts)
 

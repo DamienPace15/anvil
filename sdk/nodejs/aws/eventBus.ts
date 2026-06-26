@@ -8,7 +8,6 @@ import * as enums from "../types/enums";
 import * as utilities from "../utilities";
 
 import * as pulumiAws from "@pulumi/aws";
-import * as grants from "../grants";
 
 /**
  * An Anvil-managed EventBridge event bus. Archives events for 7 days by default for replay and debugging. Rules route matching events to Lambda targets.
@@ -16,9 +15,6 @@ import * as grants from "../grants";
 export class EventBus extends pulumi.ComponentResource {
     /** @internal */
     public static readonly __pulumiType = 'anvil:aws:EventBus';
-
-    /** @internal Logical resource name for grant policy naming. */
-    private __name: string;
 
     /**
      * Returns true if the given object is an instance of EventBus.  This is designed to work even
@@ -61,22 +57,7 @@ export class EventBus extends pulumi.ComponentResource {
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(EventBus.__pulumiType, name, resourceInputs, opts, true /*remote*/);
-        this.__name = name;
     }
-
-    /**
-     * Grants putevents access (events:PutEvents) on this eventbus
-     * to the target compute resource's execution role.
-     *
-     * @param target - The compute resource to grant access to.
-     * @param opts - Optional grant options (justification for audit trail).
-     */
-    public grantPutEvents(target: grants.GrantTarget, opts?: grants.GrantOptions): void {
-        const name = `${this.__name}-${target.grantName()}-putevents`;
-        const arns = grants.buildResourceArns(this.arn, undefined);
-        grants.createGrant(this, name, target, ["events:PutEvents"], arns, opts);
-    }
-
 }
 
 /**

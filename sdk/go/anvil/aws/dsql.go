@@ -21,6 +21,8 @@ type DSQL struct {
 	Endpoint pulumi.StringOutput `pulumi:"endpoint"`
 	// Map of region to cluster endpoint. Single-region: one entry keyed by the provider region. Multi-region: one entry per region. e.g. { "us-east-1": "abc123.dsql.us-east-1.on.aws" }. Pass the relevant endpoint to your Lambda via environment variables.
 	Endpoints pulumi.StringMapOutput `pulumi:"endpoints"`
+	// DynamoDB table name for role bootstrap. Passed to DSQLConnect (via grantConnect) so it can create the IAM role-mapping item. Empty when no roles are configured.
+	RolesTableName pulumi.StringPtrOutput `pulumi:"rolesTableName"`
 	// Map of region to VPC endpoint ID. Only populated when vpc is set and hasNat is false. Pass to LambdaVpcEndpointArgs.endpointId.
 	VpcEndpointIds pulumi.StringMapOutput `pulumi:"vpcEndpointIds"`
 	// Map of region to VPC endpoint security group ID. Only populated when vpc is set and hasNat is false. Pass to LambdaVpcEndpointArgs.securityGroupId so Anvil can wire the egress rule from the Lambda SG to the endpoint SG on port 5432.
@@ -168,6 +170,11 @@ func (o DSQLOutput) Endpoint() pulumi.StringOutput {
 // Map of region to cluster endpoint. Single-region: one entry keyed by the provider region. Multi-region: one entry per region. e.g. { "us-east-1": "abc123.dsql.us-east-1.on.aws" }. Pass the relevant endpoint to your Lambda via environment variables.
 func (o DSQLOutput) Endpoints() pulumi.StringMapOutput {
 	return o.ApplyT(func(v *DSQL) pulumi.StringMapOutput { return v.Endpoints }).(pulumi.StringMapOutput)
+}
+
+// DynamoDB table name for role bootstrap. Passed to DSQLConnect (via grantConnect) so it can create the IAM role-mapping item. Empty when no roles are configured.
+func (o DSQLOutput) RolesTableName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *DSQL) pulumi.StringPtrOutput { return v.RolesTableName }).(pulumi.StringPtrOutput)
 }
 
 // Map of region to VPC endpoint ID. Only populated when vpc is set and hasNat is false. Pass to LambdaVpcEndpointArgs.endpointId.

@@ -188,6 +188,11 @@ def _wrap_component_class(cls: type) -> type:
     class _Wrapped(cls):  # type: ignore[valid-type, misc]
         def __init__(self, name, *args, **kwargs):
             super().__init__(name, *args, **kwargs)
+            # Stash the logical name so grant methods can build synchronous
+            # child-resource names via grants.grant_resource_name(self), without
+            # the generated class declaring it. Read by *_grants.py companions.
+            if isinstance(name, str):
+                self._anvil_name = name
             stack = get_active_stack()
             if stack is None or not isinstance(name, str):
                 return

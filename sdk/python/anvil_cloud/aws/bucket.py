@@ -15,9 +15,6 @@ else:
 from .. import _utilities
 from ._inputs import *
 import pulumi_aws
-from typing import Optional
-from anvil_cloud import grants
-
 
 __all__ = ['BucketArgs', 'Bucket']
 
@@ -237,44 +234,4 @@ class Bucket(pulumi.ComponentResource):
         The name of the S3 bucket.
         """
         return pulumi.get(self, "bucket_name")
-
-    def grant_read(self, target: "grants.GrantTarget", paths: Optional[list] = None, opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants read access on this resource."""
-        name = f"{self._name}-{target.grant_name()}-read"
-        arns = grants.build_resource_arns(self.arn, paths)
-        grants.create_grant(self, name, target, ["s3:GetObject", "s3:ListBucket"], arns, opts)
-
-    def grant_write(self, target: "grants.GrantTarget", paths: Optional[list] = None, opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants write access on this resource."""
-        name = f"{self._name}-{target.grant_name()}-write"
-        arns = grants.build_resource_arns(self.arn, paths)
-        grants.create_grant(self, name, target, ["s3:PutObject"], arns, opts)
-
-    def grant_read_write(self, target: "grants.GrantTarget", paths: Optional[list] = None, opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants readwrite access on this resource."""
-        name = f"{self._name}-{target.grant_name()}-readwrite"
-        arns = grants.build_resource_arns(self.arn, paths)
-        grants.create_grant(self, name, target, ["s3:GetObject", "s3:ListBucket", "s3:PutObject"], arns, opts)
-
-    def grant_delete(self, target: "grants.GrantTarget", paths: Optional[list] = None, opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants delete access on this resource."""
-        name = f"{self._name}-{target.grant_name()}-delete"
-        arns = grants.build_resource_arns(self.arn, paths)
-        grants.create_grant(self, name, target, ["s3:DeleteObject"], arns, opts)
-
-    def grant_full_access(self, target: "grants.GrantTarget", opts: Optional["grants.GrantOptions"] = None) -> None:
-        """Grants full access on this resource. Prefer scoped grants."""
-        if not opts or not opts.justification:
-            pulumi.log.warn(
-                f"⚠ {self._name} → {target.grant_name()}: full access granted with no justification.",
-                self,
-            )
-        else:
-            pulumi.log.info(
-                f"ℹ {self._name} → {target.grant_name()}: full access granted. Justification: \"{opts.justification}\"",
-                self,
-            )
-        name = f"{self._name}-{target.grant_name()}-fullaccess"
-        arns = grants.build_resource_arns(self.arn, None)
-        grants.create_grant(self, name, target, ["s3:GetObject", "s3:ListBucket", "s3:PutObject", "s3:DeleteObject"], arns, opts)
 

@@ -17,6 +17,24 @@ export interface GrantTarget {
 }
 
 /**
+ * Returns the logical name a component was constructed with. The name is
+ * stashed on the instance by the construction wrapper (stack.ts), so grant
+ * methods can build synchronous child-resource names without the generated
+ * SDK class declaring the field itself.
+ * @internal
+ */
+export function grantResourceName(resource: object): string {
+  const name = (resource as any).__anvilName;
+  if (typeof name !== 'string') {
+    throw new Error(
+      'Anvil grant: could not resolve the resource name. Construct components ' +
+        'via the anvil namespace (e.g. `new anvil.aws.Bucket(...)`) so grants work.'
+    );
+  }
+  return name;
+}
+
+/**
  * Optional metadata for grant methods.
  */
 export interface GrantOptions {

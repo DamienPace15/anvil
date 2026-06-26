@@ -6,7 +6,6 @@ import * as inputs from "../types/input";
 import * as outputs from "../types/output";
 import * as enums from "../types/enums";
 import * as utilities from "../utilities";
-import * as grants from "../grants";
 
 /**
  * An Anvil-managed SQS queue. A dead letter queue is always provisioned to prevent silent message loss. SSE-SQS encryption is enabled by default at no cost.
@@ -14,9 +13,6 @@ import * as grants from "../grants";
 export class Queue extends pulumi.ComponentResource {
     /** @internal */
     public static readonly __pulumiType = 'anvil:aws:Queue';
-
-    /** @internal Logical resource name for grant policy naming. */
-    private __name: string;
 
     /**
      * Returns true if the given object is an instance of Queue.  This is designed to work even
@@ -79,61 +75,7 @@ export class Queue extends pulumi.ComponentResource {
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(Queue.__pulumiType, name, resourceInputs, opts, true /*remote*/);
-        this.__name = name;
     }
-
-    /**
-     * Grants sendmessage access (sqs:SendMessage) on this queue
-     * to the target compute resource's execution role.
-     *
-     * @param target - The compute resource to grant access to.
-     * @param opts - Optional grant options (justification for audit trail).
-     */
-    public grantSendMessage(target: grants.GrantTarget, opts?: grants.GrantOptions): void {
-        const name = `${this.__name}-${target.grantName()}-sendmessage`;
-        const arns = grants.buildResourceArns(this.arn, undefined);
-        grants.createGrant(this, name, target, ["sqs:SendMessage"], arns, opts);
-    }
-
-    /**
-     * Grants consumemessages access (sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes) on this queue
-     * to the target compute resource's execution role.
-     *
-     * @param target - The compute resource to grant access to.
-     * @param opts - Optional grant options (justification for audit trail).
-     */
-    public grantConsumeMessages(target: grants.GrantTarget, opts?: grants.GrantOptions): void {
-        const name = `${this.__name}-${target.grantName()}-consumemessages`;
-        const arns = grants.buildResourceArns(this.arn, undefined);
-        grants.createGrant(this, name, target, ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"], arns, opts);
-    }
-
-    /**
-     * Grants full access (sqs:SendMessage, sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes, sqs:ChangeMessageVisibility, sqs:PurgeQueue) on this queue
-     * to the target compute resource's execution role.
-     *
-     * This is an escape hatch — prefer scoped grants (grantRead, grantWrite, etc.).
-     * A warning is logged if no justification is provided.
-     */
-    public grantFullAccess(target: grants.GrantTarget, opts?: grants.GrantOptions): void {
-        if (!opts?.justification) {
-            pulumi.log.warn(
-                `⚠ ${this.__name} → ${target.grantName()}: full access granted with no justification. ` +
-                `Consider scoping with grantRead, grantWrite, or grantDelete, ` +
-                `or add a justification.`,
-                this,
-            );
-        } else {
-            pulumi.log.info(
-                `ℹ ${this.__name} → ${target.grantName()}: full access granted. Justification: "${opts.justification}"`,
-                this,
-            );
-        }
-        const name = `${this.__name}-${target.grantName()}-fullaccess`;
-        const arns = grants.buildResourceArns(this.arn, undefined);
-        grants.createGrant(this, name, target, ["sqs:SendMessage", "sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes", "sqs:ChangeMessageVisibility", "sqs:PurgeQueue"], arns, opts);
-    }
-
 }
 
 /**
