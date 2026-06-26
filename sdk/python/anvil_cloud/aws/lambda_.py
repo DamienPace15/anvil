@@ -16,7 +16,6 @@ from .. import _utilities
 from ._enums import *
 from ._inputs import *
 import pulumi_aws
-from .. import _enums as enums
 from typing import Optional
 from anvil_cloud import grants
 

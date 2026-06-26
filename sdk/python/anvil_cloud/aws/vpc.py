@@ -15,7 +15,6 @@ else:
 from .. import _utilities
 from ._enums import *
 from ._inputs import *
-from .. import _enums as enums
 
 __all__ = ['VpcArgs', 'Vpc']
 

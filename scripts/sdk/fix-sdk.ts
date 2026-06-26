@@ -26,7 +26,6 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { ENUM_PATCHES } from './enum-patches';
 import { BOOLEAN_SHORTHAND_PATCHES } from './boolean-shorthand-patches';
 import { FROMID_PATCHES } from './fromid-patches';
 
@@ -226,46 +225,7 @@ function patchTypeScript(): void {
     console.log('  ✔ Patched package.json → @anvil-cloud/sdk');
   }
 
-  // ── 3. Patch enum types ────────────────────────────────
-  for (const patch of ENUM_PATCHES) {
-    const filePath = path.join(sdkDir, patch.tsFile);
-    if (!fs.existsSync(filePath)) {
-      console.log(`  ⚠ ${patch.tsFile} not found — skipping enum patches`);
-      continue;
-    }
-
-    let content = fs.readFileSync(filePath, 'utf8');
-    let changed = false;
-
-    if (!content.includes('import * as enums from "../types/enums"')) {
-      content = content.replace(
-        'import * as utilities from "../utilities";',
-        'import * as utilities from "../utilities";\nimport * as enums from "../types/enums";'
-      );
-      changed = true;
-    }
-
-    for (const field of patch.fields) {
-      const optional = field.required ? '' : '?';
-      const plainType = `${field.field}${optional}: pulumi.Input<string>`;
-      const enumType = `${field.field}${optional}: pulumi.Input<${field.tsEnumType} | string>`;
-
-      if (content.includes(plainType) && !content.includes(enumType)) {
-        content = content.replace(plainType, enumType);
-        changed = true;
-      }
-    }
-
-    if (changed) {
-      fs.writeFileSync(filePath, content);
-      const fields = patch.fields.map((f) => f.field).join(', ');
-      console.log(`  ✔ Patched ${patch.tsFile} → enum types for ${fields}`);
-    } else {
-      console.log(`  ⏭ ${patch.tsFile} enum types already patched — skipping`);
-    }
-  }
-
-  // ── 4. Patch boolean shorthands ────────────────────────
+  // ── 3. Patch boolean shorthands ────────────────────────
   // Upgrades field?: ObjectType to field?: boolean | ObjectType so users
   // can write bastion: true instead of bastion: {} for defaults.
   //
@@ -352,7 +312,7 @@ function patchTypeScript(): void {
     }
   }
 
-  // ── 5. Patch fromId static methods ────────────────────
+  // ── 4. Patch fromId static methods ────────────────────
   for (const patch of FROMID_PATCHES) {
     const filePath = path.join(sdkDir, patch.tsFile);
     if (!fs.existsSync(filePath)) {
@@ -650,57 +610,9 @@ Apache-2.0
     }
   }
 
-  // ── 5. Patch enum types ────────────────────────────────
   const pyCloudDir = path.join(sdkDir, 'anvil_cloud');
-  for (const patch of ENUM_PATCHES) {
-    const filePath = path.join(pyCloudDir, patch.pyFile);
-    if (!fs.existsSync(filePath)) {
-      console.log(`  ⚠ ${patch.pyFile} not found — skipping enum patches`);
-      continue;
-    }
 
-    let content = fs.readFileSync(filePath, 'utf8');
-    let changed = false;
-
-    if (!content.includes('from .. import _enums as enums')) {
-      const lines = content.split('\n');
-      let lastImportIdx = 0;
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].startsWith('import ') || lines[i].startsWith('from ')) {
-          lastImportIdx = i;
-        }
-      }
-      lines.splice(lastImportIdx + 1, 0, 'from .. import _enums as enums');
-      content = lines.join('\n');
-      changed = true;
-    }
-
-    for (const field of patch.fields) {
-      const pyField = toSnakeCase(field.field);
-      const enumType = `Optional[Union['enums.${field.pyEnumType}', str]]`;
-      const fieldPattern = new RegExp(`(${pyField}\\s*:\\s*)Optional\\[str\\]`);
-      if (fieldPattern.test(content) && !content.includes(enumType)) {
-        if (!content.includes('Union')) {
-          content = content.replace(
-            'from typing import',
-            'from typing import Union,'
-          );
-        }
-        content = content.replace(fieldPattern, `$1${enumType}`);
-        changed = true;
-      }
-    }
-
-    if (changed) {
-      fs.writeFileSync(filePath, content);
-      const fields = patch.fields.map((f) => toSnakeCase(f.field)).join(', ');
-      console.log(`  ✔ Patched ${patch.pyFile} → enum types for ${fields}`);
-    } else {
-      console.log(`  ⏭ ${patch.pyFile} enum types already patched — skipping`);
-    }
-  }
-
-  // ── 6. Patch boolean shorthands ────────────────────────
+  // ── 5. Patch boolean shorthands ────────────────────────
   // Upgrades field: Optional[ObjectType] to Optional[Union[bool, ObjectType]]
   // so users can write bastion=True instead of bastion={} for defaults.
   for (const patch of BOOLEAN_SHORTHAND_PATCHES) {
@@ -749,7 +661,7 @@ Apache-2.0
     }
   }
 
-  // ── 7. Patch fromId static methods ────────────────────
+  // ── 6. Patch fromId static methods ────────────────────
   for (const patch of FROMID_PATCHES) {
     const filePath = path.join(pyCloudDir, patch.pyFile);
     if (!fs.existsSync(filePath)) {
