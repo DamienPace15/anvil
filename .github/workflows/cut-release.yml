@@ -1,0 +1,92 @@
+name: cut-release
+
+# Manually triggered: pick a bump type, this computes the next version from
+# provider/base-schema.json (the single source of truth — see readVersion()
+# in build/helpers.go), commits the bump, tags it, publishes a GitHub Release,
+# and calls straight into release.yml to build/publish everything.
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump type (ignored if version is set)'
+        required: true
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+      version:
+        description: 'Explicit version override, e.g. 0.1.0 (leave blank to auto-bump)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  bump-and-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.bump.outputs.tag }}
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Compute next version and bump base-schema.json
+        id: bump
+        run: |
+          set -euo pipefail
+          CURRENT=$(python3 -c "import json; print(json.load(open('provider/base-schema.json'))['version'])")
+
+          if [ -n "${{ inputs.version }}" ]; then
+            NEXT="${{ inputs.version }}"
+          else
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+            case "${{ inputs.bump }}" in
+              major) NEXT="$((MAJOR+1)).0.0" ;;
+              minor) NEXT="$MAJOR.$((MINOR+1)).0" ;;
+              patch) NEXT="$MAJOR.$MINOR.$((PATCH+1))" ;;
+            esac
+          fi
+
+          echo "Bumping $CURRENT -> $NEXT"
+          python3 -c "
+          import json
+          path = 'provider/base-schema.json'
+          with open(path) as f:
+              data = json.load(f)
+          data['version'] = '$NEXT'
+          with open(path, 'w') as f:
+              json.dump(data, f, indent=2)
+              f.write('\n')
+          "
+
+          echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+          echo "tag=v$NEXT" >> "$GITHUB_OUTPUT"
+
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add provider/base-schema.json
+          git commit -m "chore: bump version to ${{ steps.bump.outputs.next }}"
+          git push origin master
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.bump.outputs.tag }}" \
+            --target master \
+            --title "Anvil ${{ steps.bump.outputs.tag }}" \
+            --generate-notes
+
+  publish:
+    needs: bump-and-tag
+    permissions:
+      contents: write
+      id-token: write
+    uses: ./.github/workflows/release.yml
+    with:
+      tag_name: ${{ needs.bump-and-tag.outputs.tag }}
