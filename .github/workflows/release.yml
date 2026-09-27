@@ -2,10 +2,15 @@ name: release
 
 # Runs two ways:
 #   1. `release: published` — someone publishes a GitHub Release by hand.
-#   2. `workflow_call` — invoked directly by cut-release.yml. This path exists
+#   2. `workflow_call` — invoked directly by tag-on-merge.yml. This path exists
 #      because releases created by the default GITHUB_TOKEN do NOT cascade-
 #      trigger the `release: published` event (GitHub blocks that to prevent
-#      recursive runs), so cut-release.yml calls straight in instead.
+#      recursive runs), so tag-on-merge.yml calls straight in instead.
+#
+# Each job below gates on `inputs.tag_name != ''` rather than
+# `github.event_name == 'workflow_call'` — inside a called reusable workflow,
+# github.event_name reflects the CALLER's triggering event (e.g. "push"), not
+# "workflow_call". See https://github.com/orgs/community/discussions/174203
 on:
   release:
     types: [published]
@@ -23,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: github.event_name == 'workflow_call' || github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
+    if: inputs.tag_name != '' || github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,7 +57,7 @@ jobs:
   publish-npm-sdk:
     needs: release
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_call' || github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
+    if: inputs.tag_name != '' || github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
     permissions:
       id-token: write
     steps:
@@ -95,7 +100,7 @@ jobs:
   publish-pypi-sdk:
     needs: release
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_call' || github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
+    if: inputs.tag_name != '' || github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
     permissions:
       id-token: write
     steps:
@@ -137,7 +142,7 @@ jobs:
   publish-go-sdk:
     needs: release
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_call' || github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
+    if: inputs.tag_name != '' || github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
     permissions:
       contents: write
     steps:
