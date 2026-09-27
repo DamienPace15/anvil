@@ -31,3 +31,125 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GORELEASER_CURRENT_TAG: ${{ github.event.release.tag_name }}
+
+  # Publishes @anvil-cloud/sdk to npm via OIDC trusted publishing — no stored
+  # token. One-time setup required on npmjs.com: package settings → Trusted
+  # Publisher → GitHub Actions → this repo, workflow file "release.yml".
+  # Requires npm >=11.5.1 for trusted publishing support.
+  publish-npm-sdk:
+    needs: release
+    runs-on: ubuntu-latest
+    if: github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install Pulumi CLI
+        uses: pulumi/action-install-pulumi-cli@v2
+
+      - name: Install root deps (ts-node/typescript for SDK patch scripts)
+        run: npm ci
+
+      - name: Upgrade npm (trusted publishing needs >=11.5.1)
+        run: npm install -g npm@latest
+
+      - name: Build nodejs SDK
+        run: go run ./build build-sdk
+
+      - name: Publish to npm
+        working-directory: sdk/nodejs
+        run: npm publish --access public --provenance
+
+  # Publishes anvil_cloud to PyPI via OIDC trusted publishing — no stored
+  # token. One-time setup required on PyPI: project settings → Publishing →
+  # Trusted Publisher → GitHub → this repo, workflow file "release.yml".
+  publish-pypi-sdk:
+    needs: release
+    runs-on: ubuntu-latest
+    if: github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Set up Node (for ts-node SDK patch scripts)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Pulumi CLI
+        uses: pulumi/action-install-pulumi-cli@v2
+
+      - name: Install root deps (ts-node/typescript for SDK patch scripts)
+        run: npm ci
+
+      - name: Build Python SDK
+        run: go run ./build build-python-sdk
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: sdk/python/dist
+
+  # "Publishes" the Go SDK the way Go modules are published: by pushing a tag
+  # (sdk/go/anvil/vX.X.X) at the release commit. The generated code must
+  # already be checked in and committed before cutting the release — this job
+  # verifies that and fails loudly instead of silently drifting or pushing to
+  # master from CI.
+  publish-go-sdk:
+    needs: release
+    runs-on: ubuntu-latest
+    if: github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Install Pulumi CLI
+        uses: pulumi/action-install-pulumi-cli@v2
+
+      - name: Verify checked-in Go SDK is up to date
+        run: |
+          go run ./build gen-go-sdk
+          if ! git diff --exit-code -- sdk/go/; then
+            echo "::error::sdk/go/ is out of date — run 'go run ./build gen-go-sdk' and commit before releasing."
+            exit 1
+          fi
+
+      - name: Tag and push Go SDK module version
+        run: |
+          TAG="sdk/go/anvil/${{ github.event.release.tag_name }}"
+          git tag "$TAG"
+          git push origin "$TAG"
