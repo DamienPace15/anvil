@@ -7,7 +7,7 @@
 > | **Runs from** | `provider/` (cwd) |
 > | **Reads** | each `provider/<cloud>/<resource>/schema.json` (must declare `x-upstream-*` fields) + upstream provider schemas (fetched, then cached in `.cache/upstream-schemas/`) |
 > | **Writes** | the same `provider/<cloud>/<resource>/schema.json`, enriched in place with typed `transform` types |
-> | **Invoked by** | `go run build.go generate` (and indirectly by every build, via `merge`) |
+> | **Invoked by** | `go run ./build generate` (and indirectly by every build, via `merge`) |
 > | **Why** | so `transform.<resource>` overrides are fully typed in every generated SDK, instead of an untyped blob |
 
 The generate script enriches Anvil component schemas with fully-typed transform properties from upstream Pulumi providers (AWS, GCP, etc.).

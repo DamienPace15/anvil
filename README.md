@@ -64,7 +64,7 @@ AWS and GCP today. More coming.
 ```sh
 git clone https://github.com/DamienPace15/anvil.git
 cd anvil
-go run build.go build
+go run ./build build
 ```
 
 Add `bin/` to your PATH to use the local provider:
@@ -77,12 +77,12 @@ export PATH="$PATH:$(pwd)/bin"
 
 | Command                          | What it does                                                |
 | -------------------------------- | ----------------------------------------------------------- |
-| `go run build.go build`          | Full pipeline: generate → merge → registry → compile → SDKs |
-| `go run build.go binary`         | CLI binary only (fast, for CLI-only changes)                |
-| `go run build.go build-provider` | Compile the provider binary                                 |
-| `go run build.go build-sdk`      | Generate + build the Node.js SDK                            |
-| `go run build.go gen-python-sdk` | Generate Python SDK                                         |
-| `go run build.go clean`          | Remove build artifacts                                      |
+| `go run ./build build`          | Full pipeline: generate → merge → registry → compile → SDKs |
+| `go run ./build binary`         | CLI binary only (fast, for CLI-only changes)                |
+| `go run ./build build-provider` | Compile the provider binary                                 |
+| `go run ./build build-sdk`      | Generate + build the Node.js SDK                            |
+| `go run ./build gen-python-sdk` | Generate Python SDK                                         |
+| `go run ./build clean`          | Remove build artifacts                                      |
 
 ---
 

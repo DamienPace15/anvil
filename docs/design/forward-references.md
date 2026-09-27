@@ -44,7 +44,7 @@ additive:
 
 Files: `sdk/nodejs/stack.ts`, `sdk/python/anvil_cloud/stack.py`, wired through
 `app.*`, `block.*`, and the package entry, kept alive across `gen-sdk` via
-`build.go` (backup list) + `scripts/sdk/fix-sdk.ts`.
+`build/` (backup list) + `scripts/sdk/fix-sdk.ts`.
 
 ### Why not a two-phase model?
 

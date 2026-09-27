@@ -9,26 +9,6 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
-// ── ComplianceFramework ────────────────────────────────────
-
-// ComplianceFramework represents a supported compliance standard.
-// Mirrors the Go constants in provider/internal/shared/compliance.go.
-
-const (
-	ComplianceSOC2     string = "soc2"
-	ComplianceISO27001 string = "iso27001"
-	ComplianceCIS      string = "cis"
-	CompliancePCIDSS   string = "pci-dss"
-	ComplianceHIPAA    string = "hipaa"
-	ComplianceFedRAMP  string = "fedramp"
-	ComplianceHITRUST  string = "hitrust"
-	ComplianceGDPR     string = "gdpr"
-	ComplianceSOC1     string = "soc1"
-	ComplianceIRAP     string = "irap"
-	ComplianceNISTCSF  string = "nist-csf"
-	ComplianceCSASTAR  string = "csa-star"
-)
-
 // ── Context ────────────────────────────────────────────────
 
 // Context is passed to the App's Run callback.
@@ -50,16 +30,6 @@ type Context struct {
 
 	// Providers holds named providers keyed by config name (e.g. "aws", "aws.us", "gcp").
 	Providers map[string]pulumi.ProviderResource
-
-	// Compliance holds the app-level compliance frameworks applied to all resources.
-	// Pass this to resource args to inherit app defaults at the component level.
-	//
-	// Example:
-	//   _, err := anvilaws.NewBucket(ctx.PulumiCtx(), "data", &anvilaws.BucketArgs{
-	//       DataClassification: pulumi.String("sensitive"),
-	//       Compliance:         ctx.Compliance,
-	//   }, ctx.Provider("aws"))
-	Compliance []ComplianceFramework
 }
 
 // PulumiCtx returns the underlying pulumi.Context.
@@ -104,19 +74,6 @@ type DefaultsConfig struct {
 	// Tags merged into every taggable resource via defaultTags (AWS) / defaultLabels (GCP).
 	// "stage" and "project" are auto-injected. User tags override auto-injected ones.
 	Tags map[string]string
-
-	// Compliance frameworks applied to all resources by default.
-	// Pass ctx.Compliance to any resource args to inherit these at the component level.
-	// Components extend app defaults — they never replace them.
-	//
-	// Example:
-	//   Defaults: &anvil.DefaultsConfig{
-	//       Compliance: []anvil.ComplianceFramework{
-	//           anvil.ComplianceSOC2,
-	//           anvil.ComplianceISO27001,
-	//       },
-	//   },
-	Compliance []ComplianceFramework
 }
 
 // AppConfig is the configuration for the App.
@@ -146,10 +103,7 @@ type AppConfig struct {
 //	func main() {
 //	    anvil.Run(anvil.AppConfig{
 //	        Defaults: &anvil.DefaultsConfig{
-//	            Compliance: []anvil.ComplianceFramework{
-//	                anvil.ComplianceSOC2,
-//	                anvil.ComplianceISO27001,
-//	            },
+//	            Tags: map[string]string{"team": "platform"},
 //	        },
 //	        AwsProviders: map[string]*anvil.AwsProviderConfig{
 //	            "aws": {Region: "ap-southeast-2"},
@@ -157,7 +111,6 @@ type AppConfig struct {
 //	        Run: func(ctx *anvil.Context) error {
 //	            _, err := anvilaws.NewBucket(ctx.PulumiCtx(), "data", &anvilaws.BucketArgs{
 //	                DataClassification: pulumi.String("sensitive"),
-//	                Compliance:         ctx.Compliance,
 //	            }, ctx.Provider("aws"))
 //	            return err
 //	        },
@@ -184,12 +137,6 @@ func Run(appConfig AppConfig) {
 		pulumiTags := pulumi.StringMap{}
 		for k, v := range autoTags {
 			pulumiTags[k] = pulumi.String(v)
-		}
-
-		// ── Resolve app-level compliance ───────────────────
-		var appCompliance []ComplianceFramework
-		if appConfig.Defaults != nil {
-			appCompliance = appConfig.Defaults.Compliance
 		}
 
 		// ── Create providers ───────────────────────────────
@@ -255,7 +202,6 @@ func Run(appConfig AppConfig) {
 			Environment:  environment,
 			IsProduction: environment == "prod",
 			Providers:    providers,
-			Compliance:   appCompliance,
 		}
 
 		// ── Execute ────────────────────────────────────────

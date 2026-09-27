@@ -7,7 +7,7 @@
 > | **Runs from** | repo root |
 > | **Reads** | the declarative configs in `configs/*.ts` (the actions tables) |
 > | **Writes** | `sdk/nodejs/aws/<resource>.grants.ts` and `sdk/python/anvil_cloud/aws/<resource>_grants.py`, plus a side-effect import appended to `index.ts` / `__init__.py` |
-> | **Invoked by** | `build.go` after `fix-sdk`: `generate-grants.ts --ts` / `--python` |
+> | **Invoked by** | `build/` after `fix-sdk`: `generate-grants.ts --ts` / `--python` |
 > | **Why** | grant methods (`bucket.grantRead(fn)`) are Anvil's core permission API; they can't be schema-expressed (they create IAM resources in the user's program at deploy time) |
 
 ## What a grant is
@@ -101,7 +101,7 @@ You almost always just edit a config:
 4. **Bespoke grant** — use `CustomGrantConfig` with a raw `tsMethod`/`pyMethod`
    body. Reference any output via the schema (don't inject properties).
 
-Then run `go run build.go gen-nodejs` / `gen-python-sdk`. The companion files
+Then run `go run ./build gen-nodejs` / `gen-python-sdk`. The companion files
 regenerate; the generated classes are untouched.
 
 ## Go is a different API (not generated here)
