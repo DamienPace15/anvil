@@ -1,0 +1,64 @@
+name: tag-on-merge
+
+# Fires when a version bump (see bump-version.yml) lands on master via a
+# reviewed PR merge. Detects the new version, tags it, publishes a GitHub
+# Release, and calls straight into release.yml to build/publish everything.
+#
+# Releases created by the default GITHUB_TOKEN don't cascade-trigger the
+# `release: published` event (GitHub blocks that to prevent recursive runs),
+# so this calls release.yml directly via workflow_call instead of relying on
+# that event.
+on:
+  push:
+    branches: [master]
+    paths:
+      - provider/base-schema.json
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.check.outputs.tag }}
+      should_release: ${{ steps.check.outputs.should_release }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version and whether it's already tagged
+        id: check
+        run: |
+          set -euo pipefail
+          VERSION=$(python3 -c "import json; print(json.load(open('provider/base-schema.json'))['version'])")
+          TAG="v$VERSION"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+            echo "$TAG already exists — nothing to do."
+          else
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.should_release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.check.outputs.tag }}" \
+            --target master \
+            --title "Anvil ${{ steps.check.outputs.tag }}" \
+            --generate-notes
+
+  publish:
+    needs: tag
+    if: needs.tag.outputs.should_release == 'true'
+    permissions:
+      contents: write
+      id-token: write
+    uses: ./.github/workflows/release.yml
+    with:
+      tag_name: ${{ needs.tag.outputs.tag }}

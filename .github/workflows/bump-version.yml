@@ -1,9 +1,10 @@
-name: cut-release
+name: bump-version
 
-# Manually triggered: pick a bump type, this computes the next version from
-# provider/base-schema.json (the single source of truth — see readVersion()
-# in build/helpers.go), commits the bump, tags it, publishes a GitHub Release,
-# and calls straight into release.yml to build/publish everything.
+# Manually triggered: computes the next version from provider/base-schema.json
+# (the single source of truth — see readVersion() in build/helpers.go) and
+# opens a PR bumping it. Master requires a reviewed PR (repo ruleset), so this
+# cannot commit straight to master — merging the PR is what actually triggers
+# the release, via tag-on-merge.yml.
 on:
   workflow_dispatch:
     inputs:
@@ -20,12 +21,11 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  bump-and-tag:
+  bump:
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.bump.outputs.tag }}
     steps:
       - name: Checkout master
         uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
           fetch-depth: 0
           ref: master
 
-      - name: Compute next version and bump base-schema.json
+      - name: Compute next version
         id: bump
         run: |
           set -euo pipefail
@@ -51,42 +51,39 @@ jobs:
           fi
 
           echo "Bumping $CURRENT -> $NEXT"
+          echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+
+      - name: Bump base-schema.json
+        run: |
           python3 -c "
           import json
           path = 'provider/base-schema.json'
           with open(path) as f:
               data = json.load(f)
-          data['version'] = '$NEXT'
+          data['version'] = '${{ steps.bump.outputs.next }}'
           with open(path, 'w') as f:
               json.dump(data, f, indent=2)
               f.write('\n')
           "
 
-          echo "next=$NEXT" >> "$GITHUB_OUTPUT"
-          echo "tag=v$NEXT" >> "$GITHUB_OUTPUT"
-
-      - name: Commit version bump
+      - name: Commit and push branch
+        id: push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="release/v${{ steps.bump.outputs.next }}"
+          git checkout -b "$BRANCH"
           git add provider/base-schema.json
           git commit -m "chore: bump version to ${{ steps.bump.outputs.next }}"
-          git push origin master
+          git push origin "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
 
-      - name: Create GitHub Release
+      - name: Open PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${{ steps.bump.outputs.tag }}" \
-            --target master \
-            --title "Anvil ${{ steps.bump.outputs.tag }}" \
-            --generate-notes
-
-  publish:
-    needs: bump-and-tag
-    permissions:
-      contents: write
-      id-token: write
-    uses: ./.github/workflows/release.yml
-    with:
-      tag_name: ${{ needs.bump-and-tag.outputs.tag }}
+          gh pr create \
+            --base master \
+            --head "${{ steps.push.outputs.branch }}" \
+            --title "chore: bump version to ${{ steps.bump.outputs.next }}" \
+            --body "Automated version bump. Merging this will tag v${{ steps.bump.outputs.next }} and publish a release (CLI/provider binaries, npm SDK, PyPI SDK, Go SDK)."
