@@ -1,0 +1,89 @@
+name: bump-version
+
+# Manually triggered: computes the next version from provider/base-schema.json
+# (the single source of truth — see readVersion() in build/helpers.go) and
+# opens a PR bumping it. Master requires a reviewed PR (repo ruleset), so this
+# cannot commit straight to master — merging the PR is what actually triggers
+# the release, via tag-on-merge.yml.
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump type (ignored if version is set)'
+        required: true
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+      version:
+        description: 'Explicit version override, e.g. 0.1.0 (leave blank to auto-bump)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Compute next version
+        id: bump
+        run: |
+          set -euo pipefail
+          CURRENT=$(python3 -c "import json; print(json.load(open('provider/base-schema.json'))['version'])")
+
+          if [ -n "${{ inputs.version }}" ]; then
+            NEXT="${{ inputs.version }}"
+          else
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+            case "${{ inputs.bump }}" in
+              major) NEXT="$((MAJOR+1)).0.0" ;;
+              minor) NEXT="$MAJOR.$((MINOR+1)).0" ;;
+              patch) NEXT="$MAJOR.$MINOR.$((PATCH+1))" ;;
+            esac
+          fi
+
+          echo "Bumping $CURRENT -> $NEXT"
+          echo "next=$NEXT" >> "$GITHUB_OUTPUT"
+
+      - name: Bump base-schema.json
+        run: |
+          python3 -c "
+          import json
+          path = 'provider/base-schema.json'
+          with open(path) as f:
+              data = json.load(f)
+          data['version'] = '${{ steps.bump.outputs.next }}'
+          with open(path, 'w') as f:
+              json.dump(data, f, indent=2)
+              f.write('\n')
+          "
+
+      - name: Commit and push branch
+        id: push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="release/v${{ steps.bump.outputs.next }}"
+          git checkout -b "$BRANCH"
+          git add provider/base-schema.json
+          git commit -m "chore: bump version to ${{ steps.bump.outputs.next }}"
+          git push origin "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Open PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base master \
+            --head "${{ steps.push.outputs.branch }}" \
+            --title "chore: bump version to ${{ steps.bump.outputs.next }}" \
+            --body "Automated version bump. Merging this will tag v${{ steps.bump.outputs.next }} and publish a release (CLI/provider binaries, npm SDK, PyPI SDK, Go SDK)."
