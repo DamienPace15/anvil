@@ -7,7 +7,7 @@
 > | **Runs from** | `provider/` (cwd) |
 > | **Reads** | `provider/base-schema.json` (the skeleton) + every `provider/<cloud>/<resource>/schema.json` |
 > | **Writes** | `provider/schema.json` — the single merged schema |
-> | **Invoked by** | `go run build.go merge` (and every build, since `registry` and all `gen-sdk` targets depend on it) |
+> | **Invoked by** | `go run ./build merge` (and every build, since `registry` and all `gen-sdk` targets depend on it) |
 > | **Why** | Pulumi's `gen-sdk` and the provider both consume *one* schema; this assembles it from the per-component pieces |
 
 ## What it does

@@ -7,7 +7,7 @@
 > | **Runs from** | `provider/` (cwd) |
 > | **Reads** | every `provider/<cloud>/<resource>/*.go` (to find component constructors) + the version (CLI arg, falling back to `base-schema.json`) |
 > | **Writes** | `provider/cmd/anvil/main.go` (marked `// Code generated … DO NOT EDIT`) |
-> | **Invoked by** | `go run build.go registry` (and the provider build) |
+> | **Invoked by** | `go run ./build registry` (and the provider build) |
 > | **Why** | the provider binary must register every component and report a version; doing it by hand drifts as components are added |
 
 ## What it does
@@ -28,7 +28,7 @@ always matches the components on disk and the canonical version.
    the imports, the `infer.ComponentF(<pkg>.New<X>)` registrations, and
    `p.Run(ctx, "anvil", "<version>")`.
 4. **Version baking.** The version comes from `resolveVersion()`:
-   - `os.Args[1]` if `build.go` passed it (the normal path — `build.go` reads
+   - `os.Args[1]` if `build/` passed it (the normal path — `build/` reads
      `provider/base-schema.json` once and passes it in), else
    - read `base-schema.json` directly (so the script still works run by hand).
 
@@ -49,4 +49,4 @@ always matches the components on disk and the canonical version.
 - **`provider/cmd/anvil/main.go` is generated** (`DO NOT EDIT`). Change behavior
   by editing the template in `generate_registry.go`, not the output.
 - **Version is not hardcoded here anymore.** If you need to bump it, edit
-  `provider/base-schema.json` — `build.go` passes it in.
+  `provider/base-schema.json` — `build/` passes it in.

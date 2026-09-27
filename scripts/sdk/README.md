@@ -7,7 +7,7 @@
 > | **Runs from** | repo root |
 > | **Reads** | the freshly generated `sdk/nodejs/` & `sdk/python/`, `provider/base-schema.json` (version, via `ANVIL_VERSION`), `docs/{nodejs,python}/README.md` |
 > | **Writes** | small, targeted edits to the generated SDKs (see below) |
-> | **Invoked by** | `build.go` after `gen-sdk` + overlay copy: `fix-sdk.ts --ts` / `--python` |
+> | **Invoked by** | `build/` after `gen-sdk` + overlay copy: `fix-sdk.ts --ts` / `--python` |
 > | **Why** | `gen-sdk` produces a correct-but-bare SDK; this adds the packaging and the wiring that Pulumi can't express in the schema |
 
 ## What it does
@@ -52,7 +52,7 @@ small wiring patches.
 
 ## Where the version comes from
 
-`getVersion()` prefers `process.env.ANVIL_VERSION` (passed in by `build.go`,
+`getVersion()` prefers `process.env.ANVIL_VERSION` (passed in by `build/`,
 which reads `provider/base-schema.json` once) and falls back to reading
 `base-schema.json` directly. One source of truth, threaded in.
 
@@ -62,7 +62,7 @@ which reads `provider/base-schema.json` once) and falls back to reading
   `gen-sdk`. Don't patch them here.
 - **Grant methods** → [`grants/`](../grants/README.md) companion files.
 - **Hand-written modules** (`app`, `block`, `grants` runtime, `stack`) → live in
-  `sdk/overlays/<lang>/`, copied in by `build.go` (not here).
+  `sdk/overlays/<lang>/`, copied in by `build/` (not here).
 
 ## Gotchas
 

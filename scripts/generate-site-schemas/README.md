@@ -7,7 +7,7 @@
 > | **Runs from** | `provider/` (cwd) |
 > | **Reads** | the Go source for each *site* component (`provider/<cloud>/<resource>/*.go`) and the shared inputs in `provider/sites/types.go` |
 > | **Writes** | `provider/<cloud>/<resource>/schema.json` for those components |
-> | **Invoked by** | `go run build.go gen-site-schemas` (and indirectly by every build, via `merge`) |
+> | **Invoked by** | `go run ./build gen-site-schemas` (and indirectly by every build, via `merge`) |
 > | **Why** | "site" components (e.g. `SvelteKitSite`) share large input structs; hand-writing their schema by hand would be error-prone and duplicative |
 
 ## What it does
@@ -52,7 +52,7 @@ Both write to the same per-component `schema.json`; both run before
 2. Add a `componentConfig` entry to the `components` slice in `main()`.
 3. If any string field should be an enum, add it to `enumFieldOverrides` and
    define the enum in `manualTypes`.
-4. Run `go run build.go gen-site-schemas` (or any full build). The `schema.json`
+4. Run `go run ./build gen-site-schemas` (or any full build). The `schema.json`
    is regenerated.
 
 ## Gotchas

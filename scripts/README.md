@@ -5,8 +5,8 @@ This folder holds the code-generation and post-processing steps that turn Anvil'
 Go) and a **runnable provider binary**.
 
 Nothing in here is run directly by users. Every script is invoked, in order, by
-`build.go` at the repo root (`go run build.go <target>`). Think of `scripts/` as
-the stages of an assembly line; `build.go` is the conveyor belt.
+`build/` at the repo root (`go run ./build <target>`). Think of `scripts/` as
+the stages of an assembly line; `build/` is the conveyor belt.
 
 ## Why this exists
 
@@ -33,7 +33,7 @@ Pulumi reads**, and **post-processing the SDK Pulumi emits**.
    generated classes (grant methods) use **companion files** (TS declaration
    merging / Python monkeypatch), never in-place splicing.
 3. **The version is set in one place** — `provider/base-schema.json`'s `version`.
-   `build.go` reads it once and threads it everywhere (provider binary, registry,
+   `build/` reads it once and threads it everywhere (provider binary, registry,
    SDK packages). See [`registry/`](registry/README.md) and [`sdk/`](sdk/README.md).
 
 ## The pipeline
@@ -59,7 +59,7 @@ flowchart TD
     GR --> OUT
 ```
 
-Plain-language ordering (matches `build.go`):
+Plain-language ordering (matches `build/`):
 
 ```
 1. generate-site-schemas   AST(Go structs)      → per-component schema.json   (site components)
@@ -85,19 +85,19 @@ Steps 1–3 build the schema. Step 4 builds the provider. Steps 5–8 build the 
 | [`sdk/`](sdk/README.md) | TS (ts-node) | 7 | packaging + overlay wiring in the generated SDKs | ↳ |
 | [`grants/`](grants/README.md) | TS (ts-node) | 8 | `*.grants.ts` / `*_grants.py` companion files | ↳ |
 
-(Step 5 is Pulumi's CLI; step 6 is a `copyDir` in `build.go`. Neither lives in
+(Step 5 is Pulumi's CLI; step 6 is a `copyDir` in `build/`. Neither lives in
 `scripts/`.)
 
 ## Running it
 
 ```bash
-go run build.go build          # full build: everything above
-go run build.go generate       # stage 1+2 (per-component schemas)
-go run build.go merge          # stage 1–3 (→ provider/schema.json)
-go run build.go registry       # stage 1–4 (→ main.go)
-go run build.go build-sdk      # nodejs SDK end to end
-go run build.go build-python-sdk
-go run build.go gen-go-sdk
+go run ./build build          # full build: everything above
+go run ./build generate       # stage 1+2 (per-component schemas)
+go run ./build merge          # stage 1–3 (→ provider/schema.json)
+go run ./build registry       # stage 1–4 (→ main.go)
+go run ./build build-sdk      # nodejs SDK end to end
+go run ./build build-python-sdk
+go run ./build gen-go-sdk
 ```
 
 Each stage depends on the earlier ones, so e.g. `merge` re-runs `generate` first.

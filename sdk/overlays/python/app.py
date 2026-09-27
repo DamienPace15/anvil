@@ -180,12 +180,6 @@ def _run_program(app_config: AppConfig) -> None:
     defaults = app_config.defaults
     merged_tags = _build_merged_tags(stage, project, defaults)
 
-    # ── Propagate compliance to Pulumi config ──────────
-    # The Go provider reads "anvil:compliance" to apply app-level compliance
-    # defaults to every resource. Serialised comma-separated (config is strings).
-    if defaults and defaults.compliance:
-        pulumi.runtime.set_config("anvil:compliance", ",".join(defaults.compliance))
-
     # ── Create providers ───────────────────────────────
     providers: Dict[str, pulumi.ProviderResource] = {}
     default_providers: Dict[str, pulumi.ProviderResource] = {}

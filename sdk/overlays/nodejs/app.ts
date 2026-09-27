@@ -3,27 +3,6 @@ import * as aws from '@pulumi/aws';
 import * as gcp from '@pulumi/gcp';
 import { Stack, setActiveStack, RefHandle } from './stack';
 
-// ── Compliance ─────────────────────────────────────────────
-
-/**
- * Supported compliance frameworks.
- * Mirrors the Go ComplianceFramework constants in
- * provider/internal/shared/compliance.go — keep in sync.
- */
-export type ComplianceFramework =
-  | 'soc2'
-  | 'iso27001'
-  | 'cis'
-  | 'pci-dss'
-  | 'hipaa'
-  | 'fedramp'
-  | 'hitrust'
-  | 'gdpr'
-  | 'soc1'
-  | 'irap'
-  | 'nist-csf'
-  | 'csa-star';
-
 // ── Types ──────────────────────────────────────────────────
 
 /**
@@ -92,20 +71,6 @@ export interface DefaultsConfig {
    * Per-resource tags override default tags.
    */
   tags?: Record<string, string>;
-
-  /**
-   * Compliance frameworks applied to all resources by default.
-   *
-   * Components inherit these automatically — no need to set compliance
-   * on each resource individually. Components can extend this list with
-   * additional frameworks; they never replace the app-level defaults.
-   *
-   * @example
-   * defaults: { compliance: ['soc2', 'iso27001'] }
-   * // Bucket with compliance: ['hipaa'] resolves to ['soc2', 'iso27001', 'hipaa']
-   * // Bucket with no compliance resolves to ['soc2', 'iso27001']
-   */
-  compliance?: ComplianceFramework[];
 }
 
 /**
@@ -175,7 +140,6 @@ function getCloud(key: string): string {
  * export default new App({
  *   defaults: {
  *     tags: { team: "platform" },
- *     compliance: ['soc2', 'iso27001'],
  *   },
  *   providers: {
  *     "aws": { region: "ap-southeast-2" },
@@ -204,15 +168,6 @@ export class App {
     const autoTags: Record<string, string> = { stage, project };
     const userTags = config.defaults?.tags ?? {};
     const mergedTags: Record<string, string> = { ...autoTags, ...userTags };
-
-    // ── Propagate compliance to Pulumi config ──────────
-    // The Go provider reads "anvil:compliance" to apply app-level compliance
-    // defaults to every resource. Serialised as comma-separated since
-    // Pulumi config values are strings.
-    const appCompliance = config.defaults?.compliance ?? [];
-    if (appCompliance.length > 0) {
-      pulumi.runtime.setConfig('anvil:compliance', appCompliance.join(','));
-    }
 
     // ── Create providers ───────────────────────────────
     const providers: Record<string, pulumi.ProviderResource> = {};
