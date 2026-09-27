@@ -8,6 +8,14 @@ name: tag-on-merge
 # `release: published` event (GitHub blocks that to prevent recursive runs),
 # so this calls release.yml directly via workflow_call instead of relying on
 # that event.
+#
+# NOTE: the `tag` job hard-fails if the version's tag already exists, rather
+# than setting a "should_release" output for `publish` to check. A job that
+# calls a reusable workflow (`uses:`) conditioned on needs.<job>.outputs was
+# observed to get skipped even with `always() &&` and a confirmed-true output
+# — see https://github.com/orgs/community/discussions/26945. Failing loudly
+# here is also more honest than a silent skip: re-pushing an already-tagged
+# version is not an expected flow (bump-version.yml always computes a new one).
 on:
   push:
     branches: [master]
@@ -22,14 +30,13 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.check.outputs.tag }}
-      should_release: ${{ steps.check.outputs.should_release }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Determine version and whether it's already tagged
+      - name: Determine version and fail if already tagged
         id: check
         run: |
           set -euo pipefail
@@ -37,14 +44,11 @@ jobs:
           TAG="v$VERSION"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "should_release=false" >> "$GITHUB_OUTPUT"
-            echo "$TAG already exists — nothing to do."
-          else
-            echo "should_release=true" >> "$GITHUB_OUTPUT"
+            echo "::error::$TAG already exists — refusing to re-tag. Bump the version again (bump-version.yml) if you need a new release."
+            exit 1
           fi
 
       - name: Create GitHub Release
-        if: steps.check.outputs.should_release == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -55,11 +59,6 @@ jobs:
 
   publish:
     needs: tag
-    # `always() &&` is required here — without it, a job that calls a reusable
-    # workflow (`uses:`) and conditions on needs.<job>.outputs can get skipped
-    # even when the upstream job succeeded and the output is correct. See
-    # https://github.com/orgs/community/discussions/26945
-    if: always() && needs.tag.outputs.should_release == 'true'
     permissions:
       contents: write
       id-token: write
