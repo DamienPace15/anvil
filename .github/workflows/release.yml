@@ -1,8 +1,19 @@
 name: release
 
+# Runs two ways:
+#   1. `release: published` — someone publishes a GitHub Release by hand.
+#   2. `workflow_call` — invoked directly by cut-release.yml. This path exists
+#      because releases created by the default GITHUB_TOKEN do NOT cascade-
+#      trigger the `release: published` event (GitHub blocks that to prevent
+#      recursive runs), so cut-release.yml calls straight in instead.
 on:
   release:
     types: [published]
+  workflow_call:
+    inputs:
+      tag_name:
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -10,18 +21,20 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
+    permissions:
+      contents: write
+    if: github.event_name == 'workflow_call' || github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ inputs.tag_name || github.event.release.tag_name }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: stable
+          go-version: '1.25.8'
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v7
@@ -30,7 +43,7 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GORELEASER_CURRENT_TAG: ${{ github.event.release.tag_name }}
+          GORELEASER_CURRENT_TAG: ${{ inputs.tag_name || github.event.release.tag_name }}
 
   # Publishes @anvil-cloud/sdk to npm via OIDC trusted publishing — no stored
   # token. One-time setup required on npmjs.com: package settings → Trusted
@@ -39,7 +52,7 @@ jobs:
   publish-npm-sdk:
     needs: release
     runs-on: ubuntu-latest
-    if: github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
+    if: github.event_name == 'workflow_call' || github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
     permissions:
       id-token: write
     steps:
@@ -47,12 +60,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ inputs.tag_name || github.event.release.tag_name }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: stable
+          go-version: '1.25.8'
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -82,7 +95,7 @@ jobs:
   publish-pypi-sdk:
     needs: release
     runs-on: ubuntu-latest
-    if: github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
+    if: github.event_name == 'workflow_call' || github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
     permissions:
       id-token: write
     steps:
@@ -90,12 +103,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ inputs.tag_name || github.event.release.tag_name }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: stable
+          go-version: '1.25.8'
 
       - name: Set up Node (for ts-node SDK patch scripts)
         uses: actions/setup-node@v4
@@ -124,18 +137,20 @@ jobs:
   publish-go-sdk:
     needs: release
     runs-on: ubuntu-latest
-    if: github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
+    if: github.event_name == 'workflow_call' || github.event.release.author.login == github.repository_owner || contains(fromJSON('["DamienPace15"]'), github.event.release.author.login)
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ inputs.tag_name || github.event.release.tag_name }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: stable
+          go-version: '1.25.8'
 
       - name: Install Pulumi CLI
         uses: pulumi/action-install-pulumi-cli@v2
@@ -150,6 +165,6 @@ jobs:
 
       - name: Tag and push Go SDK module version
         run: |
-          TAG="sdk/go/anvil/${{ github.event.release.tag_name }}"
+          TAG="sdk/go/anvil/${{ inputs.tag_name || github.event.release.tag_name }}"
           git tag "$TAG"
           git push origin "$TAG"
