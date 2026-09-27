@@ -55,7 +55,11 @@ jobs:
 
   publish:
     needs: tag
-    if: needs.tag.outputs.should_release == 'true'
+    # `always() &&` is required here — without it, a job that calls a reusable
+    # workflow (`uses:`) and conditions on needs.<job>.outputs can get skipped
+    # even when the upstream job succeeded and the output is correct. See
+    # https://github.com/orgs/community/discussions/26945
+    if: always() && needs.tag.outputs.should_release == 'true'
     permissions:
       contents: write
       id-token: write
