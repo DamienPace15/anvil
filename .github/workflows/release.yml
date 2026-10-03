@@ -93,7 +93,7 @@ jobs:
       - name: Publish to npm
         working-directory: sdk/nodejs
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
         run: npm publish --access public --provenance
 
   # Publishes anvil_cloud to PyPI via OIDC trusted publishing — no stored
