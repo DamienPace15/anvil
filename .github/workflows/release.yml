@@ -82,7 +82,7 @@ jobs:
         uses: pulumi/action-install-pulumi-cli@v2
 
       - name: Install root deps (ts-node/typescript for SDK patch scripts)
-        run: npm ci
+        run: npm install
 
       - name: Upgrade npm (trusted publishing needs >=11.5.1)
         run: npm install -g npm@latest
@@ -124,7 +124,7 @@ jobs:
         uses: pulumi/action-install-pulumi-cli@v2
 
       - name: Install root deps (ts-node/typescript for SDK patch scripts)
-        run: npm ci
+        run: npm install
 
       - name: Build Python SDK
         run: go run ./build build-python-sdk
