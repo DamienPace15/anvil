@@ -92,7 +92,7 @@ jobs:
 
       - name: Publish to npm
         working-directory: sdk/nodejs
-        run: npm publish --access public --provenance
+        run: npm publish --access public --provenance --tag latest
 
   # Publishes anvil_cloud to PyPI via OIDC trusted publishing — no stored
   # token. One-time setup required on PyPI: project settings → Publishing →
