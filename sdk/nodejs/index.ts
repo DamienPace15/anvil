@@ -11,9 +11,6 @@ export const Provider: typeof import("./provider").Provider = null as any;
 utilities.lazyLoad(exports, ["Provider"], () => require("./provider"));
 
 
-// Export enums:
-export * from "./types/enums";
-
 // Export sub-modules:
 import * as aws from "./aws";
 import * as gcp from "./gcp";

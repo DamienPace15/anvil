@@ -7,10 +7,6 @@
 import * as pulumi from "@pulumi/pulumi";
 
 // Hand-written App class.
-// NOTE: ComplianceFramework is intentionally NOT re-exported here — it is now a
-// schema-driven enum emitted into ./types/enums (identical string union, plus a
-// const object) and re-exported by the generated index. Re-exporting app.ts's
-// duplicate via this barrel would create an ambiguous `export *` collision.
 export {
   App,
   AppConfig,
