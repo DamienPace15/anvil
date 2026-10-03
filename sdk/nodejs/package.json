@@ -1,6 +1,6 @@
 {
   "name": "@anvil-cloud/sdk",
-  "version": "0.0.16",
+  "version": "0.0.22",
   "description": "Anvil — secure-by-default cloud infrastructure components",
   "homepage": "https://github.com/anvil-cloud/anvil",
   "repository": "https://github.com/DamienPace15/anvil",

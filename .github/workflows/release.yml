@@ -45,14 +45,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v7
         with:
           version: '~> v2'
-          # --parallelism=1: GitHub-hosted runners have ~7GB RAM. GoReleaser
-          # defaults to one concurrent build per CPU, and this build matrix
-          # (2 binaries x 6 OS/arch combos, linking the large pulumi-aws/gcp/
-          # azure SDKs) running in parallel was enough to starve the runner
-          # for memory — the run died after 57m with "hosted runner lost
-          # communication with the server" rather than a real build error.
-          # Serializing trades wall-clock time for not crashing.
-          args: release --clean --parallelism=1
+          args: release --clean --parallelism=3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GORELEASER_CURRENT_TAG: ${{ inputs.tag_name || github.event.release.tag_name }}

@@ -13,7 +13,7 @@ Example::
     value: anvil.Output[str] = anvil.Output.from_input("hello")
 """
 
-from typing import Any, Callable, Dict, List, Literal, Optional
+from typing import Any, Callable, Dict, Optional
 
 # ── Resource base classes ──────────────────────────────────
 # Note: Python Pulumi has no ``ComponentResourceOptions`` (that is a TypeScript
@@ -52,27 +52,6 @@ secret = Output.secret
 import pulumi
 
 
-# ── Compliance ─────────────────────────────────────────────
-
-#: Supported compliance frameworks.
-#: Mirrors the Go ComplianceFramework constants in
-#: provider/internal/shared/compliance.go — keep in sync.
-ComplianceFramework = Literal[
-    "soc2",
-    "iso27001",
-    "cis",
-    "pci-dss",
-    "hipaa",
-    "fedramp",
-    "hitrust",
-    "gdpr",
-    "soc1",
-    "irap",
-    "nist-csf",
-    "csa-star",
-]
-
-
 # ── Config Classes ─────────────────────────────────────────
 # Typed configuration for App, providing intellisense and validation.
 
@@ -83,10 +62,8 @@ class DefaultsConfig:
     def __init__(
         self,
         tags: Optional[Dict[str, str]] = None,
-        compliance: Optional[List[ComplianceFramework]] = None,
     ):
         self.tags = tags or {}
-        self.compliance = compliance or []
 
 
 class AssumeRoleConfig:
@@ -142,7 +119,6 @@ class AppConfig:
         anvil.run(anvil.AppConfig(
             defaults=anvil.DefaultsConfig(
                 tags={"team": "platform"},
-                compliance=["soc2", "iso27001"],
             ),
             aws_providers={
                 "aws": anvil.AwsProviderConfig(region="ap-southeast-2"),
