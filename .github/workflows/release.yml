@@ -133,6 +133,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: sdk/python/dist
+          password: ${{ secrets.PYPI_API_TOKEN }}
 
   # "Publishes" the Go SDK the way Go modules are published: by pushing a tag
   # (sdk/go/anvil/vX.X.X) at the release commit. The generated code must

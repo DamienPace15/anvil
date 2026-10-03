@@ -24,6 +24,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import ts from 'typescript';
 
 const cliArgs = process.argv.slice(2);
 const tsOnly = cliArgs.includes('--ts');
@@ -70,7 +71,14 @@ function patchTypeScript(): void {
   // runtime by utilities.getVersion()).
   const tsconfigPath = path.join(sdkDir, 'tsconfig.json');
   if (fs.existsSync(tsconfigPath)) {
-    const tsconfig = JSON.parse(fs.readFileSync(tsconfigPath, 'utf8'));
+    const { config: tsconfig, error: tsconfigError } = ts.readConfigFile(
+      tsconfigPath,
+      ts.sys.readFile
+    );
+    if (tsconfigError)
+      throw new Error(
+        ts.flattenDiagnosticMessageText(tsconfigError.messageText, '\n')
+      );
     tsconfig.compilerOptions = tsconfig.compilerOptions || {};
     if (tsconfig.compilerOptions.ignoreDeprecations !== '6.0') {
       tsconfig.compilerOptions.ignoreDeprecations = '6.0';
@@ -306,7 +314,8 @@ Apache-2.0
     // build.go). _extras.py pulls them into the package namespace; wire it with
     // a single barrel import instead of injecting each import as a string here.
     if (!init.includes('from ._extras import')) {
-      init += '\n# Hand-written overlay exports (run, App, Block, types, grants, export)\nfrom ._extras import *  # noqa: F401,F403\n';
+      init +=
+        '\n# Hand-written overlay exports (run, App, Block, types, grants, export)\nfrom ._extras import *  # noqa: F401,F403\n';
       changed = true;
     }
 
@@ -319,12 +328,6 @@ Apache-2.0
   }
 
   console.log(`✔ Python SDK patched → anvil-cloud v${version}`);
-}
-
-// ── Helpers ────────────────────────────────────────────────
-
-function toSnakeCase(str: string): string {
-  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 }
 
 // ════════════════════════════════════════════════════════════
