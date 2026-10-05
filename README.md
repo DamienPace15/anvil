@@ -74,7 +74,7 @@ export default new App({
   defaults: {
     tags: {
       project: 'my-app',
-      costCenter: 'platform-eng',2
+      costCenter: 'platform-eng',
     },
   },
   run(ctx) {
@@ -90,8 +90,10 @@ The bucket is private and encrypted without any extra arguments. Preview, deploy
 ```sh
 anvil preview
 anvil deploy
-anvil destroy
+anvil destroy --stage <stage>
 ```
+
+`destroy` keeps protected resources that hold data (DSQL clusters, DynamoDB tables, Cognito user pools). Add `--force` to delete them too.
 
 See the [Quickstart](https://anvilcloud.dev/docs/quickstart) for Python and Go.
 

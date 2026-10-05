@@ -33,6 +33,9 @@ means it must be declared first. `ctx.ref('id')` lets you reference a resource b
 its **logical name** — even one declared **later** in the program:
 
 ```typescript
+import { App } from '@anvil-cloud/sdk';
+import * as anvil from '@anvil-cloud/sdk';
+
 export default new App({
   run(ctx) {
     const fn = new anvil.aws.Lambda('processor', {
@@ -68,6 +71,9 @@ Grants are how Anvil wires permissions between resources. Instead of writing IAM
 A Lambda reading from a Bucket:
 
 ```typescript
+import { App } from '@anvil-cloud/sdk';
+import * as anvil from '@anvil-cloud/sdk';
+
 export default new App({
   run(ctx) {
     const bucket = new anvil.aws.Bucket('uploads', {
@@ -100,9 +106,13 @@ What Anvil does under the hood:
 Deploy a SvelteKit app to AWS with a single component. Anvil provisions S3, CloudFront, ACM, Lambda (via Lambda Web Adapter), and Route53 — with HTTPS and a custom domain out of the box:
 
 ```typescript
+import { App } from '@anvil-cloud/sdk';
+import * as anvil from '@anvil-cloud/sdk';
+
 export default new App({
   run(ctx) {
     const site = new anvil.aws.SvelteKitSite('web', {
+      path: 'web', // the SvelteKit project folder — Anvil runs the build
       domain: 'myapp.com',
     });
 
