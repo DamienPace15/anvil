@@ -86,6 +86,7 @@ func main() {
     anvil.Run(anvil.AppConfig{
         Run: func(ctx *anvil.Context) error {
             site, err := anvilaws.NewSvelteKitSite(ctx.PulumiCtx(), "web", &anvilaws.SvelteKitSiteArgs{
+                Path:   pulumi.String("web"), // the SvelteKit project folder — Anvil runs the build
                 Domain: pulumi.String("myapp.com"),
             })
             if err != nil {
