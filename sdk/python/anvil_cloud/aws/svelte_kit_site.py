@@ -25,14 +25,14 @@ class SvelteKitSiteArgs:
                  environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  origin_protection: Optional[pulumi.Input['SiteOriginProtectionArgs']] = None,
                  path: Optional[pulumi.Input[_builtins.str]] = None,
-                 runtime_environment: Optional[pulumi.Input[_builtins.str]] = None,
+                 runtime_environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  transform: Optional[pulumi.Input[_builtins.str]] = None):
         """
         The set of arguments for constructing a SvelteKitSite resource.
 
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
         :param pulumi.Input['SiteOriginProtectionArgs'] origin_protection: OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set.
-        :param pulumi.Input[_builtins.str] runtime_environment: Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] runtime_environment: Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
         """
         if domain is not None:
             pulumi.set(__self__, "domain", domain)
@@ -91,14 +91,14 @@ class SvelteKitSiteArgs:
 
     @_builtins.property
     @pulumi.getter(name="runtimeEnvironment")
-    def runtime_environment(self) -> Optional[pulumi.Input[_builtins.str]]:
+    def runtime_environment(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]:
         """
         Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
         """
         return pulumi.get(self, "runtime_environment")
 
     @runtime_environment.setter
-    def runtime_environment(self, value: Optional[pulumi.Input[_builtins.str]]):
+    def runtime_environment(self, value: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]):
         pulumi.set(self, "runtime_environment", value)
 
     @_builtins.property
@@ -121,7 +121,7 @@ class SvelteKitSite(pulumi.ComponentResource):
                  environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  origin_protection: Optional[pulumi.Input[Union['SiteOriginProtectionArgs', 'SiteOriginProtectionArgsDict']]] = None,
                  path: Optional[pulumi.Input[_builtins.str]] = None,
-                 runtime_environment: Optional[pulumi.Input[_builtins.str]] = None,
+                 runtime_environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  transform: Optional[pulumi.Input[_builtins.str]] = None,
                  __props__=None):
         """
@@ -131,7 +131,7 @@ class SvelteKitSite(pulumi.ComponentResource):
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] environment: Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
         :param pulumi.Input[Union['SiteOriginProtectionArgs', 'SiteOriginProtectionArgsDict']] origin_protection: OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set.
-        :param pulumi.Input[_builtins.str] runtime_environment: Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] runtime_environment: Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
         """
         ...
     @overload
@@ -161,7 +161,7 @@ class SvelteKitSite(pulumi.ComponentResource):
                  environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  origin_protection: Optional[pulumi.Input[Union['SiteOriginProtectionArgs', 'SiteOriginProtectionArgsDict']]] = None,
                  path: Optional[pulumi.Input[_builtins.str]] = None,
-                 runtime_environment: Optional[pulumi.Input[_builtins.str]] = None,
+                 runtime_environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
                  transform: Optional[pulumi.Input[_builtins.str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)

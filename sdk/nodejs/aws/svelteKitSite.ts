@@ -85,6 +85,6 @@ export interface SvelteKitSiteArgs {
     /**
      * Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
      */
-    runtimeEnvironment?: pulumi.Input<string>;
+    runtimeEnvironment?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     transform?: pulumi.Input<string>;
 }

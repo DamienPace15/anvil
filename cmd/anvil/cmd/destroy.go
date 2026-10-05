@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/events"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optdestroy"
@@ -13,6 +15,7 @@ import (
 var (
 	destroyStage   string
 	destroyVerbose bool
+	destroyForce   bool
 )
 
 var destroyCmd = &cobra.Command{
@@ -20,13 +23,17 @@ var destroyCmd = &cobra.Command{
 	Short: "Tear down a deployment",
 	Long: `Destroy all resources in the specified stage and remove it from anvil.yaml.
 
-Requires --stage to be set explicitly. The active stage is ignored for safety.`,
+Requires --stage to be set explicitly. The active stage is ignored for safety.
+
+Protected resources (DSQL clusters, DynamoDB tables, Cognito user pools) are
+kept by default. Pass --force to remove their protection and delete them too.`,
 	RunE: runDestroy,
 }
 
 func init() {
 	destroyCmd.Flags().StringVar(&destroyStage, "stage", "", "Stage name to destroy (required)")
 	destroyCmd.Flags().BoolVar(&destroyVerbose, "verbose", false, "Show underlying cloud resources")
+	destroyCmd.Flags().BoolVar(&destroyForce, "force", false, "Also delete protected resources (databases, tables, user pools) and their data")
 	rootCmd.AddCommand(destroyCmd)
 }
 
@@ -46,6 +53,39 @@ func runDestroy(cmd *cobra.Command, args []string) error {
 	}
 
 	printBanner()
+
+	// ── 0. --force: strip protection so everything can be deleted ──
+	if destroyForce {
+		deployment, protected, err := findProtectedResources(ctx, s, resolveRegionForStage(destroyStage))
+		if err != nil {
+			return err
+		}
+		if len(protected) > 0 {
+			fmt.Printf("  %s --force will permanently delete these protected resources and their data:\n\n", yellow("⚠"))
+			for _, p := range protected {
+				_, name := parseURN(p.urn)
+				fmt.Printf("    • %s  (%s)\n", name, p.kind)
+			}
+			fmt.Println()
+
+			if isTTY() {
+				fmt.Printf("  Type the stage name (%s) to confirm: ", destroyStage)
+				input, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+				if strings.TrimSpace(input) != destroyStage {
+					fmt.Println("  Cancelled.")
+					return nil
+				}
+				fmt.Println()
+			}
+
+			if err := removeProtection(ctx, s, deployment, protected); err != nil {
+				return err
+			}
+			printCheck("Protection removed")
+			fmt.Println()
+		}
+	}
+
 	fmt.Printf("  Destroying %s...\n\n", destroyStage)
 
 	// ── 1. Destroy app resources via Pulumi ──

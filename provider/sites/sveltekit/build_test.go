@@ -36,7 +36,7 @@ func setupBuildOutput(t *testing.T, siteDir string) {
 	buildDir := filepath.Join(siteDir, "build")
 	mkdirAll(t, filepath.Join(buildDir, "client"))
 	mkdirAll(t, filepath.Join(buildDir, "server"))
-	writeFile(t, filepath.Join(buildDir, "server", "index.js"), `// server entry`)
+	writeFile(t, filepath.Join(buildDir, "index.js"), `// server entry`)
 }
 
 func writeFile(t *testing.T, path, content string) {
@@ -94,6 +94,33 @@ func TestFindSvelteConfig_MJS(t *testing.T) {
 	}
 	if filepath.Base(path) != "svelte.config.mjs" {
 		t.Errorf("expected svelte.config.mjs, got %s", filepath.Base(path))
+	}
+}
+
+func TestFindSvelteConfig_ViteConfigSvelteKit3(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, filepath.Join(dir, "vite.config.ts"), "import adapter from '@sveltejs/adapter-node';")
+
+	path, err := findSvelteConfig(dir)
+	if err != nil {
+		t.Fatalf("expected config found, got error: %v", err)
+	}
+	if filepath.Base(path) != "vite.config.ts" {
+		t.Errorf("expected vite.config.ts, got %s", filepath.Base(path))
+	}
+}
+
+func TestFindSvelteConfig_PrefersSvelteConfig(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, filepath.Join(dir, "svelte.config.js"), "export default {};")
+	writeFile(t, filepath.Join(dir, "vite.config.ts"), "export default {};")
+
+	path, err := findSvelteConfig(dir)
+	if err != nil {
+		t.Fatalf("expected config found, got error: %v", err)
+	}
+	if filepath.Base(path) != "svelte.config.js" {
+		t.Errorf("expected svelte.config.js, got %s", filepath.Base(path))
 	}
 }
 
@@ -245,7 +272,7 @@ func TestParseBuildOutput_Valid(t *testing.T) {
 
 	expectedClient := filepath.Join(dir, "build", "client")
 	expectedServer := filepath.Join(dir, "build", "server")
-	expectedEntry := filepath.Join(dir, "build", "server", "index.js")
+	expectedEntry := filepath.Join(dir, "build", "index.js")
 
 	if result.StaticDir != expectedClient {
 		t.Errorf("StaticDir = %s, want %s", result.StaticDir, expectedClient)
@@ -276,7 +303,7 @@ func TestParseBuildOutput_NoBuildDir(t *testing.T) {
 func TestParseBuildOutput_NoClientDir(t *testing.T) {
 	dir := t.TempDir()
 	mkdirAll(t, filepath.Join(dir, "build", "server"))
-	writeFile(t, filepath.Join(dir, "build", "server", "index.js"), "// entry")
+	writeFile(t, filepath.Join(dir, "build", "index.js"), "// entry")
 
 	_, err := parseBuildOutput(dir)
 	if err == nil {

@@ -3,8 +3,8 @@ package cognitoauth
 import (
 	"fmt"
 
+	"github.com/DamienPace15/anvil/provider/internal/apigateway"
 	provider "github.com/DamienPace15/anvil/provider/internal/shared"
-	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/apigatewayv2"
 	awsconfig "github.com/pulumi/pulumi-aws/sdk/v7/go/aws/config"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -36,8 +36,9 @@ type CognitoAuthArgs struct {
 type CognitoAuth struct {
 	pulumi.ResourceState
 
-	// AuthorizerId is the API Gateway authorizer ID.
-	// Pass this to HttpApi defaultAuthorizerId to protect routes.
+	// AuthorizerId is a reference to this authorizer's JWT configuration.
+	// Pass this to HttpApi defaultAuthorizerId — HttpApi creates the API Gateway
+	// authorizer on its own API (authorizers can't be shared across APIs).
 	AuthorizerId pulumi.StringOutput `pulumi:"authorizerId"`
 }
 
@@ -77,30 +78,12 @@ func NewCognitoAuth(ctx *pulumi.Context, name string, args CognitoAuthArgs, opts
 		return fmt.Sprintf("https://cognito-idp.%s.amazonaws.com/%s", region, poolId)
 	}).(pulumi.StringOutput)
 
-	// Build audience as a pulumi.StringArray.
-	audience := make(pulumi.StringArray, len(args.Audience))
-	for i, a := range args.Audience {
-		audience[i] = pulumi.String(a)
-	}
-
-	authorizer, err := apigatewayv2.NewAuthorizer(ctx, name+"-authorizer", &apigatewayv2.AuthorizerArgs{
-		AuthorizerType: pulumi.String("JWT"),
-		IdentitySources: pulumi.StringArray{
-			pulumi.String("$request.header.Authorization"),
-		},
-		JwtConfiguration: &apigatewayv2.AuthorizerJwtConfigurationArgs{
-			Issuer:    issuerUrl,
-			Audiences: audience,
-		},
-	}, pulumi.Parent(c))
-	if err != nil {
-		return nil, err
-	}
-
-	c.AuthorizerId = authorizer.ID().ToStringOutput()
+	// API Gateway authorizers belong to a single API, so the authorizer itself
+	// is created by HttpApi. authorizerId carries the issuer + audience there.
+	c.AuthorizerId = apigateway.EncodeJwtAuthorizerRef(issuerUrl, args.Audience)
 
 	ctx.RegisterResourceOutputs(c, pulumi.Map{
-		"authorizerId": authorizer.ID(),
+		"authorizerId": c.AuthorizerId,
 	})
 
 	return c, nil

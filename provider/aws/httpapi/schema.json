@@ -6,7 +6,7 @@
       "inputProperties": {
         "defaultAuthorizerId": {
           "$ref": "pulumi.json#/Any",
-          "description": "The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public."
+          "description": "JWT authorizer to apply to all routes — HttpApi creates it on this API. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public."
         },
         "routes": {
           "type": "array",

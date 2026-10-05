@@ -48,7 +48,7 @@ func NewHttpApi(ctx *pulumi.Context,
 type httpApiArgs struct {
 	// Optional CORS configuration. Opt-in — omit to disable CORS entirely. When enabled, allowOrigins is required and wildcard '*' is blocked as a security measure.
 	Cors *HttpApiCors `pulumi:"cors"`
-	// The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
+	// JWT authorizer to apply to all routes — HttpApi creates it on this API. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
 	DefaultAuthorizerId interface{} `pulumi:"defaultAuthorizerId"`
 	// Optional custom domain for the API. When set, Anvil provisions the ACM certificate, API Gateway domain name, and Route 53 DNS record automatically. The raw execute-api endpoint is disabled — all traffic must flow through the custom domain.
 	Domain *HttpApiDomain `pulumi:"domain"`
@@ -64,7 +64,7 @@ type httpApiArgs struct {
 type HttpApiArgs struct {
 	// Optional CORS configuration. Opt-in — omit to disable CORS entirely. When enabled, allowOrigins is required and wildcard '*' is blocked as a security measure.
 	Cors HttpApiCorsPtrInput
-	// The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
+	// JWT authorizer to apply to all routes — HttpApi creates it on this API. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
 	DefaultAuthorizerId pulumi.Input
 	// Optional custom domain for the API. When set, Anvil provisions the ACM certificate, API Gateway domain name, and Route 53 DNS record automatically. The raw execute-api endpoint is disabled — all traffic must flow through the custom domain.
 	Domain HttpApiDomainPtrInput

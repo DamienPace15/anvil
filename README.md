@@ -74,7 +74,7 @@ export default new App({
   defaults: {
     tags: {
       project: 'my-app',
-      costCenter: 'platform-eng',
+      costCenter: 'platform-eng',2
     },
   },
   run(ctx) {
@@ -99,35 +99,35 @@ See the [Quickstart](https://anvilcloud.dev/docs/quickstart) for Python and Go.
 
 Every component behaves identically across all three SDKs.
 
-| Language   | Package                                      | Requirement  |
-| ---------- | -------------------------------------------- | ------------ |
-| TypeScript | `npm install @anvil-cloud/sdk`               | Node.js 18+  |
-| Python     | `pip install anvil-cloud`                    | Python 3.8+  |
-| Go         | `go get github.com/DamienPace15/anvil/sdk/go/anvil` | Go 1.22+ |
+| Language   | Package                                             | Requirement |
+| ---------- | --------------------------------------------------- | ----------- |
+| TypeScript | `npm install @anvil-cloud/sdk`                      | Node.js 18+ |
+| Python     | `pip install anvil-cloud`                           | Python 3.8+ |
+| Go         | `go get github.com/DamienPace15/anvil/sdk/go/anvil` | Go 1.22+    |
 
 ## Comparing Anvil
 
 The same image upload stack built five ways.
 
-| Framework      | Infra lines      | Components      | Manual permissions | Deploys with     |
-| -------------- | ---------------- | --------------- | ------------------ | ---------------- |
-| **Anvil**      | **58**           | **4**           | **1**              | Pulumi engine    |
-| CDK            | 74 (1.3×)        | 7 (1.8×)        | 1 (1.0×)           | CloudFormation   |
-| CloudFormation | 134 (2.3×)       | 12 (3.0×)       | 4 (4.0×)           | CloudFormation   |
-| Pulumi         | 150 (2.6×)       | 17 (4.3×)       | 6 (6.0×)           | Pulumi engine    |
-| Terraform      | 194 (3.3×)       | 17 (4.3×)       | 7 (7.0×)           | Terraform engine |
+| Framework      | Infra lines | Components | Manual permissions | Deploys with     |
+| -------------- | ----------- | ---------- | ------------------ | ---------------- |
+| **Anvil**      | **58**      | **4**      | **1**              | Pulumi engine    |
+| CDK            | 74 (1.3×)   | 7 (1.8×)   | 1 (1.0×)           | CloudFormation   |
+| CloudFormation | 134 (2.3×)  | 12 (3.0×)  | 4 (4.0×)           | CloudFormation   |
+| Pulumi         | 150 (2.6×)  | 17 (4.3×)  | 6 (6.0×)           | Pulumi engine    |
+| Terraform      | 194 (3.3×)  | 17 (4.3×)  | 7 (7.0×)           | Terraform engine |
 
 ## Components
 
-| Category     | Components                                                    |
-| ------------ | ------------------------------------------------------------- |
-| Compute      | Lambda                                                        |
-| Storage      | Bucket                                                        |
-| Database     | DynamoDB, DSQL, DSQLConnect                                   |
-| Networking   | Vpc, VpcEndpoint                                              |
-| Messaging    | Queue, EventBus                                               |
-| API & Auth   | HttpApi, CognitoUserPool, CognitoAuth, OAuthAuthorizer        |
-| Hosting      | SvelteKitSite                                                 |
+| Category   | Components                                             |
+| ---------- | ------------------------------------------------------ |
+| Compute    | Lambda                                                 |
+| Storage    | Bucket                                                 |
+| Database   | DynamoDB, DSQL, DSQLConnect                            |
+| Networking | Vpc, VpcEndpoint                                       |
+| Messaging  | Queue, EventBus                                        |
+| API & Auth | HttpApi, CognitoUserPool, CognitoAuth, OAuthAuthorizer |
+| Hosting    | SvelteKitSite                                          |
 
 Full arguments, outputs, and examples for each are in the [component docs](https://anvilcloud.dev/docs/components/aws/storage/bucket).
 
@@ -149,15 +149,15 @@ export PATH="$PATH:$(pwd)/bin"
 
 ### Build commands
 
-| Command                         | What it does                                                |
-| ------------------------------- | ----------------------------------------------------------- |
-| `go run ./build build`          | Full pipeline: generate → merge → registry → compile → SDKs |
-| `go run ./build binary`         | CLI binary only (fast, for CLI-only changes)                |
-| `go run ./build build-provider` | Compile the provider binary                                 |
+| Command                         | What it does                                                 |
+| ------------------------------- | ------------------------------------------------------------ |
+| `go run ./build build`          | Full pipeline: generate → merge → registry → compile → SDKs  |
+| `go run ./build binary`         | CLI binary only (fast, for CLI-only changes)                 |
+| `go run ./build build-provider` | Compile the provider binary                                  |
 | `go run ./build install`        | Build and install `anvil` + the provider to `/usr/local/bin` |
-| `go run ./build build-sdk`      | Generate + build the Node.js SDK                            |
-| `go run ./build gen-python-sdk` | Generate Python SDK                                         |
-| `go run ./build clean`          | Remove build artifacts                                      |
+| `go run ./build build-sdk`      | Generate + build the Node.js SDK                             |
+| `go run ./build gen-python-sdk` | Generate Python SDK                                          |
+| `go run ./build clean`          | Remove build artifacts                                       |
 
 ## Contributing
 

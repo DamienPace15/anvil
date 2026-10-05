@@ -33,7 +33,7 @@ class HttpApiArgs:
 
         :param pulumi.Input[Sequence[pulumi.Input['HttpApiRouteArgs']]] routes: The API routes. Each route maps a method and path to a consumer. At least one route is required.
         :param pulumi.Input['HttpApiCorsArgs'] cors: Optional CORS configuration. Opt-in — omit to disable CORS entirely. When enabled, allowOrigins is required and wildcard '*' is blocked as a security measure.
-        :param Any default_authorizer_id: The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
+        :param Any default_authorizer_id: JWT authorizer to apply to all routes — HttpApi creates it on this API. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
         :param pulumi.Input['HttpApiDomainArgs'] domain: Optional custom domain for the API. When set, Anvil provisions the ACM certificate, API Gateway domain name, and Route 53 DNS record automatically. The raw execute-api endpoint is disabled — all traffic must flow through the custom domain.
         :param pulumi.Input[_builtins.str] log_retention: CloudWatch access log retention period. Presets: '7d' | '30d' | '90d' | '1y' | '3y' | '6y' | '7y'. Default: '1y' — satisfies SOC 2, ISO 27001, and PCI DSS baseline retention requirements.
         :param pulumi.Input['HttpApiThrottlingArgs'] throttling: Optional throttling configuration. Defaults to rateLimit: 1000 rps and burstLimit: 500 concurrent requests when omitted. Without throttling a single route can exhaust the account-level limit shared across all APIs.
@@ -78,7 +78,7 @@ class HttpApiArgs:
     @pulumi.getter(name="defaultAuthorizerId")
     def default_authorizer_id(self) -> Optional[Any]:
         """
-        The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
+        JWT authorizer to apply to all routes — HttpApi creates it on this API. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
         """
         return pulumi.get(self, "default_authorizer_id")
 
@@ -143,7 +143,7 @@ class HttpApi(pulumi.ComponentResource):
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
         :param pulumi.Input[Union['HttpApiCorsArgs', 'HttpApiCorsArgsDict']] cors: Optional CORS configuration. Opt-in — omit to disable CORS entirely. When enabled, allowOrigins is required and wildcard '*' is blocked as a security measure.
-        :param Any default_authorizer_id: The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
+        :param Any default_authorizer_id: JWT authorizer to apply to all routes — HttpApi creates it on this API. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
         :param pulumi.Input[Union['HttpApiDomainArgs', 'HttpApiDomainArgsDict']] domain: Optional custom domain for the API. When set, Anvil provisions the ACM certificate, API Gateway domain name, and Route 53 DNS record automatically. The raw execute-api endpoint is disabled — all traffic must flow through the custom domain.
         :param pulumi.Input[_builtins.str] log_retention: CloudWatch access log retention period. Presets: '7d' | '30d' | '90d' | '1y' | '3y' | '6y' | '7y'. Default: '1y' — satisfies SOC 2, ISO 27001, and PCI DSS baseline retention requirements.
         :param pulumi.Input[Sequence[pulumi.Input[Union['HttpApiRouteArgs', 'HttpApiRouteArgsDict']]]] routes: The API routes. Each route maps a method and path to a consumer. At least one route is required.

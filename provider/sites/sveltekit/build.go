@@ -93,11 +93,17 @@ func BuildSvelteKit(opts BuildOptions) (*sites.BuildResult, error) {
 }
 
 // findSvelteConfig looks for svelte.config.js, .ts, or .mjs in the site directory.
+// SvelteKit 3 moved its config (including the adapter) into the Vite config, so
+// vite.config.* is accepted when no svelte.config.* exists.
 func findSvelteConfig(siteDir string) (string, error) {
 	candidates := []string{
 		"svelte.config.js",
 		"svelte.config.ts",
 		"svelte.config.mjs",
+		"vite.config.ts",
+		"vite.config.js",
+		"vite.config.mts",
+		"vite.config.mjs",
 	}
 
 	for _, name := range candidates {
@@ -278,9 +284,12 @@ func runBuild(siteDir string, env map[string]string) error {
 // adapter-node produces:
 //
 //	build/
+//	├── index.js    → Node.js server entry (what the Lambda runs)
 //	├── client/     → static assets (JS, CSS, images, prerendered pages)
-//	└── server/     → Node.js server
-//	    └── index.js
+//	└── server/     → SvelteKit server code
+//
+// adapter-node 6 (SvelteKit 3) no longer emits build/server/index.js, so the
+// entry is checked at build/index.js, which every adapter-node version emits.
 func parseBuildOutput(siteDir string) (*sites.BuildResult, error) {
 	buildDir := filepath.Join(siteDir, "build")
 
@@ -298,7 +307,7 @@ func parseBuildOutput(siteDir string) (*sites.BuildResult, error) {
 
 	clientDir := filepath.Join(buildDir, "client")
 	serverDir := filepath.Join(buildDir, "server")
-	serverEntry := filepath.Join(serverDir, "index.js")
+	serverEntry := filepath.Join(buildDir, "index.js")
 
 	if _, err := os.Stat(clientDir); os.IsNotExist(err) {
 		return nil, fmt.Errorf(
@@ -322,7 +331,7 @@ func parseBuildOutput(siteDir string) (*sites.BuildResult, error) {
 	if _, err := os.Stat(serverEntry); os.IsNotExist(err) {
 		return nil, fmt.Errorf(
 			"server entry point not found: %s\n\n"+
-				"adapter-node should produce 'build/server/index.js' as the server entry point.\n"+
+				"adapter-node should produce 'build/index.js' as the server entry point.\n"+
 				"The build output structure may have changed — check your @sveltejs/adapter-node version.",
 			serverEntry,
 		)

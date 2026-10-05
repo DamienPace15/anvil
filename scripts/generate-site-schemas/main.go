@@ -378,6 +378,10 @@ func goTypeToSchemaProperty(f parsedField, cloud string, nestedTypes map[string]
 	case strings.HasPrefix(goType, "map[string]string") || strings.HasPrefix(goType, "Map"):
 		prop.Type = "object"
 		prop.AdditionalProperties = &schemaProperty{Type: "string"}
+	case goType == "map[string]pulumi.StringInput":
+		// Values may be plain strings or Pulumi outputs (e.g. runtimeEnvironment).
+		prop.Type = "object"
+		prop.AdditionalProperties = &schemaProperty{Type: "string"}
 	case strings.HasPrefix(goType, "[]"):
 		prop.Type = "array"
 		elemType := strings.TrimPrefix(goType, "[]")
@@ -578,6 +582,8 @@ func typeToString(expr ast.Expr) string {
 		return "[]" + typeToString(t.Elt)
 	case *ast.StarExpr:
 		return "*" + typeToString(t.X)
+	case *ast.InterfaceType:
+		return "interface{}"
 	default:
 		return "unknown"
 	}

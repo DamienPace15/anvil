@@ -367,8 +367,15 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 
 	for _, region := range regions {
 
+		resourceName := name
+		if isMultiRegion {
+			resourceName = fmt.Sprintf("%s-%s", name, region)
+		}
+
 		clusterMap := pulumi.Map{
 			"tags": pulumi.StringMap{
+				// DSQL clusters have no name field — the console shows the Name tag.
+				"Name":      pulumi.String(provider.PhysicalName(stage, resourceName, "dsql", stageId)),
 				"ManagedBy": pulumi.String("anvil"),
 			},
 		}
@@ -381,11 +388,6 @@ func NewDSQL(ctx *pulumi.Context, name string, args DSQLArgs, opts ...pulumi.Res
 
 		clusterProps := transform.MergeTransform(args.Transform["cluster"], clusterMap)
 		clusterRes := &awsdsql.Cluster{}
-
-		resourceName := name
-		if isMultiRegion {
-			resourceName = fmt.Sprintf("%s-%s", name, region)
-		}
 
 		clusterOpts := append(resourceOpts(region), pulumi.Protect(true))
 

@@ -22,6 +22,7 @@ import (
 var bootstrapRegion string
 var bootstrapStage string
 var bootstrapEnvironment string
+var bootstrapS3DataEvents bool
 
 var bootstrapCmd = &cobra.Command{
 	Use:   "bootstrap",
@@ -34,6 +35,7 @@ func init() {
 	bootstrapCmd.Flags().StringVar(&bootstrapRegion, "region", "", "AWS region for the state bucket (defaults to AWS CLI default)")
 	bootstrapCmd.Flags().StringVar(&bootstrapStage, "stage", "dev", "Stage name (used in bucket naming)")
 	bootstrapCmd.Flags().StringVar(&bootstrapEnvironment, "environment", "", "Environment type: prod or nonprod")
+	bootstrapCmd.Flags().BoolVar(&bootstrapS3DataEvents, "s3-data-events", false, "Record S3 object-level reads/writes in CloudTrail for every bucket in the account (billed per event)")
 	rootCmd.AddCommand(bootstrapCmd)
 }
 
@@ -51,11 +53,39 @@ type stageConfig struct {
 	LoggingBucket    string `yaml:"loggingBucket,omitempty"`
 	CloudTrailArn    string `yaml:"cloudTrailArn,omitempty"`
 	ExistingTrailArn string `yaml:"existingTrailArn,omitempty"`
+	// S3DataEvents opts the Anvil-managed CloudTrail trail into S3 object-level
+	// data events. Off by default: they're billed per event and every CloudFront
+	// asset fetch from S3 produces one.
+	S3DataEvents bool `yaml:"s3DataEvents,omitempty"`
 }
 
 // resolveBucketName reconstructs the bucket name from its parts.
+//
+// S3 bucket names must be 3-63 chars of lowercase letters, digits and hyphens,
+// so project/stage names like "testAuth0" are lowercased and other characters
+// replaced. Names that were already valid are returned unchanged, so existing
+// stages keep resolving to their buckets.
 func resolveBucketName(stage, project, id string) string {
-	return fmt.Sprintf("%s-anvil-state-%s-%s", stage, project, id)
+	prefix := sanitizeBucketPart(fmt.Sprintf("%s-anvil-state-%s", stage, project))
+	suffix := sanitizeBucketPart(id)
+
+	// Keep the unique id; trim the prefix if the whole name would exceed 63.
+	if max := 63 - len(suffix) - 1; len(prefix) > max {
+		prefix = strings.TrimRight(prefix[:max], "-")
+	}
+	return prefix + "-" + suffix
+}
+
+func sanitizeBucketPart(s string) string {
+	var b strings.Builder
+	for _, r := range strings.ToLower(s) {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-' {
+			b.WriteRune(r)
+		} else {
+			b.WriteRune('-')
+		}
+	}
+	return strings.Trim(b.String(), "-")
 }
 
 func runBootstrap(cmd *cobra.Command, args []string) error {
@@ -246,6 +276,7 @@ func runBootstrap(cmd *cobra.Command, args []string) error {
 		Environment:   bootstrapEnvironment,
 		LoggingBucket: loggingBucket,
 		CloudTrailArn: trailArn,
+		S3DataEvents:  bootstrapS3DataEvents,
 	}
 
 	err = writeAnvilConfig(*config)
@@ -316,6 +347,11 @@ func verifyExistingBootstrap(ctx context.Context, cfg aws.Config, accountId, reg
 					sc.CloudTrailArn = trailArn
 					writeAnvilConfig(*config)
 					printCheck("Config updated with logging info")
+				}
+				if bootstrapS3DataEvents && !sc.S3DataEvents {
+					sc.S3DataEvents = true
+					writeAnvilConfig(*config)
+					printCheck("Config updated: s3DataEvents enabled")
 				}
 			}
 		}
@@ -500,12 +536,17 @@ func setupLoggingInfrastructure(ctx context.Context, cfg aws.Config, accountId, 
 
 	// ── CloudTrail ──
 
+	s3DataEvents := bootstrapS3DataEvents
+
 	// Honour user-specified existing trail in anvil.yaml
 	anvilCfg, configErr := loadAnvilConfig()
 	if configErr == nil {
-		if sc, ok := anvilCfg.Stages[bootstrapStage]; ok && sc.ExistingTrailArn != "" {
-			printCheck(fmt.Sprintf("Using existing CloudTrail trail (from anvil.yaml): %s", sc.ExistingTrailArn))
-			return loggingBucket, sc.ExistingTrailArn, nil
+		if sc, ok := anvilCfg.Stages[bootstrapStage]; ok {
+			if sc.ExistingTrailArn != "" {
+				printCheck(fmt.Sprintf("Using existing CloudTrail trail (from anvil.yaml): %s", sc.ExistingTrailArn))
+				return loggingBucket, sc.ExistingTrailArn, nil
+			}
+			s3DataEvents = s3DataEvents || sc.S3DataEvents
 		}
 	}
 
@@ -521,6 +562,13 @@ func setupLoggingInfrastructure(ctx context.Context, cfg aws.Config, accountId, 
 		if trail.TrailARN != nil {
 			trailArn = *trail.TrailARN
 			printCheck(fmt.Sprintf("Using existing CloudTrail trail: %s", aws.ToString(trail.Name)))
+
+			// Only trails Anvil created are reconciled; anyone else's trail is left as-is.
+			if strings.HasPrefix(aws.ToString(trail.Name), "anvil-trail-") {
+				if err := reconcileS3DataEvents(ctx, ctClient, trailArn, s3DataEvents); err != nil {
+					printWarn(fmt.Sprintf("Could not update CloudTrail S3 data events: %v", err))
+				}
+			}
 			return loggingBucket, trailArn, nil
 		}
 	}
@@ -547,21 +595,10 @@ func setupLoggingInfrastructure(ctx context.Context, cfg aws.Config, accountId, 
 		},
 	})
 
-	// Management events + S3 data events
+	// Management events, plus S3 data events only when opted in.
 	if _, err = ctClient.PutEventSelectors(ctx, &cloudtrail.PutEventSelectorsInput{
-		TrailName: aws.String(trailArn),
-		EventSelectors: []cloudtrailtypes.EventSelector{
-			{
-				ReadWriteType:           cloudtrailtypes.ReadWriteTypeAll,
-				IncludeManagementEvents: aws.Bool(true),
-				DataResources: []cloudtrailtypes.DataResource{
-					{
-						Type:   aws.String("AWS::S3::Object"),
-						Values: []string{"arn:aws:s3"},
-					},
-				},
-			},
-		},
+		TrailName:      aws.String(trailArn),
+		EventSelectors: trailEventSelectors(s3DataEvents),
 	}); err != nil {
 		return "", "", fmt.Errorf("failed to configure CloudTrail event selectors: %w", err)
 	}
@@ -639,4 +676,61 @@ func writeAnvilConfig(config anvilConfig) error {
 	}
 
 	return os.WriteFile("anvil.yaml", data, 0644)
+}
+
+// trailEventSelectors returns the event selectors for the Anvil-managed trail:
+// all management events, plus S3 object-level data events when opted in.
+func trailEventSelectors(s3DataEvents bool) []cloudtrailtypes.EventSelector {
+	selector := cloudtrailtypes.EventSelector{
+		ReadWriteType:           cloudtrailtypes.ReadWriteTypeAll,
+		IncludeManagementEvents: aws.Bool(true),
+	}
+	if s3DataEvents {
+		selector.DataResources = []cloudtrailtypes.DataResource{
+			{
+				Type:   aws.String("AWS::S3::Object"),
+				Values: []string{"arn:aws:s3"},
+			},
+		}
+	}
+	return []cloudtrailtypes.EventSelector{selector}
+}
+
+// reconcileS3DataEvents brings an existing Anvil-managed trail in line with the
+// s3DataEvents setting. The trail is shared by every project in the account and
+// region, so the change applies account-wide.
+func reconcileS3DataEvents(ctx context.Context, ctClient *cloudtrail.Client, trailArn string, s3DataEvents bool) error {
+	current, err := ctClient.GetEventSelectors(ctx, &cloudtrail.GetEventSelectorsInput{
+		TrailName: aws.String(trailArn),
+	})
+	if err != nil {
+		return err
+	}
+
+	enabled := false
+	for _, sel := range current.EventSelectors {
+		for _, dr := range sel.DataResources {
+			if aws.ToString(dr.Type) == "AWS::S3::Object" {
+				enabled = true
+			}
+		}
+	}
+	// Advanced selectors are configured outside Anvil — leave them alone.
+	if len(current.AdvancedEventSelectors) > 0 || enabled == s3DataEvents {
+		return nil
+	}
+
+	if _, err := ctClient.PutEventSelectors(ctx, &cloudtrail.PutEventSelectorsInput{
+		TrailName:      aws.String(trailArn),
+		EventSelectors: trailEventSelectors(s3DataEvents),
+	}); err != nil {
+		return err
+	}
+
+	if s3DataEvents {
+		printCheck("CloudTrail S3 data events enabled")
+	} else {
+		printCheck("CloudTrail S3 data events disabled (opt in with s3DataEvents: true)")
+	}
+	return nil
 }

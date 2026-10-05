@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/events"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optup"
@@ -109,7 +110,14 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 	}
 
 	if upErr != nil {
-		return fmt.Errorf("deploy failed: %w", upErr)
+		// After a successful update, Automation API reads the stack outputs with
+		// two extra `pulumi stack output` calls. Anvil doesn't use them, so a
+		// failure there mustn't turn a completed deploy into a failed one.
+		if isOutputFetchError(upErr) {
+			printWarn(fmt.Sprintf("Deploy succeeded, but reading stack outputs failed: %v", upErr))
+		} else {
+			return fmt.Errorf("deploy failed: %w", upErr)
+		}
 	}
 
 	// ── Step 6: Refresh generated types ───────────────
@@ -120,4 +128,11 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+// isOutputFetchError reports whether err came from Automation API's post-update
+// `pulumi stack output` calls rather than from the update itself.
+func isOutputFetchError(err error) bool {
+	msg := err.Error()
+	return strings.Contains(msg, "could not get outputs") || strings.Contains(msg, "could not get secret outputs")
 }
