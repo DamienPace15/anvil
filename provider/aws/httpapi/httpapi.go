@@ -243,7 +243,7 @@ type HttpApiArgs struct {
 	// Presets: "7d" | "30d" | "90d" | "1y" | "3y" | "6y" | "7y". Default: "1y".
 	LogRetention string `pulumi:"logRetention,optional"`
 
-	// DefaultAuthorizerId is the API Gateway authorizer ID to apply to all routes.
+	// DefaultAuthorizerId is the JWT authorizer to apply to all routes; HttpApi creates it on this API.
 	// Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component.
 	// All routes inherit this authorizer unless skipAuth: true is set on the route.
 	// Omit to leave all routes public (no auth).
@@ -508,6 +508,19 @@ func NewHttpApi(ctx *pulumi.Context, name string, args HttpApiArgs, opts ...pulu
 		return nil, fmt.Errorf("failed to create API stage: %w", err)
 	}
 
+	// ── JWT authorizer ─────────────────────────────────────────────────────
+	// Authorizers belong to a single API, so the authorizer described by an
+	// OAuthAuthorizer/CognitoAuth reference is created here, on this API.
+
+	var defaultAuthorizerId pulumi.StringInput
+	if args.DefaultAuthorizerId != nil {
+		authorizer, err := apigateway.NewJwtAuthorizer(ctx, name+"-authorizer", api.ID(), args.DefaultAuthorizerId, h)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create JWT authorizer: %w", err)
+		}
+		defaultAuthorizerId = authorizer.ID().ToStringOutput()
+	}
+
 	// ── Routes and integrations ────────────────────────────────────────────
 
 	for i, route := range args.Routes {
@@ -517,23 +530,23 @@ func NewHttpApi(ctx *pulumi.Context, name string, args HttpApiArgs, opts ...pulu
 
 		switch consumerType {
 		case "lambda":
-			if err := wireLambdaIntegration(ctx, name, routeSuffix, api, apiStage, route, args.DefaultAuthorizerId, h); err != nil {
+			if err := wireLambdaIntegration(ctx, name, routeSuffix, api, apiStage, route, defaultAuthorizerId, h); err != nil {
 				return nil, err
 			}
 		case "sqs":
-			if err := wireSqsIntegration(ctx, name, routeSuffix, api, apiStage, route, stage, stageId, args.DefaultAuthorizerId, h); err != nil {
+			if err := wireSqsIntegration(ctx, name, routeSuffix, api, apiStage, route, stage, stageId, defaultAuthorizerId, h); err != nil {
 				return nil, err
 			}
 		case "eventBridge":
-			if err := wireEventBridgeIntegration(ctx, name, routeSuffix, api, apiStage, route, stage, stageId, args.DefaultAuthorizerId, h); err != nil {
+			if err := wireEventBridgeIntegration(ctx, name, routeSuffix, api, apiStage, route, stage, stageId, defaultAuthorizerId, h); err != nil {
 				return nil, err
 			}
 		case "stepFunctions":
-			if err := wireStepFunctionsIntegration(ctx, name, routeSuffix, api, apiStage, route, stage, stageId, args.DefaultAuthorizerId, h); err != nil {
+			if err := wireStepFunctionsIntegration(ctx, name, routeSuffix, api, apiStage, route, stage, stageId, defaultAuthorizerId, h); err != nil {
 				return nil, err
 			}
 		case "http":
-			if err := wireHttpIntegration(ctx, name, routeSuffix, api, apiStage, route, args.DefaultAuthorizerId, h); err != nil {
+			if err := wireHttpIntegration(ctx, name, routeSuffix, api, apiStage, route, defaultAuthorizerId, h); err != nil {
 				return nil, err
 			}
 		}

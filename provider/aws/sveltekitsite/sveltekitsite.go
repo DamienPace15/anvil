@@ -41,7 +41,7 @@ type SvelteKitSiteArgs struct {
 	// Runtime-only environment vars set on the Lambda function.
 	// Supports Pulumi Output values (e.g. bucket.name, fn.arn).
 	// Only available at request time, NOT during build/prerendering.
-	RuntimeEnvironment map[string]interface{} `pulumi:"runtimeEnvironment,optional"`
+	RuntimeEnvironment map[string]pulumi.StringInput `pulumi:"runtimeEnvironment,optional"`
 
 	Domain    string                            `pulumi:"domain,optional"`
 	Transform map[string]map[string]interface{} `pulumi:"transform,optional"`
@@ -144,13 +144,13 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 		lambdaEnv[k] = pulumi.String(v)
 	}
 	for k, v := range args.RuntimeEnvironment {
-		lambdaEnv[k] = awssite.CoerceToStringOutput(v)
+		lambdaEnv[k] = v
 	}
 
 	region, _ := ctx.GetConfig("aws:region")
 
 	lambdaProps := transform.MergeTransform(args.Transform["function"], pulumi.Map{
-		"runtime":       pulumi.String("nodejs20.x"),
+		"runtime":       pulumi.String("nodejs22.x"),
 		"handler":       pulumi.String("run.sh"),
 		"role":          roleResult.Role.Arn,
 		"code":          pulumi.NewFileArchive(serverArchive),

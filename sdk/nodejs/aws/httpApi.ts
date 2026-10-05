@@ -86,7 +86,7 @@ export interface HttpApiArgs {
      */
     cors?: pulumi.Input<inputs.aws.HttpApiCorsArgs>;
     /**
-     * The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
+     * JWT authorizer to apply to all routes — HttpApi creates it on this API. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public.
      */
     defaultAuthorizerId?: any;
     /**

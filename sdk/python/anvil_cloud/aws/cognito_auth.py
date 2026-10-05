@@ -65,7 +65,7 @@ class CognitoAuth(pulumi.ComponentResource):
                  user_pool_id: Optional[Any] = None,
                  __props__=None):
         """
-        An Anvil-managed JWT authorizer backed by a Cognito user pool. Derives the issuer URL automatically from the user pool ID — no manual Cognito endpoint construction required. Creates a native API Gateway JWT authorizer; verification is handled entirely by API Gateway with no Lambda or custom code. Pass authorizerId to HttpApi defaultAuthorizerId to protect your API routes.
+        An Anvil-managed JWT authorizer backed by a Cognito user pool. Derives the issuer URL automatically from the user pool ID — no manual Cognito endpoint construction required. Configures a native API Gateway JWT authorizer (created by the HttpApi it is attached to); verification is handled entirely by API Gateway with no Lambda or custom code. Pass authorizerId to HttpApi defaultAuthorizerId to protect your API routes.
 
 
         :param str resource_name: The name of the resource.
@@ -80,7 +80,7 @@ class CognitoAuth(pulumi.ComponentResource):
                  args: CognitoAuthArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        An Anvil-managed JWT authorizer backed by a Cognito user pool. Derives the issuer URL automatically from the user pool ID — no manual Cognito endpoint construction required. Creates a native API Gateway JWT authorizer; verification is handled entirely by API Gateway with no Lambda or custom code. Pass authorizerId to HttpApi defaultAuthorizerId to protect your API routes.
+        An Anvil-managed JWT authorizer backed by a Cognito user pool. Derives the issuer URL automatically from the user pool ID — no manual Cognito endpoint construction required. Configures a native API Gateway JWT authorizer (created by the HttpApi it is attached to); verification is handled entirely by API Gateway with no Lambda or custom code. Pass authorizerId to HttpApi defaultAuthorizerId to protect your API routes.
 
 
         :param str resource_name: The name of the resource.
@@ -129,7 +129,7 @@ class CognitoAuth(pulumi.ComponentResource):
     @pulumi.getter(name="authorizerId")
     def authorizer_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The API Gateway authorizer ID. Pass this to HttpApi defaultAuthorizerId to protect your API routes.
+        Reference to this authorizer's JWT configuration. Pass this to HttpApi defaultAuthorizerId — HttpApi creates the API Gateway authorizer on its own API, since authorizers can't be shared across APIs.
         """
         return pulumi.get(self, "authorizer_id")
 

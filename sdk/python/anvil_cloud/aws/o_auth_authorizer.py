@@ -24,7 +24,7 @@ class OAuthAuthorizerArgs:
         """
         The set of arguments for constructing a OAuthAuthorizer resource.
 
-        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] audience: The intended recipients of the JWT. API Gateway rejects tokens whose 'aud' claim does not match one of these values. Typically your API's client ID registered with the identity provider.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] audience: The intended recipients of the JWT. API Gateway rejects tokens whose 'aud' claim does not match one of these values. For Auth0 this is the API identifier (e.g. 'https://api.myapp.com'), not the application client ID.
         :param pulumi.Input[_builtins.str] issuer: The OIDC issuer URL of your identity provider. API Gateway fetches public signing keys from {issuer}/.well-known/jwks.json to verify token signatures. Examples: Auth0: 'https://your-tenant.auth0.com/', Clerk: 'https://your-instance.clerk.accounts.dev', Google: 'https://accounts.google.com'.
         """
         pulumi.set(__self__, "audience", audience)
@@ -34,7 +34,7 @@ class OAuthAuthorizerArgs:
     @pulumi.getter
     def audience(self) -> pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]:
         """
-        The intended recipients of the JWT. API Gateway rejects tokens whose 'aud' claim does not match one of these values. Typically your API's client ID registered with the identity provider.
+        The intended recipients of the JWT. API Gateway rejects tokens whose 'aud' claim does not match one of these values. For Auth0 this is the API identifier (e.g. 'https://api.myapp.com'), not the application client ID.
         """
         return pulumi.get(self, "audience")
 
@@ -70,7 +70,7 @@ class OAuthAuthorizer(pulumi.ComponentResource):
 
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
-        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] audience: The intended recipients of the JWT. API Gateway rejects tokens whose 'aud' claim does not match one of these values. Typically your API's client ID registered with the identity provider.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] audience: The intended recipients of the JWT. API Gateway rejects tokens whose 'aud' claim does not match one of these values. For Auth0 this is the API identifier (e.g. 'https://api.myapp.com'), not the application client ID.
         :param pulumi.Input[_builtins.str] issuer: The OIDC issuer URL of your identity provider. API Gateway fetches public signing keys from {issuer}/.well-known/jwks.json to verify token signatures. Examples: Auth0: 'https://your-tenant.auth0.com/', Clerk: 'https://your-instance.clerk.accounts.dev', Google: 'https://accounts.google.com'.
         """
         ...
@@ -129,7 +129,7 @@ class OAuthAuthorizer(pulumi.ComponentResource):
     @pulumi.getter(name="authorizerId")
     def authorizer_id(self) -> pulumi.Output[_builtins.str]:
         """
-        The API Gateway authorizer ID. Pass this to HttpApi defaultAuthorizerId to protect your API routes.
+        Reference to this authorizer's JWT configuration. Pass this to HttpApi defaultAuthorizerId — HttpApi creates the API Gateway authorizer on its own API, since authorizers can't be shared across APIs.
         """
         return pulumi.get(self, "authorizer_id")
 

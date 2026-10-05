@@ -1,8 +1,8 @@
 package oauthauthorizer
 
 import (
+	"github.com/DamienPace15/anvil/provider/internal/apigateway"
 	provider "github.com/DamienPace15/anvil/provider/internal/shared"
-	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/apigatewayv2"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -22,7 +22,7 @@ type OAuthAuthorizerArgs struct {
 
 	// Audience is the list of intended recipients for the JWT.
 	// API Gateway rejects tokens whose 'aud' claim does not match one of these values.
-	// Typically your API's client ID registered with the identity provider.
+	// Auth0: the API identifier (e.g. "https://api.myapp.com"), not the client ID.
 	Audience []string `pulumi:"audience"`
 }
 
@@ -34,8 +34,9 @@ type OAuthAuthorizerArgs struct {
 type OAuthAuthorizer struct {
 	pulumi.ResourceState
 
-	// AuthorizerId is the API Gateway authorizer ID.
-	// Pass this to HttpApi defaultAuthorizerId to protect routes.
+	// AuthorizerId is a reference to this authorizer's JWT configuration.
+	// Pass this to HttpApi defaultAuthorizerId — HttpApi creates the API Gateway
+	// authorizer on its own API (authorizers can't be shared across APIs).
 	AuthorizerId pulumi.StringOutput `pulumi:"authorizerId"`
 }
 
@@ -47,6 +48,7 @@ func (o *OAuthAuthorizer) Annotate(a infer.Annotator) {
 // NewOAuthAuthorizer creates a new Anvil-managed JWT authorizer.
 // The authorizer verifies JWTs issued by the given OIDC provider on every inbound request.
 // No Lambda or custom code required — verification is handled natively by API Gateway.
+// The API Gateway authorizer resource is created by the HttpApi it is attached to.
 func NewOAuthAuthorizer(ctx *pulumi.Context, name string, args OAuthAuthorizerArgs, opts ...pulumi.ResourceOption) (*OAuthAuthorizer, error) {
 	o := &OAuthAuthorizer{}
 
@@ -58,38 +60,12 @@ func NewOAuthAuthorizer(ctx *pulumi.Context, name string, args OAuthAuthorizerAr
 		return nil, err
 	}
 
-	// Build audience as a pulumi.StringArray.
-	audience := make(pulumi.StringArray, len(args.Audience))
-	for i, a := range args.Audience {
-		audience[i] = pulumi.String(a)
-	}
-
-	// API Gateway JWT authorizer. Verification is entirely native —
-	// API Gateway fetches JWKS from {issuer}/.well-known/jwks.json and
-	// validates signature, issuer, audience, and expiry on every request.
-	authorizer, err := apigatewayv2.NewAuthorizer(ctx, name+"-authorizer", &apigatewayv2.AuthorizerArgs{
-		// ApiId is intentionally omitted here — the authorizer is created
-		// standalone and attached to an HttpApi via authorizerId.
-		// This allows one authorizer to be referenced by multiple APIs.
-		AuthorizerType: pulumi.String("JWT"),
-		IdentitySources: pulumi.StringArray{
-			// Standard Bearer token location. All major OIDC providers use this.
-			// Override via transform if your provider uses a different header.
-			pulumi.String("$request.header.Authorization"),
-		},
-		JwtConfiguration: &apigatewayv2.AuthorizerJwtConfigurationArgs{
-			Issuer:    pulumi.String(args.Issuer),
-			Audiences: audience,
-		},
-	}, pulumi.Parent(o))
-	if err != nil {
-		return nil, err
-	}
-
-	o.AuthorizerId = authorizer.ID().ToStringOutput()
+	// API Gateway authorizers belong to a single API, so the authorizer itself
+	// is created by HttpApi. authorizerId carries the issuer + audience there.
+	o.AuthorizerId = apigateway.EncodeJwtAuthorizerRef(pulumi.String(args.Issuer), args.Audience)
 
 	ctx.RegisterResourceOutputs(o, pulumi.Map{
-		"authorizerId": authorizer.ID(),
+		"authorizerId": o.AuthorizerId,
 	})
 
 	return o, nil

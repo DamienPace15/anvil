@@ -23,7 +23,7 @@ export class OAuthAuthorizer extends pulumi.ComponentResource {
     }
 
     /**
-     * The API Gateway authorizer ID. Pass this to HttpApi defaultAuthorizerId to protect your API routes.
+     * Reference to this authorizer's JWT configuration. Pass this to HttpApi defaultAuthorizerId — HttpApi creates the API Gateway authorizer on its own API, since authorizers can't be shared across APIs.
      */
     declare public /*out*/ readonly authorizerId: pulumi.Output<string>;
 
@@ -60,7 +60,7 @@ export class OAuthAuthorizer extends pulumi.ComponentResource {
  */
 export interface OAuthAuthorizerArgs {
     /**
-     * The intended recipients of the JWT. API Gateway rejects tokens whose 'aud' claim does not match one of these values. Typically your API's client ID registered with the identity provider.
+     * The intended recipients of the JWT. API Gateway rejects tokens whose 'aud' claim does not match one of these values. For Auth0 this is the API identifier (e.g. 'https://api.myapp.com'), not the application client ID.
      */
     audience: pulumi.Input<pulumi.Input<string>[]>;
     /**

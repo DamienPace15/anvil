@@ -444,9 +444,10 @@ func (h *EventHandler) handleResOutputs(e *apitype.ResOutputsEvent) {
 	tr.endTime = time.Now()
 
 	// Full log captures every resource (incl. internal/child), unlike stdout.
+	// The raw op is included so replacements aren't mistaken for plain creates.
 	if tr.op != "same" && tr.op != "read" {
-		h.logf("%-10s %s :: %s (%s)", opVerb(tr.op, h.isPreview()),
-			tr.typeName, tr.name, formatDuration(tr.endTime.Sub(tr.startTime)))
+		h.logf("%-10s %s :: %s [%s] (%s)", opVerb(tr.op, h.isPreview()),
+			tr.typeName, tr.name, tr.op, formatDuration(tr.endTime.Sub(tr.startTime)))
 	}
 
 	if isInternalResource(tr.typeName, h.verbose) {
@@ -591,12 +592,18 @@ func (h *EventHandler) PrintSummary(stage string) {
 	}
 
 	counts := map[string]int{}
+	// Changes to resources inside a component (e.g. a tag on a DSQL cluster)
+	// leave the component itself "same", so they're tallied separately.
+	underlying := 0
 	failed := 0
 	for _, tr := range h.resources {
-		if isInternalResource(tr.typeName, false) {
+		if tr.op == "same" || tr.op == "read" || tr.op == "" {
 			continue
 		}
-		if tr.op == "same" || tr.op == "read" || tr.op == "" {
+		if isInternalResource(tr.typeName, false) {
+			if !strings.HasPrefix(tr.typeName, "pulumi:") && !tr.failed {
+				underlying++
+			}
 			continue
 		}
 		if tr.failed {
@@ -627,7 +634,7 @@ func (h *EventHandler) PrintSummary(stage string) {
 		return
 	}
 
-	if total == 0 {
+	if total == 0 && underlying == 0 {
 		fmt.Println("  No changes. Infrastructure is up to date.")
 		return
 	}
@@ -658,6 +665,18 @@ func (h *EventHandler) PrintSummary(stage string) {
 		}
 		if c, ok := counts["deleted"]; ok {
 			summaryParts = append(summaryParts, fmt.Sprintf("%d deleted", c))
+		}
+	}
+
+	if total == 0 {
+		noun := "resources"
+		if underlying == 1 {
+			noun = "resource"
+		}
+		if h.isPreview() {
+			summaryParts = append(summaryParts, fmt.Sprintf("%d underlying %s to change", underlying, noun))
+		} else {
+			summaryParts = append(summaryParts, fmt.Sprintf("%d underlying %s changed", underlying, noun))
 		}
 	}
 

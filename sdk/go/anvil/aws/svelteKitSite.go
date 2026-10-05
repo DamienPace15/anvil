@@ -47,8 +47,8 @@ type svelteKitSiteArgs struct {
 	OriginProtection *SiteOriginProtection `pulumi:"originProtection"`
 	Path             *string               `pulumi:"path"`
 	// Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
-	RuntimeEnvironment *string `pulumi:"runtimeEnvironment"`
-	Transform          *string `pulumi:"transform"`
+	RuntimeEnvironment map[string]string `pulumi:"runtimeEnvironment"`
+	Transform          *string           `pulumi:"transform"`
 }
 
 // The set of arguments for constructing a SvelteKitSite resource.
@@ -60,7 +60,7 @@ type SvelteKitSiteArgs struct {
 	OriginProtection SiteOriginProtectionPtrInput
 	Path             pulumi.StringPtrInput
 	// Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
-	RuntimeEnvironment pulumi.StringPtrInput
+	RuntimeEnvironment pulumi.StringMapInput
 	Transform          pulumi.StringPtrInput
 }
 

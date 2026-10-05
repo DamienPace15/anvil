@@ -135,7 +135,7 @@
       "requiredInputs": []
     },
     "anvil:aws:CognitoAuth": {
-      "description": "An Anvil-managed JWT authorizer backed by a Cognito user pool. Derives the issuer URL automatically from the user pool ID — no manual Cognito endpoint construction required. Creates a native API Gateway JWT authorizer; verification is handled entirely by API Gateway with no Lambda or custom code. Pass authorizerId to HttpApi defaultAuthorizerId to protect your API routes.",
+      "description": "An Anvil-managed JWT authorizer backed by a Cognito user pool. Derives the issuer URL automatically from the user pool ID — no manual Cognito endpoint construction required. Configures a native API Gateway JWT authorizer (created by the HttpApi it is attached to); verification is handled entirely by API Gateway with no Lambda or custom code. Pass authorizerId to HttpApi defaultAuthorizerId to protect your API routes.",
       "inputProperties": {
         "audience": {
           "description": "The Cognito app client IDs allowed to access this API. API Gateway rejects tokens whose 'aud' claim does not match one of these values. Pass your Cognito app client ID(s) here.",
@@ -152,7 +152,7 @@
       "isComponent": true,
       "properties": {
         "authorizerId": {
-          "description": "The API Gateway authorizer ID. Pass this to HttpApi defaultAuthorizerId to protect your API routes.",
+          "description": "Reference to this authorizer's JWT configuration. Pass this to HttpApi defaultAuthorizerId — HttpApi creates the API Gateway authorizer on its own API, since authorizers can't be shared across APIs.",
           "type": "string"
         }
       },
@@ -448,7 +448,7 @@
         },
         "defaultAuthorizerId": {
           "$ref": "pulumi.json#/Any",
-          "description": "The API Gateway authorizer ID to apply to all routes. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public."
+          "description": "JWT authorizer to apply to all routes — HttpApi creates it on this API. Pass auth.authorizerId from an OAuthAuthorizer or CognitoAuth component. All routes inherit this authorizer unless skipAuth: true is set on the route. Omit to leave all routes public."
         },
         "domain": {
           "$ref": "#/types/anvil:aws:HttpApiDomain",
@@ -600,7 +600,7 @@
       "description": "An Anvil-managed JWT authorizer for HTTP API Gateway. Works with any OIDC-compliant identity provider — Auth0, Clerk, Google, Okta, Cognito. API Gateway verifies the JWT signature, issuer, audience, and expiry on every request natively — no Lambda or custom code required. Pass authorizerId to HttpApi defaultAuthorizerId to protect your routes.",
       "inputProperties": {
         "audience": {
-          "description": "The intended recipients of the JWT. API Gateway rejects tokens whose 'aud' claim does not match one of these values. Typically your API's client ID registered with the identity provider.",
+          "description": "The intended recipients of the JWT. API Gateway rejects tokens whose 'aud' claim does not match one of these values. For Auth0 this is the API identifier (e.g. 'https://api.myapp.com'), not the application client ID.",
           "items": {
             "type": "string"
           },
@@ -614,7 +614,7 @@
       "isComponent": true,
       "properties": {
         "authorizerId": {
-          "description": "The API Gateway authorizer ID. Pass this to HttpApi defaultAuthorizerId to protect your API routes.",
+          "description": "Reference to this authorizer's JWT configuration. Pass this to HttpApi defaultAuthorizerId — HttpApi creates the API Gateway authorizer on its own API, since authorizers can't be shared across APIs.",
           "type": "string"
         }
       },
@@ -697,8 +697,11 @@
           "type": "string"
         },
         "runtimeEnvironment": {
+          "additionalProperties": {
+            "type": "string"
+          },
           "description": "Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.",
-          "type": "string"
+          "type": "object"
         },
         "transform": {
           "type": "string"
@@ -4149,5 +4152,5 @@
       "type": "object"
     }
   },
-  "version": "0.1.6"
+  "version": "0.1.7"
 }
