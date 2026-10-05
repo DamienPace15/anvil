@@ -42,12 +42,20 @@ func SetupCustomDomain(ctx *pulumi.Context, parent pulumi.Resource, name string,
 		return nil, err
 	}
 
-	dnsInstructions := pulumi.All(cert.DomainValidationOptions, cert.Status).ApplyT(func(args []interface{}) string {
+	dnsInstructions := pulumi.All(cert.DomainValidationOptions, cert.Status, cert.Arn).ApplyT(func(args []interface{}) string {
 		opts := args[0].([]acm.CertificateDomainValidationOption)
 		status := args[1].(string)
+		arn := args[2].(string)
 
 		if len(opts) == 0 {
 			return ""
+		}
+
+		// cert.Status comes from state and is only recorded at creation time
+		// (always PENDING_VALIDATION), so it goes stale once the cert is issued.
+		// Confirm against ACM directly before nagging the user.
+		if status != "ISSUED" && certIssued(ctx, usEast1, domain, arn) {
+			status = "ISSUED"
 		}
 
 		var instructions []string
@@ -87,6 +95,20 @@ func SetupCustomDomain(ctx *pulumi.Context, parent pulumi.Resource, name string,
 		DNSInstructions: dnsInstructions,
 		Validation:      certValidation,
 	}, nil
+}
+
+// certIssued reports whether ACM currently has the certificate with the given
+// ARN in the ISSUED state. Any lookup failure is treated as not issued.
+func certIssued(ctx *pulumi.Context, provider pulumi.ProviderResource, domain, arn string) bool {
+	if arn == "" {
+		return false
+	}
+	found, err := acm.LookupCertificate(ctx, &acm.LookupCertificateArgs{
+		Domain:     pulumi.StringRef(domain),
+		Statuses:   []string{"ISSUED"},
+		MostRecent: pulumi.BoolRef(true),
+	}, pulumi.Provider(provider))
+	return err == nil && found != nil && found.Arn == arn
 }
 
 // CreateRoute53Records creates A and AAAA alias records pointing to a CloudFront distribution.
