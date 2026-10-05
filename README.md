@@ -1,31 +1,48 @@
-# Anvil
+<p align="center">
+  <a href="https://anvilcloud.dev">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/assets/anvil-wordmark-steel.svg">
+      <source media="(prefers-color-scheme: light)" srcset="docs/assets/anvil-wordmark-charcoal.svg">
+      <img alt="Anvil" src="docs/assets/anvil-wordmark-charcoal.svg" width="280">
+    </picture>
+  </a>
+</p>
 
-[![Release](https://img.shields.io/github/v/release/DamienPace15/anvil?style=flat-square)](https://github.com/DamienPace15/anvil/releases)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](LICENSE)
+<p align="center">
+  <strong>Cloud infrastructure that's secure by default — not by accident.</strong>
+</p>
 
-Cloud infrastructure with secure, cost-aware defaults built in. No boilerplate, no shortcuts.
+<p align="center">
+  TypeScript, Python, and Go SDKs built on <a href="https://pulumi.com">Pulumi</a>.
+</p>
 
-Anvil is built on top of [Pulumi](https://pulumi.com) and lets you write infrastructure in TypeScript, Python, or Go.
+<p align="center">
+  <a href="https://github.com/DamienPace15/anvil/releases"><img alt="Release" src="https://img.shields.io/github/v/release/DamienPace15/anvil?style=flat-square&color=FF6A1A"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-17181A?style=flat-square"></a>
+  <a href="https://anvilcloud.dev/docs/introduction"><img alt="Docs" src="https://img.shields.io/badge/docs-anvilcloud.dev-FF6A1A?style=flat-square"></a>
+</p>
+
+<p align="center">
+  <a href="https://anvilcloud.dev/docs/quickstart"><strong>Get Started</strong></a> ·
+  <a href="https://anvilcloud.dev/docs/introduction">Docs</a> ·
+  <a href="https://anvilcloud.dev/docs/components/aws/storage/bucket">Components</a>
+</p>
 
 ---
 
-## Why Anvil
+Anvil wraps raw cloud resources into opinionated, production-ready components. Instead of a 200-line Terraform module or a Pulumi program full of copy-pasted security configuration, you declare what you need — a bucket, a function, a queue — and Anvil fills in the defaults a production system actually requires:
 
-Most IaC tools give you primitives and leave the hard decisions to you. Encryption, access controls, cost tagging, compliance-aligned configuration — that's all on you to remember, every time, across every resource.
+- **Public access blocked** and **encryption on** across storage, compute, and networking
+- **Least-privilege IAM**, wired between resources with grants
+- **Audit logging** where it matters
+- **Enforced tagging**, so costs are attributable from day one
+- **Aligned to SOC 2 and ISO 27001 controls** — not certified out of the box, but configured to do the heavy lifting when you're building toward compliance
 
-Anvil flips that. Every component ships with defaults that:
+Components start from the secure configuration and let you opt out or override, rather than starting from nothing and hoping you remembered everything.
 
-- **Block public access and enforce encryption** across storage, compute, and networking
-- **Enforce tagging** so costs are attributable from day one
-- **Align to SOC 2 and ISO 27001 controls** — not certified out of the box, but configured in a way that does the heavy lifting when you're building toward compliance
+## Install Anvil
 
-You still own your compliance posture. Anvil just makes sure you're not starting from zero.
-
----
-
-## Quick start
-
-**Install**
+**macOS / Linux**
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/DamienPace15/anvil/master/install.sh | sh
@@ -37,25 +54,82 @@ curl -fsSL https://raw.githubusercontent.com/DamienPace15/anvil/master/install.s
 irm https://raw.githubusercontent.com/DamienPace15/anvil/master/install.ps1 | iex
 ```
 
----
+Installs `anvil` and the provider to `/usr/local/bin`. Works on Apple Silicon and Intel.
 
-## Multi-language
+## Quickstart
 
-Full docs and examples at [anvilcloud.dev](https://anvilcloud.dev).
+```sh
+anvil init --name my-app --lang ts
+cd my-app
+npm install
+```
 
-<table>
-<tr><td><strong>TypeScript</strong></td><td><code>npm install @anvil-cloud/sdk</code></td></tr>
-<tr><td><strong>Python</strong></td><td><code>pip install anvil-cloud</code></td></tr>
-<tr><td><strong>Go</strong></td><td><code>go get github.com/DamienPace15/anvil/sdk/go/anvil</code></td></tr>
-</table>
+Declare a bucket in `anvil.config.ts`:
 
----
+```ts
+import { App } from '@anvil-cloud/sdk';
+import * as anvil from '@anvil-cloud/sdk';
 
-## Multi-cloud
+export default new App({
+  defaults: {
+    tags: {
+      project: 'my-app',
+      costCenter: 'platform-eng',
+    },
+  },
+  run(ctx) {
+    const uploads = new anvil.aws.Bucket('uploads');
 
-AWS and GCP today. More coming.
+    ctx.export('bucketName', uploads.bucketName);
+  },
+});
+```
 
----
+The bucket is private and encrypted without any extra arguments. Preview, deploy, and tear down:
+
+```sh
+anvil preview
+anvil deploy
+anvil destroy
+```
+
+See the [Quickstart](https://anvilcloud.dev/docs/quickstart) for Python and Go.
+
+## Three SDKs, one engine
+
+Every component behaves identically across all three SDKs.
+
+| Language   | Package                                      | Requirement  |
+| ---------- | -------------------------------------------- | ------------ |
+| TypeScript | `npm install @anvil-cloud/sdk`               | Node.js 18+  |
+| Python     | `pip install anvil-cloud`                    | Python 3.8+  |
+| Go         | `go get github.com/DamienPace15/anvil/sdk/go/anvil` | Go 1.22+ |
+
+## Comparing Anvil
+
+The same image upload stack built five ways.
+
+| Framework      | Infra lines      | Components      | Manual permissions | Deploys with     |
+| -------------- | ---------------- | --------------- | ------------------ | ---------------- |
+| **Anvil**      | **58**           | **4**           | **1**              | Pulumi engine    |
+| CDK            | 74 (1.3×)        | 7 (1.8×)        | 1 (1.0×)           | CloudFormation   |
+| CloudFormation | 134 (2.3×)       | 12 (3.0×)       | 4 (4.0×)           | CloudFormation   |
+| Pulumi         | 150 (2.6×)       | 17 (4.3×)       | 6 (6.0×)           | Pulumi engine    |
+| Terraform      | 194 (3.3×)       | 17 (4.3×)       | 7 (7.0×)           | Terraform engine |
+
+## Components
+
+| Category     | Components                                                    |
+| ------------ | ------------------------------------------------------------- |
+| Compute      | Lambda                                                        |
+| Storage      | Bucket                                                        |
+| Database     | DynamoDB, DSQL, DSQLConnect                                   |
+| Networking   | Vpc, VpcEndpoint                                              |
+| Messaging    | Queue, EventBus                                               |
+| API & Auth   | HttpApi, CognitoUserPool, CognitoAuth, OAuthAuthorizer        |
+| Hosting      | SvelteKitSite                                                 |
+
+Full arguments, outputs, and examples for each are in the [component docs](https://anvilcloud.dev/docs/components/aws/storage/bucket).
 
 ## Local development
 
@@ -75,22 +149,15 @@ export PATH="$PATH:$(pwd)/bin"
 
 ### Build commands
 
-| Command                          | What it does                                                |
-| -------------------------------- | ----------------------------------------------------------- |
+| Command                         | What it does                                                |
+| ------------------------------- | ----------------------------------------------------------- |
 | `go run ./build build`          | Full pipeline: generate → merge → registry → compile → SDKs |
 | `go run ./build binary`         | CLI binary only (fast, for CLI-only changes)                |
 | `go run ./build build-provider` | Compile the provider binary                                 |
+| `go run ./build install`        | Build and install `anvil` + the provider to `/usr/local/bin` |
 | `go run ./build build-sdk`      | Generate + build the Node.js SDK                            |
 | `go run ./build gen-python-sdk` | Generate Python SDK                                         |
 | `go run ./build clean`          | Remove build artifacts                                      |
-
----
-
-## Docs
-
-[anvilcloud.dev](https://anvilcloud.dev)
-
----
 
 ## Contributing
 
