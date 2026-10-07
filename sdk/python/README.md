@@ -104,6 +104,7 @@ import anvil_cloud as anvil
 
 def infra(ctx: anvil.Context):
     site = anvil.aws.SvelteKitSite("web",
+        path="web",  # the SvelteKit project folder — Anvil runs the build
         domain="myapp.com",
     )
     ctx.export("url", site.url)

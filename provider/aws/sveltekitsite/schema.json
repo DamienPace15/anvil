@@ -14,11 +14,15 @@
           }
         },
         "originProtection": {
-          "description": "OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set.",
-          "$ref": "#/types/anvil:aws:SiteOriginProtection"
+          "type": "boolean",
+          "description": "OriginProtection locks CloudFront to a CDN/proxy in front of it (Cloudflare, Fastly, Akamai, nginx, ...). Requests without the x-origin-secret header are rejected at the edge; configure the proxy to send it on every request with the originSecret output as the value. Protection defaults to \"edge-oac\" while it's enabled, so the server Function URL can't be reached around the proxy."
         },
         "path": {
           "type": "string"
+        },
+        "protection": {
+          "description": "Protection controls who can invoke the server Lambda's Function URL. Default: \"none\", or \"edge-oac\" while a WAF is attached or origin protection is enabled. An explicit value always wins. \"none\": public Function URL; anyone who learns it can call the server directly, bypassing CloudFront. \"oac\": locked to CloudFront via IAM; requests with a body are rejected unless they already carry an x-amz-content-sha256 header. \"edge-oac\": \"oac\" plus a Lambda@Edge function that adds the header, following AWS's guidance — nothing is needed in the app; request bodies over 1 MB are rejected. In \"oac\" and \"edge-oac\", a viewer Authorization header is replaced by CloudFront's signature.",
+          "$ref": "#/types/anvil:aws:SiteProtection"
         },
         "runtimeEnvironment": {
           "type": "object",
@@ -29,6 +33,10 @@
         },
         "transform": {
           "type": "string"
+        },
+        "waf": {
+          "description": "Waf attaches a WAF WebACL to the site's CloudFront distribution. Protection defaults to \"edge-oac\" while it's attached.",
+          "$ref": "#/types/anvil:aws:SiteWaf"
         }
       },
       "properties": {
@@ -46,7 +54,7 @@
         },
         "originSecret": {
           "type": "string",
-          "description": "OriginSecret is the x-origin-secret header value to configure in Cloudflare Transform Rules. Only populated when originProtection is set."
+          "description": "OriginSecret is the x-origin-secret header value to configure in the CDN/proxy. Secret. Stable across deploys. Only populated when originProtection is enabled."
         },
         "url": {
           "type": "string"
@@ -55,25 +63,39 @@
     }
   },
   "types": {
-    "anvil:aws:SiteOriginProtection": {
-      "type": "object",
-      "description": "SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.",
-      "properties": {
-        "provider": {
-          "description": "Provider is the CDN/proxy in front of CloudFront. Only \"cloudflare\" is supported.",
-          "$ref": "#/types/anvil:aws:SiteOriginProtectionProvider"
-        }
-      }
-    },
-    "anvil:aws:SiteOriginProtectionProvider": {
-      "description": "The CDN/proxy provider sitting in front of CloudFront.",
+    "anvil:aws:SiteProtection": {
+      "description": "Who can invoke the site's server Lambda Function URL. Default: \"none\", or \"edge-oac\" while a WAF is attached or origin protection is enabled. An explicit value always wins.",
       "enum": [
         {
-          "description": "Cloudflare — inject x-origin-secret via a Cloudflare Transform Rule.",
-          "value": "cloudflare"
+          "description": "Public Function URL. Anyone who learns it can call the server directly, bypassing CloudFront and any WAF or proxy.",
+          "name": "None",
+          "value": "none"
+        },
+        {
+          "description": "Locked to CloudFront via IAM + OAC. Requests with a body are rejected unless they already carry an x-amz-content-sha256 header.",
+          "name": "Oac",
+          "value": "oac"
+        },
+        {
+          "description": "Locked to CloudFront via IAM + OAC, with a Lambda@Edge function that adds the x-amz-content-sha256 header (AWS's documented approach). Nothing is needed in the app; request bodies over 1 MB are rejected.",
+          "name": "EdgeOac",
+          "value": "edge-oac"
         }
       ],
       "type": "string"
+    },
+    "anvil:aws:SiteWaf": {
+      "type": "object",
+      "description": "SiteWafArgs attaches a WAF to the site. Composes freely with originProtection. While a WAF is attached, protection defaults to \"edge-oac\" so the server Function URL can't be used to bypass the WAF.",
+      "properties": {
+        "arn": {
+          "type": "string",
+          "description": "Arn is the ARN of a WAF WebACL with CLOUDFRONT scope (us-east-1). Pass waf.arn from an Anvil Waf component."
+        }
+      },
+      "required": [
+        "arn"
+      ]
     }
   }
 }

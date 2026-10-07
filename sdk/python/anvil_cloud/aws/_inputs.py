@@ -159,8 +159,8 @@ __all__ = [
     'QueueOverridesArgsDict',
     'QueueTransformArgsArgs',
     'QueueTransformArgsArgsDict',
-    'SiteOriginProtectionArgs',
-    'SiteOriginProtectionArgsDict',
+    'SiteWafArgs',
+    'SiteWafArgsDict',
     'VpcBastionArgsArgs',
     'VpcBastionArgsArgsDict',
     'VpcCloudWatchFlowLogArgsArgs',
@@ -8226,38 +8226,37 @@ class QueueTransformArgsArgs:
         pulumi.set(self, "queue", value)
 
 
-class SiteOriginProtectionArgsDict(TypedDict):
+class SiteWafArgsDict(TypedDict):
     """
-    SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
+    SiteWafArgs attaches a WAF to the site. Composes freely with originProtection. While a WAF is attached, protection defaults to "edge-oac" so the server Function URL can't be used to bypass the WAF.
     """
-    provider: NotRequired[pulumi.Input['SiteOriginProtectionProvider']]
+    arn: pulumi.Input[_builtins.str]
     """
-    Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
+    Arn is the ARN of a WAF WebACL with CLOUDFRONT scope (us-east-1). Pass waf.arn from an Anvil Waf component.
     """
 
 @pulumi.input_type
-class SiteOriginProtectionArgs:
+class SiteWafArgs:
     def __init__(__self__, *,
-                 provider: Optional[pulumi.Input['SiteOriginProtectionProvider']] = None):
+                 arn: pulumi.Input[_builtins.str]):
         """
-        SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
+        SiteWafArgs attaches a WAF to the site. Composes freely with originProtection. While a WAF is attached, protection defaults to "edge-oac" so the server Function URL can't be used to bypass the WAF.
 
-        :param pulumi.Input['SiteOriginProtectionProvider'] provider: Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
+        :param pulumi.Input[_builtins.str] arn: Arn is the ARN of a WAF WebACL with CLOUDFRONT scope (us-east-1). Pass waf.arn from an Anvil Waf component.
         """
-        if provider is not None:
-            pulumi.set(__self__, "provider", provider)
+        pulumi.set(__self__, "arn", arn)
 
     @_builtins.property
     @pulumi.getter
-    def provider(self) -> Optional[pulumi.Input['SiteOriginProtectionProvider']]:
+    def arn(self) -> pulumi.Input[_builtins.str]:
         """
-        Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
+        Arn is the ARN of a WAF WebACL with CLOUDFRONT scope (us-east-1). Pass waf.arn from an Anvil Waf component.
         """
-        return pulumi.get(self, "provider")
+        return pulumi.get(self, "arn")
 
-    @provider.setter
-    def provider(self, value: Optional[pulumi.Input['SiteOriginProtectionProvider']]):
-        pulumi.set(self, "provider", value)
+    @arn.setter
+    def arn(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "arn", value)
 
 
 class VpcBastionArgsArgsDict(TypedDict):
