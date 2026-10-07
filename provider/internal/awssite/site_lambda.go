@@ -53,17 +53,67 @@ func SiteLWALayerARN(region string) pulumi.StringOutput {
 	return pulumi.Sprintf("arn:aws:lambda:%s:%s:layer:%s:%s", region, lwaAccountID, lwaLayerName, lwaLayerVersion)
 }
 
-// CreateSiteFunctionURL creates a public Lambda Function URL for the given function.
-// The URL is used as the CloudFront Lambda origin — CloudFront handles auth,
-// so the Function URL itself uses NONE auth.
-func CreateSiteFunctionURL(ctx *pulumi.Context, parent pulumi.Resource, name string, fn *lambda.Function) (*lambda.FunctionUrl, error) {
+// CreateSiteFunctionURL creates the Lambda Function URL used as the CloudFront
+// Lambda origin. IAM-protected modes use AWS_IAM auth so only the site's
+// CloudFront distribution (via OAC) can invoke it; ProtectionNone uses NONE.
+func CreateSiteFunctionURL(ctx *pulumi.Context, parent pulumi.Resource, name string, fn *lambda.Function, protection string) (*lambda.FunctionUrl, error) {
+	authType := "NONE"
+	if IsIAMProtected(protection) {
+		authType = "AWS_IAM"
+	}
+
 	fnURL := &lambda.FunctionUrl{}
 	err := ctx.RegisterResource("aws:lambda/functionUrl:FunctionUrl", name+"-site-fn-url", pulumi.Map{
 		"functionName":      fn.Name,
-		"authorizationType": pulumi.String("NONE"),
+		"authorizationType": pulumi.String(authType),
 	}, fnURL, pulumi.Parent(parent))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create site function URL: %w", err)
 	}
 	return fnURL, nil
+}
+
+// GrantSiteFunctionURLAccess adds the resource-based policy that lets the
+// Function URL be invoked. Lambda requires both lambda:InvokeFunctionUrl and
+// lambda:InvokeFunction (restricted to URL invocations) for every Function URL,
+// including NONE ones.
+//
+// ProtectionNone grants the public principal "*". IAM-protected modes grant only
+// the CloudFront service principal, scoped to this site's distribution ARN so no
+// other distribution can use it.
+//
+// Resource names differ per mode so switching modes replaces the grants cleanly.
+func GrantSiteFunctionURLAccess(ctx *pulumi.Context, parent pulumi.Resource, name string, fn *lambda.Function, protection string, distributionArn pulumi.StringOutput) error {
+	urlPerm := pulumi.Map{
+		"action":   pulumi.String("lambda:InvokeFunctionUrl"),
+		"function": fn.Name,
+	}
+	invokePerm := pulumi.Map{
+		"action":                pulumi.String("lambda:InvokeFunction"),
+		"function":              fn.Name,
+		"invokedViaFunctionUrl": pulumi.Bool(true),
+	}
+
+	suffix := "public"
+	if IsIAMProtected(protection) {
+		suffix = "cloudfront"
+		for _, perm := range []pulumi.Map{urlPerm, invokePerm} {
+			perm["principal"] = pulumi.String("cloudfront.amazonaws.com")
+			perm["sourceArn"] = distributionArn
+		}
+	} else {
+		urlPerm["principal"] = pulumi.String("*")
+		urlPerm["functionUrlAuthType"] = pulumi.String("NONE")
+		invokePerm["principal"] = pulumi.String("*")
+	}
+
+	err := ctx.RegisterResource("aws:lambda/permission:Permission", name+"-site-fn-url-"+suffix, urlPerm, &lambda.Permission{}, pulumi.Parent(parent))
+	if err != nil {
+		return fmt.Errorf("failed to grant function URL access: %w", err)
+	}
+	err = ctx.RegisterResource("aws:lambda/permission:Permission", name+"-site-fn-invoke-"+suffix, invokePerm, &lambda.Permission{}, pulumi.Parent(parent))
+	if err != nil {
+		return fmt.Errorf("failed to grant function invoke access: %w", err)
+	}
+	return nil
 }

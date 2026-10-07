@@ -24,7 +24,7 @@ __all__ = [
     'LambdaLogRetention',
     'LambdaRuntime',
     'S3FlowLogLifecycle',
-    'SiteOriginProtectionProvider',
+    'SiteProtection',
     'VpcNatType',
 ]
 
@@ -394,14 +394,22 @@ class S3FlowLogLifecycle(_builtins.str, Enum):
     """
 
 
-@pulumi.type_token("anvil:aws:SiteOriginProtectionProvider")
-class SiteOriginProtectionProvider(_builtins.str, Enum):
+@pulumi.type_token("anvil:aws:SiteProtection")
+class SiteProtection(_builtins.str, Enum):
     """
-    The CDN/proxy provider sitting in front of CloudFront.
+    Who can invoke the site's server Lambda Function URL. Default: "none", or "edge-oac" while a WAF is attached or origin protection is enabled. An explicit value always wins.
     """
-    CLOUDFLARE = "cloudflare"
+    NONE = "none"
     """
-    Cloudflare — inject x-origin-secret via a Cloudflare Transform Rule.
+    Public Function URL. Anyone who learns it can call the server directly, bypassing CloudFront and any WAF or proxy.
+    """
+    OAC = "oac"
+    """
+    Locked to CloudFront via IAM + OAC. Requests with a body are rejected unless they already carry an x-amz-content-sha256 header.
+    """
+    EDGE_OAC = "edge-oac"
+    """
+    Locked to CloudFront via IAM + OAC, with a Lambda@Edge function that adds the x-amz-content-sha256 header (AWS's documented approach). Nothing is needed in the app; request bodies over 1 MB are rejected.
     """
 
 

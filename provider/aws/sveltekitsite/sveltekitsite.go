@@ -17,19 +17,14 @@ import (
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/s3"
 )
 
-// SiteOriginProtectionArgs configures CloudFront origin protection via WAF.
-// When set, Anvil provisions a WAF WebACL that blocks any request missing the
-// correct x-origin-secret header. Configure Cloudflare Transform Rules to inject
-// this header on every proxied request using the outputted originSecret value.
-type SiteOriginProtectionArgs struct {
-	// Provider is the CDN/proxy in front of CloudFront.
-	// Only "cloudflare" is supported.
-	Provider string `pulumi:"provider"`
+// SiteWafArgs attaches a WAF to the site. Composes freely with
+// originProtection. While a WAF is attached, protection defaults to
+// "edge-oac" so the server Function URL can't be used to bypass the WAF.
+type SiteWafArgs struct {
+	// Arn is the ARN of a WAF WebACL with CLOUDFRONT scope (us-east-1).
+	// Pass waf.arn from an Anvil Waf component.
+	Arn pulumi.StringInput `pulumi:"arn" schema:"required"`
 }
-
-// SiteIpAllowlistArgs configures IP-based origin protection.
-// Reserved for future configuration — pass {} to enable with Cloudflare IP defaults.
-type SiteIpAllowlistArgs struct{}
 
 type SvelteKitSiteArgs struct {
 	Path string `pulumi:"path"`
@@ -46,11 +41,30 @@ type SvelteKitSiteArgs struct {
 	Domain    string                            `pulumi:"domain,optional"`
 	Transform map[string]map[string]interface{} `pulumi:"transform,optional"`
 
-	// OriginProtection enables WAF-based origin protection.
-	// When set, a WAF WebACL is created that blocks requests missing the
-	// x-origin-secret header. The secret value is output as originSecret.
-	// Requires domain to be set.
-	OriginProtection *SiteOriginProtectionArgs `pulumi:"originProtection,optional"`
+	// OriginProtection locks CloudFront to a CDN/proxy in front of it
+	// (Cloudflare, Fastly, Akamai, nginx, ...). Requests without the
+	// x-origin-secret header are rejected at the edge; configure the proxy to
+	// send it on every request with the originSecret output as the value.
+	// Protection defaults to "edge-oac" while it's enabled, so the server
+	// Function URL can't be reached around the proxy.
+	OriginProtection bool `pulumi:"originProtection,optional"`
+
+	// Waf attaches a WAF WebACL to the site's CloudFront distribution.
+	// Protection defaults to "edge-oac" while it's attached.
+	Waf *SiteWafArgs `pulumi:"waf,optional"`
+
+	// Protection controls who can invoke the server Lambda's Function URL.
+	// Default: "none", or "edge-oac" while a WAF is attached or origin
+	// protection is enabled. An explicit value always wins.
+	// "none": public Function URL; anyone who learns it can call the server
+	// directly, bypassing CloudFront. "oac": locked to CloudFront via IAM;
+	// requests with a body are rejected unless they already carry an
+	// x-amz-content-sha256 header. "edge-oac": "oac" plus a Lambda@Edge
+	// function that adds the header, following AWS's guidance — nothing is
+	// needed in the app; request bodies over 1 MB are rejected. In "oac" and
+	// "edge-oac", a viewer Authorization header is replaced by CloudFront's
+	// signature.
+	Protection string `pulumi:"protection,optional"`
 }
 
 type SvelteKitSite struct {
@@ -60,8 +74,9 @@ type SvelteKitSite struct {
 	BucketName               pulumi.StringOutput `pulumi:"bucketName"`
 	FunctionName             pulumi.StringOutput `pulumi:"functionName"`
 	DNSRecords               pulumi.StringOutput `pulumi:"dnsRecords"`
-	// OriginSecret is the x-origin-secret header value to configure in Cloudflare
-	// Transform Rules. Only populated when originProtection is set.
+	// OriginSecret is the x-origin-secret header value to configure in the
+	// CDN/proxy. Secret. Stable across deploys. Only populated when
+	// originProtection is enabled.
 	OriginSecret pulumi.StringOutput `pulumi:"originSecret"`
 }
 
@@ -79,6 +94,19 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 	err := ctx.RegisterComponentResource(p.GetTypeToken(ctx), name, site, opts...)
 	if err != nil {
 		return nil, err
+	}
+
+	// ── Protection mode ──────────────────────────────────────────
+	resolved, err := awssite.ResolveProtection(args.Protection, args.Waf != nil, args.OriginProtection)
+	if err != nil {
+		return nil, err
+	}
+	protection := resolved.Mode
+	if resolved.Notice != "" {
+		ctx.Log.Info(resolved.Notice, &pulumi.LogArgs{Resource: site})
+	}
+	if resolved.Warning != "" {
+		ctx.Log.Warn(resolved.Warning, &pulumi.LogArgs{Resource: site})
 	}
 
 	projectRoot, err := os.Getwd()
@@ -120,6 +148,21 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 	}, oac, pulumi.Parent(site))
 	if err != nil {
 		return nil, err
+	}
+
+	// Lambda OAC: CloudFront signs requests to the AWS_IAM Function URL.
+	var lambdaOAC *cloudfront.OriginAccessControl
+	if awssite.IsIAMProtected(protection) {
+		lambdaOAC = &cloudfront.OriginAccessControl{}
+		err = ctx.RegisterResource("aws:cloudfront/originAccessControl:OriginAccessControl", name+"-lambda-oac", pulumi.Map{
+			"name":                          pulumi.Sprintf("%s-lambda-oac", name),
+			"originAccessControlOriginType": pulumi.String("lambda"),
+			"signingBehavior":               pulumi.String("always"),
+			"signingProtocol":               pulumi.String("sigv4"),
+		}, lambdaOAC, pulumi.Parent(site))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// ── Lambda IAM role ──────────────────────────────────────────
@@ -169,7 +212,7 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 	}
 
 	// ── Function URL ─────────────────────────────────────────────
-	fnURL, err := awssite.CreateSiteFunctionURL(ctx, site, name, lambdaFn)
+	fnURL, err := awssite.CreateSiteFunctionURL(ctx, site, name, lambdaFn, protection)
 	if err != nil {
 		return nil, err
 	}
@@ -197,31 +240,33 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 		cfDependencies = append(cfDependencies, dr.Validation)
 	}
 
-	// ── Origin protection (opt-in) ───────────────────────────────
-	var webACLArn pulumi.StringOutput
+	// ── WAF / origin protection (opt-in) ─────────────────────────
+	var webACLArn, originGuardArn, edgeSignerArn pulumi.StringOutput
 	originSecretOutput := pulumi.String("").ToStringOutput()
 
-	if args.OriginProtection != nil {
-		stage, _ := ctx.GetConfig("anvil:stage")
-		if stage == "" {
-			stage = "dev"
-		}
+	if args.Waf != nil {
+		webACLArn = args.Waf.Arn.ToStringOutput()
+	}
 
-		pr, err := awssite.SetupOriginProtection(ctx, site, name, stage, awssite.OriginProtectionArgs{
-			Provider: args.OriginProtection.Provider,
-		})
+	if awssite.UsesEdgeSigner(protection) {
+		edgeSignerArn, err = awssite.SetupEdgeSigner(ctx, site, name)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if args.OriginProtection {
+		pr, err := awssite.SetupOriginProtection(ctx, site, name)
 		if err != nil {
 			return nil, fmt.Errorf("origin protection setup failed: %w", err)
 		}
-		webACLArn = pr.WebACLArn
+		originGuardArn = pr.FunctionArn
 		originSecretOutput = pr.OriginSecret
 
-		ctx.Log.Info(
-			"Origin protection enabled. Configure Cloudflare Transform Rules to add the header:\n"+
-				"  Header name:  x-origin-secret\n"+
-				"  Header value: (see originSecret output after deploy)",
-			nil,
-		)
+		ctx.Log.Info("Origin protection enabled: CloudFront only accepts requests carrying the "+
+			awssite.OriginSecretHeader+" header. Configure your CDN/proxy to send it on every request, "+
+			"with the originSecret output as the value — until then the site returns 403.",
+			&pulumi.LogArgs{Resource: site})
 	}
 
 	// ── CloudFront ───────────────────────────────────────────────
@@ -241,16 +286,25 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 	distribution := &cloudfront.Distribution{}
 	err = ctx.RegisterResource("aws:cloudfront/distribution:Distribution", name+"-cdn",
 		awssite.BuildCloudFrontArgs(awssite.CloudFrontArgs{
-			Name:                  name,
-			Bucket:                bucket,
-			OAC:                   oac,
-			LambdaOriginDomain:    lambdaOriginDomain,
-			Domain:                args.Domain,
-			CertARN:               certARN,
-			OrderedCacheBehaviors: sveltekitCacheBehaviors,
-			WebACLArn:             webACLArn,
+			Name:                     name,
+			Bucket:                   bucket,
+			OAC:                      oac,
+			LambdaOriginDomain:       lambdaOriginDomain,
+			LambdaOAC:                lambdaOAC,
+			Domain:                   args.Domain,
+			CertARN:                  certARN,
+			OrderedCacheBehaviors:    sveltekitCacheBehaviors,
+			WebACLArn:                webACLArn,
+			ViewerRequestFunctionArn: originGuardArn,
+			EdgeSignerArn:            edgeSignerArn,
 		}),
 		distribution, cfOpts...)
+	if err != nil {
+		return nil, err
+	}
+
+	// ── Function URL access ──────────────────────────────────────
+	err = awssite.GrantSiteFunctionURLAccess(ctx, site, name, lambdaFn, protection, distribution.Arn)
 	if err != nil {
 		return nil, err
 	}

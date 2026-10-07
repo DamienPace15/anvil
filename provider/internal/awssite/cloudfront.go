@@ -22,6 +22,10 @@ type CloudFrontArgs struct {
 	// LambdaOriginDomain is the hostname of the Lambda Function URL (no scheme, no trailing slash).
 	LambdaOriginDomain pulumi.StringOutput
 
+	// LambdaOAC is the Origin Access Control for the Lambda origin. Only set when
+	// the Function URL is IAM-protected; nil means the Lambda origin is unsigned.
+	LambdaOAC *cloudfront.OriginAccessControl
+
 	// Domain is the optional custom domain. Empty string means use the CloudFront default cert.
 	Domain string
 
@@ -35,8 +39,16 @@ type CloudFrontArgs struct {
 	OrderedCacheBehaviors pulumi.Array
 
 	// WebACLArn is the ARN of the WAF WebACL to associate with the distribution.
-	// Only set when originProtection is configured. Empty string means no WAF.
+	// Only set when the site's waf input is set. Zero value means no WAF.
 	WebACLArn pulumi.StringOutput
+
+	// ViewerRequestFunctionArn is a CloudFront Function run on viewer-request for
+	// every cache behavior (origin protection). Zero value means none.
+	ViewerRequestFunctionArn pulumi.StringOutput
+
+	// EdgeSignerArn is the qualified ARN of the Lambda@Edge signer run on
+	// origin-request for the Lambda origin (edge-oac). Zero value means none.
+	EdgeSignerArn pulumi.StringOutput
 }
 
 // BuildCloudFrontArgs constructs the full CloudFront distribution argument map.
@@ -45,6 +57,21 @@ type CloudFrontArgs struct {
 func BuildCloudFrontArgs(args CloudFrontArgs) pulumi.Map {
 	s3OriginID := args.Name + "-s3"
 	lambdaOriginID := args.Name + "-lambda"
+
+	lambdaOrigin := pulumi.Map{
+		"domainName": args.LambdaOriginDomain,
+		"originId":   pulumi.String(lambdaOriginID),
+		"customOriginConfig": pulumi.Map{
+			"httpPort":             pulumi.Int(80),
+			"httpsPort":            pulumi.Int(443),
+			"originProtocolPolicy": pulumi.String("https-only"),
+			"originSslProtocols":   pulumi.StringArray{pulumi.String("TLSv1.2")},
+		},
+	}
+	// Sign origin requests so the AWS_IAM Function URL accepts them.
+	if args.LambdaOAC != nil {
+		lambdaOrigin["originAccessControlId"] = args.LambdaOAC.ID()
+	}
 
 	var viewerCertificate pulumi.Map
 	if args.Domain != "" {
@@ -71,16 +98,7 @@ func BuildCloudFrontArgs(args CloudFrontArgs) pulumi.Map {
 				"originId":              pulumi.String(s3OriginID),
 				"originAccessControlId": args.OAC.ID(),
 			},
-			pulumi.Map{
-				"domainName": args.LambdaOriginDomain,
-				"originId":   pulumi.String(lambdaOriginID),
-				"customOriginConfig": pulumi.Map{
-					"httpPort":             pulumi.Int(80),
-					"httpsPort":            pulumi.Int(443),
-					"originProtocolPolicy": pulumi.String("https-only"),
-					"originSslProtocols":   pulumi.StringArray{pulumi.String("TLSv1.2")},
-				},
-			},
+			lambdaOrigin,
 		},
 		// Default: all requests → Lambda (SSR).
 		"defaultCacheBehavior": pulumi.Map{
@@ -105,9 +123,31 @@ func BuildCloudFrontArgs(args CloudFrontArgs) pulumi.Map {
 		cfArgs["aliases"] = pulumi.StringArray{pulumi.String(args.Domain)}
 	}
 
-	// Attach WAF WebACL if origin protection is enabled.
 	if args.WebACLArn != (pulumi.StringOutput{}) {
 		cfArgs["webAclId"] = args.WebACLArn
+	}
+
+	// The edge signer only applies to the Lambda origin (the default behavior);
+	// S3 behaviors serve static GETs. includeBody lets it hash the request body.
+	if args.EdgeSignerArn != (pulumi.StringOutput{}) {
+		cfArgs["defaultCacheBehavior"].(pulumi.Map)["lambdaFunctionAssociations"] = pulumi.Array{pulumi.Map{
+			"eventType":   pulumi.String("origin-request"),
+			"lambdaArn":   args.EdgeSignerArn,
+			"includeBody": pulumi.Bool(true),
+		}}
+	}
+
+	// The viewer-request function must run on every behavior — static asset
+	// paths included — or those paths would bypass it.
+	if args.ViewerRequestFunctionArn != (pulumi.StringOutput{}) {
+		associations := pulumi.Array{pulumi.Map{
+			"eventType":   pulumi.String("viewer-request"),
+			"functionArn": args.ViewerRequestFunctionArn,
+		}}
+		cfArgs["defaultCacheBehavior"].(pulumi.Map)["functionAssociations"] = associations
+		for _, behavior := range args.OrderedCacheBehaviors {
+			behavior.(pulumi.Map)["functionAssociations"] = associations
+		}
 	}
 
 	return cfArgs

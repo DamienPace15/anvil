@@ -384,17 +384,25 @@ export const S3FlowLogLifecycle = {
 
 export type S3FlowLogLifecycle = (typeof S3FlowLogLifecycle)[keyof typeof S3FlowLogLifecycle];
 
-export const SiteOriginProtectionProvider = {
+export const SiteProtection = {
     /**
-     * Cloudflare — inject x-origin-secret via a Cloudflare Transform Rule.
+     * Public Function URL. Anyone who learns it can call the server directly, bypassing CloudFront and any WAF or proxy.
      */
-    Cloudflare: "cloudflare",
+    None: "none",
+    /**
+     * Locked to CloudFront via IAM + OAC. Requests with a body are rejected unless they already carry an x-amz-content-sha256 header.
+     */
+    Oac: "oac",
+    /**
+     * Locked to CloudFront via IAM + OAC, with a Lambda@Edge function that adds the x-amz-content-sha256 header (AWS's documented approach). Nothing is needed in the app; request bodies over 1 MB are rejected.
+     */
+    EdgeOac: "edge-oac",
 } as const;
 
 /**
- * The CDN/proxy provider sitting in front of CloudFront.
+ * Who can invoke the site's server Lambda Function URL. Default: "none", or "edge-oac" while a WAF is attached or origin protection is enabled. An explicit value always wins.
  */
-export type SiteOriginProtectionProvider = (typeof SiteOriginProtectionProvider)[keyof typeof SiteOriginProtectionProvider];
+export type SiteProtection = (typeof SiteProtection)[keyof typeof SiteProtection];
 
 export const VpcNatType = {
     /**

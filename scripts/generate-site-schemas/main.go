@@ -45,21 +45,31 @@ import (
 // The referenced token must also have an entry in manualTypes below.
 
 var enumFieldOverrides = map[string]string{
-	"SiteOriginProtectionArgs.provider": "anvil:aws:SiteOriginProtectionProvider",
-	"SiteOriginProtectionArgs.mode":     "anvil:aws:SiteOriginProtectionMode",
+	"SvelteKitSiteArgs.protection": "anvil:aws:SiteProtection",
 }
 
 // manualTypes holds hand-authored type definitions that are injected into the
 // schema types block alongside auto-generated nested object types.
 // Use for enum types and any other types the AST generator cannot produce.
 var manualTypes = map[string]interface{}{
-	"anvil:aws:SiteOriginProtectionProvider": map[string]interface{}{
+	"anvil:aws:SiteProtection": map[string]interface{}{
 		"type":        "string",
-		"description": "The CDN/proxy provider sitting in front of CloudFront.",
+		"description": "Who can invoke the site's server Lambda Function URL. Default: \"none\", or \"edge-oac\" while a WAF is attached or origin protection is enabled. An explicit value always wins.",
 		"enum": []map[string]string{
 			{
-				"value":       "cloudflare",
-				"description": "Cloudflare — inject x-origin-secret via a Cloudflare Transform Rule.",
+				"name":        "None",
+				"value":       "none",
+				"description": "Public Function URL. Anyone who learns it can call the server directly, bypassing CloudFront and any WAF or proxy.",
+			},
+			{
+				"name":        "Oac",
+				"value":       "oac",
+				"description": "Locked to CloudFront via IAM + OAC. Requests with a body are rejected unless they already carry an x-amz-content-sha256 header.",
+			},
+			{
+				"name":        "EdgeOac",
+				"value":       "edge-oac",
+				"description": "Locked to CloudFront via IAM + OAC, with a Lambda@Edge function that adds the x-amz-content-sha256 header (AWS's documented approach). Nothing is needed in the app; request bodies over 1 MB are rejected.",
 			},
 		},
 	},
@@ -192,7 +202,7 @@ func main() {
 
 		// Collect nested object types referenced via $ref so we can emit them
 		// into the types block. Key = short Go struct name, Value = token name.
-		nestedTypes := make(map[string]string) // e.g. "SiteOriginProtectionArgs" → "anvil:aws:SiteOriginProtection"
+		nestedTypes := make(map[string]string) // e.g. "SiteWafArgs" → "anvil:aws:SiteWaf"
 
 		inputProps := make(map[string]schemaProperty)
 		var requiredInputs []string
@@ -288,7 +298,7 @@ func main() {
 // ── Schema building ───────────────────────────────────────────────────────────
 
 // structNameToToken converts a Go struct name to an Anvil schema token.
-// Strips the "Args" suffix so SiteOriginProtectionArgs → anvil:aws:SiteOriginProtection.
+// Strips the "Args" suffix so SiteWafArgs → anvil:aws:SiteWaf.
 func structNameToToken(goName, cloud string) string {
 	typeName := strings.TrimSuffix(goName, "Args")
 	return fmt.Sprintf("anvil:%s:%s", cloud, typeName)

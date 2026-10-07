@@ -18,7 +18,7 @@ type SvelteKitSite struct {
 	CloudFrontDistributionId pulumi.StringPtrOutput `pulumi:"cloudFrontDistributionId"`
 	DnsRecords               pulumi.StringPtrOutput `pulumi:"dnsRecords"`
 	FunctionName             pulumi.StringPtrOutput `pulumi:"functionName"`
-	// OriginSecret is the x-origin-secret header value to configure in Cloudflare Transform Rules. Only populated when originProtection is set.
+	// OriginSecret is the x-origin-secret header value to configure in the CDN/proxy. Secret. Stable across deploys. Only populated when originProtection is enabled.
 	OriginSecret pulumi.StringPtrOutput `pulumi:"originSecret"`
 	Url          pulumi.StringPtrOutput `pulumi:"url"`
 }
@@ -43,12 +43,16 @@ type svelteKitSiteArgs struct {
 	Domain *string `pulumi:"domain"`
 	// Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
 	Environment map[string]string `pulumi:"environment"`
-	// OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set.
-	OriginProtection *SiteOriginProtection `pulumi:"originProtection"`
-	Path             *string               `pulumi:"path"`
+	// OriginProtection locks CloudFront to a CDN/proxy in front of it (Cloudflare, Fastly, Akamai, nginx, ...). Requests without the x-origin-secret header are rejected at the edge; configure the proxy to send it on every request with the originSecret output as the value. Protection defaults to "edge-oac" while it's enabled, so the server Function URL can't be reached around the proxy.
+	OriginProtection *bool   `pulumi:"originProtection"`
+	Path             *string `pulumi:"path"`
+	// Protection controls who can invoke the server Lambda's Function URL. Default: "none", or "edge-oac" while a WAF is attached or origin protection is enabled. An explicit value always wins. "none": public Function URL; anyone who learns it can call the server directly, bypassing CloudFront. "oac": locked to CloudFront via IAM; requests with a body are rejected unless they already carry an x-amz-content-sha256 header. "edge-oac": "oac" plus a Lambda@Edge function that adds the header, following AWS's guidance — nothing is needed in the app; request bodies over 1 MB are rejected. In "oac" and "edge-oac", a viewer Authorization header is replaced by CloudFront's signature.
+	Protection *SiteProtection `pulumi:"protection"`
 	// Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
 	RuntimeEnvironment map[string]string `pulumi:"runtimeEnvironment"`
 	Transform          *string           `pulumi:"transform"`
+	// Waf attaches a WAF WebACL to the site's CloudFront distribution. Protection defaults to "edge-oac" while it's attached.
+	Waf *SiteWaf `pulumi:"waf"`
 }
 
 // The set of arguments for constructing a SvelteKitSite resource.
@@ -56,12 +60,16 @@ type SvelteKitSiteArgs struct {
 	Domain pulumi.StringPtrInput
 	// Environment vars available at BOTH build time and runtime. Values must be string literals since they're needed before the build runs.
 	Environment pulumi.StringMapInput
-	// OriginProtection enables WAF-based origin protection. When set, a WAF WebACL is created that blocks requests missing the x-origin-secret header. The secret value is output as originSecret. Requires domain to be set.
-	OriginProtection SiteOriginProtectionPtrInput
+	// OriginProtection locks CloudFront to a CDN/proxy in front of it (Cloudflare, Fastly, Akamai, nginx, ...). Requests without the x-origin-secret header are rejected at the edge; configure the proxy to send it on every request with the originSecret output as the value. Protection defaults to "edge-oac" while it's enabled, so the server Function URL can't be reached around the proxy.
+	OriginProtection pulumi.BoolPtrInput
 	Path             pulumi.StringPtrInput
+	// Protection controls who can invoke the server Lambda's Function URL. Default: "none", or "edge-oac" while a WAF is attached or origin protection is enabled. An explicit value always wins. "none": public Function URL; anyone who learns it can call the server directly, bypassing CloudFront. "oac": locked to CloudFront via IAM; requests with a body are rejected unless they already carry an x-amz-content-sha256 header. "edge-oac": "oac" plus a Lambda@Edge function that adds the header, following AWS's guidance — nothing is needed in the app; request bodies over 1 MB are rejected. In "oac" and "edge-oac", a viewer Authorization header is replaced by CloudFront's signature.
+	Protection SiteProtectionPtrInput
 	// Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
 	RuntimeEnvironment pulumi.StringMapInput
 	Transform          pulumi.StringPtrInput
+	// Waf attaches a WAF WebACL to the site's CloudFront distribution. Protection defaults to "edge-oac" while it's attached.
+	Waf SiteWafPtrInput
 }
 
 func (SvelteKitSiteArgs) ElementType() reflect.Type {
@@ -167,7 +175,7 @@ func (o SvelteKitSiteOutput) FunctionName() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *SvelteKitSite) pulumi.StringPtrOutput { return v.FunctionName }).(pulumi.StringPtrOutput)
 }
 
-// OriginSecret is the x-origin-secret header value to configure in Cloudflare Transform Rules. Only populated when originProtection is set.
+// OriginSecret is the x-origin-secret header value to configure in the CDN/proxy. Secret. Stable across deploys. Only populated when originProtection is enabled.
 func (o SvelteKitSiteOutput) OriginSecret() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *SvelteKitSite) pulumi.StringPtrOutput { return v.OriginSecret }).(pulumi.StringPtrOutput)
 }

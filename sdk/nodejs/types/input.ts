@@ -1785,13 +1785,13 @@ export namespace aws {
     }
 
     /**
-     * SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
+     * SiteWafArgs attaches a WAF to the site. Composes freely with originProtection. While a WAF is attached, protection defaults to "edge-oac" so the server Function URL can't be used to bypass the WAF.
      */
-    export interface SiteOriginProtectionArgs {
+    export interface SiteWafArgs {
         /**
-         * Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
+         * Arn is the ARN of a WAF WebACL with CLOUDFRONT scope (us-east-1). Pass waf.arn from an Anvil Waf component.
          */
-        provider?: pulumi.Input<enums.aws.SiteOriginProtectionProvider>;
+        arn: pulumi.Input<string>;
     }
 
     export interface VpcBastionArgsArgs {

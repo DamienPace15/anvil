@@ -14487,144 +14487,144 @@ func (o QueueTransformArgsPtrOutput) Queue() QueueOverridesPtrOutput {
 	}).(QueueOverridesPtrOutput)
 }
 
-// SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
-type SiteOriginProtection struct {
-	// Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
-	Provider *SiteOriginProtectionProvider `pulumi:"provider"`
+// SiteWafArgs attaches a WAF to the site. Composes freely with originProtection. While a WAF is attached, protection defaults to "edge-oac" so the server Function URL can't be used to bypass the WAF.
+type SiteWaf struct {
+	// Arn is the ARN of a WAF WebACL with CLOUDFRONT scope (us-east-1). Pass waf.arn from an Anvil Waf component.
+	Arn string `pulumi:"arn"`
 }
 
-// SiteOriginProtectionInput is an input type that accepts SiteOriginProtectionArgs and SiteOriginProtectionOutput values.
-// You can construct a concrete instance of `SiteOriginProtectionInput` via:
+// SiteWafInput is an input type that accepts SiteWafArgs and SiteWafOutput values.
+// You can construct a concrete instance of `SiteWafInput` via:
 //
-//	SiteOriginProtectionArgs{...}
-type SiteOriginProtectionInput interface {
+//	SiteWafArgs{...}
+type SiteWafInput interface {
 	pulumi.Input
 
-	ToSiteOriginProtectionOutput() SiteOriginProtectionOutput
-	ToSiteOriginProtectionOutputWithContext(context.Context) SiteOriginProtectionOutput
+	ToSiteWafOutput() SiteWafOutput
+	ToSiteWafOutputWithContext(context.Context) SiteWafOutput
 }
 
-// SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
-type SiteOriginProtectionArgs struct {
-	// Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
-	Provider SiteOriginProtectionProviderPtrInput `pulumi:"provider"`
+// SiteWafArgs attaches a WAF to the site. Composes freely with originProtection. While a WAF is attached, protection defaults to "edge-oac" so the server Function URL can't be used to bypass the WAF.
+type SiteWafArgs struct {
+	// Arn is the ARN of a WAF WebACL with CLOUDFRONT scope (us-east-1). Pass waf.arn from an Anvil Waf component.
+	Arn pulumi.StringInput `pulumi:"arn"`
 }
 
-func (SiteOriginProtectionArgs) ElementType() reflect.Type {
-	return reflect.TypeOf((*SiteOriginProtection)(nil)).Elem()
+func (SiteWafArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteWaf)(nil)).Elem()
 }
 
-func (i SiteOriginProtectionArgs) ToSiteOriginProtectionOutput() SiteOriginProtectionOutput {
-	return i.ToSiteOriginProtectionOutputWithContext(context.Background())
+func (i SiteWafArgs) ToSiteWafOutput() SiteWafOutput {
+	return i.ToSiteWafOutputWithContext(context.Background())
 }
 
-func (i SiteOriginProtectionArgs) ToSiteOriginProtectionOutputWithContext(ctx context.Context) SiteOriginProtectionOutput {
-	return pulumi.ToOutputWithContext(ctx, i).(SiteOriginProtectionOutput)
+func (i SiteWafArgs) ToSiteWafOutputWithContext(ctx context.Context) SiteWafOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SiteWafOutput)
 }
 
-func (i SiteOriginProtectionArgs) ToSiteOriginProtectionPtrOutput() SiteOriginProtectionPtrOutput {
-	return i.ToSiteOriginProtectionPtrOutputWithContext(context.Background())
+func (i SiteWafArgs) ToSiteWafPtrOutput() SiteWafPtrOutput {
+	return i.ToSiteWafPtrOutputWithContext(context.Background())
 }
 
-func (i SiteOriginProtectionArgs) ToSiteOriginProtectionPtrOutputWithContext(ctx context.Context) SiteOriginProtectionPtrOutput {
-	return pulumi.ToOutputWithContext(ctx, i).(SiteOriginProtectionOutput).ToSiteOriginProtectionPtrOutputWithContext(ctx)
+func (i SiteWafArgs) ToSiteWafPtrOutputWithContext(ctx context.Context) SiteWafPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SiteWafOutput).ToSiteWafPtrOutputWithContext(ctx)
 }
 
-// SiteOriginProtectionPtrInput is an input type that accepts SiteOriginProtectionArgs, SiteOriginProtectionPtr and SiteOriginProtectionPtrOutput values.
-// You can construct a concrete instance of `SiteOriginProtectionPtrInput` via:
+// SiteWafPtrInput is an input type that accepts SiteWafArgs, SiteWafPtr and SiteWafPtrOutput values.
+// You can construct a concrete instance of `SiteWafPtrInput` via:
 //
-//	        SiteOriginProtectionArgs{...}
+//	        SiteWafArgs{...}
 //
 //	or:
 //
 //	        nil
-type SiteOriginProtectionPtrInput interface {
+type SiteWafPtrInput interface {
 	pulumi.Input
 
-	ToSiteOriginProtectionPtrOutput() SiteOriginProtectionPtrOutput
-	ToSiteOriginProtectionPtrOutputWithContext(context.Context) SiteOriginProtectionPtrOutput
+	ToSiteWafPtrOutput() SiteWafPtrOutput
+	ToSiteWafPtrOutputWithContext(context.Context) SiteWafPtrOutput
 }
 
-type siteOriginProtectionPtrType SiteOriginProtectionArgs
+type siteWafPtrType SiteWafArgs
 
-func SiteOriginProtectionPtr(v *SiteOriginProtectionArgs) SiteOriginProtectionPtrInput {
-	return (*siteOriginProtectionPtrType)(v)
+func SiteWafPtr(v *SiteWafArgs) SiteWafPtrInput {
+	return (*siteWafPtrType)(v)
 }
 
-func (*siteOriginProtectionPtrType) ElementType() reflect.Type {
-	return reflect.TypeOf((**SiteOriginProtection)(nil)).Elem()
+func (*siteWafPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**SiteWaf)(nil)).Elem()
 }
 
-func (i *siteOriginProtectionPtrType) ToSiteOriginProtectionPtrOutput() SiteOriginProtectionPtrOutput {
-	return i.ToSiteOriginProtectionPtrOutputWithContext(context.Background())
+func (i *siteWafPtrType) ToSiteWafPtrOutput() SiteWafPtrOutput {
+	return i.ToSiteWafPtrOutputWithContext(context.Background())
 }
 
-func (i *siteOriginProtectionPtrType) ToSiteOriginProtectionPtrOutputWithContext(ctx context.Context) SiteOriginProtectionPtrOutput {
-	return pulumi.ToOutputWithContext(ctx, i).(SiteOriginProtectionPtrOutput)
+func (i *siteWafPtrType) ToSiteWafPtrOutputWithContext(ctx context.Context) SiteWafPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SiteWafPtrOutput)
 }
 
-// SiteOriginProtectionArgs configures CloudFront origin protection via WAF. When set, Anvil provisions a WAF WebACL that blocks any request missing the correct x-origin-secret header. Configure Cloudflare Transform Rules to inject this header on every proxied request using the outputted originSecret value.
-type SiteOriginProtectionOutput struct{ *pulumi.OutputState }
+// SiteWafArgs attaches a WAF to the site. Composes freely with originProtection. While a WAF is attached, protection defaults to "edge-oac" so the server Function URL can't be used to bypass the WAF.
+type SiteWafOutput struct{ *pulumi.OutputState }
 
-func (SiteOriginProtectionOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((*SiteOriginProtection)(nil)).Elem()
+func (SiteWafOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteWaf)(nil)).Elem()
 }
 
-func (o SiteOriginProtectionOutput) ToSiteOriginProtectionOutput() SiteOriginProtectionOutput {
+func (o SiteWafOutput) ToSiteWafOutput() SiteWafOutput {
 	return o
 }
 
-func (o SiteOriginProtectionOutput) ToSiteOriginProtectionOutputWithContext(ctx context.Context) SiteOriginProtectionOutput {
+func (o SiteWafOutput) ToSiteWafOutputWithContext(ctx context.Context) SiteWafOutput {
 	return o
 }
 
-func (o SiteOriginProtectionOutput) ToSiteOriginProtectionPtrOutput() SiteOriginProtectionPtrOutput {
-	return o.ToSiteOriginProtectionPtrOutputWithContext(context.Background())
+func (o SiteWafOutput) ToSiteWafPtrOutput() SiteWafPtrOutput {
+	return o.ToSiteWafPtrOutputWithContext(context.Background())
 }
 
-func (o SiteOriginProtectionOutput) ToSiteOriginProtectionPtrOutputWithContext(ctx context.Context) SiteOriginProtectionPtrOutput {
-	return o.ApplyTWithContext(ctx, func(_ context.Context, v SiteOriginProtection) *SiteOriginProtection {
+func (o SiteWafOutput) ToSiteWafPtrOutputWithContext(ctx context.Context) SiteWafPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v SiteWaf) *SiteWaf {
 		return &v
-	}).(SiteOriginProtectionPtrOutput)
+	}).(SiteWafPtrOutput)
 }
 
-// Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
-func (o SiteOriginProtectionOutput) Provider() SiteOriginProtectionProviderPtrOutput {
-	return o.ApplyT(func(v SiteOriginProtection) *SiteOriginProtectionProvider { return v.Provider }).(SiteOriginProtectionProviderPtrOutput)
+// Arn is the ARN of a WAF WebACL with CLOUDFRONT scope (us-east-1). Pass waf.arn from an Anvil Waf component.
+func (o SiteWafOutput) Arn() pulumi.StringOutput {
+	return o.ApplyT(func(v SiteWaf) string { return v.Arn }).(pulumi.StringOutput)
 }
 
-type SiteOriginProtectionPtrOutput struct{ *pulumi.OutputState }
+type SiteWafPtrOutput struct{ *pulumi.OutputState }
 
-func (SiteOriginProtectionPtrOutput) ElementType() reflect.Type {
-	return reflect.TypeOf((**SiteOriginProtection)(nil)).Elem()
+func (SiteWafPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**SiteWaf)(nil)).Elem()
 }
 
-func (o SiteOriginProtectionPtrOutput) ToSiteOriginProtectionPtrOutput() SiteOriginProtectionPtrOutput {
+func (o SiteWafPtrOutput) ToSiteWafPtrOutput() SiteWafPtrOutput {
 	return o
 }
 
-func (o SiteOriginProtectionPtrOutput) ToSiteOriginProtectionPtrOutputWithContext(ctx context.Context) SiteOriginProtectionPtrOutput {
+func (o SiteWafPtrOutput) ToSiteWafPtrOutputWithContext(ctx context.Context) SiteWafPtrOutput {
 	return o
 }
 
-func (o SiteOriginProtectionPtrOutput) Elem() SiteOriginProtectionOutput {
-	return o.ApplyT(func(v *SiteOriginProtection) SiteOriginProtection {
+func (o SiteWafPtrOutput) Elem() SiteWafOutput {
+	return o.ApplyT(func(v *SiteWaf) SiteWaf {
 		if v != nil {
 			return *v
 		}
-		var ret SiteOriginProtection
+		var ret SiteWaf
 		return ret
-	}).(SiteOriginProtectionOutput)
+	}).(SiteWafOutput)
 }
 
-// Provider is the CDN/proxy in front of CloudFront. Only "cloudflare" is supported.
-func (o SiteOriginProtectionPtrOutput) Provider() SiteOriginProtectionProviderPtrOutput {
-	return o.ApplyT(func(v *SiteOriginProtection) *SiteOriginProtectionProvider {
+// Arn is the ARN of a WAF WebACL with CLOUDFRONT scope (us-east-1). Pass waf.arn from an Anvil Waf component.
+func (o SiteWafPtrOutput) Arn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *SiteWaf) *string {
 		if v == nil {
 			return nil
 		}
-		return v.Provider
-	}).(SiteOriginProtectionProviderPtrOutput)
+		return &v.Arn
+	}).(pulumi.StringPtrOutput)
 }
 
 type VpcBastionArgs struct {
@@ -15636,8 +15636,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*QueueOverridesPtrInput)(nil)).Elem(), QueueOverridesArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*QueueTransformArgsInput)(nil)).Elem(), QueueTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*QueueTransformArgsPtrInput)(nil)).Elem(), QueueTransformArgsArgs{})
-	pulumi.RegisterInputType(reflect.TypeOf((*SiteOriginProtectionInput)(nil)).Elem(), SiteOriginProtectionArgs{})
-	pulumi.RegisterInputType(reflect.TypeOf((*SiteOriginProtectionPtrInput)(nil)).Elem(), SiteOriginProtectionArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteWafInput)(nil)).Elem(), SiteWafArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteWafPtrInput)(nil)).Elem(), SiteWafArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsInput)(nil)).Elem(), VpcBastionArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsPtrInput)(nil)).Elem(), VpcBastionArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcCloudWatchFlowLogArgsInput)(nil)).Elem(), VpcCloudWatchFlowLogArgsArgs{})
@@ -15790,8 +15790,8 @@ func init() {
 	pulumi.RegisterOutputType(QueueOverridesPtrOutput{})
 	pulumi.RegisterOutputType(QueueTransformArgsOutput{})
 	pulumi.RegisterOutputType(QueueTransformArgsPtrOutput{})
-	pulumi.RegisterOutputType(SiteOriginProtectionOutput{})
-	pulumi.RegisterOutputType(SiteOriginProtectionPtrOutput{})
+	pulumi.RegisterOutputType(SiteWafOutput{})
+	pulumi.RegisterOutputType(SiteWafPtrOutput{})
 	pulumi.RegisterOutputType(VpcBastionArgsOutput{})
 	pulumi.RegisterOutputType(VpcBastionArgsPtrOutput{})
 	pulumi.RegisterOutputType(VpcCloudWatchFlowLogArgsOutput{})
