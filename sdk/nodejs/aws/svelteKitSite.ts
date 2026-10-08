@@ -49,6 +49,7 @@ export class SvelteKitSite extends pulumi.ComponentResource {
             resourceInputs["path"] = args?.path;
             resourceInputs["protection"] = args?.protection;
             resourceInputs["runtimeEnvironment"] = args?.runtimeEnvironment;
+            resourceInputs["securityHeaders"] = args?.securityHeaders;
             resourceInputs["transform"] = args?.transform;
             resourceInputs["waf"] = args?.waf;
             resourceInputs["bucketName"] = undefined /*out*/;
@@ -92,6 +93,10 @@ export interface SvelteKitSiteArgs {
      * Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
      */
     runtimeEnvironment?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+    /**
+     * SecurityHeaders configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. Headers your app sets itself take priority. Content-Security-Policy is left to SvelteKit's kit.csp.
+     */
+    securityHeaders?: pulumi.Input<inputs.aws.SiteSecurityHeadersArgs>;
     transform?: pulumi.Input<string>;
     /**
      * Waf attaches a WAF WebACL to the site's CloudFront distribution. Protection defaults to "edge-oac" while it's attached.

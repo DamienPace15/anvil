@@ -67,6 +67,8 @@ __all__ = [
     'CognitoUserPoolTokenValidityArgsDict',
     'CognitoUserPoolTransformArgsArgs',
     'CognitoUserPoolTransformArgsArgsDict',
+    'CognitoUserPoolWafArgs',
+    'CognitoUserPoolWafArgsDict',
     'DSQLBackupArgsArgs',
     'DSQLBackupArgsArgsDict',
     'DSQLColumnArgs',
@@ -159,6 +161,10 @@ __all__ = [
     'QueueOverridesArgsDict',
     'QueueTransformArgsArgs',
     'QueueTransformArgsArgsDict',
+    'SiteHstsArgs',
+    'SiteHstsArgsDict',
+    'SiteSecurityHeadersArgs',
+    'SiteSecurityHeadersArgsDict',
     'SiteWafArgs',
     'SiteWafArgsDict',
     'VpcBastionArgsArgs',
@@ -173,6 +179,16 @@ __all__ = [
     'VpcNatArgsArgsDict',
     'VpcS3FlowLogArgsArgs',
     'VpcS3FlowLogArgsArgsDict',
+    'WafLoggingArgsArgs',
+    'WafLoggingArgsArgsDict',
+    'WafManagedRulesArgsArgs',
+    'WafManagedRulesArgsArgsDict',
+    'WafOverridesArgs',
+    'WafOverridesArgsDict',
+    'WafRateLimitArgsArgs',
+    'WafRateLimitArgsArgsDict',
+    'WafTransformArgsArgs',
+    'WafTransformArgsArgsDict',
 ]
 
 class BucketAccelerateConfigurationTransformArgsDict(TypedDict):
@@ -3393,6 +3409,39 @@ class CognitoUserPoolTransformArgsArgs:
     @cognito_user_pool.setter
     def cognito_user_pool(self, value: Optional[pulumi.Input['CognitoUserPoolOverridesArgs']]):
         pulumi.set(self, "cognito_user_pool", value)
+
+
+class CognitoUserPoolWafArgsDict(TypedDict):
+    """
+    Attaches a WAF to the user pool.
+    """
+    arn: pulumi.Input[_builtins.str]
+    """
+    ARN of a regional-scope WebACL in the same region as the pool. Pass waf.arn from an Anvil Waf with scope "regional".
+    """
+
+@pulumi.input_type
+class CognitoUserPoolWafArgs:
+    def __init__(__self__, *,
+                 arn: pulumi.Input[_builtins.str]):
+        """
+        Attaches a WAF to the user pool.
+
+        :param pulumi.Input[_builtins.str] arn: ARN of a regional-scope WebACL in the same region as the pool. Pass waf.arn from an Anvil Waf with scope "regional".
+        """
+        pulumi.set(__self__, "arn", arn)
+
+    @_builtins.property
+    @pulumi.getter
+    def arn(self) -> pulumi.Input[_builtins.str]:
+        """
+        ARN of a regional-scope WebACL in the same region as the pool. Pass waf.arn from an Anvil Waf with scope "regional".
+        """
+        return pulumi.get(self, "arn")
+
+    @arn.setter
+    def arn(self, value: pulumi.Input[_builtins.str]):
+        pulumi.set(self, "arn", value)
 
 
 class DSQLBackupArgsArgsDict(TypedDict):
@@ -8226,6 +8275,174 @@ class QueueTransformArgsArgs:
         pulumi.set(self, "queue", value)
 
 
+class SiteHstsArgsDict(TypedDict):
+    """
+    SiteHstsArgs configures optional Strict-Transport-Security directives. Both are hard to undo — browsers remember them for the max-age (1 year).
+    """
+    include_sub_domains: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    IncludeSubDomains applies HSTS to every subdomain of the site's domain. Default: false.
+    """
+    preload: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Preload marks the domain as eligible for browsers' built-in HSTS preload list. Requires includeSubDomains. Default: false.
+    """
+
+@pulumi.input_type
+class SiteHstsArgs:
+    def __init__(__self__, *,
+                 include_sub_domains: Optional[pulumi.Input[_builtins.bool]] = None,
+                 preload: Optional[pulumi.Input[_builtins.bool]] = None):
+        """
+        SiteHstsArgs configures optional Strict-Transport-Security directives. Both are hard to undo — browsers remember them for the max-age (1 year).
+
+        :param pulumi.Input[_builtins.bool] include_sub_domains: IncludeSubDomains applies HSTS to every subdomain of the site's domain. Default: false.
+        :param pulumi.Input[_builtins.bool] preload: Preload marks the domain as eligible for browsers' built-in HSTS preload list. Requires includeSubDomains. Default: false.
+        """
+        if include_sub_domains is not None:
+            pulumi.set(__self__, "include_sub_domains", include_sub_domains)
+        if preload is not None:
+            pulumi.set(__self__, "preload", preload)
+
+    @_builtins.property
+    @pulumi.getter(name="includeSubDomains")
+    def include_sub_domains(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        IncludeSubDomains applies HSTS to every subdomain of the site's domain. Default: false.
+        """
+        return pulumi.get(self, "include_sub_domains")
+
+    @include_sub_domains.setter
+    def include_sub_domains(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "include_sub_domains", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def preload(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Preload marks the domain as eligible for browsers' built-in HSTS preload list. Requires includeSubDomains. Default: false.
+        """
+        return pulumi.get(self, "preload")
+
+    @preload.setter
+    def preload(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "preload", value)
+
+
+class SiteSecurityHeadersArgsDict(TypedDict):
+    """
+    SiteSecurityHeadersArgs configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. A header your app sets itself always takes priority. Content-Security-Policy is not set — configure it in the framework (e.g. SvelteKit's kit.csp).
+    """
+    cross_origin_opener_policy: NotRequired[pulumi.Input['SiteCrossOriginOpenerPolicy']]
+    """
+    CrossOriginOpenerPolicy isolates the site's browser window from windows on other sites. "same-origin-allow-popups" (default): isolated, but popups it opens (OAuth sign-in, payments) still work. "same-origin": strict isolation — breaks sign-in and payment popups that report back. "none": no Cross-Origin-Opener-Policy header.
+    """
+    enabled: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Enabled turns the security headers on or off. Default: true.
+    """
+    frame_options: NotRequired[pulumi.Input['SiteFrameOptions']]
+    """
+    FrameOptions controls whether other sites can embed this one in a frame. "sameorigin" (default): only pages on this site. "deny": never. "none": no X-Frame-Options header — the site can be embedded anywhere.
+    """
+    hsts: NotRequired[pulumi.Input['SiteHstsArgsDict']]
+    """
+    Hsts adds optional Strict-Transport-Security directives.
+    """
+    permissions_policy: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    PermissionsPolicy is the Permissions-Policy header value: which browser features the site (and anything it embeds) may use. Default: "camera=(), microphone=(), geolocation=(), usb=(), browsing-topics=()". Set your own value to allow a feature, e.g. "camera=(self), microphone=(self)", or "none" to send no Permissions-Policy header.
+    """
+
+@pulumi.input_type
+class SiteSecurityHeadersArgs:
+    def __init__(__self__, *,
+                 cross_origin_opener_policy: Optional[pulumi.Input['SiteCrossOriginOpenerPolicy']] = None,
+                 enabled: Optional[pulumi.Input[_builtins.bool]] = None,
+                 frame_options: Optional[pulumi.Input['SiteFrameOptions']] = None,
+                 hsts: Optional[pulumi.Input['SiteHstsArgs']] = None,
+                 permissions_policy: Optional[pulumi.Input[_builtins.str]] = None):
+        """
+        SiteSecurityHeadersArgs configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. A header your app sets itself always takes priority. Content-Security-Policy is not set — configure it in the framework (e.g. SvelteKit's kit.csp).
+
+        :param pulumi.Input['SiteCrossOriginOpenerPolicy'] cross_origin_opener_policy: CrossOriginOpenerPolicy isolates the site's browser window from windows on other sites. "same-origin-allow-popups" (default): isolated, but popups it opens (OAuth sign-in, payments) still work. "same-origin": strict isolation — breaks sign-in and payment popups that report back. "none": no Cross-Origin-Opener-Policy header.
+        :param pulumi.Input[_builtins.bool] enabled: Enabled turns the security headers on or off. Default: true.
+        :param pulumi.Input['SiteFrameOptions'] frame_options: FrameOptions controls whether other sites can embed this one in a frame. "sameorigin" (default): only pages on this site. "deny": never. "none": no X-Frame-Options header — the site can be embedded anywhere.
+        :param pulumi.Input['SiteHstsArgs'] hsts: Hsts adds optional Strict-Transport-Security directives.
+        :param pulumi.Input[_builtins.str] permissions_policy: PermissionsPolicy is the Permissions-Policy header value: which browser features the site (and anything it embeds) may use. Default: "camera=(), microphone=(), geolocation=(), usb=(), browsing-topics=()". Set your own value to allow a feature, e.g. "camera=(self), microphone=(self)", or "none" to send no Permissions-Policy header.
+        """
+        if cross_origin_opener_policy is not None:
+            pulumi.set(__self__, "cross_origin_opener_policy", cross_origin_opener_policy)
+        if enabled is not None:
+            pulumi.set(__self__, "enabled", enabled)
+        if frame_options is not None:
+            pulumi.set(__self__, "frame_options", frame_options)
+        if hsts is not None:
+            pulumi.set(__self__, "hsts", hsts)
+        if permissions_policy is not None:
+            pulumi.set(__self__, "permissions_policy", permissions_policy)
+
+    @_builtins.property
+    @pulumi.getter(name="crossOriginOpenerPolicy")
+    def cross_origin_opener_policy(self) -> Optional[pulumi.Input['SiteCrossOriginOpenerPolicy']]:
+        """
+        CrossOriginOpenerPolicy isolates the site's browser window from windows on other sites. "same-origin-allow-popups" (default): isolated, but popups it opens (OAuth sign-in, payments) still work. "same-origin": strict isolation — breaks sign-in and payment popups that report back. "none": no Cross-Origin-Opener-Policy header.
+        """
+        return pulumi.get(self, "cross_origin_opener_policy")
+
+    @cross_origin_opener_policy.setter
+    def cross_origin_opener_policy(self, value: Optional[pulumi.Input['SiteCrossOriginOpenerPolicy']]):
+        pulumi.set(self, "cross_origin_opener_policy", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def enabled(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Enabled turns the security headers on or off. Default: true.
+        """
+        return pulumi.get(self, "enabled")
+
+    @enabled.setter
+    def enabled(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "enabled", value)
+
+    @_builtins.property
+    @pulumi.getter(name="frameOptions")
+    def frame_options(self) -> Optional[pulumi.Input['SiteFrameOptions']]:
+        """
+        FrameOptions controls whether other sites can embed this one in a frame. "sameorigin" (default): only pages on this site. "deny": never. "none": no X-Frame-Options header — the site can be embedded anywhere.
+        """
+        return pulumi.get(self, "frame_options")
+
+    @frame_options.setter
+    def frame_options(self, value: Optional[pulumi.Input['SiteFrameOptions']]):
+        pulumi.set(self, "frame_options", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def hsts(self) -> Optional[pulumi.Input['SiteHstsArgs']]:
+        """
+        Hsts adds optional Strict-Transport-Security directives.
+        """
+        return pulumi.get(self, "hsts")
+
+    @hsts.setter
+    def hsts(self, value: Optional[pulumi.Input['SiteHstsArgs']]):
+        pulumi.set(self, "hsts", value)
+
+    @_builtins.property
+    @pulumi.getter(name="permissionsPolicy")
+    def permissions_policy(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        PermissionsPolicy is the Permissions-Policy header value: which browser features the site (and anything it embeds) may use. Default: "camera=(), microphone=(), geolocation=(), usb=(), browsing-topics=()". Set your own value to allow a feature, e.g. "camera=(self), microphone=(self)", or "none" to send no Permissions-Policy header.
+        """
+        return pulumi.get(self, "permissions_policy")
+
+    @permissions_policy.setter
+    def permissions_policy(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "permissions_policy", value)
+
+
 class SiteWafArgsDict(TypedDict):
     """
     SiteWafArgs attaches a WAF to the site. Composes freely with originProtection. While a WAF is attached, protection defaults to "edge-oac" so the server Function URL can't be used to bypass the WAF.
@@ -8531,5 +8748,636 @@ class VpcS3FlowLogArgsArgs:
     @lifecycle.setter
     def lifecycle(self, value: pulumi.Input['S3FlowLogLifecycle']):
         pulumi.set(self, "lifecycle", value)
+
+
+class WafLoggingArgsArgsDict(TypedDict):
+    """
+    WAF logging to CloudWatch Logs.
+    """
+    enabled: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Turns logging on or off. Default: true.
+    """
+    include_allowed: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Also log allowed requests. Default: false — only blocked and counted requests, which keeps cost low.
+    """
+    retention_days: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    How long logs are kept, in days (a CloudWatch Logs retention value). Default: 30.
+    """
+
+@pulumi.input_type
+class WafLoggingArgsArgs:
+    def __init__(__self__, *,
+                 enabled: Optional[pulumi.Input[_builtins.bool]] = None,
+                 include_allowed: Optional[pulumi.Input[_builtins.bool]] = None,
+                 retention_days: Optional[pulumi.Input[_builtins.int]] = None):
+        """
+        WAF logging to CloudWatch Logs.
+
+        :param pulumi.Input[_builtins.bool] enabled: Turns logging on or off. Default: true.
+        :param pulumi.Input[_builtins.bool] include_allowed: Also log allowed requests. Default: false — only blocked and counted requests, which keeps cost low.
+        :param pulumi.Input[_builtins.int] retention_days: How long logs are kept, in days (a CloudWatch Logs retention value). Default: 30.
+        """
+        if enabled is not None:
+            pulumi.set(__self__, "enabled", enabled)
+        if include_allowed is not None:
+            pulumi.set(__self__, "include_allowed", include_allowed)
+        if retention_days is not None:
+            pulumi.set(__self__, "retention_days", retention_days)
+
+    @_builtins.property
+    @pulumi.getter
+    def enabled(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Turns logging on or off. Default: true.
+        """
+        return pulumi.get(self, "enabled")
+
+    @enabled.setter
+    def enabled(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "enabled", value)
+
+    @_builtins.property
+    @pulumi.getter(name="includeAllowed")
+    def include_allowed(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Also log allowed requests. Default: false — only blocked and counted requests, which keeps cost low.
+        """
+        return pulumi.get(self, "include_allowed")
+
+    @include_allowed.setter
+    def include_allowed(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "include_allowed", value)
+
+    @_builtins.property
+    @pulumi.getter(name="retentionDays")
+    def retention_days(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        How long logs are kept, in days (a CloudWatch Logs retention value). Default: 30.
+        """
+        return pulumi.get(self, "retention_days")
+
+    @retention_days.setter
+    def retention_days(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "retention_days", value)
+
+
+class WafManagedRulesArgsArgsDict(TypedDict):
+    """
+    AWS managed rule groups.
+    """
+    admin_protection: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Admin protection (AWSManagedRulesAdminProtectionRuleSet): requests to admin-looking paths. Default: false.
+    """
+    anonymous_ip: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Anonymous IP list (AWSManagedRulesAnonymousIpList): VPNs, Tor, hosting providers. Suits B2B apps; too strict for most consumer apps. Default: false.
+    """
+    core: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Core Rule Set (AWSManagedRulesCommonRuleSet): OWASP Top 10 — XSS, path traversal, remote file inclusion, SSRF. Default: true.
+    """
+    ip_reputation: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Amazon IP reputation list (AWSManagedRulesAmazonIpReputationList): IPs from Amazon threat intelligence. Default: true, or false when clientIpHeader is set.
+    """
+    known_bad_inputs: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Known bad inputs (AWSManagedRulesKnownBadInputsRuleSet): Log4Shell, Java deserialisation, React RCE and other known exploit patterns. Default: true.
+    """
+    sqli: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    SQL injection (AWSManagedRulesSQLiRuleSet). Default: true.
+    """
+
+@pulumi.input_type
+class WafManagedRulesArgsArgs:
+    def __init__(__self__, *,
+                 admin_protection: Optional[pulumi.Input[_builtins.bool]] = None,
+                 anonymous_ip: Optional[pulumi.Input[_builtins.bool]] = None,
+                 core: Optional[pulumi.Input[_builtins.bool]] = None,
+                 ip_reputation: Optional[pulumi.Input[_builtins.bool]] = None,
+                 known_bad_inputs: Optional[pulumi.Input[_builtins.bool]] = None,
+                 sqli: Optional[pulumi.Input[_builtins.bool]] = None):
+        """
+        AWS managed rule groups.
+
+        :param pulumi.Input[_builtins.bool] admin_protection: Admin protection (AWSManagedRulesAdminProtectionRuleSet): requests to admin-looking paths. Default: false.
+        :param pulumi.Input[_builtins.bool] anonymous_ip: Anonymous IP list (AWSManagedRulesAnonymousIpList): VPNs, Tor, hosting providers. Suits B2B apps; too strict for most consumer apps. Default: false.
+        :param pulumi.Input[_builtins.bool] core: Core Rule Set (AWSManagedRulesCommonRuleSet): OWASP Top 10 — XSS, path traversal, remote file inclusion, SSRF. Default: true.
+        :param pulumi.Input[_builtins.bool] ip_reputation: Amazon IP reputation list (AWSManagedRulesAmazonIpReputationList): IPs from Amazon threat intelligence. Default: true, or false when clientIpHeader is set.
+        :param pulumi.Input[_builtins.bool] known_bad_inputs: Known bad inputs (AWSManagedRulesKnownBadInputsRuleSet): Log4Shell, Java deserialisation, React RCE and other known exploit patterns. Default: true.
+        :param pulumi.Input[_builtins.bool] sqli: SQL injection (AWSManagedRulesSQLiRuleSet). Default: true.
+        """
+        if admin_protection is not None:
+            pulumi.set(__self__, "admin_protection", admin_protection)
+        if anonymous_ip is not None:
+            pulumi.set(__self__, "anonymous_ip", anonymous_ip)
+        if core is not None:
+            pulumi.set(__self__, "core", core)
+        if ip_reputation is not None:
+            pulumi.set(__self__, "ip_reputation", ip_reputation)
+        if known_bad_inputs is not None:
+            pulumi.set(__self__, "known_bad_inputs", known_bad_inputs)
+        if sqli is not None:
+            pulumi.set(__self__, "sqli", sqli)
+
+    @_builtins.property
+    @pulumi.getter(name="adminProtection")
+    def admin_protection(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Admin protection (AWSManagedRulesAdminProtectionRuleSet): requests to admin-looking paths. Default: false.
+        """
+        return pulumi.get(self, "admin_protection")
+
+    @admin_protection.setter
+    def admin_protection(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "admin_protection", value)
+
+    @_builtins.property
+    @pulumi.getter(name="anonymousIp")
+    def anonymous_ip(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Anonymous IP list (AWSManagedRulesAnonymousIpList): VPNs, Tor, hosting providers. Suits B2B apps; too strict for most consumer apps. Default: false.
+        """
+        return pulumi.get(self, "anonymous_ip")
+
+    @anonymous_ip.setter
+    def anonymous_ip(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "anonymous_ip", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def core(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Core Rule Set (AWSManagedRulesCommonRuleSet): OWASP Top 10 — XSS, path traversal, remote file inclusion, SSRF. Default: true.
+        """
+        return pulumi.get(self, "core")
+
+    @core.setter
+    def core(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "core", value)
+
+    @_builtins.property
+    @pulumi.getter(name="ipReputation")
+    def ip_reputation(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Amazon IP reputation list (AWSManagedRulesAmazonIpReputationList): IPs from Amazon threat intelligence. Default: true, or false when clientIpHeader is set.
+        """
+        return pulumi.get(self, "ip_reputation")
+
+    @ip_reputation.setter
+    def ip_reputation(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "ip_reputation", value)
+
+    @_builtins.property
+    @pulumi.getter(name="knownBadInputs")
+    def known_bad_inputs(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Known bad inputs (AWSManagedRulesKnownBadInputsRuleSet): Log4Shell, Java deserialisation, React RCE and other known exploit patterns. Default: true.
+        """
+        return pulumi.get(self, "known_bad_inputs")
+
+    @known_bad_inputs.setter
+    def known_bad_inputs(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "known_bad_inputs", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def sqli(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        SQL injection (AWSManagedRulesSQLiRuleSet). Default: true.
+        """
+        return pulumi.get(self, "sqli")
+
+    @sqli.setter
+    def sqli(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "sqli", value)
+
+
+class WafOverridesArgsDict(TypedDict):
+    association_config: NotRequired[pulumi.Input['pulumi_aws.wafv2.WebAclAssociationConfigArgsDict']]
+    """
+    Specifies custom configurations for the associations between the web ACL and protected resources. See <span pulumi-lang-nodejs="`associationConfig`" pulumi-lang-dotnet="`AssociationConfig`" pulumi-lang-go="`associationConfig`" pulumi-lang-python="`association_config`" pulumi-lang-yaml="`associationConfig`" pulumi-lang-java="`associationConfig`">`association_config`</span> below for details.
+    """
+    captcha_config: NotRequired[pulumi.Input['pulumi_aws.wafv2.WebAclCaptchaConfigArgsDict']]
+    """
+    Specifies how AWS WAF should handle CAPTCHA evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`captchaConfig`" pulumi-lang-dotnet="`CaptchaConfig`" pulumi-lang-go="`captchaConfig`" pulumi-lang-python="`captcha_config`" pulumi-lang-yaml="`captchaConfig`" pulumi-lang-java="`captchaConfig`">`captcha_config`</span> below for details.
+    """
+    challenge_config: NotRequired[pulumi.Input['pulumi_aws.wafv2.WebAclChallengeConfigArgsDict']]
+    """
+    Specifies how AWS WAF should handle Challenge evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`challengeConfig`" pulumi-lang-dotnet="`ChallengeConfig`" pulumi-lang-go="`challengeConfig`" pulumi-lang-python="`challenge_config`" pulumi-lang-yaml="`challengeConfig`" pulumi-lang-java="`challengeConfig`">`challenge_config`</span> below for details.
+    """
+    custom_response_bodies: NotRequired[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.wafv2.WebAclCustomResponseBodyArgsDict']]]]
+    """
+    Defines custom response bodies that can be referenced by <span pulumi-lang-nodejs="`customResponse`" pulumi-lang-dotnet="`CustomResponse`" pulumi-lang-go="`customResponse`" pulumi-lang-python="`custom_response`" pulumi-lang-yaml="`customResponse`" pulumi-lang-java="`customResponse`">`custom_response`</span> actions. See <span pulumi-lang-nodejs="`customResponseBody`" pulumi-lang-dotnet="`CustomResponseBody`" pulumi-lang-go="`customResponseBody`" pulumi-lang-python="`custom_response_body`" pulumi-lang-yaml="`customResponseBody`" pulumi-lang-java="`customResponseBody`">`custom_response_body`</span> below for details.
+    """
+    data_protection_config: NotRequired[pulumi.Input['pulumi_aws.wafv2.WebAclDataProtectionConfigArgsDict']]
+    """
+    Specifies data protection to apply to the web request data for the web ACL. This is a web ACL level data protection option. See <span pulumi-lang-nodejs="`dataProtectionConfig`" pulumi-lang-dotnet="`DataProtectionConfig`" pulumi-lang-go="`dataProtectionConfig`" pulumi-lang-python="`data_protection_config`" pulumi-lang-yaml="`dataProtectionConfig`" pulumi-lang-java="`dataProtectionConfig`">`data_protection_config`</span> below for details.
+    """
+    default_action: NotRequired[pulumi.Input['pulumi_aws.wafv2.WebAclDefaultActionArgsDict']]
+    """
+    Action to perform if none of the <span pulumi-lang-nodejs="`rules`" pulumi-lang-dotnet="`Rules`" pulumi-lang-go="`rules`" pulumi-lang-python="`rules`" pulumi-lang-yaml="`rules`" pulumi-lang-java="`rules`">`rules`</span> contained in the WebACL match. See <span pulumi-lang-nodejs="`defaultAction`" pulumi-lang-dotnet="`DefaultAction`" pulumi-lang-go="`defaultAction`" pulumi-lang-python="`default_action`" pulumi-lang-yaml="`defaultAction`" pulumi-lang-java="`defaultAction`">`default_action`</span> below for details.
+    """
+    description: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Friendly description of the WebACL.
+    """
+    name: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Friendly name of the WebACL. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+    """
+    name_prefix: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+    """
+    region: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+    """
+    rule_json: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Raw JSON string to allow more than three nested statements. Conflicts with <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. This is for advanced use cases where more than 3 levels of nested statements are required. **There is no drift detection at this time**. If you use this attribute instead of <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span>, you will be foregoing drift detection. Additionally, importing an existing web ACL into a configuration with <span pulumi-lang-nodejs="`ruleJson`" pulumi-lang-dotnet="`RuleJson`" pulumi-lang-go="`ruleJson`" pulumi-lang-python="`rule_json`" pulumi-lang-yaml="`ruleJson`" pulumi-lang-java="`ruleJson`">`rule_json`</span> set will result in a one time in-place update as the remote rule configuration is initially written to the <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. See the AWS [documentation](https://docs.aws.amazon.com/waf/latest/APIReference/API_CreateWebACL.html) for the JSON structure.
+    """
+    rules: NotRequired[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.wafv2.WebAclRuleArgsDict']]]]
+    """
+    Rule blocks used to identify the web requests that you want to <span pulumi-lang-nodejs="`allow`" pulumi-lang-dotnet="`Allow`" pulumi-lang-go="`allow`" pulumi-lang-python="`allow`" pulumi-lang-yaml="`allow`" pulumi-lang-java="`allow`">`allow`</span>, <span pulumi-lang-nodejs="`block`" pulumi-lang-dotnet="`Block`" pulumi-lang-go="`block`" pulumi-lang-python="`block`" pulumi-lang-yaml="`block`" pulumi-lang-java="`block`">`block`</span>, or <span pulumi-lang-nodejs="`count`" pulumi-lang-dotnet="`Count`" pulumi-lang-go="`count`" pulumi-lang-python="`count`" pulumi-lang-yaml="`count`" pulumi-lang-java="`count`">`count`</span>. See <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> below for details.
+    """
+    scope: NotRequired[pulumi.Input[_builtins.str]]
+    """
+    Specifies whether this is for an AWS CloudFront distribution or for a regional application. Valid values are `CLOUDFRONT` or `REGIONAL`. To work with CloudFront, you must also specify the region `us-east-1` (N. Virginia) on the AWS provider.
+    """
+    tags: NotRequired[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]
+    """
+    Map of key-value pairs to associate with the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+    """
+    token_domains: NotRequired[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]
+    """
+    Specifies the domains that AWS WAF should accept in a web request token. This enables the use of tokens across multiple protected websites. When AWS WAF provides a token, it uses the domain of the AWS resource that the web ACL is protecting. If you don't specify a list of token domains, AWS WAF accepts tokens only for the domain of the protected resource. With a token domain list, AWS WAF accepts the resource's host domain plus all domains in the token domain list, including their prefixed subdomains.
+    """
+    visibility_config: NotRequired[pulumi.Input['pulumi_aws.wafv2.WebAclVisibilityConfigArgsDict']]
+    """
+    Defines and enables Amazon CloudWatch metrics and web request sample collection. See <span pulumi-lang-nodejs="`visibilityConfig`" pulumi-lang-dotnet="`VisibilityConfig`" pulumi-lang-go="`visibilityConfig`" pulumi-lang-python="`visibility_config`" pulumi-lang-yaml="`visibilityConfig`" pulumi-lang-java="`visibilityConfig`">`visibility_config`</span> below for details.
+    """
+
+@pulumi.input_type
+class WafOverridesArgs:
+    def __init__(__self__, *,
+                 association_config: Optional[pulumi.Input['pulumi_aws.wafv2.WebAclAssociationConfigArgs']] = None,
+                 captcha_config: Optional[pulumi.Input['pulumi_aws.wafv2.WebAclCaptchaConfigArgs']] = None,
+                 challenge_config: Optional[pulumi.Input['pulumi_aws.wafv2.WebAclChallengeConfigArgs']] = None,
+                 custom_response_bodies: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.wafv2.WebAclCustomResponseBodyArgs']]]] = None,
+                 data_protection_config: Optional[pulumi.Input['pulumi_aws.wafv2.WebAclDataProtectionConfigArgs']] = None,
+                 default_action: Optional[pulumi.Input['pulumi_aws.wafv2.WebAclDefaultActionArgs']] = None,
+                 description: Optional[pulumi.Input[_builtins.str]] = None,
+                 name: Optional[pulumi.Input[_builtins.str]] = None,
+                 name_prefix: Optional[pulumi.Input[_builtins.str]] = None,
+                 region: Optional[pulumi.Input[_builtins.str]] = None,
+                 rule_json: Optional[pulumi.Input[_builtins.str]] = None,
+                 rules: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.wafv2.WebAclRuleArgs']]]] = None,
+                 scope: Optional[pulumi.Input[_builtins.str]] = None,
+                 tags: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 token_domains: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]] = None,
+                 visibility_config: Optional[pulumi.Input['pulumi_aws.wafv2.WebAclVisibilityConfigArgs']] = None):
+        """
+        :param pulumi.Input['pulumi_aws.wafv2.WebAclAssociationConfigArgs'] association_config: Specifies custom configurations for the associations between the web ACL and protected resources. See <span pulumi-lang-nodejs="`associationConfig`" pulumi-lang-dotnet="`AssociationConfig`" pulumi-lang-go="`associationConfig`" pulumi-lang-python="`association_config`" pulumi-lang-yaml="`associationConfig`" pulumi-lang-java="`associationConfig`">`association_config`</span> below for details.
+        :param pulumi.Input['pulumi_aws.wafv2.WebAclCaptchaConfigArgs'] captcha_config: Specifies how AWS WAF should handle CAPTCHA evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`captchaConfig`" pulumi-lang-dotnet="`CaptchaConfig`" pulumi-lang-go="`captchaConfig`" pulumi-lang-python="`captcha_config`" pulumi-lang-yaml="`captchaConfig`" pulumi-lang-java="`captchaConfig`">`captcha_config`</span> below for details.
+        :param pulumi.Input['pulumi_aws.wafv2.WebAclChallengeConfigArgs'] challenge_config: Specifies how AWS WAF should handle Challenge evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`challengeConfig`" pulumi-lang-dotnet="`ChallengeConfig`" pulumi-lang-go="`challengeConfig`" pulumi-lang-python="`challenge_config`" pulumi-lang-yaml="`challengeConfig`" pulumi-lang-java="`challengeConfig`">`challenge_config`</span> below for details.
+        :param pulumi.Input[Sequence[pulumi.Input['pulumi_aws.wafv2.WebAclCustomResponseBodyArgs']]] custom_response_bodies: Defines custom response bodies that can be referenced by <span pulumi-lang-nodejs="`customResponse`" pulumi-lang-dotnet="`CustomResponse`" pulumi-lang-go="`customResponse`" pulumi-lang-python="`custom_response`" pulumi-lang-yaml="`customResponse`" pulumi-lang-java="`customResponse`">`custom_response`</span> actions. See <span pulumi-lang-nodejs="`customResponseBody`" pulumi-lang-dotnet="`CustomResponseBody`" pulumi-lang-go="`customResponseBody`" pulumi-lang-python="`custom_response_body`" pulumi-lang-yaml="`customResponseBody`" pulumi-lang-java="`customResponseBody`">`custom_response_body`</span> below for details.
+        :param pulumi.Input['pulumi_aws.wafv2.WebAclDataProtectionConfigArgs'] data_protection_config: Specifies data protection to apply to the web request data for the web ACL. This is a web ACL level data protection option. See <span pulumi-lang-nodejs="`dataProtectionConfig`" pulumi-lang-dotnet="`DataProtectionConfig`" pulumi-lang-go="`dataProtectionConfig`" pulumi-lang-python="`data_protection_config`" pulumi-lang-yaml="`dataProtectionConfig`" pulumi-lang-java="`dataProtectionConfig`">`data_protection_config`</span> below for details.
+        :param pulumi.Input['pulumi_aws.wafv2.WebAclDefaultActionArgs'] default_action: Action to perform if none of the <span pulumi-lang-nodejs="`rules`" pulumi-lang-dotnet="`Rules`" pulumi-lang-go="`rules`" pulumi-lang-python="`rules`" pulumi-lang-yaml="`rules`" pulumi-lang-java="`rules`">`rules`</span> contained in the WebACL match. See <span pulumi-lang-nodejs="`defaultAction`" pulumi-lang-dotnet="`DefaultAction`" pulumi-lang-go="`defaultAction`" pulumi-lang-python="`default_action`" pulumi-lang-yaml="`defaultAction`" pulumi-lang-java="`defaultAction`">`default_action`</span> below for details.
+        :param pulumi.Input[_builtins.str] description: Friendly description of the WebACL.
+        :param pulumi.Input[_builtins.str] name: Friendly name of the WebACL. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+        :param pulumi.Input[_builtins.str] name_prefix: Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+        :param pulumi.Input[_builtins.str] region: Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+        :param pulumi.Input[_builtins.str] rule_json: Raw JSON string to allow more than three nested statements. Conflicts with <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. This is for advanced use cases where more than 3 levels of nested statements are required. **There is no drift detection at this time**. If you use this attribute instead of <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span>, you will be foregoing drift detection. Additionally, importing an existing web ACL into a configuration with <span pulumi-lang-nodejs="`ruleJson`" pulumi-lang-dotnet="`RuleJson`" pulumi-lang-go="`ruleJson`" pulumi-lang-python="`rule_json`" pulumi-lang-yaml="`ruleJson`" pulumi-lang-java="`ruleJson`">`rule_json`</span> set will result in a one time in-place update as the remote rule configuration is initially written to the <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. See the AWS [documentation](https://docs.aws.amazon.com/waf/latest/APIReference/API_CreateWebACL.html) for the JSON structure.
+        :param pulumi.Input[Sequence[pulumi.Input['pulumi_aws.wafv2.WebAclRuleArgs']]] rules: Rule blocks used to identify the web requests that you want to <span pulumi-lang-nodejs="`allow`" pulumi-lang-dotnet="`Allow`" pulumi-lang-go="`allow`" pulumi-lang-python="`allow`" pulumi-lang-yaml="`allow`" pulumi-lang-java="`allow`">`allow`</span>, <span pulumi-lang-nodejs="`block`" pulumi-lang-dotnet="`Block`" pulumi-lang-go="`block`" pulumi-lang-python="`block`" pulumi-lang-yaml="`block`" pulumi-lang-java="`block`">`block`</span>, or <span pulumi-lang-nodejs="`count`" pulumi-lang-dotnet="`Count`" pulumi-lang-go="`count`" pulumi-lang-python="`count`" pulumi-lang-yaml="`count`" pulumi-lang-java="`count`">`count`</span>. See <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> below for details.
+        :param pulumi.Input[_builtins.str] scope: Specifies whether this is for an AWS CloudFront distribution or for a regional application. Valid values are `CLOUDFRONT` or `REGIONAL`. To work with CloudFront, you must also specify the region `us-east-1` (N. Virginia) on the AWS provider.
+        :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] tags: Map of key-value pairs to associate with the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+        :param pulumi.Input[Sequence[pulumi.Input[_builtins.str]]] token_domains: Specifies the domains that AWS WAF should accept in a web request token. This enables the use of tokens across multiple protected websites. When AWS WAF provides a token, it uses the domain of the AWS resource that the web ACL is protecting. If you don't specify a list of token domains, AWS WAF accepts tokens only for the domain of the protected resource. With a token domain list, AWS WAF accepts the resource's host domain plus all domains in the token domain list, including their prefixed subdomains.
+        :param pulumi.Input['pulumi_aws.wafv2.WebAclVisibilityConfigArgs'] visibility_config: Defines and enables Amazon CloudWatch metrics and web request sample collection. See <span pulumi-lang-nodejs="`visibilityConfig`" pulumi-lang-dotnet="`VisibilityConfig`" pulumi-lang-go="`visibilityConfig`" pulumi-lang-python="`visibility_config`" pulumi-lang-yaml="`visibilityConfig`" pulumi-lang-java="`visibilityConfig`">`visibility_config`</span> below for details.
+        """
+        if association_config is not None:
+            pulumi.set(__self__, "association_config", association_config)
+        if captcha_config is not None:
+            pulumi.set(__self__, "captcha_config", captcha_config)
+        if challenge_config is not None:
+            pulumi.set(__self__, "challenge_config", challenge_config)
+        if custom_response_bodies is not None:
+            pulumi.set(__self__, "custom_response_bodies", custom_response_bodies)
+        if data_protection_config is not None:
+            pulumi.set(__self__, "data_protection_config", data_protection_config)
+        if default_action is not None:
+            pulumi.set(__self__, "default_action", default_action)
+        if description is not None:
+            pulumi.set(__self__, "description", description)
+        if name is not None:
+            pulumi.set(__self__, "name", name)
+        if name_prefix is not None:
+            pulumi.set(__self__, "name_prefix", name_prefix)
+        if region is not None:
+            pulumi.set(__self__, "region", region)
+        if rule_json is not None:
+            pulumi.set(__self__, "rule_json", rule_json)
+        if rules is not None:
+            pulumi.set(__self__, "rules", rules)
+        if scope is not None:
+            pulumi.set(__self__, "scope", scope)
+        if tags is not None:
+            pulumi.set(__self__, "tags", tags)
+        if token_domains is not None:
+            pulumi.set(__self__, "token_domains", token_domains)
+        if visibility_config is not None:
+            pulumi.set(__self__, "visibility_config", visibility_config)
+
+    @_builtins.property
+    @pulumi.getter(name="associationConfig")
+    def association_config(self) -> Optional[pulumi.Input['pulumi_aws.wafv2.WebAclAssociationConfigArgs']]:
+        """
+        Specifies custom configurations for the associations between the web ACL and protected resources. See <span pulumi-lang-nodejs="`associationConfig`" pulumi-lang-dotnet="`AssociationConfig`" pulumi-lang-go="`associationConfig`" pulumi-lang-python="`association_config`" pulumi-lang-yaml="`associationConfig`" pulumi-lang-java="`associationConfig`">`association_config`</span> below for details.
+        """
+        return pulumi.get(self, "association_config")
+
+    @association_config.setter
+    def association_config(self, value: Optional[pulumi.Input['pulumi_aws.wafv2.WebAclAssociationConfigArgs']]):
+        pulumi.set(self, "association_config", value)
+
+    @_builtins.property
+    @pulumi.getter(name="captchaConfig")
+    def captcha_config(self) -> Optional[pulumi.Input['pulumi_aws.wafv2.WebAclCaptchaConfigArgs']]:
+        """
+        Specifies how AWS WAF should handle CAPTCHA evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`captchaConfig`" pulumi-lang-dotnet="`CaptchaConfig`" pulumi-lang-go="`captchaConfig`" pulumi-lang-python="`captcha_config`" pulumi-lang-yaml="`captchaConfig`" pulumi-lang-java="`captchaConfig`">`captcha_config`</span> below for details.
+        """
+        return pulumi.get(self, "captcha_config")
+
+    @captcha_config.setter
+    def captcha_config(self, value: Optional[pulumi.Input['pulumi_aws.wafv2.WebAclCaptchaConfigArgs']]):
+        pulumi.set(self, "captcha_config", value)
+
+    @_builtins.property
+    @pulumi.getter(name="challengeConfig")
+    def challenge_config(self) -> Optional[pulumi.Input['pulumi_aws.wafv2.WebAclChallengeConfigArgs']]:
+        """
+        Specifies how AWS WAF should handle Challenge evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`challengeConfig`" pulumi-lang-dotnet="`ChallengeConfig`" pulumi-lang-go="`challengeConfig`" pulumi-lang-python="`challenge_config`" pulumi-lang-yaml="`challengeConfig`" pulumi-lang-java="`challengeConfig`">`challenge_config`</span> below for details.
+        """
+        return pulumi.get(self, "challenge_config")
+
+    @challenge_config.setter
+    def challenge_config(self, value: Optional[pulumi.Input['pulumi_aws.wafv2.WebAclChallengeConfigArgs']]):
+        pulumi.set(self, "challenge_config", value)
+
+    @_builtins.property
+    @pulumi.getter(name="customResponseBodies")
+    def custom_response_bodies(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.wafv2.WebAclCustomResponseBodyArgs']]]]:
+        """
+        Defines custom response bodies that can be referenced by <span pulumi-lang-nodejs="`customResponse`" pulumi-lang-dotnet="`CustomResponse`" pulumi-lang-go="`customResponse`" pulumi-lang-python="`custom_response`" pulumi-lang-yaml="`customResponse`" pulumi-lang-java="`customResponse`">`custom_response`</span> actions. See <span pulumi-lang-nodejs="`customResponseBody`" pulumi-lang-dotnet="`CustomResponseBody`" pulumi-lang-go="`customResponseBody`" pulumi-lang-python="`custom_response_body`" pulumi-lang-yaml="`customResponseBody`" pulumi-lang-java="`customResponseBody`">`custom_response_body`</span> below for details.
+        """
+        return pulumi.get(self, "custom_response_bodies")
+
+    @custom_response_bodies.setter
+    def custom_response_bodies(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.wafv2.WebAclCustomResponseBodyArgs']]]]):
+        pulumi.set(self, "custom_response_bodies", value)
+
+    @_builtins.property
+    @pulumi.getter(name="dataProtectionConfig")
+    def data_protection_config(self) -> Optional[pulumi.Input['pulumi_aws.wafv2.WebAclDataProtectionConfigArgs']]:
+        """
+        Specifies data protection to apply to the web request data for the web ACL. This is a web ACL level data protection option. See <span pulumi-lang-nodejs="`dataProtectionConfig`" pulumi-lang-dotnet="`DataProtectionConfig`" pulumi-lang-go="`dataProtectionConfig`" pulumi-lang-python="`data_protection_config`" pulumi-lang-yaml="`dataProtectionConfig`" pulumi-lang-java="`dataProtectionConfig`">`data_protection_config`</span> below for details.
+        """
+        return pulumi.get(self, "data_protection_config")
+
+    @data_protection_config.setter
+    def data_protection_config(self, value: Optional[pulumi.Input['pulumi_aws.wafv2.WebAclDataProtectionConfigArgs']]):
+        pulumi.set(self, "data_protection_config", value)
+
+    @_builtins.property
+    @pulumi.getter(name="defaultAction")
+    def default_action(self) -> Optional[pulumi.Input['pulumi_aws.wafv2.WebAclDefaultActionArgs']]:
+        """
+        Action to perform if none of the <span pulumi-lang-nodejs="`rules`" pulumi-lang-dotnet="`Rules`" pulumi-lang-go="`rules`" pulumi-lang-python="`rules`" pulumi-lang-yaml="`rules`" pulumi-lang-java="`rules`">`rules`</span> contained in the WebACL match. See <span pulumi-lang-nodejs="`defaultAction`" pulumi-lang-dotnet="`DefaultAction`" pulumi-lang-go="`defaultAction`" pulumi-lang-python="`default_action`" pulumi-lang-yaml="`defaultAction`" pulumi-lang-java="`defaultAction`">`default_action`</span> below for details.
+        """
+        return pulumi.get(self, "default_action")
+
+    @default_action.setter
+    def default_action(self, value: Optional[pulumi.Input['pulumi_aws.wafv2.WebAclDefaultActionArgs']]):
+        pulumi.set(self, "default_action", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def description(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Friendly description of the WebACL.
+        """
+        return pulumi.get(self, "description")
+
+    @description.setter
+    def description(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "description", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def name(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Friendly name of the WebACL. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+        """
+        return pulumi.get(self, "name")
+
+    @name.setter
+    def name(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "name", value)
+
+    @_builtins.property
+    @pulumi.getter(name="namePrefix")
+    def name_prefix(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+        """
+        return pulumi.get(self, "name_prefix")
+
+    @name_prefix.setter
+    def name_prefix(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "name_prefix", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def region(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+        """
+        return pulumi.get(self, "region")
+
+    @region.setter
+    def region(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "region", value)
+
+    @_builtins.property
+    @pulumi.getter(name="ruleJson")
+    def rule_json(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Raw JSON string to allow more than three nested statements. Conflicts with <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. This is for advanced use cases where more than 3 levels of nested statements are required. **There is no drift detection at this time**. If you use this attribute instead of <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span>, you will be foregoing drift detection. Additionally, importing an existing web ACL into a configuration with <span pulumi-lang-nodejs="`ruleJson`" pulumi-lang-dotnet="`RuleJson`" pulumi-lang-go="`ruleJson`" pulumi-lang-python="`rule_json`" pulumi-lang-yaml="`ruleJson`" pulumi-lang-java="`ruleJson`">`rule_json`</span> set will result in a one time in-place update as the remote rule configuration is initially written to the <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. See the AWS [documentation](https://docs.aws.amazon.com/waf/latest/APIReference/API_CreateWebACL.html) for the JSON structure.
+        """
+        return pulumi.get(self, "rule_json")
+
+    @rule_json.setter
+    def rule_json(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "rule_json", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def rules(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.wafv2.WebAclRuleArgs']]]]:
+        """
+        Rule blocks used to identify the web requests that you want to <span pulumi-lang-nodejs="`allow`" pulumi-lang-dotnet="`Allow`" pulumi-lang-go="`allow`" pulumi-lang-python="`allow`" pulumi-lang-yaml="`allow`" pulumi-lang-java="`allow`">`allow`</span>, <span pulumi-lang-nodejs="`block`" pulumi-lang-dotnet="`Block`" pulumi-lang-go="`block`" pulumi-lang-python="`block`" pulumi-lang-yaml="`block`" pulumi-lang-java="`block`">`block`</span>, or <span pulumi-lang-nodejs="`count`" pulumi-lang-dotnet="`Count`" pulumi-lang-go="`count`" pulumi-lang-python="`count`" pulumi-lang-yaml="`count`" pulumi-lang-java="`count`">`count`</span>. See <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> below for details.
+        """
+        return pulumi.get(self, "rules")
+
+    @rules.setter
+    def rules(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['pulumi_aws.wafv2.WebAclRuleArgs']]]]):
+        pulumi.set(self, "rules", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def scope(self) -> Optional[pulumi.Input[_builtins.str]]:
+        """
+        Specifies whether this is for an AWS CloudFront distribution or for a regional application. Valid values are `CLOUDFRONT` or `REGIONAL`. To work with CloudFront, you must also specify the region `us-east-1` (N. Virginia) on the AWS provider.
+        """
+        return pulumi.get(self, "scope")
+
+    @scope.setter
+    def scope(self, value: Optional[pulumi.Input[_builtins.str]]):
+        pulumi.set(self, "scope", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def tags(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]:
+        """
+        Map of key-value pairs to associate with the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+        """
+        return pulumi.get(self, "tags")
+
+    @tags.setter
+    def tags(self, value: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "tags", value)
+
+    @_builtins.property
+    @pulumi.getter(name="tokenDomains")
+    def token_domains(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]:
+        """
+        Specifies the domains that AWS WAF should accept in a web request token. This enables the use of tokens across multiple protected websites. When AWS WAF provides a token, it uses the domain of the AWS resource that the web ACL is protecting. If you don't specify a list of token domains, AWS WAF accepts tokens only for the domain of the protected resource. With a token domain list, AWS WAF accepts the resource's host domain plus all domains in the token domain list, including their prefixed subdomains.
+        """
+        return pulumi.get(self, "token_domains")
+
+    @token_domains.setter
+    def token_domains(self, value: Optional[pulumi.Input[Sequence[pulumi.Input[_builtins.str]]]]):
+        pulumi.set(self, "token_domains", value)
+
+    @_builtins.property
+    @pulumi.getter(name="visibilityConfig")
+    def visibility_config(self) -> Optional[pulumi.Input['pulumi_aws.wafv2.WebAclVisibilityConfigArgs']]:
+        """
+        Defines and enables Amazon CloudWatch metrics and web request sample collection. See <span pulumi-lang-nodejs="`visibilityConfig`" pulumi-lang-dotnet="`VisibilityConfig`" pulumi-lang-go="`visibilityConfig`" pulumi-lang-python="`visibility_config`" pulumi-lang-yaml="`visibilityConfig`" pulumi-lang-java="`visibilityConfig`">`visibility_config`</span> below for details.
+        """
+        return pulumi.get(self, "visibility_config")
+
+    @visibility_config.setter
+    def visibility_config(self, value: Optional[pulumi.Input['pulumi_aws.wafv2.WebAclVisibilityConfigArgs']]):
+        pulumi.set(self, "visibility_config", value)
+
+
+class WafRateLimitArgsArgsDict(TypedDict):
+    """
+    Per-client rate limit.
+    """
+    enabled: NotRequired[pulumi.Input[_builtins.bool]]
+    """
+    Turns the rate limit on or off. Default: true.
+    """
+    limit: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Maximum requests per client in each window (10 to 2,000,000,000). Default: 2000.
+    """
+    window_seconds: NotRequired[pulumi.Input[_builtins.int]]
+    """
+    Evaluation window in seconds: 60, 120, 300 or 600. Default: 300.
+    """
+
+@pulumi.input_type
+class WafRateLimitArgsArgs:
+    def __init__(__self__, *,
+                 enabled: Optional[pulumi.Input[_builtins.bool]] = None,
+                 limit: Optional[pulumi.Input[_builtins.int]] = None,
+                 window_seconds: Optional[pulumi.Input[_builtins.int]] = None):
+        """
+        Per-client rate limit.
+
+        :param pulumi.Input[_builtins.bool] enabled: Turns the rate limit on or off. Default: true.
+        :param pulumi.Input[_builtins.int] limit: Maximum requests per client in each window (10 to 2,000,000,000). Default: 2000.
+        :param pulumi.Input[_builtins.int] window_seconds: Evaluation window in seconds: 60, 120, 300 or 600. Default: 300.
+        """
+        if enabled is not None:
+            pulumi.set(__self__, "enabled", enabled)
+        if limit is not None:
+            pulumi.set(__self__, "limit", limit)
+        if window_seconds is not None:
+            pulumi.set(__self__, "window_seconds", window_seconds)
+
+    @_builtins.property
+    @pulumi.getter
+    def enabled(self) -> Optional[pulumi.Input[_builtins.bool]]:
+        """
+        Turns the rate limit on or off. Default: true.
+        """
+        return pulumi.get(self, "enabled")
+
+    @enabled.setter
+    def enabled(self, value: Optional[pulumi.Input[_builtins.bool]]):
+        pulumi.set(self, "enabled", value)
+
+    @_builtins.property
+    @pulumi.getter
+    def limit(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Maximum requests per client in each window (10 to 2,000,000,000). Default: 2000.
+        """
+        return pulumi.get(self, "limit")
+
+    @limit.setter
+    def limit(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "limit", value)
+
+    @_builtins.property
+    @pulumi.getter(name="windowSeconds")
+    def window_seconds(self) -> Optional[pulumi.Input[_builtins.int]]:
+        """
+        Evaluation window in seconds: 60, 120, 300 or 600. Default: 300.
+        """
+        return pulumi.get(self, "window_seconds")
+
+    @window_seconds.setter
+    def window_seconds(self, value: Optional[pulumi.Input[_builtins.int]]):
+        pulumi.set(self, "window_seconds", value)
+
+
+class WafTransformArgsArgsDict(TypedDict):
+    waf: NotRequired[pulumi.Input['WafOverridesArgsDict']]
+
+@pulumi.input_type
+class WafTransformArgsArgs:
+    def __init__(__self__, *,
+                 waf: Optional[pulumi.Input['WafOverridesArgs']] = None):
+        if waf is not None:
+            pulumi.set(__self__, "waf", waf)
+
+    @_builtins.property
+    @pulumi.getter
+    def waf(self) -> Optional[pulumi.Input['WafOverridesArgs']]:
+        return pulumi.get(self, "waf")
+
+    @waf.setter
+    def waf(self, value: Optional[pulumi.Input['WafOverridesArgs']]):
+        pulumi.set(self, "waf", value)
 
 

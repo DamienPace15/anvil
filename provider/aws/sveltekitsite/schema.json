@@ -31,6 +31,10 @@
             "type": "string"
           }
         },
+        "securityHeaders": {
+          "description": "SecurityHeaders configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. Headers your app sets itself take priority. Content-Security-Policy is left to SvelteKit's kit.csp.",
+          "$ref": "#/types/anvil:aws:SiteSecurityHeaders"
+        },
         "transform": {
           "type": "string"
         },
@@ -63,6 +67,62 @@
     }
   },
   "types": {
+    "anvil:aws:SiteCrossOriginOpenerPolicy": {
+      "description": "Cross-Origin-Opener-Policy: isolates the site's browser window from windows on other sites. Default: \"same-origin-allow-popups\".",
+      "enum": [
+        {
+          "description": "Isolated from other sites, but popups it opens (OAuth sign-in, payments) still work. Default.",
+          "name": "SameOriginAllowPopups",
+          "value": "same-origin-allow-popups"
+        },
+        {
+          "description": "Strict isolation. Breaks sign-in and payment popups that report back to the page.",
+          "name": "SameOrigin",
+          "value": "same-origin"
+        },
+        {
+          "description": "No Cross-Origin-Opener-Policy header.",
+          "name": "None",
+          "value": "none"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:SiteFrameOptions": {
+      "description": "Whether other sites can embed this one in a frame (X-Frame-Options). Default: \"sameorigin\".",
+      "enum": [
+        {
+          "description": "Only pages on this site can frame it. Default.",
+          "name": "Sameorigin",
+          "value": "sameorigin"
+        },
+        {
+          "description": "No site can frame it, including this one.",
+          "name": "Deny",
+          "value": "deny"
+        },
+        {
+          "description": "No X-Frame-Options header — any site can embed it. Use only for sites meant to be embedded elsewhere.",
+          "name": "None",
+          "value": "none"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:SiteHsts": {
+      "type": "object",
+      "description": "SiteHstsArgs configures optional Strict-Transport-Security directives. Both are hard to undo — browsers remember them for the max-age (1 year).",
+      "properties": {
+        "includeSubDomains": {
+          "type": "boolean",
+          "description": "IncludeSubDomains applies HSTS to every subdomain of the site's domain. Default: false."
+        },
+        "preload": {
+          "type": "boolean",
+          "description": "Preload marks the domain as eligible for browsers' built-in HSTS preload list. Requires includeSubDomains. Default: false."
+        }
+      }
+    },
     "anvil:aws:SiteProtection": {
       "description": "Who can invoke the site's server Lambda Function URL. Default: \"none\", or \"edge-oac\" while a WAF is attached or origin protection is enabled. An explicit value always wins.",
       "enum": [
@@ -83,6 +143,32 @@
         }
       ],
       "type": "string"
+    },
+    "anvil:aws:SiteSecurityHeaders": {
+      "type": "object",
+      "description": "SiteSecurityHeadersArgs configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. A header your app sets itself always takes priority. Content-Security-Policy is not set — configure it in the framework (e.g. SvelteKit's kit.csp).",
+      "properties": {
+        "crossOriginOpenerPolicy": {
+          "description": "CrossOriginOpenerPolicy isolates the site's browser window from windows on other sites. \"same-origin-allow-popups\" (default): isolated, but popups it opens (OAuth sign-in, payments) still work. \"same-origin\": strict isolation — breaks sign-in and payment popups that report back. \"none\": no Cross-Origin-Opener-Policy header.",
+          "$ref": "#/types/anvil:aws:SiteCrossOriginOpenerPolicy"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Enabled turns the security headers on or off. Default: true."
+        },
+        "frameOptions": {
+          "description": "FrameOptions controls whether other sites can embed this one in a frame. \"sameorigin\" (default): only pages on this site. \"deny\": never. \"none\": no X-Frame-Options header — the site can be embedded anywhere.",
+          "$ref": "#/types/anvil:aws:SiteFrameOptions"
+        },
+        "hsts": {
+          "description": "Hsts adds optional Strict-Transport-Security directives.",
+          "$ref": "#/types/anvil:aws:SiteHsts"
+        },
+        "permissionsPolicy": {
+          "type": "string",
+          "description": "PermissionsPolicy is the Permissions-Policy header value: which browser features the site (and anything it embeds) may use. Default: \"camera=(), microphone=(), geolocation=(), usb=(), browsing-topics=()\". Set your own value to allow a feature, e.g. \"camera=(self), microphone=(self)\", or \"none\" to send no Permissions-Policy header."
+        }
+      }
     },
     "anvil:aws:SiteWaf": {
       "type": "object",

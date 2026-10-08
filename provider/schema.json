@@ -200,6 +200,10 @@
         },
         "transform": {
           "$ref": "#/types/anvil:aws:CognitoUserPoolTransformArgs"
+        },
+        "waf": {
+          "$ref": "#/types/anvil:aws:CognitoUserPoolWaf",
+          "description": "Attaches a regional WAF WebACL to the user pool. AWS recommends a WAF for every public user pool — it protects sign-in and sign-up against credential stuffing, brute force, bots and SMS pumping. Use an Anvil Waf created with scope \"regional\" in the same region as the pool."
         }
       },
       "isComponent": true,
@@ -707,6 +711,10 @@
           "description": "Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.",
           "type": "object"
         },
+        "securityHeaders": {
+          "$ref": "#/types/anvil:aws:SiteSecurityHeaders",
+          "description": "SecurityHeaders configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. Headers your app sets itself take priority. Content-Security-Policy is left to SvelteKit's kit.csp."
+        },
         "transform": {
           "type": "string"
         },
@@ -861,6 +869,97 @@
         "privateSubnetIds",
         "service"
       ]
+    },
+    "anvil:aws:Waf": {
+      "description": "An Anvil-managed AWS WAF WebACL with researched defaults: a per-client rate limit (2000 requests / 5 min) and AWS managed rule groups for IP reputation, known bad inputs, the OWASP core rule set and SQL injection. Starts in count mode — matches are logged, not blocked — until mode is set to \"block\". Attach it to a site with waf: { arn } or to a Cognito user pool with waf: { arn }.",
+      "inputProperties": {
+        "blockCountries": {
+          "description": "Two-letter ISO 3166 country codes to block, e.g. [\"KP\"]. Follows mode.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "clientIpHeader": {
+          "description": "Header carrying the real visitor IP when the site sits behind a proxy, e.g. \"CF-Connecting-IP\" for Cloudflare. The rate limit, IP lists and country blocking then use the visitor's IP instead of the proxy's. AWS's ipReputation and anonymousIp rule groups can't read this header, so they default to off when it's set.",
+          "type": "string"
+        },
+        "ipAllowList": {
+          "description": "IP addresses or CIDRs (IPv4 and IPv6) that are always allowed, skipping every other rule — e.g. office networks or uptime monitors.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "ipBlockList": {
+          "description": "IP addresses or CIDRs (IPv4 and IPv6) that are always blocked.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "logging": {
+          "$ref": "#/types/anvil:aws:WafLoggingArgs",
+          "description": "Logging to CloudWatch Logs. On by default: blocked and counted requests only, kept 30 days, with the authorization, cookie and x-origin-secret headers redacted."
+        },
+        "managedRules": {
+          "$ref": "#/types/anvil:aws:WafManagedRulesArgs",
+          "description": "AWS managed rule groups. On by default: core, knownBadInputs, ipReputation, sqli. Off by default: anonymousIp, adminProtection."
+        },
+        "mode": {
+          "$ref": "#/types/anvil:aws:WafMode",
+          "description": "What rules do when they match. \"count\" (default): log the match without blocking — use this to check for false positives on live traffic. \"block\": block matching requests. The IP allow and block lists always allow / block regardless of mode."
+        },
+        "rateLimit": {
+          "$ref": "#/types/anvil:aws:WafRateLimitArgs",
+          "description": "Per-client rate limit. On by default: 2000 requests per client per 5 minutes."
+        },
+        "ruleOverrides": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Override the action of individual AWS managed rules, keyed by exact AWS rule name: \"count\", \"block\" or \"allow\". Default: { SizeRestrictions_BODY: \"count\" } — that rule blocks any body over 8 KB, which breaks forms, JSON APIs and uploads. Set it to \"block\" to restore it.",
+          "type": "object"
+        },
+        "scope": {
+          "$ref": "#/types/anvil:aws:WafScope",
+          "description": "What the WAF protects. \"cloudfront\" (default): sites and other CloudFront distributions; created in us-east-1 as AWS requires. \"regional\": regional resources such as Cognito user pools; created in the stack's region."
+        },
+        "transform": {
+          "$ref": "#/types/anvil:aws:WafTransformArgs"
+        }
+      },
+      "isComponent": true,
+      "properties": {
+        "arn": {
+          "description": "The WebACL ARN. Pass it to a site's waf.arn (cloudfront scope) or a Cognito user pool's waf.arn (regional scope).",
+          "type": "string"
+        },
+        "logGroupName": {
+          "description": "The CloudWatch log group receiving WAF logs. Empty when logging is off.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The physical WebACL name.",
+          "type": "string"
+        },
+        "scope": {
+          "description": "\"cloudfront\" or \"regional\".",
+          "type": "string"
+        },
+        "webAclId": {
+          "description": "The WebACL ID.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "arn",
+        "webAclId",
+        "name",
+        "scope",
+        "logGroupName"
+      ],
+      "requiredInputs": []
     },
     "anvil:gcp:Function": {
       "inputProperties": {
@@ -1914,6 +2013,19 @@
         }
       ],
       "type": "string"
+    },
+    "anvil:aws:CognitoUserPoolWaf": {
+      "description": "Attaches a WAF to the user pool.",
+      "properties": {
+        "arn": {
+          "description": "ARN of a regional-scope WebACL in the same region as the pool. Pass waf.arn from an Anvil Waf with scope \"regional\".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "arn"
+      ],
+      "type": "object"
     },
     "anvil:aws:DSQLBackupArgs": {
       "description": "AWS Backup configuration for DSQL clusters. Anvil opts in the DSQL resource type in each cluster region, creates a backup plan, and for multi-region clusters automatically adds cross-region copy rules so restores work in both regions.",
@@ -3669,6 +3781,62 @@
       ],
       "type": "string"
     },
+    "anvil:aws:SiteCrossOriginOpenerPolicy": {
+      "description": "Cross-Origin-Opener-Policy: isolates the site's browser window from windows on other sites. Default: \"same-origin-allow-popups\".",
+      "enum": [
+        {
+          "description": "Isolated from other sites, but popups it opens (OAuth sign-in, payments) still work. Default.",
+          "name": "SameOriginAllowPopups",
+          "value": "same-origin-allow-popups"
+        },
+        {
+          "description": "Strict isolation. Breaks sign-in and payment popups that report back to the page.",
+          "name": "SameOrigin",
+          "value": "same-origin"
+        },
+        {
+          "description": "No Cross-Origin-Opener-Policy header.",
+          "name": "None",
+          "value": "none"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:SiteFrameOptions": {
+      "description": "Whether other sites can embed this one in a frame (X-Frame-Options). Default: \"sameorigin\".",
+      "enum": [
+        {
+          "description": "Only pages on this site can frame it. Default.",
+          "name": "Sameorigin",
+          "value": "sameorigin"
+        },
+        {
+          "description": "No site can frame it, including this one.",
+          "name": "Deny",
+          "value": "deny"
+        },
+        {
+          "description": "No X-Frame-Options header — any site can embed it. Use only for sites meant to be embedded elsewhere.",
+          "name": "None",
+          "value": "none"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:SiteHsts": {
+      "description": "SiteHstsArgs configures optional Strict-Transport-Security directives. Both are hard to undo — browsers remember them for the max-age (1 year).",
+      "properties": {
+        "includeSubDomains": {
+          "description": "IncludeSubDomains applies HSTS to every subdomain of the site's domain. Default: false.",
+          "type": "boolean"
+        },
+        "preload": {
+          "description": "Preload marks the domain as eligible for browsers' built-in HSTS preload list. Requires includeSubDomains. Default: false.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
     "anvil:aws:SiteProtection": {
       "description": "Who can invoke the site's server Lambda Function URL. Default: \"none\", or \"edge-oac\" while a WAF is attached or origin protection is enabled. An explicit value always wins.",
       "enum": [
@@ -3689,6 +3857,32 @@
         }
       ],
       "type": "string"
+    },
+    "anvil:aws:SiteSecurityHeaders": {
+      "description": "SiteSecurityHeadersArgs configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. A header your app sets itself always takes priority. Content-Security-Policy is not set — configure it in the framework (e.g. SvelteKit's kit.csp).",
+      "properties": {
+        "crossOriginOpenerPolicy": {
+          "$ref": "#/types/anvil:aws:SiteCrossOriginOpenerPolicy",
+          "description": "CrossOriginOpenerPolicy isolates the site's browser window from windows on other sites. \"same-origin-allow-popups\" (default): isolated, but popups it opens (OAuth sign-in, payments) still work. \"same-origin\": strict isolation — breaks sign-in and payment popups that report back. \"none\": no Cross-Origin-Opener-Policy header."
+        },
+        "enabled": {
+          "description": "Enabled turns the security headers on or off. Default: true.",
+          "type": "boolean"
+        },
+        "frameOptions": {
+          "$ref": "#/types/anvil:aws:SiteFrameOptions",
+          "description": "FrameOptions controls whether other sites can embed this one in a frame. \"sameorigin\" (default): only pages on this site. \"deny\": never. \"none\": no X-Frame-Options header — the site can be embedded anywhere."
+        },
+        "hsts": {
+          "$ref": "#/types/anvil:aws:SiteHsts",
+          "description": "Hsts adds optional Strict-Transport-Security directives."
+        },
+        "permissionsPolicy": {
+          "description": "PermissionsPolicy is the Permissions-Policy header value: which browser features the site (and anything it embeds) may use. Default: \"camera=(), microphone=(), geolocation=(), usb=(), browsing-topics=()\". Set your own value to allow a feature, e.g. \"camera=(self), microphone=(self)\", or \"none\" to send no Permissions-Policy header.",
+          "type": "string"
+        }
+      },
+      "type": "object"
     },
     "anvil:aws:SiteWaf": {
       "description": "SiteWafArgs attaches a WAF to the site. Composes freely with originProtection. While a WAF is attached, protection defaults to \"edge-oac\" so the server Function URL can't be used to bypass the WAF.",
@@ -3831,6 +4025,196 @@
       "required": [
         "lifecycle"
       ],
+      "type": "object"
+    },
+    "anvil:aws:WafLoggingArgs": {
+      "description": "WAF logging to CloudWatch Logs.",
+      "properties": {
+        "enabled": {
+          "description": "Turns logging on or off. Default: true.",
+          "type": "boolean"
+        },
+        "includeAllowed": {
+          "description": "Also log allowed requests. Default: false — only blocked and counted requests, which keeps cost low.",
+          "type": "boolean"
+        },
+        "retentionDays": {
+          "description": "How long logs are kept, in days (a CloudWatch Logs retention value). Default: 30.",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:WafManagedRulesArgs": {
+      "description": "AWS managed rule groups.",
+      "properties": {
+        "adminProtection": {
+          "description": "Admin protection (AWSManagedRulesAdminProtectionRuleSet): requests to admin-looking paths. Default: false.",
+          "type": "boolean"
+        },
+        "anonymousIp": {
+          "description": "Anonymous IP list (AWSManagedRulesAnonymousIpList): VPNs, Tor, hosting providers. Suits B2B apps; too strict for most consumer apps. Default: false.",
+          "type": "boolean"
+        },
+        "core": {
+          "description": "Core Rule Set (AWSManagedRulesCommonRuleSet): OWASP Top 10 — XSS, path traversal, remote file inclusion, SSRF. Default: true.",
+          "type": "boolean"
+        },
+        "ipReputation": {
+          "description": "Amazon IP reputation list (AWSManagedRulesAmazonIpReputationList): IPs from Amazon threat intelligence. Default: true, or false when clientIpHeader is set.",
+          "type": "boolean"
+        },
+        "knownBadInputs": {
+          "description": "Known bad inputs (AWSManagedRulesKnownBadInputsRuleSet): Log4Shell, Java deserialisation, React RCE and other known exploit patterns. Default: true.",
+          "type": "boolean"
+        },
+        "sqli": {
+          "description": "SQL injection (AWSManagedRulesSQLiRuleSet). Default: true.",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:WafMode": {
+      "description": "What WAF rules do when they match.",
+      "enum": [
+        {
+          "description": "Log matches without blocking. Default.",
+          "name": "Count",
+          "value": "count"
+        },
+        {
+          "description": "Block matching requests.",
+          "name": "Block",
+          "value": "block"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:WafOverrides": {
+      "properties": {
+        "associationConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:wafv2/WebAclAssociationConfig:WebAclAssociationConfig",
+          "description": "Specifies custom configurations for the associations between the web ACL and protected resources. See \u003cspan pulumi-lang-nodejs=\"`associationConfig`\" pulumi-lang-dotnet=\"`AssociationConfig`\" pulumi-lang-go=\"`associationConfig`\" pulumi-lang-python=\"`association_config`\" pulumi-lang-yaml=\"`associationConfig`\" pulumi-lang-java=\"`associationConfig`\"\u003e`association_config`\u003c/span\u003e below for details.\n"
+        },
+        "captchaConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:wafv2/WebAclCaptchaConfig:WebAclCaptchaConfig",
+          "description": "Specifies how AWS WAF should handle CAPTCHA evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See \u003cspan pulumi-lang-nodejs=\"`captchaConfig`\" pulumi-lang-dotnet=\"`CaptchaConfig`\" pulumi-lang-go=\"`captchaConfig`\" pulumi-lang-python=\"`captcha_config`\" pulumi-lang-yaml=\"`captchaConfig`\" pulumi-lang-java=\"`captchaConfig`\"\u003e`captcha_config`\u003c/span\u003e below for details.\n"
+        },
+        "challengeConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:wafv2/WebAclChallengeConfig:WebAclChallengeConfig",
+          "description": "Specifies how AWS WAF should handle Challenge evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See \u003cspan pulumi-lang-nodejs=\"`challengeConfig`\" pulumi-lang-dotnet=\"`ChallengeConfig`\" pulumi-lang-go=\"`challengeConfig`\" pulumi-lang-python=\"`challenge_config`\" pulumi-lang-yaml=\"`challengeConfig`\" pulumi-lang-java=\"`challengeConfig`\"\u003e`challenge_config`\u003c/span\u003e below for details.\n"
+        },
+        "customResponseBodies": {
+          "description": "Defines custom response bodies that can be referenced by \u003cspan pulumi-lang-nodejs=\"`customResponse`\" pulumi-lang-dotnet=\"`CustomResponse`\" pulumi-lang-go=\"`customResponse`\" pulumi-lang-python=\"`custom_response`\" pulumi-lang-yaml=\"`customResponse`\" pulumi-lang-java=\"`customResponse`\"\u003e`custom_response`\u003c/span\u003e actions. See \u003cspan pulumi-lang-nodejs=\"`customResponseBody`\" pulumi-lang-dotnet=\"`CustomResponseBody`\" pulumi-lang-go=\"`customResponseBody`\" pulumi-lang-python=\"`custom_response_body`\" pulumi-lang-yaml=\"`customResponseBody`\" pulumi-lang-java=\"`customResponseBody`\"\u003e`custom_response_body`\u003c/span\u003e below for details.\n",
+          "items": {
+            "$ref": "/aws/v7.23.0/schema.json#/types/aws:wafv2/WebAclCustomResponseBody:WebAclCustomResponseBody"
+          },
+          "type": "array"
+        },
+        "dataProtectionConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:wafv2/WebAclDataProtectionConfig:WebAclDataProtectionConfig",
+          "description": "Specifies data protection to apply to the web request data for the web ACL. This is a web ACL level data protection option. See \u003cspan pulumi-lang-nodejs=\"`dataProtectionConfig`\" pulumi-lang-dotnet=\"`DataProtectionConfig`\" pulumi-lang-go=\"`dataProtectionConfig`\" pulumi-lang-python=\"`data_protection_config`\" pulumi-lang-yaml=\"`dataProtectionConfig`\" pulumi-lang-java=\"`dataProtectionConfig`\"\u003e`data_protection_config`\u003c/span\u003e below for details.\n"
+        },
+        "defaultAction": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:wafv2/WebAclDefaultAction:WebAclDefaultAction",
+          "description": "Action to perform if none of the \u003cspan pulumi-lang-nodejs=\"`rules`\" pulumi-lang-dotnet=\"`Rules`\" pulumi-lang-go=\"`rules`\" pulumi-lang-python=\"`rules`\" pulumi-lang-yaml=\"`rules`\" pulumi-lang-java=\"`rules`\"\u003e`rules`\u003c/span\u003e contained in the WebACL match. See \u003cspan pulumi-lang-nodejs=\"`defaultAction`\" pulumi-lang-dotnet=\"`DefaultAction`\" pulumi-lang-go=\"`defaultAction`\" pulumi-lang-python=\"`default_action`\" pulumi-lang-yaml=\"`defaultAction`\" pulumi-lang-java=\"`defaultAction`\"\u003e`default_action`\u003c/span\u003e below for details.\n"
+        },
+        "description": {
+          "description": "Friendly description of the WebACL.\n",
+          "type": "string"
+        },
+        "name": {
+          "description": "Friendly name of the WebACL. If omitted, the provider will assign a random, unique name. Conflicts with \u003cspan pulumi-lang-nodejs=\"`namePrefix`\" pulumi-lang-dotnet=\"`NamePrefix`\" pulumi-lang-go=\"`namePrefix`\" pulumi-lang-python=\"`name_prefix`\" pulumi-lang-yaml=\"`namePrefix`\" pulumi-lang-java=\"`namePrefix`\"\u003e`name_prefix`\u003c/span\u003e.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "namePrefix": {
+          "description": "Creates a unique name beginning with the specified prefix. Conflicts with \u003cspan pulumi-lang-nodejs=\"`name`\" pulumi-lang-dotnet=\"`Name`\" pulumi-lang-go=\"`name`\" pulumi-lang-python=\"`name`\" pulumi-lang-yaml=\"`name`\" pulumi-lang-java=\"`name`\"\u003e`name`\u003c/span\u003e.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "region": {
+          "description": "Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.\n",
+          "type": "string"
+        },
+        "ruleJson": {
+          "description": "Raw JSON string to allow more than three nested statements. Conflicts with \u003cspan pulumi-lang-nodejs=\"`rule`\" pulumi-lang-dotnet=\"`Rule`\" pulumi-lang-go=\"`rule`\" pulumi-lang-python=\"`rule`\" pulumi-lang-yaml=\"`rule`\" pulumi-lang-java=\"`rule`\"\u003e`rule`\u003c/span\u003e attribute. This is for advanced use cases where more than 3 levels of nested statements are required. **There is no drift detection at this time**. If you use this attribute instead of \u003cspan pulumi-lang-nodejs=\"`rule`\" pulumi-lang-dotnet=\"`Rule`\" pulumi-lang-go=\"`rule`\" pulumi-lang-python=\"`rule`\" pulumi-lang-yaml=\"`rule`\" pulumi-lang-java=\"`rule`\"\u003e`rule`\u003c/span\u003e, you will be foregoing drift detection. Additionally, importing an existing web ACL into a configuration with \u003cspan pulumi-lang-nodejs=\"`ruleJson`\" pulumi-lang-dotnet=\"`RuleJson`\" pulumi-lang-go=\"`ruleJson`\" pulumi-lang-python=\"`rule_json`\" pulumi-lang-yaml=\"`ruleJson`\" pulumi-lang-java=\"`ruleJson`\"\u003e`rule_json`\u003c/span\u003e set will result in a one time in-place update as the remote rule configuration is initially written to the \u003cspan pulumi-lang-nodejs=\"`rule`\" pulumi-lang-dotnet=\"`Rule`\" pulumi-lang-go=\"`rule`\" pulumi-lang-python=\"`rule`\" pulumi-lang-yaml=\"`rule`\" pulumi-lang-java=\"`rule`\"\u003e`rule`\u003c/span\u003e attribute. See the AWS [documentation](https://docs.aws.amazon.com/waf/latest/APIReference/API_CreateWebACL.html) for the JSON structure.\n",
+          "type": "string"
+        },
+        "rules": {
+          "description": "Rule blocks used to identify the web requests that you want to \u003cspan pulumi-lang-nodejs=\"`allow`\" pulumi-lang-dotnet=\"`Allow`\" pulumi-lang-go=\"`allow`\" pulumi-lang-python=\"`allow`\" pulumi-lang-yaml=\"`allow`\" pulumi-lang-java=\"`allow`\"\u003e`allow`\u003c/span\u003e, \u003cspan pulumi-lang-nodejs=\"`block`\" pulumi-lang-dotnet=\"`Block`\" pulumi-lang-go=\"`block`\" pulumi-lang-python=\"`block`\" pulumi-lang-yaml=\"`block`\" pulumi-lang-java=\"`block`\"\u003e`block`\u003c/span\u003e, or \u003cspan pulumi-lang-nodejs=\"`count`\" pulumi-lang-dotnet=\"`Count`\" pulumi-lang-go=\"`count`\" pulumi-lang-python=\"`count`\" pulumi-lang-yaml=\"`count`\" pulumi-lang-java=\"`count`\"\u003e`count`\u003c/span\u003e. See \u003cspan pulumi-lang-nodejs=\"`rule`\" pulumi-lang-dotnet=\"`Rule`\" pulumi-lang-go=\"`rule`\" pulumi-lang-python=\"`rule`\" pulumi-lang-yaml=\"`rule`\" pulumi-lang-java=\"`rule`\"\u003e`rule`\u003c/span\u003e below for details.\n",
+          "items": {
+            "$ref": "/aws/v7.23.0/schema.json#/types/aws:wafv2/WebAclRule:WebAclRule"
+          },
+          "type": "array"
+        },
+        "scope": {
+          "description": "Specifies whether this is for an AWS CloudFront distribution or for a regional application. Valid values are `CLOUDFRONT` or `REGIONAL`. To work with CloudFront, you must also specify the region `us-east-1` (N. Virginia) on the AWS provider.\n",
+          "type": "string",
+          "willReplaceOnChanges": true
+        },
+        "tags": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Map of key-value pairs to associate with the resource. If configured with a provider \u003cspan pulumi-lang-nodejs=\"`defaultTags`\" pulumi-lang-dotnet=\"`DefaultTags`\" pulumi-lang-go=\"`defaultTags`\" pulumi-lang-python=\"`default_tags`\" pulumi-lang-yaml=\"`defaultTags`\" pulumi-lang-java=\"`defaultTags`\"\u003e`default_tags`\u003c/span\u003e configuration block present, tags with matching keys will overwrite those defined at the provider-level.\n",
+          "type": "object"
+        },
+        "tokenDomains": {
+          "description": "Specifies the domains that AWS WAF should accept in a web request token. This enables the use of tokens across multiple protected websites. When AWS WAF provides a token, it uses the domain of the AWS resource that the web ACL is protecting. If you don't specify a list of token domains, AWS WAF accepts tokens only for the domain of the protected resource. With a token domain list, AWS WAF accepts the resource's host domain plus all domains in the token domain list, including their prefixed subdomains.\n",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "visibilityConfig": {
+          "$ref": "/aws/v7.23.0/schema.json#/types/aws:wafv2/WebAclVisibilityConfig:WebAclVisibilityConfig",
+          "description": "Defines and enables Amazon CloudWatch metrics and web request sample collection. See \u003cspan pulumi-lang-nodejs=\"`visibilityConfig`\" pulumi-lang-dotnet=\"`VisibilityConfig`\" pulumi-lang-go=\"`visibilityConfig`\" pulumi-lang-python=\"`visibility_config`\" pulumi-lang-yaml=\"`visibilityConfig`\" pulumi-lang-java=\"`visibilityConfig`\"\u003e`visibility_config`\u003c/span\u003e below for details.\n"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:WafRateLimitArgs": {
+      "description": "Per-client rate limit.",
+      "properties": {
+        "enabled": {
+          "description": "Turns the rate limit on or off. Default: true.",
+          "type": "boolean"
+        },
+        "limit": {
+          "description": "Maximum requests per client in each window (10 to 2,000,000,000). Default: 2000.",
+          "type": "integer"
+        },
+        "windowSeconds": {
+          "description": "Evaluation window in seconds: 60, 120, 300 or 600. Default: 300.",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "anvil:aws:WafScope": {
+      "description": "What a WAF protects.",
+      "enum": [
+        {
+          "description": "CloudFront distributions (sites). Created in us-east-1.",
+          "name": "Cloudfront",
+          "value": "cloudfront"
+        },
+        {
+          "description": "Regional resources such as Cognito user pools. Created in the stack's region.",
+          "name": "Regional",
+          "value": "regional"
+        }
+      ],
+      "type": "string"
+    },
+    "anvil:aws:WafTransformArgs": {
+      "properties": {
+        "waf": {
+          "$ref": "#/types/anvil:aws:WafOverrides"
+        }
+      },
       "type": "object"
     },
     "anvil:gcp:BucketOverrides": {

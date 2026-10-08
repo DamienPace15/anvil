@@ -694,6 +694,16 @@ export namespace aws {
     }
 
     /**
+     * Attaches a WAF to the user pool.
+     */
+    export interface CognitoUserPoolWafArgs {
+        /**
+         * ARN of a regional-scope WebACL in the same region as the pool. Pass waf.arn from an Anvil Waf with scope "regional".
+         */
+        arn: pulumi.Input<string>;
+    }
+
+    /**
      * AWS Backup configuration for DSQL clusters. Anvil opts in the DSQL resource type in each cluster region, creates a backup plan, and for multi-region clusters automatically adds cross-region copy rules so restores work in both regions.
      */
     export interface DSQLBackupArgsArgs {
@@ -1785,6 +1795,46 @@ export namespace aws {
     }
 
     /**
+     * SiteHstsArgs configures optional Strict-Transport-Security directives. Both are hard to undo — browsers remember them for the max-age (1 year).
+     */
+    export interface SiteHstsArgs {
+        /**
+         * IncludeSubDomains applies HSTS to every subdomain of the site's domain. Default: false.
+         */
+        includeSubDomains?: pulumi.Input<boolean>;
+        /**
+         * Preload marks the domain as eligible for browsers' built-in HSTS preload list. Requires includeSubDomains. Default: false.
+         */
+        preload?: pulumi.Input<boolean>;
+    }
+
+    /**
+     * SiteSecurityHeadersArgs configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. A header your app sets itself always takes priority. Content-Security-Policy is not set — configure it in the framework (e.g. SvelteKit's kit.csp).
+     */
+    export interface SiteSecurityHeadersArgs {
+        /**
+         * CrossOriginOpenerPolicy isolates the site's browser window from windows on other sites. "same-origin-allow-popups" (default): isolated, but popups it opens (OAuth sign-in, payments) still work. "same-origin": strict isolation — breaks sign-in and payment popups that report back. "none": no Cross-Origin-Opener-Policy header.
+         */
+        crossOriginOpenerPolicy?: pulumi.Input<enums.aws.SiteCrossOriginOpenerPolicy>;
+        /**
+         * Enabled turns the security headers on or off. Default: true.
+         */
+        enabled?: pulumi.Input<boolean>;
+        /**
+         * FrameOptions controls whether other sites can embed this one in a frame. "sameorigin" (default): only pages on this site. "deny": never. "none": no X-Frame-Options header — the site can be embedded anywhere.
+         */
+        frameOptions?: pulumi.Input<enums.aws.SiteFrameOptions>;
+        /**
+         * Hsts adds optional Strict-Transport-Security directives.
+         */
+        hsts?: pulumi.Input<inputs.aws.SiteHstsArgs>;
+        /**
+         * PermissionsPolicy is the Permissions-Policy header value: which browser features the site (and anything it embeds) may use. Default: "camera=(), microphone=(), geolocation=(), usb=(), browsing-topics=()". Set your own value to allow a feature, e.g. "camera=(self), microphone=(self)", or "none" to send no Permissions-Policy header.
+         */
+        permissionsPolicy?: pulumi.Input<string>;
+    }
+
+    /**
      * SiteWafArgs attaches a WAF to the site. Composes freely with originProtection. While a WAF is attached, protection defaults to "edge-oac" so the server Function URL can't be used to bypass the WAF.
      */
     export interface SiteWafArgs {
@@ -1857,6 +1907,143 @@ export namespace aws {
          * Storage tiering policy for flow log retention.
          */
         lifecycle: pulumi.Input<enums.aws.S3FlowLogLifecycle>;
+    }
+
+    /**
+     * WAF logging to CloudWatch Logs.
+     */
+    export interface WafLoggingArgsArgs {
+        /**
+         * Turns logging on or off. Default: true.
+         */
+        enabled?: pulumi.Input<boolean>;
+        /**
+         * Also log allowed requests. Default: false — only blocked and counted requests, which keeps cost low.
+         */
+        includeAllowed?: pulumi.Input<boolean>;
+        /**
+         * How long logs are kept, in days (a CloudWatch Logs retention value). Default: 30.
+         */
+        retentionDays?: pulumi.Input<number>;
+    }
+
+    /**
+     * AWS managed rule groups.
+     */
+    export interface WafManagedRulesArgsArgs {
+        /**
+         * Admin protection (AWSManagedRulesAdminProtectionRuleSet): requests to admin-looking paths. Default: false.
+         */
+        adminProtection?: pulumi.Input<boolean>;
+        /**
+         * Anonymous IP list (AWSManagedRulesAnonymousIpList): VPNs, Tor, hosting providers. Suits B2B apps; too strict for most consumer apps. Default: false.
+         */
+        anonymousIp?: pulumi.Input<boolean>;
+        /**
+         * Core Rule Set (AWSManagedRulesCommonRuleSet): OWASP Top 10 — XSS, path traversal, remote file inclusion, SSRF. Default: true.
+         */
+        core?: pulumi.Input<boolean>;
+        /**
+         * Amazon IP reputation list (AWSManagedRulesAmazonIpReputationList): IPs from Amazon threat intelligence. Default: true, or false when clientIpHeader is set.
+         */
+        ipReputation?: pulumi.Input<boolean>;
+        /**
+         * Known bad inputs (AWSManagedRulesKnownBadInputsRuleSet): Log4Shell, Java deserialisation, React RCE and other known exploit patterns. Default: true.
+         */
+        knownBadInputs?: pulumi.Input<boolean>;
+        /**
+         * SQL injection (AWSManagedRulesSQLiRuleSet). Default: true.
+         */
+        sqli?: pulumi.Input<boolean>;
+    }
+
+    export interface WafOverridesArgs {
+        /**
+         * Specifies custom configurations for the associations between the web ACL and protected resources. See <span pulumi-lang-nodejs="`associationConfig`" pulumi-lang-dotnet="`AssociationConfig`" pulumi-lang-go="`associationConfig`" pulumi-lang-python="`association_config`" pulumi-lang-yaml="`associationConfig`" pulumi-lang-java="`associationConfig`">`association_config`</span> below for details.
+         */
+        associationConfig?: pulumi.Input<pulumiAws.types.input.wafv2.WebAclAssociationConfig>;
+        /**
+         * Specifies how AWS WAF should handle CAPTCHA evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`captchaConfig`" pulumi-lang-dotnet="`CaptchaConfig`" pulumi-lang-go="`captchaConfig`" pulumi-lang-python="`captcha_config`" pulumi-lang-yaml="`captchaConfig`" pulumi-lang-java="`captchaConfig`">`captcha_config`</span> below for details.
+         */
+        captchaConfig?: pulumi.Input<pulumiAws.types.input.wafv2.WebAclCaptchaConfig>;
+        /**
+         * Specifies how AWS WAF should handle Challenge evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`challengeConfig`" pulumi-lang-dotnet="`ChallengeConfig`" pulumi-lang-go="`challengeConfig`" pulumi-lang-python="`challenge_config`" pulumi-lang-yaml="`challengeConfig`" pulumi-lang-java="`challengeConfig`">`challenge_config`</span> below for details.
+         */
+        challengeConfig?: pulumi.Input<pulumiAws.types.input.wafv2.WebAclChallengeConfig>;
+        /**
+         * Defines custom response bodies that can be referenced by <span pulumi-lang-nodejs="`customResponse`" pulumi-lang-dotnet="`CustomResponse`" pulumi-lang-go="`customResponse`" pulumi-lang-python="`custom_response`" pulumi-lang-yaml="`customResponse`" pulumi-lang-java="`customResponse`">`custom_response`</span> actions. See <span pulumi-lang-nodejs="`customResponseBody`" pulumi-lang-dotnet="`CustomResponseBody`" pulumi-lang-go="`customResponseBody`" pulumi-lang-python="`custom_response_body`" pulumi-lang-yaml="`customResponseBody`" pulumi-lang-java="`customResponseBody`">`custom_response_body`</span> below for details.
+         */
+        customResponseBodies?: pulumi.Input<pulumi.Input<pulumiAws.types.input.wafv2.WebAclCustomResponseBody>[]>;
+        /**
+         * Specifies data protection to apply to the web request data for the web ACL. This is a web ACL level data protection option. See <span pulumi-lang-nodejs="`dataProtectionConfig`" pulumi-lang-dotnet="`DataProtectionConfig`" pulumi-lang-go="`dataProtectionConfig`" pulumi-lang-python="`data_protection_config`" pulumi-lang-yaml="`dataProtectionConfig`" pulumi-lang-java="`dataProtectionConfig`">`data_protection_config`</span> below for details.
+         */
+        dataProtectionConfig?: pulumi.Input<pulumiAws.types.input.wafv2.WebAclDataProtectionConfig>;
+        /**
+         * Action to perform if none of the <span pulumi-lang-nodejs="`rules`" pulumi-lang-dotnet="`Rules`" pulumi-lang-go="`rules`" pulumi-lang-python="`rules`" pulumi-lang-yaml="`rules`" pulumi-lang-java="`rules`">`rules`</span> contained in the WebACL match. See <span pulumi-lang-nodejs="`defaultAction`" pulumi-lang-dotnet="`DefaultAction`" pulumi-lang-go="`defaultAction`" pulumi-lang-python="`default_action`" pulumi-lang-yaml="`defaultAction`" pulumi-lang-java="`defaultAction`">`default_action`</span> below for details.
+         */
+        defaultAction?: pulumi.Input<pulumiAws.types.input.wafv2.WebAclDefaultAction>;
+        /**
+         * Friendly description of the WebACL.
+         */
+        description?: pulumi.Input<string>;
+        /**
+         * Friendly name of the WebACL. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+         */
+        name?: pulumi.Input<string>;
+        /**
+         * Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+         */
+        namePrefix?: pulumi.Input<string>;
+        /**
+         * Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+         */
+        region?: pulumi.Input<string>;
+        /**
+         * Raw JSON string to allow more than three nested statements. Conflicts with <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. This is for advanced use cases where more than 3 levels of nested statements are required. **There is no drift detection at this time**. If you use this attribute instead of <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span>, you will be foregoing drift detection. Additionally, importing an existing web ACL into a configuration with <span pulumi-lang-nodejs="`ruleJson`" pulumi-lang-dotnet="`RuleJson`" pulumi-lang-go="`ruleJson`" pulumi-lang-python="`rule_json`" pulumi-lang-yaml="`ruleJson`" pulumi-lang-java="`ruleJson`">`rule_json`</span> set will result in a one time in-place update as the remote rule configuration is initially written to the <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. See the AWS [documentation](https://docs.aws.amazon.com/waf/latest/APIReference/API_CreateWebACL.html) for the JSON structure.
+         */
+        ruleJson?: pulumi.Input<string>;
+        /**
+         * Rule blocks used to identify the web requests that you want to <span pulumi-lang-nodejs="`allow`" pulumi-lang-dotnet="`Allow`" pulumi-lang-go="`allow`" pulumi-lang-python="`allow`" pulumi-lang-yaml="`allow`" pulumi-lang-java="`allow`">`allow`</span>, <span pulumi-lang-nodejs="`block`" pulumi-lang-dotnet="`Block`" pulumi-lang-go="`block`" pulumi-lang-python="`block`" pulumi-lang-yaml="`block`" pulumi-lang-java="`block`">`block`</span>, or <span pulumi-lang-nodejs="`count`" pulumi-lang-dotnet="`Count`" pulumi-lang-go="`count`" pulumi-lang-python="`count`" pulumi-lang-yaml="`count`" pulumi-lang-java="`count`">`count`</span>. See <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> below for details.
+         */
+        rules?: pulumi.Input<pulumi.Input<pulumiAws.types.input.wafv2.WebAclRule>[]>;
+        /**
+         * Specifies whether this is for an AWS CloudFront distribution or for a regional application. Valid values are `CLOUDFRONT` or `REGIONAL`. To work with CloudFront, you must also specify the region `us-east-1` (N. Virginia) on the AWS provider.
+         */
+        scope?: pulumi.Input<string>;
+        /**
+         * Map of key-value pairs to associate with the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+         */
+        tags?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
+        /**
+         * Specifies the domains that AWS WAF should accept in a web request token. This enables the use of tokens across multiple protected websites. When AWS WAF provides a token, it uses the domain of the AWS resource that the web ACL is protecting. If you don't specify a list of token domains, AWS WAF accepts tokens only for the domain of the protected resource. With a token domain list, AWS WAF accepts the resource's host domain plus all domains in the token domain list, including their prefixed subdomains.
+         */
+        tokenDomains?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * Defines and enables Amazon CloudWatch metrics and web request sample collection. See <span pulumi-lang-nodejs="`visibilityConfig`" pulumi-lang-dotnet="`VisibilityConfig`" pulumi-lang-go="`visibilityConfig`" pulumi-lang-python="`visibility_config`" pulumi-lang-yaml="`visibilityConfig`" pulumi-lang-java="`visibilityConfig`">`visibility_config`</span> below for details.
+         */
+        visibilityConfig?: pulumi.Input<pulumiAws.types.input.wafv2.WebAclVisibilityConfig>;
+    }
+
+    /**
+     * Per-client rate limit.
+     */
+    export interface WafRateLimitArgsArgs {
+        /**
+         * Turns the rate limit on or off. Default: true.
+         */
+        enabled?: pulumi.Input<boolean>;
+        /**
+         * Maximum requests per client in each window (10 to 2,000,000,000). Default: 2000.
+         */
+        limit?: pulumi.Input<number>;
+        /**
+         * Evaluation window in seconds: 60, 120, 300 or 600. Default: 300.
+         */
+        windowSeconds?: pulumi.Input<number>;
+    }
+
+    export interface WafTransformArgsArgs {
+        waf?: pulumi.Input<inputs.aws.WafOverridesArgs>;
     }
 }
 

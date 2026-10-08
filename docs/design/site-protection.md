@@ -3,8 +3,8 @@
 **Status:** Implemented for `SvelteKitSite` (`protection`, `waf: { arn }` and
 `originProtection` inputs). `edge-oac` **verified end-to-end on AWS** (see
 *Verification*); origin protection verified locally only (against a mocked
-KeyValueStore). The standalone `Waf` component that `waf.arn` is designed for is
-not built yet.
+KeyValueStore). The `Waf` component that `waf.arn` attaches is documented in
+[waf.md](waf.md).
 
 ## The problem
 
@@ -236,24 +236,35 @@ the same names.
 - `provider/internal/awssite/cloudfront.go` — Lambda OAC, edge signer association, viewer-request function on every behavior
 - `provider/internal/awssite/edge_signer.go` + `edge/edge-signer.js` — Lambda@Edge signer
 - `provider/internal/awssite/origin_protection.go` + `edge/origin-guard.js` — KeyValueStore secret + CloudFront Function
+- `provider/internal/awssite/hosting.go` — shared hosting layer used by every site component
+- `provider/sites/types.go` — shared hosting input types + `MissingHostingInputs`
 - `provider/aws/sveltekitsite/sveltekitsite.go` — wiring
 - `scripts/generate-site-schemas/main.go` — `SiteProtection` enum
 
-### Reusing it for other site components (React Router, Next.js, Astro, Nuxt, …)
+### Shared by every site component
 
-All of it is framework-agnostic and lives in `internal/awssite`, so a new site
-component reuses it as-is: `ResolveProtection`, `CreateSiteFunctionURL`,
-`GrantSiteFunctionURLAccess`, `SetupEdgeSigner`, the Lambda OAC, and
-`SetupOriginProtection`.
+Protection, WAF attachment, origin protection and security headers form one
+**shared hosting layer** that every framework component uses
+(`internal/awssite/hosting.go`):
 
-- **Static SPA (Vite React/Vue, no server):** no Lambda, so no Function URL and
-  nothing to protect — `protection` doesn't apply. A WAF and origin protection
-  still attach to CloudFront.
-- **Schema:** `protection`, `waf` and `originProtection` currently live on
-  `SvelteKitSiteArgs`. Move them into a shared embedded struct in
-  `provider/sites/types.go` (which `generate-site-schemas` already resolves) so
-  every site component gets identical inputs and docs, and key the
-  `SiteProtection` enum override on that shared struct.
+```go
+hosting, _ := awssite.NewHosting(ctx, site, name, awssite.HostingInputs{...}) // before the server Lambda
+fnURL, _ := hosting.CreateFunctionURL(lambdaFn)                                // after the Lambda
+hosting.ApplyTo(&cfArgs)                                                       // before the distribution
+hosting.GrantAccess(lambdaFn, distribution.Arn)                                // after the distribution
+```
+
+- **Inputs** `protection`, `waf`, `originProtection`, `securityHeaders` —
+  names in `sites.HostingInputNames`, types in `provider/sites/types.go`.
+- **Declared on each component's Args, not embedded.** Pulumi's component input
+  decoding (`ConstructInputs.CopyTo`) only fills top-level tagged fields, so
+  inputs inside an embedded struct would silently never be set. Each site
+  component has a test calling `sites.MissingHostingInputs` that fails if one is
+  missing.
+- **Static SPA (no server):** no Lambda, so `protection` doesn't apply; WAF,
+  origin protection and security headers still attach to CloudFront.
+
+Security headers are documented in [security-headers.md](security-headers.md).
 
 ## Verification
 
@@ -435,9 +446,6 @@ and [AWS Compute Blog: Protecting a Lambda function URL with CloudFront and Lamb
 
 ## Future work
 
-- **Standalone `anvil:aws:Waf` component** with researched defaults (rate limit
-  2000/5 min per IP, Amazon IP reputation, Known Bad Inputs, Core Rule Set with
-  `SizeRestrictions_BODY` → Count, SQLi). `waf.arn` is the attach point.
 - **Origin secret rotation without downtime** — accept a second KeyValueStore
   key during the switch (the edge function already loops over `SECRET_KEYS`).
 - **Origin protection via viewer mTLS** (CloudFront, Nov 2025) as a stronger

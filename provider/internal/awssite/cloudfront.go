@@ -49,6 +49,10 @@ type CloudFrontArgs struct {
 	// EdgeSignerArn is the qualified ARN of the Lambda@Edge signer run on
 	// origin-request for the Lambda origin (edge-oac). Zero value means none.
 	EdgeSignerArn pulumi.StringOutput
+
+	// ResponseHeadersPolicyID is the security headers policy applied to every
+	// cache behavior. Zero value means none.
+	ResponseHeadersPolicyID pulumi.StringOutput
 }
 
 // BuildCloudFrontArgs constructs the full CloudFront distribution argument map.
@@ -125,6 +129,14 @@ func BuildCloudFrontArgs(args CloudFrontArgs) pulumi.Map {
 
 	if args.WebACLArn != (pulumi.StringOutput{}) {
 		cfArgs["webAclId"] = args.WebACLArn
+	}
+
+	// Security headers go on every behavior — static assets included.
+	if args.ResponseHeadersPolicyID != (pulumi.StringOutput{}) {
+		cfArgs["defaultCacheBehavior"].(pulumi.Map)["responseHeadersPolicyId"] = args.ResponseHeadersPolicyID
+		for _, behavior := range args.OrderedCacheBehaviors {
+			behavior.(pulumi.Map)["responseHeadersPolicyId"] = args.ResponseHeadersPolicyID
+		}
 	}
 
 	// The edge signer only applies to the Lambda origin (the default behavior);

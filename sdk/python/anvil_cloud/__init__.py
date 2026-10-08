@@ -43,7 +43,8 @@ _utilities.register(
    "anvil:aws:Queue": "Queue",
    "anvil:aws:SvelteKitSite": "SvelteKitSite",
    "anvil:aws:Vpc": "Vpc",
-   "anvil:aws:VpcEndpoint": "VpcEndpoint"
+   "anvil:aws:VpcEndpoint": "VpcEndpoint",
+   "anvil:aws:Waf": "Waf"
   }
  },
  {

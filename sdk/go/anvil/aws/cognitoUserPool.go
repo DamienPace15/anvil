@@ -63,6 +63,8 @@ type cognitoUserPoolArgs struct {
 	// Password policy for the user pool. Anvil enforces a secure baseline by default — override only to strengthen.
 	PasswordPolicy *CognitoUserPoolPasswordPolicy `pulumi:"passwordPolicy"`
 	Transform      *CognitoUserPoolTransformArgs  `pulumi:"transform"`
+	// Attaches a regional WAF WebACL to the user pool. AWS recommends a WAF for every public user pool — it protects sign-in and sign-up against credential stuffing, brute force, bots and SMS pumping. Use an Anvil Waf created with scope "regional" in the same region as the pool.
+	Waf *CognitoUserPoolWaf `pulumi:"waf"`
 }
 
 // The set of arguments for constructing a CognitoUserPool resource.
@@ -82,6 +84,8 @@ type CognitoUserPoolArgs struct {
 	// Password policy for the user pool. Anvil enforces a secure baseline by default — override only to strengthen.
 	PasswordPolicy CognitoUserPoolPasswordPolicyPtrInput
 	Transform      CognitoUserPoolTransformArgsPtrInput
+	// Attaches a regional WAF WebACL to the user pool. AWS recommends a WAF for every public user pool — it protects sign-in and sign-up against credential stuffing, brute force, bots and SMS pumping. Use an Anvil Waf created with scope "regional" in the same region as the pool.
+	Waf CognitoUserPoolWafPtrInput
 }
 
 func (CognitoUserPoolArgs) ElementType() reflect.Type {

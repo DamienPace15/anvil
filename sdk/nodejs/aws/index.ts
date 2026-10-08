@@ -75,6 +75,11 @@ export type VpcEndpoint = import("./vpcEndpoint").VpcEndpoint;
 export const VpcEndpoint: typeof import("./vpcEndpoint").VpcEndpoint = null as any;
 utilities.lazyLoad(exports, ["VpcEndpoint"], () => require("./vpcEndpoint"));
 
+export { WafArgs } from "./waf";
+export type Waf = import("./waf").Waf;
+export const Waf: typeof import("./waf").Waf = null as any;
+utilities.lazyLoad(exports, ["Waf"], () => require("./waf"));
+
 
 // Export enums:
 export * from "../types/enums/aws";
@@ -111,6 +116,8 @@ const _module = {
                 return new Vpc(name, <any>undefined, { urn })
             case "anvil:aws:VpcEndpoint":
                 return new VpcEndpoint(name, <any>undefined, { urn })
+            case "anvil:aws:Waf":
+                return new Waf(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

@@ -29,7 +29,8 @@ class CognitoUserPoolArgs:
                  identity_providers: Optional[pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolIdentityProviderArgs']]]] = None,
                  mfa: Optional[pulumi.Input['CognitoUserPoolMfaArgs']] = None,
                  password_policy: Optional[pulumi.Input['CognitoUserPoolPasswordPolicyArgs']] = None,
-                 transform: Optional[pulumi.Input['CognitoUserPoolTransformArgsArgs']] = None):
+                 transform: Optional[pulumi.Input['CognitoUserPoolTransformArgsArgs']] = None,
+                 waf: Optional[pulumi.Input['CognitoUserPoolWafArgs']] = None):
         """
         The set of arguments for constructing a CognitoUserPool resource.
 
@@ -40,6 +41,7 @@ class CognitoUserPoolArgs:
         :param pulumi.Input[Sequence[pulumi.Input['CognitoUserPoolIdentityProviderArgs']]] identity_providers: External identity providers to federate with this user pool. Supports Google, Facebook, LoginWithAmazon, SignInWithApple, OIDC, and SAML. Schema never changes per provider — add new providers by extending this array.
         :param pulumi.Input['CognitoUserPoolMfaArgs'] mfa: MFA configuration. TOTP requires no additional AWS resources. SMS requires an SNS caller ARN.
         :param pulumi.Input['CognitoUserPoolPasswordPolicyArgs'] password_policy: Password policy for the user pool. Anvil enforces a secure baseline by default — override only to strengthen.
+        :param pulumi.Input['CognitoUserPoolWafArgs'] waf: Attaches a regional WAF WebACL to the user pool. AWS recommends a WAF for every public user pool — it protects sign-in and sign-up against credential stuffing, brute force, bots and SMS pumping. Use an Anvil Waf created with scope "regional" in the same region as the pool.
         """
         if app_client is not None:
             pulumi.set(__self__, "app_client", app_client)
@@ -57,6 +59,8 @@ class CognitoUserPoolArgs:
             pulumi.set(__self__, "password_policy", password_policy)
         if transform is not None:
             pulumi.set(__self__, "transform", transform)
+        if waf is not None:
+            pulumi.set(__self__, "waf", waf)
 
     @_builtins.property
     @pulumi.getter(name="appClient")
@@ -151,6 +155,18 @@ class CognitoUserPoolArgs:
     def transform(self, value: Optional[pulumi.Input['CognitoUserPoolTransformArgsArgs']]):
         pulumi.set(self, "transform", value)
 
+    @_builtins.property
+    @pulumi.getter
+    def waf(self) -> Optional[pulumi.Input['CognitoUserPoolWafArgs']]:
+        """
+        Attaches a regional WAF WebACL to the user pool. AWS recommends a WAF for every public user pool — it protects sign-in and sign-up against credential stuffing, brute force, bots and SMS pumping. Use an Anvil Waf created with scope "regional" in the same region as the pool.
+        """
+        return pulumi.get(self, "waf")
+
+    @waf.setter
+    def waf(self, value: Optional[pulumi.Input['CognitoUserPoolWafArgs']]):
+        pulumi.set(self, "waf", value)
+
 
 @pulumi.type_token("anvil:aws:CognitoUserPool")
 class CognitoUserPool(pulumi.ComponentResource):
@@ -166,6 +182,7 @@ class CognitoUserPool(pulumi.ComponentResource):
                  mfa: Optional[pulumi.Input[Union['CognitoUserPoolMfaArgs', 'CognitoUserPoolMfaArgsDict']]] = None,
                  password_policy: Optional[pulumi.Input[Union['CognitoUserPoolPasswordPolicyArgs', 'CognitoUserPoolPasswordPolicyArgsDict']]] = None,
                  transform: Optional[pulumi.Input[Union['CognitoUserPoolTransformArgsArgs', 'CognitoUserPoolTransformArgsArgsDict']]] = None,
+                 waf: Optional[pulumi.Input[Union['CognitoUserPoolWafArgs', 'CognitoUserPoolWafArgsDict']]] = None,
                  __props__=None):
         """
         An Anvil-managed Cognito user pool. Tier 1 controls (deletion protection, enforced password policy, account recovery via email) are always on. Pair with CognitoAuth to protect API Gateway routes.
@@ -180,6 +197,7 @@ class CognitoUserPool(pulumi.ComponentResource):
         :param pulumi.Input[Sequence[pulumi.Input[Union['CognitoUserPoolIdentityProviderArgs', 'CognitoUserPoolIdentityProviderArgsDict']]]] identity_providers: External identity providers to federate with this user pool. Supports Google, Facebook, LoginWithAmazon, SignInWithApple, OIDC, and SAML. Schema never changes per provider — add new providers by extending this array.
         :param pulumi.Input[Union['CognitoUserPoolMfaArgs', 'CognitoUserPoolMfaArgsDict']] mfa: MFA configuration. TOTP requires no additional AWS resources. SMS requires an SNS caller ARN.
         :param pulumi.Input[Union['CognitoUserPoolPasswordPolicyArgs', 'CognitoUserPoolPasswordPolicyArgsDict']] password_policy: Password policy for the user pool. Anvil enforces a secure baseline by default — override only to strengthen.
+        :param pulumi.Input[Union['CognitoUserPoolWafArgs', 'CognitoUserPoolWafArgsDict']] waf: Attaches a regional WAF WebACL to the user pool. AWS recommends a WAF for every public user pool — it protects sign-in and sign-up against credential stuffing, brute force, bots and SMS pumping. Use an Anvil Waf created with scope "regional" in the same region as the pool.
         """
         ...
     @overload
@@ -214,6 +232,7 @@ class CognitoUserPool(pulumi.ComponentResource):
                  mfa: Optional[pulumi.Input[Union['CognitoUserPoolMfaArgs', 'CognitoUserPoolMfaArgsDict']]] = None,
                  password_policy: Optional[pulumi.Input[Union['CognitoUserPoolPasswordPolicyArgs', 'CognitoUserPoolPasswordPolicyArgsDict']]] = None,
                  transform: Optional[pulumi.Input[Union['CognitoUserPoolTransformArgsArgs', 'CognitoUserPoolTransformArgsArgsDict']]] = None,
+                 waf: Optional[pulumi.Input[Union['CognitoUserPoolWafArgs', 'CognitoUserPoolWafArgsDict']]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -233,6 +252,7 @@ class CognitoUserPool(pulumi.ComponentResource):
             __props__.__dict__["mfa"] = mfa
             __props__.__dict__["password_policy"] = password_policy
             __props__.__dict__["transform"] = transform
+            __props__.__dict__["waf"] = waf
             __props__.__dict__["app_client_id"] = None
             __props__.__dict__["app_client_secret"] = None
             __props__.__dict__["cloud_front_domain"] = None

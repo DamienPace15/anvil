@@ -5,12 +5,14 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	provider "github.com/DamienPace15/anvil/provider/internal/shared"
 	"github.com/DamienPace15/anvil/provider/internal/transform"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cognito"
 	awsconfig "github.com/pulumi/pulumi-aws/sdk/v7/go/aws/config"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/iam"
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/wafv2"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -98,6 +100,16 @@ type EmailConfigurationArgs struct {
 // ── Main Args ──────────────────────────────────────────────────────────────
 
 // CognitoUserPoolArgs defines the inputs for an Anvil-managed Cognito user pool.
+// CognitoUserPoolWafArgs attaches a WAF to the user pool. AWS recommends a WAF
+// for every public user pool: it protects sign-in and sign-up against
+// credential stuffing, brute force, bots and SMS pumping.
+// https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-waf.html
+type CognitoUserPoolWafArgs struct {
+	// Arn is the ARN of a regional-scope WebACL in the same region as the pool.
+	// Pass waf.arn from an Anvil Waf component created with scope "regional".
+	Arn pulumi.StringInput `pulumi:"arn"`
+}
+
 type CognitoUserPoolArgs struct {
 	// PasswordPolicy controls the password requirements enforced at sign-up and
 	// password change. Anvil defaults satisfy CIS Benchmarks and SOC 2 baseline.
@@ -133,6 +145,9 @@ type CognitoUserPoolArgs struct {
 	// internal tools, B2B apps, and any pool where open registration is not desired.
 	// Default: false (public sign-up enabled).
 	AdminOnly bool `pulumi:"adminOnly,optional"`
+
+	// Waf attaches a regional WAF WebACL to the user pool.
+	Waf *CognitoUserPoolWafArgs `pulumi:"waf,optional"`
 
 	Transform map[string]map[string]interface{} `pulumi:"transform,optional"`
 }
@@ -397,6 +412,25 @@ func NewCognitoUserPool(ctx *pulumi.Context, name string, args CognitoUserPoolAr
 	pool := &cognito.UserPool{}
 	if err := ctx.RegisterResource("aws:cognito/userPool:UserPool", name, poolProps, pool, pulumi.Parent(comp)); err != nil {
 		return nil, err
+	}
+
+	// ── WAF (opt-in) ───────────────────────────────────────────────────────
+	if args.Waf != nil {
+		// Cognito only accepts REGIONAL-scope WebACLs (ARN ".../regional/webacl/...").
+		webAclArn := args.Waf.Arn.ToStringOutput().ApplyT(func(arn string) (string, error) {
+			if !strings.Contains(arn, ":regional/webacl/") {
+				return "", fmt.Errorf("user pool %q: waf.arn %q is not a regional-scope WebACL — "+
+					"create the Waf with scope \"regional\" in the same region as the pool", name, arn)
+			}
+			return arn, nil
+		}).(pulumi.StringOutput)
+		err := ctx.RegisterResource("aws:wafv2/webAclAssociation:WebAclAssociation", name+"-waf", pulumi.Map{
+			"resourceArn": pool.Arn,
+			"webAclArn":   webAclArn,
+		}, &wafv2.WebAclAssociation{}, pulumi.Parent(comp))
+		if err != nil {
+			return nil, fmt.Errorf("failed to attach WAF to user pool %q: %w", name, err)
+		}
 	}
 
 	// ── 7. Identity providers ──────────────────────────────────────────────
@@ -818,41 +852,11 @@ func generateExternalId(name, stageId string) (string, error) {
 	return fmt.Sprintf("%s-%s-%s", name, stageId[:8], hex.EncodeToString(b)), nil
 }
 
-// ── !! DOCS REMINDER: WAF !! ───────────────────────────────────────────────
+// ── WAF ────────────────────────────────────────────────────────────────────
 //
-// AWS WAF integration is NOT wired by this component. It is intentionally
-// excluded as a Tier 2 feature (it has per-request cost) but should be
-// prominently documented.
-//
-// WHAT TO COVER IN DOCS:
-//
-//  1. WHY: AWS explicitly recommends WAF for all public Cognito user pools.
-//     WAF protects against credential stuffing, brute-force attacks, bot
-//     traffic, and SMS pumping fraud. As of 2025, WAF supports both Cognito
-//     Managed Login endpoints and the user pools API.
-//
-//  2. HOW (escape hatch): Users can associate a WAF web ACL via transform:
-//
-//     transform.userPool = {
-//       userPoolAddOns: { advancedSecurityMode: "ENFORCED" }  // adds threat protection
-//     }
-//
-//     WAF itself is a separate aws.wafv2.WebAcl resource — document the
-//     association pattern using aws.cognito.UserPoolUiCustomization or the
-//     wafv2 association resource.
-//
-//  3. RECOMMENDED MANAGED RULES to document for Cognito pools:
-//     - AWSManagedRulesCommonRuleSet      (OWASP top 10)
-//     - AWSManagedRulesAmazonIpReputationList  (known bad IPs)
-//     - AWSManagedRulesKnownBadInputsRuleSet   (injection patterns)
-//     - Rate-based rule: limit SignUp/InitiateAuth to ~100 req/5min per IP
-//
-//  4. COST NOTE: WAF is ~$5/month base + $0.60/million requests. For a
-//     public-facing auth endpoint this is almost always worth it. Frame
-//     it as "strongly recommended for production pools with public sign-up".
-//
-//  5. SMS PUMPING: If SMS MFA or phone verification is enabled, WAF is
-//     especially important. SMS pumping fraud can generate significant AWS
-//     bills. Document the Cognito + WAF combination as a mitigation.
+// AWS recommends a WAF for every public user pool (credential stuffing, brute
+// force, bots, SMS pumping). Attach one with waf: { arn } using an Anvil Waf
+// component created with scope "regional" — it creates the WebACL association.
+// Not attached by default: a WAF has a monthly and per-request cost.
 //
 // Reference: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-waf.html

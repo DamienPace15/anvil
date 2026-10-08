@@ -75,6 +75,7 @@ export class CognitoUserPool extends pulumi.ComponentResource {
             resourceInputs["mfa"] = args?.mfa;
             resourceInputs["passwordPolicy"] = args?.passwordPolicy;
             resourceInputs["transform"] = args?.transform;
+            resourceInputs["waf"] = args?.waf;
             resourceInputs["appClientId"] = undefined /*out*/;
             resourceInputs["appClientSecret"] = undefined /*out*/;
             resourceInputs["cloudFrontDomain"] = undefined /*out*/;
@@ -129,4 +130,8 @@ export interface CognitoUserPoolArgs {
      */
     passwordPolicy?: pulumi.Input<inputs.aws.CognitoUserPoolPasswordPolicyArgs>;
     transform?: pulumi.Input<inputs.aws.CognitoUserPoolTransformArgsArgs>;
+    /**
+     * Attaches a regional WAF WebACL to the user pool. AWS recommends a WAF for every public user pool — it protects sign-in and sign-up against credential stuffing, brute force, bots and SMS pumping. Use an Anvil Waf created with scope "regional" in the same region as the pool.
+     */
+    waf?: pulumi.Input<inputs.aws.CognitoUserPoolWafArgs>;
 }
