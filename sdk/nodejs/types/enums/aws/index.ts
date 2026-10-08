@@ -384,6 +384,46 @@ export const S3FlowLogLifecycle = {
 
 export type S3FlowLogLifecycle = (typeof S3FlowLogLifecycle)[keyof typeof S3FlowLogLifecycle];
 
+export const SiteCrossOriginOpenerPolicy = {
+    /**
+     * Isolated from other sites, but popups it opens (OAuth sign-in, payments) still work. Default.
+     */
+    SameOriginAllowPopups: "same-origin-allow-popups",
+    /**
+     * Strict isolation. Breaks sign-in and payment popups that report back to the page.
+     */
+    SameOrigin: "same-origin",
+    /**
+     * No Cross-Origin-Opener-Policy header.
+     */
+    None: "none",
+} as const;
+
+/**
+ * Cross-Origin-Opener-Policy: isolates the site's browser window from windows on other sites. Default: "same-origin-allow-popups".
+ */
+export type SiteCrossOriginOpenerPolicy = (typeof SiteCrossOriginOpenerPolicy)[keyof typeof SiteCrossOriginOpenerPolicy];
+
+export const SiteFrameOptions = {
+    /**
+     * Only pages on this site can frame it. Default.
+     */
+    Sameorigin: "sameorigin",
+    /**
+     * No site can frame it, including this one.
+     */
+    Deny: "deny",
+    /**
+     * No X-Frame-Options header — any site can embed it. Use only for sites meant to be embedded elsewhere.
+     */
+    None: "none",
+} as const;
+
+/**
+ * Whether other sites can embed this one in a frame (X-Frame-Options). Default: "sameorigin".
+ */
+export type SiteFrameOptions = (typeof SiteFrameOptions)[keyof typeof SiteFrameOptions];
+
 export const SiteProtection = {
     /**
      * Public Function URL. Anyone who learns it can call the server directly, bypassing CloudFront and any WAF or proxy.
@@ -416,3 +456,35 @@ export const VpcNatType = {
 } as const;
 
 export type VpcNatType = (typeof VpcNatType)[keyof typeof VpcNatType];
+
+export const WafMode = {
+    /**
+     * Log matches without blocking. Default.
+     */
+    Count: "count",
+    /**
+     * Block matching requests.
+     */
+    Block: "block",
+} as const;
+
+/**
+ * What WAF rules do when they match.
+ */
+export type WafMode = (typeof WafMode)[keyof typeof WafMode];
+
+export const WafScope = {
+    /**
+     * CloudFront distributions (sites). Created in us-east-1.
+     */
+    Cloudfront: "cloudfront",
+    /**
+     * Regional resources such as Cognito user pools. Created in the stack's region.
+     */
+    Regional: "regional",
+} as const;
+
+/**
+ * What a WAF protects.
+ */
+export type WafScope = (typeof WafScope)[keyof typeof WafScope];

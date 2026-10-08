@@ -49,6 +49,8 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 		r = &Vpc{}
 	case "anvil:aws:VpcEndpoint":
 		r = &VpcEndpoint{}
+	case "anvil:aws:Waf":
+		r = &Waf{}
 	default:
 		return nil, fmt.Errorf("unknown resource type: %s", typ)
 	}

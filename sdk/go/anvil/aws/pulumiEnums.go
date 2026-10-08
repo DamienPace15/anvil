@@ -3151,6 +3151,348 @@ func (in *s3flowLogLifecyclePtr) ToS3FlowLogLifecyclePtrOutputWithContext(ctx co
 	return pulumi.ToOutputWithContext(ctx, in).(S3FlowLogLifecyclePtrOutput)
 }
 
+// Cross-Origin-Opener-Policy: isolates the site's browser window from windows on other sites. Default: "same-origin-allow-popups".
+type SiteCrossOriginOpenerPolicy string
+
+const (
+	// Isolated from other sites, but popups it opens (OAuth sign-in, payments) still work. Default.
+	SiteCrossOriginOpenerPolicySameOriginAllowPopups = SiteCrossOriginOpenerPolicy("same-origin-allow-popups")
+	// Strict isolation. Breaks sign-in and payment popups that report back to the page.
+	SiteCrossOriginOpenerPolicySameOrigin = SiteCrossOriginOpenerPolicy("same-origin")
+	// No Cross-Origin-Opener-Policy header.
+	SiteCrossOriginOpenerPolicyNone = SiteCrossOriginOpenerPolicy("none")
+)
+
+func (SiteCrossOriginOpenerPolicy) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteCrossOriginOpenerPolicy)(nil)).Elem()
+}
+
+func (e SiteCrossOriginOpenerPolicy) ToSiteCrossOriginOpenerPolicyOutput() SiteCrossOriginOpenerPolicyOutput {
+	return pulumi.ToOutput(e).(SiteCrossOriginOpenerPolicyOutput)
+}
+
+func (e SiteCrossOriginOpenerPolicy) ToSiteCrossOriginOpenerPolicyOutputWithContext(ctx context.Context) SiteCrossOriginOpenerPolicyOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(SiteCrossOriginOpenerPolicyOutput)
+}
+
+func (e SiteCrossOriginOpenerPolicy) ToSiteCrossOriginOpenerPolicyPtrOutput() SiteCrossOriginOpenerPolicyPtrOutput {
+	return e.ToSiteCrossOriginOpenerPolicyPtrOutputWithContext(context.Background())
+}
+
+func (e SiteCrossOriginOpenerPolicy) ToSiteCrossOriginOpenerPolicyPtrOutputWithContext(ctx context.Context) SiteCrossOriginOpenerPolicyPtrOutput {
+	return SiteCrossOriginOpenerPolicy(e).ToSiteCrossOriginOpenerPolicyOutputWithContext(ctx).ToSiteCrossOriginOpenerPolicyPtrOutputWithContext(ctx)
+}
+
+func (e SiteCrossOriginOpenerPolicy) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e SiteCrossOriginOpenerPolicy) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e SiteCrossOriginOpenerPolicy) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e SiteCrossOriginOpenerPolicy) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type SiteCrossOriginOpenerPolicyOutput struct{ *pulumi.OutputState }
+
+func (SiteCrossOriginOpenerPolicyOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteCrossOriginOpenerPolicy)(nil)).Elem()
+}
+
+func (o SiteCrossOriginOpenerPolicyOutput) ToSiteCrossOriginOpenerPolicyOutput() SiteCrossOriginOpenerPolicyOutput {
+	return o
+}
+
+func (o SiteCrossOriginOpenerPolicyOutput) ToSiteCrossOriginOpenerPolicyOutputWithContext(ctx context.Context) SiteCrossOriginOpenerPolicyOutput {
+	return o
+}
+
+func (o SiteCrossOriginOpenerPolicyOutput) ToSiteCrossOriginOpenerPolicyPtrOutput() SiteCrossOriginOpenerPolicyPtrOutput {
+	return o.ToSiteCrossOriginOpenerPolicyPtrOutputWithContext(context.Background())
+}
+
+func (o SiteCrossOriginOpenerPolicyOutput) ToSiteCrossOriginOpenerPolicyPtrOutputWithContext(ctx context.Context) SiteCrossOriginOpenerPolicyPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v SiteCrossOriginOpenerPolicy) *SiteCrossOriginOpenerPolicy {
+		return &v
+	}).(SiteCrossOriginOpenerPolicyPtrOutput)
+}
+
+func (o SiteCrossOriginOpenerPolicyOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o SiteCrossOriginOpenerPolicyOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e SiteCrossOriginOpenerPolicy) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o SiteCrossOriginOpenerPolicyOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o SiteCrossOriginOpenerPolicyOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e SiteCrossOriginOpenerPolicy) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type SiteCrossOriginOpenerPolicyPtrOutput struct{ *pulumi.OutputState }
+
+func (SiteCrossOriginOpenerPolicyPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**SiteCrossOriginOpenerPolicy)(nil)).Elem()
+}
+
+func (o SiteCrossOriginOpenerPolicyPtrOutput) ToSiteCrossOriginOpenerPolicyPtrOutput() SiteCrossOriginOpenerPolicyPtrOutput {
+	return o
+}
+
+func (o SiteCrossOriginOpenerPolicyPtrOutput) ToSiteCrossOriginOpenerPolicyPtrOutputWithContext(ctx context.Context) SiteCrossOriginOpenerPolicyPtrOutput {
+	return o
+}
+
+func (o SiteCrossOriginOpenerPolicyPtrOutput) Elem() SiteCrossOriginOpenerPolicyOutput {
+	return o.ApplyT(func(v *SiteCrossOriginOpenerPolicy) SiteCrossOriginOpenerPolicy {
+		if v != nil {
+			return *v
+		}
+		var ret SiteCrossOriginOpenerPolicy
+		return ret
+	}).(SiteCrossOriginOpenerPolicyOutput)
+}
+
+func (o SiteCrossOriginOpenerPolicyPtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o SiteCrossOriginOpenerPolicyPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *SiteCrossOriginOpenerPolicy) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// SiteCrossOriginOpenerPolicyInput is an input type that accepts values of the SiteCrossOriginOpenerPolicy enum
+// A concrete instance of `SiteCrossOriginOpenerPolicyInput` can be one of the following:
+//
+//	SiteCrossOriginOpenerPolicySameOriginAllowPopups
+//	SiteCrossOriginOpenerPolicySameOrigin
+//	SiteCrossOriginOpenerPolicyNone
+type SiteCrossOriginOpenerPolicyInput interface {
+	pulumi.Input
+
+	ToSiteCrossOriginOpenerPolicyOutput() SiteCrossOriginOpenerPolicyOutput
+	ToSiteCrossOriginOpenerPolicyOutputWithContext(context.Context) SiteCrossOriginOpenerPolicyOutput
+}
+
+var siteCrossOriginOpenerPolicyPtrType = reflect.TypeOf((**SiteCrossOriginOpenerPolicy)(nil)).Elem()
+
+type SiteCrossOriginOpenerPolicyPtrInput interface {
+	pulumi.Input
+
+	ToSiteCrossOriginOpenerPolicyPtrOutput() SiteCrossOriginOpenerPolicyPtrOutput
+	ToSiteCrossOriginOpenerPolicyPtrOutputWithContext(context.Context) SiteCrossOriginOpenerPolicyPtrOutput
+}
+
+type siteCrossOriginOpenerPolicyPtr string
+
+func SiteCrossOriginOpenerPolicyPtr(v string) SiteCrossOriginOpenerPolicyPtrInput {
+	return (*siteCrossOriginOpenerPolicyPtr)(&v)
+}
+
+func (*siteCrossOriginOpenerPolicyPtr) ElementType() reflect.Type {
+	return siteCrossOriginOpenerPolicyPtrType
+}
+
+func (in *siteCrossOriginOpenerPolicyPtr) ToSiteCrossOriginOpenerPolicyPtrOutput() SiteCrossOriginOpenerPolicyPtrOutput {
+	return pulumi.ToOutput(in).(SiteCrossOriginOpenerPolicyPtrOutput)
+}
+
+func (in *siteCrossOriginOpenerPolicyPtr) ToSiteCrossOriginOpenerPolicyPtrOutputWithContext(ctx context.Context) SiteCrossOriginOpenerPolicyPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(SiteCrossOriginOpenerPolicyPtrOutput)
+}
+
+// Whether other sites can embed this one in a frame (X-Frame-Options). Default: "sameorigin".
+type SiteFrameOptions string
+
+const (
+	// Only pages on this site can frame it. Default.
+	SiteFrameOptionsSameorigin = SiteFrameOptions("sameorigin")
+	// No site can frame it, including this one.
+	SiteFrameOptionsDeny = SiteFrameOptions("deny")
+	// No X-Frame-Options header — any site can embed it. Use only for sites meant to be embedded elsewhere.
+	SiteFrameOptionsNone = SiteFrameOptions("none")
+)
+
+func (SiteFrameOptions) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteFrameOptions)(nil)).Elem()
+}
+
+func (e SiteFrameOptions) ToSiteFrameOptionsOutput() SiteFrameOptionsOutput {
+	return pulumi.ToOutput(e).(SiteFrameOptionsOutput)
+}
+
+func (e SiteFrameOptions) ToSiteFrameOptionsOutputWithContext(ctx context.Context) SiteFrameOptionsOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(SiteFrameOptionsOutput)
+}
+
+func (e SiteFrameOptions) ToSiteFrameOptionsPtrOutput() SiteFrameOptionsPtrOutput {
+	return e.ToSiteFrameOptionsPtrOutputWithContext(context.Background())
+}
+
+func (e SiteFrameOptions) ToSiteFrameOptionsPtrOutputWithContext(ctx context.Context) SiteFrameOptionsPtrOutput {
+	return SiteFrameOptions(e).ToSiteFrameOptionsOutputWithContext(ctx).ToSiteFrameOptionsPtrOutputWithContext(ctx)
+}
+
+func (e SiteFrameOptions) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e SiteFrameOptions) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e SiteFrameOptions) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e SiteFrameOptions) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type SiteFrameOptionsOutput struct{ *pulumi.OutputState }
+
+func (SiteFrameOptionsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteFrameOptions)(nil)).Elem()
+}
+
+func (o SiteFrameOptionsOutput) ToSiteFrameOptionsOutput() SiteFrameOptionsOutput {
+	return o
+}
+
+func (o SiteFrameOptionsOutput) ToSiteFrameOptionsOutputWithContext(ctx context.Context) SiteFrameOptionsOutput {
+	return o
+}
+
+func (o SiteFrameOptionsOutput) ToSiteFrameOptionsPtrOutput() SiteFrameOptionsPtrOutput {
+	return o.ToSiteFrameOptionsPtrOutputWithContext(context.Background())
+}
+
+func (o SiteFrameOptionsOutput) ToSiteFrameOptionsPtrOutputWithContext(ctx context.Context) SiteFrameOptionsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v SiteFrameOptions) *SiteFrameOptions {
+		return &v
+	}).(SiteFrameOptionsPtrOutput)
+}
+
+func (o SiteFrameOptionsOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o SiteFrameOptionsOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e SiteFrameOptions) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o SiteFrameOptionsOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o SiteFrameOptionsOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e SiteFrameOptions) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type SiteFrameOptionsPtrOutput struct{ *pulumi.OutputState }
+
+func (SiteFrameOptionsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**SiteFrameOptions)(nil)).Elem()
+}
+
+func (o SiteFrameOptionsPtrOutput) ToSiteFrameOptionsPtrOutput() SiteFrameOptionsPtrOutput {
+	return o
+}
+
+func (o SiteFrameOptionsPtrOutput) ToSiteFrameOptionsPtrOutputWithContext(ctx context.Context) SiteFrameOptionsPtrOutput {
+	return o
+}
+
+func (o SiteFrameOptionsPtrOutput) Elem() SiteFrameOptionsOutput {
+	return o.ApplyT(func(v *SiteFrameOptions) SiteFrameOptions {
+		if v != nil {
+			return *v
+		}
+		var ret SiteFrameOptions
+		return ret
+	}).(SiteFrameOptionsOutput)
+}
+
+func (o SiteFrameOptionsPtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o SiteFrameOptionsPtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *SiteFrameOptions) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// SiteFrameOptionsInput is an input type that accepts values of the SiteFrameOptions enum
+// A concrete instance of `SiteFrameOptionsInput` can be one of the following:
+//
+//	SiteFrameOptionsSameorigin
+//	SiteFrameOptionsDeny
+//	SiteFrameOptionsNone
+type SiteFrameOptionsInput interface {
+	pulumi.Input
+
+	ToSiteFrameOptionsOutput() SiteFrameOptionsOutput
+	ToSiteFrameOptionsOutputWithContext(context.Context) SiteFrameOptionsOutput
+}
+
+var siteFrameOptionsPtrType = reflect.TypeOf((**SiteFrameOptions)(nil)).Elem()
+
+type SiteFrameOptionsPtrInput interface {
+	pulumi.Input
+
+	ToSiteFrameOptionsPtrOutput() SiteFrameOptionsPtrOutput
+	ToSiteFrameOptionsPtrOutputWithContext(context.Context) SiteFrameOptionsPtrOutput
+}
+
+type siteFrameOptionsPtr string
+
+func SiteFrameOptionsPtr(v string) SiteFrameOptionsPtrInput {
+	return (*siteFrameOptionsPtr)(&v)
+}
+
+func (*siteFrameOptionsPtr) ElementType() reflect.Type {
+	return siteFrameOptionsPtrType
+}
+
+func (in *siteFrameOptionsPtr) ToSiteFrameOptionsPtrOutput() SiteFrameOptionsPtrOutput {
+	return pulumi.ToOutput(in).(SiteFrameOptionsPtrOutput)
+}
+
+func (in *siteFrameOptionsPtr) ToSiteFrameOptionsPtrOutputWithContext(ctx context.Context) SiteFrameOptionsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(SiteFrameOptionsPtrOutput)
+}
+
 // Who can invoke the site's server Lambda Function URL. Default: "none", or "edge-oac" while a WAF is attached or origin protection is enabled. An explicit value always wins.
 type SiteProtection string
 
@@ -3489,6 +3831,342 @@ func (in *vpcNatTypePtr) ToVpcNatTypePtrOutputWithContext(ctx context.Context) V
 	return pulumi.ToOutputWithContext(ctx, in).(VpcNatTypePtrOutput)
 }
 
+// What WAF rules do when they match.
+type WafMode string
+
+const (
+	// Log matches without blocking. Default.
+	WafModeCount = WafMode("count")
+	// Block matching requests.
+	WafModeBlock = WafMode("block")
+)
+
+func (WafMode) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafMode)(nil)).Elem()
+}
+
+func (e WafMode) ToWafModeOutput() WafModeOutput {
+	return pulumi.ToOutput(e).(WafModeOutput)
+}
+
+func (e WafMode) ToWafModeOutputWithContext(ctx context.Context) WafModeOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(WafModeOutput)
+}
+
+func (e WafMode) ToWafModePtrOutput() WafModePtrOutput {
+	return e.ToWafModePtrOutputWithContext(context.Background())
+}
+
+func (e WafMode) ToWafModePtrOutputWithContext(ctx context.Context) WafModePtrOutput {
+	return WafMode(e).ToWafModeOutputWithContext(ctx).ToWafModePtrOutputWithContext(ctx)
+}
+
+func (e WafMode) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e WafMode) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e WafMode) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e WafMode) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type WafModeOutput struct{ *pulumi.OutputState }
+
+func (WafModeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafMode)(nil)).Elem()
+}
+
+func (o WafModeOutput) ToWafModeOutput() WafModeOutput {
+	return o
+}
+
+func (o WafModeOutput) ToWafModeOutputWithContext(ctx context.Context) WafModeOutput {
+	return o
+}
+
+func (o WafModeOutput) ToWafModePtrOutput() WafModePtrOutput {
+	return o.ToWafModePtrOutputWithContext(context.Background())
+}
+
+func (o WafModeOutput) ToWafModePtrOutputWithContext(ctx context.Context) WafModePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v WafMode) *WafMode {
+		return &v
+	}).(WafModePtrOutput)
+}
+
+func (o WafModeOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o WafModeOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e WafMode) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o WafModeOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o WafModeOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e WafMode) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type WafModePtrOutput struct{ *pulumi.OutputState }
+
+func (WafModePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**WafMode)(nil)).Elem()
+}
+
+func (o WafModePtrOutput) ToWafModePtrOutput() WafModePtrOutput {
+	return o
+}
+
+func (o WafModePtrOutput) ToWafModePtrOutputWithContext(ctx context.Context) WafModePtrOutput {
+	return o
+}
+
+func (o WafModePtrOutput) Elem() WafModeOutput {
+	return o.ApplyT(func(v *WafMode) WafMode {
+		if v != nil {
+			return *v
+		}
+		var ret WafMode
+		return ret
+	}).(WafModeOutput)
+}
+
+func (o WafModePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o WafModePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *WafMode) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// WafModeInput is an input type that accepts values of the WafMode enum
+// A concrete instance of `WafModeInput` can be one of the following:
+//
+//	WafModeCount
+//	WafModeBlock
+type WafModeInput interface {
+	pulumi.Input
+
+	ToWafModeOutput() WafModeOutput
+	ToWafModeOutputWithContext(context.Context) WafModeOutput
+}
+
+var wafModePtrType = reflect.TypeOf((**WafMode)(nil)).Elem()
+
+type WafModePtrInput interface {
+	pulumi.Input
+
+	ToWafModePtrOutput() WafModePtrOutput
+	ToWafModePtrOutputWithContext(context.Context) WafModePtrOutput
+}
+
+type wafModePtr string
+
+func WafModePtr(v string) WafModePtrInput {
+	return (*wafModePtr)(&v)
+}
+
+func (*wafModePtr) ElementType() reflect.Type {
+	return wafModePtrType
+}
+
+func (in *wafModePtr) ToWafModePtrOutput() WafModePtrOutput {
+	return pulumi.ToOutput(in).(WafModePtrOutput)
+}
+
+func (in *wafModePtr) ToWafModePtrOutputWithContext(ctx context.Context) WafModePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(WafModePtrOutput)
+}
+
+// What a WAF protects.
+type WafScope string
+
+const (
+	// CloudFront distributions (sites). Created in us-east-1.
+	WafScopeCloudfront = WafScope("cloudfront")
+	// Regional resources such as Cognito user pools. Created in the stack's region.
+	WafScopeRegional = WafScope("regional")
+)
+
+func (WafScope) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafScope)(nil)).Elem()
+}
+
+func (e WafScope) ToWafScopeOutput() WafScopeOutput {
+	return pulumi.ToOutput(e).(WafScopeOutput)
+}
+
+func (e WafScope) ToWafScopeOutputWithContext(ctx context.Context) WafScopeOutput {
+	return pulumi.ToOutputWithContext(ctx, e).(WafScopeOutput)
+}
+
+func (e WafScope) ToWafScopePtrOutput() WafScopePtrOutput {
+	return e.ToWafScopePtrOutputWithContext(context.Background())
+}
+
+func (e WafScope) ToWafScopePtrOutputWithContext(ctx context.Context) WafScopePtrOutput {
+	return WafScope(e).ToWafScopeOutputWithContext(ctx).ToWafScopePtrOutputWithContext(ctx)
+}
+
+func (e WafScope) ToStringOutput() pulumi.StringOutput {
+	return pulumi.ToOutput(pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e WafScope) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return pulumi.ToOutputWithContext(ctx, pulumi.String(e)).(pulumi.StringOutput)
+}
+
+func (e WafScope) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringPtrOutputWithContext(context.Background())
+}
+
+func (e WafScope) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return pulumi.String(e).ToStringOutputWithContext(ctx).ToStringPtrOutputWithContext(ctx)
+}
+
+type WafScopeOutput struct{ *pulumi.OutputState }
+
+func (WafScopeOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafScope)(nil)).Elem()
+}
+
+func (o WafScopeOutput) ToWafScopeOutput() WafScopeOutput {
+	return o
+}
+
+func (o WafScopeOutput) ToWafScopeOutputWithContext(ctx context.Context) WafScopeOutput {
+	return o
+}
+
+func (o WafScopeOutput) ToWafScopePtrOutput() WafScopePtrOutput {
+	return o.ToWafScopePtrOutputWithContext(context.Background())
+}
+
+func (o WafScopeOutput) ToWafScopePtrOutputWithContext(ctx context.Context) WafScopePtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v WafScope) *WafScope {
+		return &v
+	}).(WafScopePtrOutput)
+}
+
+func (o WafScopeOutput) ToStringOutput() pulumi.StringOutput {
+	return o.ToStringOutputWithContext(context.Background())
+}
+
+func (o WafScopeOutput) ToStringOutputWithContext(ctx context.Context) pulumi.StringOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e WafScope) string {
+		return string(e)
+	}).(pulumi.StringOutput)
+}
+
+func (o WafScopeOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o WafScopeOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e WafScope) *string {
+		v := string(e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+type WafScopePtrOutput struct{ *pulumi.OutputState }
+
+func (WafScopePtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**WafScope)(nil)).Elem()
+}
+
+func (o WafScopePtrOutput) ToWafScopePtrOutput() WafScopePtrOutput {
+	return o
+}
+
+func (o WafScopePtrOutput) ToWafScopePtrOutputWithContext(ctx context.Context) WafScopePtrOutput {
+	return o
+}
+
+func (o WafScopePtrOutput) Elem() WafScopeOutput {
+	return o.ApplyT(func(v *WafScope) WafScope {
+		if v != nil {
+			return *v
+		}
+		var ret WafScope
+		return ret
+	}).(WafScopeOutput)
+}
+
+func (o WafScopePtrOutput) ToStringPtrOutput() pulumi.StringPtrOutput {
+	return o.ToStringPtrOutputWithContext(context.Background())
+}
+
+func (o WafScopePtrOutput) ToStringPtrOutputWithContext(ctx context.Context) pulumi.StringPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, e *WafScope) *string {
+		if e == nil {
+			return nil
+		}
+		v := string(*e)
+		return &v
+	}).(pulumi.StringPtrOutput)
+}
+
+// WafScopeInput is an input type that accepts values of the WafScope enum
+// A concrete instance of `WafScopeInput` can be one of the following:
+//
+//	WafScopeCloudfront
+//	WafScopeRegional
+type WafScopeInput interface {
+	pulumi.Input
+
+	ToWafScopeOutput() WafScopeOutput
+	ToWafScopeOutputWithContext(context.Context) WafScopeOutput
+}
+
+var wafScopePtrType = reflect.TypeOf((**WafScope)(nil)).Elem()
+
+type WafScopePtrInput interface {
+	pulumi.Input
+
+	ToWafScopePtrOutput() WafScopePtrOutput
+	ToWafScopePtrOutputWithContext(context.Context) WafScopePtrOutput
+}
+
+type wafScopePtr string
+
+func WafScopePtr(v string) WafScopePtrInput {
+	return (*wafScopePtr)(&v)
+}
+
+func (*wafScopePtr) ElementType() reflect.Type {
+	return wafScopePtrType
+}
+
+func (in *wafScopePtr) ToWafScopePtrOutput() WafScopePtrOutput {
+	return pulumi.ToOutput(in).(WafScopePtrOutput)
+}
+
+func (in *wafScopePtr) ToWafScopePtrOutputWithContext(ctx context.Context) WafScopePtrOutput {
+	return pulumi.ToOutputWithContext(ctx, in).(WafScopePtrOutput)
+}
+
 func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolCustomAttributeTypeInput)(nil)).Elem(), CognitoUserPoolCustomAttributeType("String"))
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolCustomAttributeTypePtrInput)(nil)).Elem(), CognitoUserPoolCustomAttributeType("String"))
@@ -3528,10 +4206,18 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*LambdaRuntimePtrInput)(nil)).Elem(), LambdaRuntime("nodejs24.x"))
 	pulumi.RegisterInputType(reflect.TypeOf((*S3FlowLogLifecycleInput)(nil)).Elem(), S3FlowLogLifecycle("standard"))
 	pulumi.RegisterInputType(reflect.TypeOf((*S3FlowLogLifecyclePtrInput)(nil)).Elem(), S3FlowLogLifecycle("standard"))
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteCrossOriginOpenerPolicyInput)(nil)).Elem(), SiteCrossOriginOpenerPolicy("same-origin-allow-popups"))
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteCrossOriginOpenerPolicyPtrInput)(nil)).Elem(), SiteCrossOriginOpenerPolicy("same-origin-allow-popups"))
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteFrameOptionsInput)(nil)).Elem(), SiteFrameOptions("sameorigin"))
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteFrameOptionsPtrInput)(nil)).Elem(), SiteFrameOptions("sameorigin"))
 	pulumi.RegisterInputType(reflect.TypeOf((*SiteProtectionInput)(nil)).Elem(), SiteProtection("none"))
 	pulumi.RegisterInputType(reflect.TypeOf((*SiteProtectionPtrInput)(nil)).Elem(), SiteProtection("none"))
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypeInput)(nil)).Elem(), VpcNatType("gateway"))
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatTypePtrInput)(nil)).Elem(), VpcNatType("gateway"))
+	pulumi.RegisterInputType(reflect.TypeOf((*WafModeInput)(nil)).Elem(), WafMode("count"))
+	pulumi.RegisterInputType(reflect.TypeOf((*WafModePtrInput)(nil)).Elem(), WafMode("count"))
+	pulumi.RegisterInputType(reflect.TypeOf((*WafScopeInput)(nil)).Elem(), WafScope("cloudfront"))
+	pulumi.RegisterInputType(reflect.TypeOf((*WafScopePtrInput)(nil)).Elem(), WafScope("cloudfront"))
 	pulumi.RegisterOutputType(CognitoUserPoolCustomAttributeTypeOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolCustomAttributeTypePtrOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolIdentityProviderTypeOutput{})
@@ -3570,8 +4256,16 @@ func init() {
 	pulumi.RegisterOutputType(LambdaRuntimePtrOutput{})
 	pulumi.RegisterOutputType(S3FlowLogLifecycleOutput{})
 	pulumi.RegisterOutputType(S3FlowLogLifecyclePtrOutput{})
+	pulumi.RegisterOutputType(SiteCrossOriginOpenerPolicyOutput{})
+	pulumi.RegisterOutputType(SiteCrossOriginOpenerPolicyPtrOutput{})
+	pulumi.RegisterOutputType(SiteFrameOptionsOutput{})
+	pulumi.RegisterOutputType(SiteFrameOptionsPtrOutput{})
 	pulumi.RegisterOutputType(SiteProtectionOutput{})
 	pulumi.RegisterOutputType(SiteProtectionPtrOutput{})
 	pulumi.RegisterOutputType(VpcNatTypeOutput{})
 	pulumi.RegisterOutputType(VpcNatTypePtrOutput{})
+	pulumi.RegisterOutputType(WafModeOutput{})
+	pulumi.RegisterOutputType(WafModePtrOutput{})
+	pulumi.RegisterOutputType(WafScopeOutput{})
+	pulumi.RegisterOutputType(WafScopePtrOutput{})
 }

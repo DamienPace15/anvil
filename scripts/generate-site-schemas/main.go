@@ -45,7 +45,9 @@ import (
 // The referenced token must also have an entry in manualTypes below.
 
 var enumFieldOverrides = map[string]string{
-	"SvelteKitSiteArgs.protection": "anvil:aws:SiteProtection",
+	"SvelteKitSiteArgs.protection":                    "anvil:aws:SiteProtection",
+	"SiteSecurityHeadersArgs.frameOptions":            "anvil:aws:SiteFrameOptions",
+	"SiteSecurityHeadersArgs.crossOriginOpenerPolicy": "anvil:aws:SiteCrossOriginOpenerPolicy",
 }
 
 // manualTypes holds hand-authored type definitions that are injected into the
@@ -70,6 +72,48 @@ var manualTypes = map[string]interface{}{
 				"name":        "EdgeOac",
 				"value":       "edge-oac",
 				"description": "Locked to CloudFront via IAM + OAC, with a Lambda@Edge function that adds the x-amz-content-sha256 header (AWS's documented approach). Nothing is needed in the app; request bodies over 1 MB are rejected.",
+			},
+		},
+	},
+	"anvil:aws:SiteFrameOptions": map[string]interface{}{
+		"type":        "string",
+		"description": "Whether other sites can embed this one in a frame (X-Frame-Options). Default: \"sameorigin\".",
+		"enum": []map[string]string{
+			{
+				"name":        "Sameorigin",
+				"value":       "sameorigin",
+				"description": "Only pages on this site can frame it. Default.",
+			},
+			{
+				"name":        "Deny",
+				"value":       "deny",
+				"description": "No site can frame it, including this one.",
+			},
+			{
+				"name":        "None",
+				"value":       "none",
+				"description": "No X-Frame-Options header — any site can embed it. Use only for sites meant to be embedded elsewhere.",
+			},
+		},
+	},
+	"anvil:aws:SiteCrossOriginOpenerPolicy": map[string]interface{}{
+		"type":        "string",
+		"description": "Cross-Origin-Opener-Policy: isolates the site's browser window from windows on other sites. Default: \"same-origin-allow-popups\".",
+		"enum": []map[string]string{
+			{
+				"name":        "SameOriginAllowPopups",
+				"value":       "same-origin-allow-popups",
+				"description": "Isolated from other sites, but popups it opens (OAuth sign-in, payments) still work. Default.",
+			},
+			{
+				"name":        "SameOrigin",
+				"value":       "same-origin",
+				"description": "Strict isolation. Breaks sign-in and payment popups that report back to the page.",
+			},
+			{
+				"name":        "None",
+				"value":       "none",
+				"description": "No Cross-Origin-Opener-Policy header.",
 			},
 		},
 	},
@@ -363,12 +407,22 @@ func goTypeToSchemaProperty(f parsedField, cloud string, nestedTypes map[string]
 	// 2. Pointer-to-struct: *SomeArgs → $ref to a named object type.
 	if strings.HasPrefix(goType, "*") {
 		innerName := strings.TrimPrefix(goType, "*")
-		// Only treat as a nested object if it's a local struct (no package qualifier).
-		if !strings.Contains(innerName, ".") {
-			token := structNameToToken(innerName, cloud)
-			nestedTypes[innerName] = token
-			prop.Ref = fmt.Sprintf("#/types/%s", token)
-			return prop
+		switch innerName {
+		case "bool", "int", "int64", "float64", "string":
+			// Optional primitives (*bool, *int, …) are just the primitive — the
+			// pointer only distinguishes "unset" from the zero value.
+			goType = innerName
+		default:
+			// Shared types from provider/sites (e.g. *sites.SiteWafArgs) resolve
+			// against the shared types file, like local structs.
+			innerName = strings.TrimPrefix(innerName, "sites.")
+			// Only local or provider/sites structs (no other package qualifier).
+			if !strings.Contains(innerName, ".") {
+				token := structNameToToken(innerName, cloud)
+				nestedTypes[innerName] = token
+				prop.Ref = fmt.Sprintf("#/types/%s", token)
+				return prop
+			}
 		}
 	}
 

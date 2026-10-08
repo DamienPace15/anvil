@@ -24,8 +24,12 @@ __all__ = [
     'LambdaLogRetention',
     'LambdaRuntime',
     'S3FlowLogLifecycle',
+    'SiteCrossOriginOpenerPolicy',
+    'SiteFrameOptions',
     'SiteProtection',
     'VpcNatType',
+    'WafMode',
+    'WafScope',
 ]
 
 
@@ -394,6 +398,44 @@ class S3FlowLogLifecycle(_builtins.str, Enum):
     """
 
 
+@pulumi.type_token("anvil:aws:SiteCrossOriginOpenerPolicy")
+class SiteCrossOriginOpenerPolicy(_builtins.str, Enum):
+    """
+    Cross-Origin-Opener-Policy: isolates the site's browser window from windows on other sites. Default: "same-origin-allow-popups".
+    """
+    SAME_ORIGIN_ALLOW_POPUPS = "same-origin-allow-popups"
+    """
+    Isolated from other sites, but popups it opens (OAuth sign-in, payments) still work. Default.
+    """
+    SAME_ORIGIN = "same-origin"
+    """
+    Strict isolation. Breaks sign-in and payment popups that report back to the page.
+    """
+    NONE = "none"
+    """
+    No Cross-Origin-Opener-Policy header.
+    """
+
+
+@pulumi.type_token("anvil:aws:SiteFrameOptions")
+class SiteFrameOptions(_builtins.str, Enum):
+    """
+    Whether other sites can embed this one in a frame (X-Frame-Options). Default: "sameorigin".
+    """
+    SAMEORIGIN = "sameorigin"
+    """
+    Only pages on this site can frame it. Default.
+    """
+    DENY = "deny"
+    """
+    No site can frame it, including this one.
+    """
+    NONE = "none"
+    """
+    No X-Frame-Options header — any site can embed it. Use only for sites meant to be embedded elsewhere.
+    """
+
+
 @pulumi.type_token("anvil:aws:SiteProtection")
 class SiteProtection(_builtins.str, Enum):
     """
@@ -422,4 +464,34 @@ class VpcNatType(_builtins.str, Enum):
     FCK_NAT = "fck-nat"
     """
     fck-nat EC2 instance. Single instance regardless of AZ count. ~$4-6/month for t4g.small. Accepted single point of failure tradeoff for cost savings.
+    """
+
+
+@pulumi.type_token("anvil:aws:WafMode")
+class WafMode(_builtins.str, Enum):
+    """
+    What WAF rules do when they match.
+    """
+    COUNT = "count"
+    """
+    Log matches without blocking. Default.
+    """
+    BLOCK = "block"
+    """
+    Block matching requests.
+    """
+
+
+@pulumi.type_token("anvil:aws:WafScope")
+class WafScope(_builtins.str, Enum):
+    """
+    What a WAF protects.
+    """
+    CLOUDFRONT = "cloudfront"
+    """
+    CloudFront distributions (sites). Created in us-east-1.
+    """
+    REGIONAL = "regional"
+    """
+    Regional resources such as Cognito user pools. Created in the stack's region.
     """

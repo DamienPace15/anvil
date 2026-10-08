@@ -29,6 +29,7 @@
         "aws/svelteKitSite.ts",
         "aws/vpc.ts",
         "aws/vpcEndpoint.ts",
+        "aws/waf.ts",
         "gcp/function.ts",
         "gcp/index.ts",
         "gcp/storageBucket.ts",

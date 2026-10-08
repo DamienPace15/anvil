@@ -27,6 +27,7 @@ class SvelteKitSiteArgs:
                  path: Optional[pulumi.Input[_builtins.str]] = None,
                  protection: Optional[pulumi.Input['SiteProtection']] = None,
                  runtime_environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 security_headers: Optional[pulumi.Input['SiteSecurityHeadersArgs']] = None,
                  transform: Optional[pulumi.Input[_builtins.str]] = None,
                  waf: Optional[pulumi.Input['SiteWafArgs']] = None):
         """
@@ -36,6 +37,7 @@ class SvelteKitSiteArgs:
         :param pulumi.Input[_builtins.bool] origin_protection: OriginProtection locks CloudFront to a CDN/proxy in front of it (Cloudflare, Fastly, Akamai, nginx, ...). Requests without the x-origin-secret header are rejected at the edge; configure the proxy to send it on every request with the originSecret output as the value. Protection defaults to "edge-oac" while it's enabled, so the server Function URL can't be reached around the proxy.
         :param pulumi.Input['SiteProtection'] protection: Protection controls who can invoke the server Lambda's Function URL. Default: "none", or "edge-oac" while a WAF is attached or origin protection is enabled. An explicit value always wins. "none": public Function URL; anyone who learns it can call the server directly, bypassing CloudFront. "oac": locked to CloudFront via IAM; requests with a body are rejected unless they already carry an x-amz-content-sha256 header. "edge-oac": "oac" plus a Lambda@Edge function that adds the header, following AWS's guidance — nothing is needed in the app; request bodies over 1 MB are rejected. In "oac" and "edge-oac", a viewer Authorization header is replaced by CloudFront's signature.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] runtime_environment: Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
+        :param pulumi.Input['SiteSecurityHeadersArgs'] security_headers: SecurityHeaders configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. Headers your app sets itself take priority. Content-Security-Policy is left to SvelteKit's kit.csp.
         :param pulumi.Input['SiteWafArgs'] waf: Waf attaches a WAF WebACL to the site's CloudFront distribution. Protection defaults to "edge-oac" while it's attached.
         """
         if domain is not None:
@@ -50,6 +52,8 @@ class SvelteKitSiteArgs:
             pulumi.set(__self__, "protection", protection)
         if runtime_environment is not None:
             pulumi.set(__self__, "runtime_environment", runtime_environment)
+        if security_headers is not None:
+            pulumi.set(__self__, "security_headers", security_headers)
         if transform is not None:
             pulumi.set(__self__, "transform", transform)
         if waf is not None:
@@ -122,6 +126,18 @@ class SvelteKitSiteArgs:
         pulumi.set(self, "runtime_environment", value)
 
     @_builtins.property
+    @pulumi.getter(name="securityHeaders")
+    def security_headers(self) -> Optional[pulumi.Input['SiteSecurityHeadersArgs']]:
+        """
+        SecurityHeaders configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. Headers your app sets itself take priority. Content-Security-Policy is left to SvelteKit's kit.csp.
+        """
+        return pulumi.get(self, "security_headers")
+
+    @security_headers.setter
+    def security_headers(self, value: Optional[pulumi.Input['SiteSecurityHeadersArgs']]):
+        pulumi.set(self, "security_headers", value)
+
+    @_builtins.property
     @pulumi.getter
     def transform(self) -> Optional[pulumi.Input[_builtins.str]]:
         return pulumi.get(self, "transform")
@@ -155,6 +171,7 @@ class SvelteKitSite(pulumi.ComponentResource):
                  path: Optional[pulumi.Input[_builtins.str]] = None,
                  protection: Optional[pulumi.Input['SiteProtection']] = None,
                  runtime_environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 security_headers: Optional[pulumi.Input[Union['SiteSecurityHeadersArgs', 'SiteSecurityHeadersArgsDict']]] = None,
                  transform: Optional[pulumi.Input[_builtins.str]] = None,
                  waf: Optional[pulumi.Input[Union['SiteWafArgs', 'SiteWafArgsDict']]] = None,
                  __props__=None):
@@ -167,6 +184,7 @@ class SvelteKitSite(pulumi.ComponentResource):
         :param pulumi.Input[_builtins.bool] origin_protection: OriginProtection locks CloudFront to a CDN/proxy in front of it (Cloudflare, Fastly, Akamai, nginx, ...). Requests without the x-origin-secret header are rejected at the edge; configure the proxy to send it on every request with the originSecret output as the value. Protection defaults to "edge-oac" while it's enabled, so the server Function URL can't be reached around the proxy.
         :param pulumi.Input['SiteProtection'] protection: Protection controls who can invoke the server Lambda's Function URL. Default: "none", or "edge-oac" while a WAF is attached or origin protection is enabled. An explicit value always wins. "none": public Function URL; anyone who learns it can call the server directly, bypassing CloudFront. "oac": locked to CloudFront via IAM; requests with a body are rejected unless they already carry an x-amz-content-sha256 header. "edge-oac": "oac" plus a Lambda@Edge function that adds the header, following AWS's guidance — nothing is needed in the app; request bodies over 1 MB are rejected. In "oac" and "edge-oac", a viewer Authorization header is replaced by CloudFront's signature.
         :param pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]] runtime_environment: Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
+        :param pulumi.Input[Union['SiteSecurityHeadersArgs', 'SiteSecurityHeadersArgsDict']] security_headers: SecurityHeaders configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. Headers your app sets itself take priority. Content-Security-Policy is left to SvelteKit's kit.csp.
         :param pulumi.Input[Union['SiteWafArgs', 'SiteWafArgsDict']] waf: Waf attaches a WAF WebACL to the site's CloudFront distribution. Protection defaults to "edge-oac" while it's attached.
         """
         ...
@@ -199,6 +217,7 @@ class SvelteKitSite(pulumi.ComponentResource):
                  path: Optional[pulumi.Input[_builtins.str]] = None,
                  protection: Optional[pulumi.Input['SiteProtection']] = None,
                  runtime_environment: Optional[pulumi.Input[Mapping[str, pulumi.Input[_builtins.str]]]] = None,
+                 security_headers: Optional[pulumi.Input[Union['SiteSecurityHeadersArgs', 'SiteSecurityHeadersArgsDict']]] = None,
                  transform: Optional[pulumi.Input[_builtins.str]] = None,
                  waf: Optional[pulumi.Input[Union['SiteWafArgs', 'SiteWafArgsDict']]] = None,
                  __props__=None):
@@ -218,6 +237,7 @@ class SvelteKitSite(pulumi.ComponentResource):
             __props__.__dict__["path"] = path
             __props__.__dict__["protection"] = protection
             __props__.__dict__["runtime_environment"] = runtime_environment
+            __props__.__dict__["security_headers"] = security_headers
             __props__.__dict__["transform"] = transform
             __props__.__dict__["waf"] = waf
             __props__.__dict__["bucket_name"] = None

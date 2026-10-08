@@ -36,6 +36,10 @@
         },
         "transform": {
           "$ref": "#/types/anvil:aws:CognitoUserPoolTransformArgs"
+        },
+        "waf": {
+          "$ref": "#/types/anvil:aws:CognitoUserPoolWaf",
+          "description": "Attaches a regional WAF WebACL to the user pool. AWS recommends a WAF for every public user pool — it protects sign-in and sign-up against credential stuffing, brute force, bots and SMS pumping. Use an Anvil Waf created with scope \"regional\" in the same region as the pool."
         }
       },
       "isComponent": true,
@@ -598,6 +602,19 @@
         }
       ],
       "type": "string"
+    },
+    "anvil:aws:CognitoUserPoolWaf": {
+      "description": "Attaches a WAF to the user pool.",
+      "properties": {
+        "arn": {
+          "description": "ARN of a regional-scope WebACL in the same region as the pool. Pass waf.arn from an Anvil Waf with scope \"regional\".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "arn"
+      ],
+      "type": "object"
     }
   },
   "x-upstream-provider": "aws",

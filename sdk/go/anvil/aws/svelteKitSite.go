@@ -50,7 +50,9 @@ type svelteKitSiteArgs struct {
 	Protection *SiteProtection `pulumi:"protection"`
 	// Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
 	RuntimeEnvironment map[string]string `pulumi:"runtimeEnvironment"`
-	Transform          *string           `pulumi:"transform"`
+	// SecurityHeaders configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. Headers your app sets itself take priority. Content-Security-Policy is left to SvelteKit's kit.csp.
+	SecurityHeaders *SiteSecurityHeaders `pulumi:"securityHeaders"`
+	Transform       *string              `pulumi:"transform"`
 	// Waf attaches a WAF WebACL to the site's CloudFront distribution. Protection defaults to "edge-oac" while it's attached.
 	Waf *SiteWaf `pulumi:"waf"`
 }
@@ -67,7 +69,9 @@ type SvelteKitSiteArgs struct {
 	Protection SiteProtectionPtrInput
 	// Runtime-only environment vars set on the Lambda function. Supports Pulumi Output values (e.g. bucket.name, fn.arn). Only available at request time, NOT during build/prerendering.
 	RuntimeEnvironment pulumi.StringMapInput
-	Transform          pulumi.StringPtrInput
+	// SecurityHeaders configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. Headers your app sets itself take priority. Content-Security-Policy is left to SvelteKit's kit.csp.
+	SecurityHeaders SiteSecurityHeadersPtrInput
+	Transform       pulumi.StringPtrInput
 	// Waf attaches a WAF WebACL to the site's CloudFront distribution. Protection defaults to "edge-oac" while it's attached.
 	Waf SiteWafPtrInput
 }

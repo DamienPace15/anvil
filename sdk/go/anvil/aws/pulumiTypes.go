@@ -14,6 +14,7 @@ import (
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/dynamodb"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/lambda"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/s3"
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/wafv2"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -5792,6 +5793,146 @@ func (o CognitoUserPoolTransformArgsPtrOutput) CognitoUserPool() CognitoUserPool
 		}
 		return v.CognitoUserPool
 	}).(CognitoUserPoolOverridesPtrOutput)
+}
+
+// Attaches a WAF to the user pool.
+type CognitoUserPoolWaf struct {
+	// ARN of a regional-scope WebACL in the same region as the pool. Pass waf.arn from an Anvil Waf with scope "regional".
+	Arn string `pulumi:"arn"`
+}
+
+// CognitoUserPoolWafInput is an input type that accepts CognitoUserPoolWafArgs and CognitoUserPoolWafOutput values.
+// You can construct a concrete instance of `CognitoUserPoolWafInput` via:
+//
+//	CognitoUserPoolWafArgs{...}
+type CognitoUserPoolWafInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolWafOutput() CognitoUserPoolWafOutput
+	ToCognitoUserPoolWafOutputWithContext(context.Context) CognitoUserPoolWafOutput
+}
+
+// Attaches a WAF to the user pool.
+type CognitoUserPoolWafArgs struct {
+	// ARN of a regional-scope WebACL in the same region as the pool. Pass waf.arn from an Anvil Waf with scope "regional".
+	Arn pulumi.StringInput `pulumi:"arn"`
+}
+
+func (CognitoUserPoolWafArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolWaf)(nil)).Elem()
+}
+
+func (i CognitoUserPoolWafArgs) ToCognitoUserPoolWafOutput() CognitoUserPoolWafOutput {
+	return i.ToCognitoUserPoolWafOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolWafArgs) ToCognitoUserPoolWafOutputWithContext(ctx context.Context) CognitoUserPoolWafOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolWafOutput)
+}
+
+func (i CognitoUserPoolWafArgs) ToCognitoUserPoolWafPtrOutput() CognitoUserPoolWafPtrOutput {
+	return i.ToCognitoUserPoolWafPtrOutputWithContext(context.Background())
+}
+
+func (i CognitoUserPoolWafArgs) ToCognitoUserPoolWafPtrOutputWithContext(ctx context.Context) CognitoUserPoolWafPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolWafOutput).ToCognitoUserPoolWafPtrOutputWithContext(ctx)
+}
+
+// CognitoUserPoolWafPtrInput is an input type that accepts CognitoUserPoolWafArgs, CognitoUserPoolWafPtr and CognitoUserPoolWafPtrOutput values.
+// You can construct a concrete instance of `CognitoUserPoolWafPtrInput` via:
+//
+//	        CognitoUserPoolWafArgs{...}
+//
+//	or:
+//
+//	        nil
+type CognitoUserPoolWafPtrInput interface {
+	pulumi.Input
+
+	ToCognitoUserPoolWafPtrOutput() CognitoUserPoolWafPtrOutput
+	ToCognitoUserPoolWafPtrOutputWithContext(context.Context) CognitoUserPoolWafPtrOutput
+}
+
+type cognitoUserPoolWafPtrType CognitoUserPoolWafArgs
+
+func CognitoUserPoolWafPtr(v *CognitoUserPoolWafArgs) CognitoUserPoolWafPtrInput {
+	return (*cognitoUserPoolWafPtrType)(v)
+}
+
+func (*cognitoUserPoolWafPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolWaf)(nil)).Elem()
+}
+
+func (i *cognitoUserPoolWafPtrType) ToCognitoUserPoolWafPtrOutput() CognitoUserPoolWafPtrOutput {
+	return i.ToCognitoUserPoolWafPtrOutputWithContext(context.Background())
+}
+
+func (i *cognitoUserPoolWafPtrType) ToCognitoUserPoolWafPtrOutputWithContext(ctx context.Context) CognitoUserPoolWafPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(CognitoUserPoolWafPtrOutput)
+}
+
+// Attaches a WAF to the user pool.
+type CognitoUserPoolWafOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolWafOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*CognitoUserPoolWaf)(nil)).Elem()
+}
+
+func (o CognitoUserPoolWafOutput) ToCognitoUserPoolWafOutput() CognitoUserPoolWafOutput {
+	return o
+}
+
+func (o CognitoUserPoolWafOutput) ToCognitoUserPoolWafOutputWithContext(ctx context.Context) CognitoUserPoolWafOutput {
+	return o
+}
+
+func (o CognitoUserPoolWafOutput) ToCognitoUserPoolWafPtrOutput() CognitoUserPoolWafPtrOutput {
+	return o.ToCognitoUserPoolWafPtrOutputWithContext(context.Background())
+}
+
+func (o CognitoUserPoolWafOutput) ToCognitoUserPoolWafPtrOutputWithContext(ctx context.Context) CognitoUserPoolWafPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v CognitoUserPoolWaf) *CognitoUserPoolWaf {
+		return &v
+	}).(CognitoUserPoolWafPtrOutput)
+}
+
+// ARN of a regional-scope WebACL in the same region as the pool. Pass waf.arn from an Anvil Waf with scope "regional".
+func (o CognitoUserPoolWafOutput) Arn() pulumi.StringOutput {
+	return o.ApplyT(func(v CognitoUserPoolWaf) string { return v.Arn }).(pulumi.StringOutput)
+}
+
+type CognitoUserPoolWafPtrOutput struct{ *pulumi.OutputState }
+
+func (CognitoUserPoolWafPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**CognitoUserPoolWaf)(nil)).Elem()
+}
+
+func (o CognitoUserPoolWafPtrOutput) ToCognitoUserPoolWafPtrOutput() CognitoUserPoolWafPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolWafPtrOutput) ToCognitoUserPoolWafPtrOutputWithContext(ctx context.Context) CognitoUserPoolWafPtrOutput {
+	return o
+}
+
+func (o CognitoUserPoolWafPtrOutput) Elem() CognitoUserPoolWafOutput {
+	return o.ApplyT(func(v *CognitoUserPoolWaf) CognitoUserPoolWaf {
+		if v != nil {
+			return *v
+		}
+		var ret CognitoUserPoolWaf
+		return ret
+	}).(CognitoUserPoolWafOutput)
+}
+
+// ARN of a regional-scope WebACL in the same region as the pool. Pass waf.arn from an Anvil Waf with scope "regional".
+func (o CognitoUserPoolWafPtrOutput) Arn() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *CognitoUserPoolWaf) *string {
+		if v == nil {
+			return nil
+		}
+		return &v.Arn
+	}).(pulumi.StringPtrOutput)
 }
 
 // AWS Backup configuration for DSQL clusters. Anvil opts in the DSQL resource type in each cluster region, creates a backup plan, and for multi-region clusters automatically adds cross-region copy rules so restores work in both regions.
@@ -14487,6 +14628,381 @@ func (o QueueTransformArgsPtrOutput) Queue() QueueOverridesPtrOutput {
 	}).(QueueOverridesPtrOutput)
 }
 
+// SiteHstsArgs configures optional Strict-Transport-Security directives. Both are hard to undo — browsers remember them for the max-age (1 year).
+type SiteHsts struct {
+	// IncludeSubDomains applies HSTS to every subdomain of the site's domain. Default: false.
+	IncludeSubDomains *bool `pulumi:"includeSubDomains"`
+	// Preload marks the domain as eligible for browsers' built-in HSTS preload list. Requires includeSubDomains. Default: false.
+	Preload *bool `pulumi:"preload"`
+}
+
+// SiteHstsInput is an input type that accepts SiteHstsArgs and SiteHstsOutput values.
+// You can construct a concrete instance of `SiteHstsInput` via:
+//
+//	SiteHstsArgs{...}
+type SiteHstsInput interface {
+	pulumi.Input
+
+	ToSiteHstsOutput() SiteHstsOutput
+	ToSiteHstsOutputWithContext(context.Context) SiteHstsOutput
+}
+
+// SiteHstsArgs configures optional Strict-Transport-Security directives. Both are hard to undo — browsers remember them for the max-age (1 year).
+type SiteHstsArgs struct {
+	// IncludeSubDomains applies HSTS to every subdomain of the site's domain. Default: false.
+	IncludeSubDomains pulumi.BoolPtrInput `pulumi:"includeSubDomains"`
+	// Preload marks the domain as eligible for browsers' built-in HSTS preload list. Requires includeSubDomains. Default: false.
+	Preload pulumi.BoolPtrInput `pulumi:"preload"`
+}
+
+func (SiteHstsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteHsts)(nil)).Elem()
+}
+
+func (i SiteHstsArgs) ToSiteHstsOutput() SiteHstsOutput {
+	return i.ToSiteHstsOutputWithContext(context.Background())
+}
+
+func (i SiteHstsArgs) ToSiteHstsOutputWithContext(ctx context.Context) SiteHstsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SiteHstsOutput)
+}
+
+func (i SiteHstsArgs) ToSiteHstsPtrOutput() SiteHstsPtrOutput {
+	return i.ToSiteHstsPtrOutputWithContext(context.Background())
+}
+
+func (i SiteHstsArgs) ToSiteHstsPtrOutputWithContext(ctx context.Context) SiteHstsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SiteHstsOutput).ToSiteHstsPtrOutputWithContext(ctx)
+}
+
+// SiteHstsPtrInput is an input type that accepts SiteHstsArgs, SiteHstsPtr and SiteHstsPtrOutput values.
+// You can construct a concrete instance of `SiteHstsPtrInput` via:
+//
+//	        SiteHstsArgs{...}
+//
+//	or:
+//
+//	        nil
+type SiteHstsPtrInput interface {
+	pulumi.Input
+
+	ToSiteHstsPtrOutput() SiteHstsPtrOutput
+	ToSiteHstsPtrOutputWithContext(context.Context) SiteHstsPtrOutput
+}
+
+type siteHstsPtrType SiteHstsArgs
+
+func SiteHstsPtr(v *SiteHstsArgs) SiteHstsPtrInput {
+	return (*siteHstsPtrType)(v)
+}
+
+func (*siteHstsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**SiteHsts)(nil)).Elem()
+}
+
+func (i *siteHstsPtrType) ToSiteHstsPtrOutput() SiteHstsPtrOutput {
+	return i.ToSiteHstsPtrOutputWithContext(context.Background())
+}
+
+func (i *siteHstsPtrType) ToSiteHstsPtrOutputWithContext(ctx context.Context) SiteHstsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SiteHstsPtrOutput)
+}
+
+// SiteHstsArgs configures optional Strict-Transport-Security directives. Both are hard to undo — browsers remember them for the max-age (1 year).
+type SiteHstsOutput struct{ *pulumi.OutputState }
+
+func (SiteHstsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteHsts)(nil)).Elem()
+}
+
+func (o SiteHstsOutput) ToSiteHstsOutput() SiteHstsOutput {
+	return o
+}
+
+func (o SiteHstsOutput) ToSiteHstsOutputWithContext(ctx context.Context) SiteHstsOutput {
+	return o
+}
+
+func (o SiteHstsOutput) ToSiteHstsPtrOutput() SiteHstsPtrOutput {
+	return o.ToSiteHstsPtrOutputWithContext(context.Background())
+}
+
+func (o SiteHstsOutput) ToSiteHstsPtrOutputWithContext(ctx context.Context) SiteHstsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v SiteHsts) *SiteHsts {
+		return &v
+	}).(SiteHstsPtrOutput)
+}
+
+// IncludeSubDomains applies HSTS to every subdomain of the site's domain. Default: false.
+func (o SiteHstsOutput) IncludeSubDomains() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v SiteHsts) *bool { return v.IncludeSubDomains }).(pulumi.BoolPtrOutput)
+}
+
+// Preload marks the domain as eligible for browsers' built-in HSTS preload list. Requires includeSubDomains. Default: false.
+func (o SiteHstsOutput) Preload() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v SiteHsts) *bool { return v.Preload }).(pulumi.BoolPtrOutput)
+}
+
+type SiteHstsPtrOutput struct{ *pulumi.OutputState }
+
+func (SiteHstsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**SiteHsts)(nil)).Elem()
+}
+
+func (o SiteHstsPtrOutput) ToSiteHstsPtrOutput() SiteHstsPtrOutput {
+	return o
+}
+
+func (o SiteHstsPtrOutput) ToSiteHstsPtrOutputWithContext(ctx context.Context) SiteHstsPtrOutput {
+	return o
+}
+
+func (o SiteHstsPtrOutput) Elem() SiteHstsOutput {
+	return o.ApplyT(func(v *SiteHsts) SiteHsts {
+		if v != nil {
+			return *v
+		}
+		var ret SiteHsts
+		return ret
+	}).(SiteHstsOutput)
+}
+
+// IncludeSubDomains applies HSTS to every subdomain of the site's domain. Default: false.
+func (o SiteHstsPtrOutput) IncludeSubDomains() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *SiteHsts) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.IncludeSubDomains
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Preload marks the domain as eligible for browsers' built-in HSTS preload list. Requires includeSubDomains. Default: false.
+func (o SiteHstsPtrOutput) Preload() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *SiteHsts) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.Preload
+	}).(pulumi.BoolPtrOutput)
+}
+
+// SiteSecurityHeadersArgs configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. A header your app sets itself always takes priority. Content-Security-Policy is not set — configure it in the framework (e.g. SvelteKit's kit.csp).
+type SiteSecurityHeaders struct {
+	// CrossOriginOpenerPolicy isolates the site's browser window from windows on other sites. "same-origin-allow-popups" (default): isolated, but popups it opens (OAuth sign-in, payments) still work. "same-origin": strict isolation — breaks sign-in and payment popups that report back. "none": no Cross-Origin-Opener-Policy header.
+	CrossOriginOpenerPolicy *SiteCrossOriginOpenerPolicy `pulumi:"crossOriginOpenerPolicy"`
+	// Enabled turns the security headers on or off. Default: true.
+	Enabled *bool `pulumi:"enabled"`
+	// FrameOptions controls whether other sites can embed this one in a frame. "sameorigin" (default): only pages on this site. "deny": never. "none": no X-Frame-Options header — the site can be embedded anywhere.
+	FrameOptions *SiteFrameOptions `pulumi:"frameOptions"`
+	// Hsts adds optional Strict-Transport-Security directives.
+	Hsts *SiteHsts `pulumi:"hsts"`
+	// PermissionsPolicy is the Permissions-Policy header value: which browser features the site (and anything it embeds) may use. Default: "camera=(), microphone=(), geolocation=(), usb=(), browsing-topics=()". Set your own value to allow a feature, e.g. "camera=(self), microphone=(self)", or "none" to send no Permissions-Policy header.
+	PermissionsPolicy *string `pulumi:"permissionsPolicy"`
+}
+
+// SiteSecurityHeadersInput is an input type that accepts SiteSecurityHeadersArgs and SiteSecurityHeadersOutput values.
+// You can construct a concrete instance of `SiteSecurityHeadersInput` via:
+//
+//	SiteSecurityHeadersArgs{...}
+type SiteSecurityHeadersInput interface {
+	pulumi.Input
+
+	ToSiteSecurityHeadersOutput() SiteSecurityHeadersOutput
+	ToSiteSecurityHeadersOutputWithContext(context.Context) SiteSecurityHeadersOutput
+}
+
+// SiteSecurityHeadersArgs configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. A header your app sets itself always takes priority. Content-Security-Policy is not set — configure it in the framework (e.g. SvelteKit's kit.csp).
+type SiteSecurityHeadersArgs struct {
+	// CrossOriginOpenerPolicy isolates the site's browser window from windows on other sites. "same-origin-allow-popups" (default): isolated, but popups it opens (OAuth sign-in, payments) still work. "same-origin": strict isolation — breaks sign-in and payment popups that report back. "none": no Cross-Origin-Opener-Policy header.
+	CrossOriginOpenerPolicy SiteCrossOriginOpenerPolicyPtrInput `pulumi:"crossOriginOpenerPolicy"`
+	// Enabled turns the security headers on or off. Default: true.
+	Enabled pulumi.BoolPtrInput `pulumi:"enabled"`
+	// FrameOptions controls whether other sites can embed this one in a frame. "sameorigin" (default): only pages on this site. "deny": never. "none": no X-Frame-Options header — the site can be embedded anywhere.
+	FrameOptions SiteFrameOptionsPtrInput `pulumi:"frameOptions"`
+	// Hsts adds optional Strict-Transport-Security directives.
+	Hsts SiteHstsPtrInput `pulumi:"hsts"`
+	// PermissionsPolicy is the Permissions-Policy header value: which browser features the site (and anything it embeds) may use. Default: "camera=(), microphone=(), geolocation=(), usb=(), browsing-topics=()". Set your own value to allow a feature, e.g. "camera=(self), microphone=(self)", or "none" to send no Permissions-Policy header.
+	PermissionsPolicy pulumi.StringPtrInput `pulumi:"permissionsPolicy"`
+}
+
+func (SiteSecurityHeadersArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteSecurityHeaders)(nil)).Elem()
+}
+
+func (i SiteSecurityHeadersArgs) ToSiteSecurityHeadersOutput() SiteSecurityHeadersOutput {
+	return i.ToSiteSecurityHeadersOutputWithContext(context.Background())
+}
+
+func (i SiteSecurityHeadersArgs) ToSiteSecurityHeadersOutputWithContext(ctx context.Context) SiteSecurityHeadersOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SiteSecurityHeadersOutput)
+}
+
+func (i SiteSecurityHeadersArgs) ToSiteSecurityHeadersPtrOutput() SiteSecurityHeadersPtrOutput {
+	return i.ToSiteSecurityHeadersPtrOutputWithContext(context.Background())
+}
+
+func (i SiteSecurityHeadersArgs) ToSiteSecurityHeadersPtrOutputWithContext(ctx context.Context) SiteSecurityHeadersPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SiteSecurityHeadersOutput).ToSiteSecurityHeadersPtrOutputWithContext(ctx)
+}
+
+// SiteSecurityHeadersPtrInput is an input type that accepts SiteSecurityHeadersArgs, SiteSecurityHeadersPtr and SiteSecurityHeadersPtrOutput values.
+// You can construct a concrete instance of `SiteSecurityHeadersPtrInput` via:
+//
+//	        SiteSecurityHeadersArgs{...}
+//
+//	or:
+//
+//	        nil
+type SiteSecurityHeadersPtrInput interface {
+	pulumi.Input
+
+	ToSiteSecurityHeadersPtrOutput() SiteSecurityHeadersPtrOutput
+	ToSiteSecurityHeadersPtrOutputWithContext(context.Context) SiteSecurityHeadersPtrOutput
+}
+
+type siteSecurityHeadersPtrType SiteSecurityHeadersArgs
+
+func SiteSecurityHeadersPtr(v *SiteSecurityHeadersArgs) SiteSecurityHeadersPtrInput {
+	return (*siteSecurityHeadersPtrType)(v)
+}
+
+func (*siteSecurityHeadersPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**SiteSecurityHeaders)(nil)).Elem()
+}
+
+func (i *siteSecurityHeadersPtrType) ToSiteSecurityHeadersPtrOutput() SiteSecurityHeadersPtrOutput {
+	return i.ToSiteSecurityHeadersPtrOutputWithContext(context.Background())
+}
+
+func (i *siteSecurityHeadersPtrType) ToSiteSecurityHeadersPtrOutputWithContext(ctx context.Context) SiteSecurityHeadersPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(SiteSecurityHeadersPtrOutput)
+}
+
+// SiteSecurityHeadersArgs configures the security headers CloudFront adds to every response. On by default: Strict-Transport-Security (1 year), X-Content-Type-Options: nosniff, X-Frame-Options: SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, a Permissions-Policy that turns off camera, microphone, geolocation, USB and Topics, and Cross-Origin-Opener-Policy: same-origin-allow-popups. A header your app sets itself always takes priority. Content-Security-Policy is not set — configure it in the framework (e.g. SvelteKit's kit.csp).
+type SiteSecurityHeadersOutput struct{ *pulumi.OutputState }
+
+func (SiteSecurityHeadersOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*SiteSecurityHeaders)(nil)).Elem()
+}
+
+func (o SiteSecurityHeadersOutput) ToSiteSecurityHeadersOutput() SiteSecurityHeadersOutput {
+	return o
+}
+
+func (o SiteSecurityHeadersOutput) ToSiteSecurityHeadersOutputWithContext(ctx context.Context) SiteSecurityHeadersOutput {
+	return o
+}
+
+func (o SiteSecurityHeadersOutput) ToSiteSecurityHeadersPtrOutput() SiteSecurityHeadersPtrOutput {
+	return o.ToSiteSecurityHeadersPtrOutputWithContext(context.Background())
+}
+
+func (o SiteSecurityHeadersOutput) ToSiteSecurityHeadersPtrOutputWithContext(ctx context.Context) SiteSecurityHeadersPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v SiteSecurityHeaders) *SiteSecurityHeaders {
+		return &v
+	}).(SiteSecurityHeadersPtrOutput)
+}
+
+// CrossOriginOpenerPolicy isolates the site's browser window from windows on other sites. "same-origin-allow-popups" (default): isolated, but popups it opens (OAuth sign-in, payments) still work. "same-origin": strict isolation — breaks sign-in and payment popups that report back. "none": no Cross-Origin-Opener-Policy header.
+func (o SiteSecurityHeadersOutput) CrossOriginOpenerPolicy() SiteCrossOriginOpenerPolicyPtrOutput {
+	return o.ApplyT(func(v SiteSecurityHeaders) *SiteCrossOriginOpenerPolicy { return v.CrossOriginOpenerPolicy }).(SiteCrossOriginOpenerPolicyPtrOutput)
+}
+
+// Enabled turns the security headers on or off. Default: true.
+func (o SiteSecurityHeadersOutput) Enabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v SiteSecurityHeaders) *bool { return v.Enabled }).(pulumi.BoolPtrOutput)
+}
+
+// FrameOptions controls whether other sites can embed this one in a frame. "sameorigin" (default): only pages on this site. "deny": never. "none": no X-Frame-Options header — the site can be embedded anywhere.
+func (o SiteSecurityHeadersOutput) FrameOptions() SiteFrameOptionsPtrOutput {
+	return o.ApplyT(func(v SiteSecurityHeaders) *SiteFrameOptions { return v.FrameOptions }).(SiteFrameOptionsPtrOutput)
+}
+
+// Hsts adds optional Strict-Transport-Security directives.
+func (o SiteSecurityHeadersOutput) Hsts() SiteHstsPtrOutput {
+	return o.ApplyT(func(v SiteSecurityHeaders) *SiteHsts { return v.Hsts }).(SiteHstsPtrOutput)
+}
+
+// PermissionsPolicy is the Permissions-Policy header value: which browser features the site (and anything it embeds) may use. Default: "camera=(), microphone=(), geolocation=(), usb=(), browsing-topics=()". Set your own value to allow a feature, e.g. "camera=(self), microphone=(self)", or "none" to send no Permissions-Policy header.
+func (o SiteSecurityHeadersOutput) PermissionsPolicy() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v SiteSecurityHeaders) *string { return v.PermissionsPolicy }).(pulumi.StringPtrOutput)
+}
+
+type SiteSecurityHeadersPtrOutput struct{ *pulumi.OutputState }
+
+func (SiteSecurityHeadersPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**SiteSecurityHeaders)(nil)).Elem()
+}
+
+func (o SiteSecurityHeadersPtrOutput) ToSiteSecurityHeadersPtrOutput() SiteSecurityHeadersPtrOutput {
+	return o
+}
+
+func (o SiteSecurityHeadersPtrOutput) ToSiteSecurityHeadersPtrOutputWithContext(ctx context.Context) SiteSecurityHeadersPtrOutput {
+	return o
+}
+
+func (o SiteSecurityHeadersPtrOutput) Elem() SiteSecurityHeadersOutput {
+	return o.ApplyT(func(v *SiteSecurityHeaders) SiteSecurityHeaders {
+		if v != nil {
+			return *v
+		}
+		var ret SiteSecurityHeaders
+		return ret
+	}).(SiteSecurityHeadersOutput)
+}
+
+// CrossOriginOpenerPolicy isolates the site's browser window from windows on other sites. "same-origin-allow-popups" (default): isolated, but popups it opens (OAuth sign-in, payments) still work. "same-origin": strict isolation — breaks sign-in and payment popups that report back. "none": no Cross-Origin-Opener-Policy header.
+func (o SiteSecurityHeadersPtrOutput) CrossOriginOpenerPolicy() SiteCrossOriginOpenerPolicyPtrOutput {
+	return o.ApplyT(func(v *SiteSecurityHeaders) *SiteCrossOriginOpenerPolicy {
+		if v == nil {
+			return nil
+		}
+		return v.CrossOriginOpenerPolicy
+	}).(SiteCrossOriginOpenerPolicyPtrOutput)
+}
+
+// Enabled turns the security headers on or off. Default: true.
+func (o SiteSecurityHeadersPtrOutput) Enabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *SiteSecurityHeaders) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.Enabled
+	}).(pulumi.BoolPtrOutput)
+}
+
+// FrameOptions controls whether other sites can embed this one in a frame. "sameorigin" (default): only pages on this site. "deny": never. "none": no X-Frame-Options header — the site can be embedded anywhere.
+func (o SiteSecurityHeadersPtrOutput) FrameOptions() SiteFrameOptionsPtrOutput {
+	return o.ApplyT(func(v *SiteSecurityHeaders) *SiteFrameOptions {
+		if v == nil {
+			return nil
+		}
+		return v.FrameOptions
+	}).(SiteFrameOptionsPtrOutput)
+}
+
+// Hsts adds optional Strict-Transport-Security directives.
+func (o SiteSecurityHeadersPtrOutput) Hsts() SiteHstsPtrOutput {
+	return o.ApplyT(func(v *SiteSecurityHeaders) *SiteHsts {
+		if v == nil {
+			return nil
+		}
+		return v.Hsts
+	}).(SiteHstsPtrOutput)
+}
+
+// PermissionsPolicy is the Permissions-Policy header value: which browser features the site (and anything it embeds) may use. Default: "camera=(), microphone=(), geolocation=(), usb=(), browsing-topics=()". Set your own value to allow a feature, e.g. "camera=(self), microphone=(self)", or "none" to send no Permissions-Policy header.
+func (o SiteSecurityHeadersPtrOutput) PermissionsPolicy() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *SiteSecurityHeaders) *string {
+		if v == nil {
+			return nil
+		}
+		return v.PermissionsPolicy
+	}).(pulumi.StringPtrOutput)
+}
+
 // SiteWafArgs attaches a WAF to the site. Composes freely with originProtection. While a WAF is attached, protection defaults to "edge-oac" so the server Function URL can't be used to bypass the WAF.
 type SiteWaf struct {
 	// Arn is the ARN of a WAF WebACL with CLOUDFRONT scope (us-east-1). Pass waf.arn from an Anvil Waf component.
@@ -15496,6 +16012,1152 @@ func (o VpcS3FlowLogArgsPtrOutput) Lifecycle() S3FlowLogLifecyclePtrOutput {
 	}).(S3FlowLogLifecyclePtrOutput)
 }
 
+// WAF logging to CloudWatch Logs.
+type WafLoggingArgs struct {
+	// Turns logging on or off. Default: true.
+	Enabled *bool `pulumi:"enabled"`
+	// Also log allowed requests. Default: false — only blocked and counted requests, which keeps cost low.
+	IncludeAllowed *bool `pulumi:"includeAllowed"`
+	// How long logs are kept, in days (a CloudWatch Logs retention value). Default: 30.
+	RetentionDays *int `pulumi:"retentionDays"`
+}
+
+// WafLoggingArgsInput is an input type that accepts WafLoggingArgsArgs and WafLoggingArgsOutput values.
+// You can construct a concrete instance of `WafLoggingArgsInput` via:
+//
+//	WafLoggingArgsArgs{...}
+type WafLoggingArgsInput interface {
+	pulumi.Input
+
+	ToWafLoggingArgsOutput() WafLoggingArgsOutput
+	ToWafLoggingArgsOutputWithContext(context.Context) WafLoggingArgsOutput
+}
+
+// WAF logging to CloudWatch Logs.
+type WafLoggingArgsArgs struct {
+	// Turns logging on or off. Default: true.
+	Enabled pulumi.BoolPtrInput `pulumi:"enabled"`
+	// Also log allowed requests. Default: false — only blocked and counted requests, which keeps cost low.
+	IncludeAllowed pulumi.BoolPtrInput `pulumi:"includeAllowed"`
+	// How long logs are kept, in days (a CloudWatch Logs retention value). Default: 30.
+	RetentionDays pulumi.IntPtrInput `pulumi:"retentionDays"`
+}
+
+func (WafLoggingArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafLoggingArgs)(nil)).Elem()
+}
+
+func (i WafLoggingArgsArgs) ToWafLoggingArgsOutput() WafLoggingArgsOutput {
+	return i.ToWafLoggingArgsOutputWithContext(context.Background())
+}
+
+func (i WafLoggingArgsArgs) ToWafLoggingArgsOutputWithContext(ctx context.Context) WafLoggingArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafLoggingArgsOutput)
+}
+
+func (i WafLoggingArgsArgs) ToWafLoggingArgsPtrOutput() WafLoggingArgsPtrOutput {
+	return i.ToWafLoggingArgsPtrOutputWithContext(context.Background())
+}
+
+func (i WafLoggingArgsArgs) ToWafLoggingArgsPtrOutputWithContext(ctx context.Context) WafLoggingArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafLoggingArgsOutput).ToWafLoggingArgsPtrOutputWithContext(ctx)
+}
+
+// WafLoggingArgsPtrInput is an input type that accepts WafLoggingArgsArgs, WafLoggingArgsPtr and WafLoggingArgsPtrOutput values.
+// You can construct a concrete instance of `WafLoggingArgsPtrInput` via:
+//
+//	        WafLoggingArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type WafLoggingArgsPtrInput interface {
+	pulumi.Input
+
+	ToWafLoggingArgsPtrOutput() WafLoggingArgsPtrOutput
+	ToWafLoggingArgsPtrOutputWithContext(context.Context) WafLoggingArgsPtrOutput
+}
+
+type wafLoggingArgsPtrType WafLoggingArgsArgs
+
+func WafLoggingArgsPtr(v *WafLoggingArgsArgs) WafLoggingArgsPtrInput {
+	return (*wafLoggingArgsPtrType)(v)
+}
+
+func (*wafLoggingArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**WafLoggingArgs)(nil)).Elem()
+}
+
+func (i *wafLoggingArgsPtrType) ToWafLoggingArgsPtrOutput() WafLoggingArgsPtrOutput {
+	return i.ToWafLoggingArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *wafLoggingArgsPtrType) ToWafLoggingArgsPtrOutputWithContext(ctx context.Context) WafLoggingArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafLoggingArgsPtrOutput)
+}
+
+// WAF logging to CloudWatch Logs.
+type WafLoggingArgsOutput struct{ *pulumi.OutputState }
+
+func (WafLoggingArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafLoggingArgs)(nil)).Elem()
+}
+
+func (o WafLoggingArgsOutput) ToWafLoggingArgsOutput() WafLoggingArgsOutput {
+	return o
+}
+
+func (o WafLoggingArgsOutput) ToWafLoggingArgsOutputWithContext(ctx context.Context) WafLoggingArgsOutput {
+	return o
+}
+
+func (o WafLoggingArgsOutput) ToWafLoggingArgsPtrOutput() WafLoggingArgsPtrOutput {
+	return o.ToWafLoggingArgsPtrOutputWithContext(context.Background())
+}
+
+func (o WafLoggingArgsOutput) ToWafLoggingArgsPtrOutputWithContext(ctx context.Context) WafLoggingArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v WafLoggingArgs) *WafLoggingArgs {
+		return &v
+	}).(WafLoggingArgsPtrOutput)
+}
+
+// Turns logging on or off. Default: true.
+func (o WafLoggingArgsOutput) Enabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v WafLoggingArgs) *bool { return v.Enabled }).(pulumi.BoolPtrOutput)
+}
+
+// Also log allowed requests. Default: false — only blocked and counted requests, which keeps cost low.
+func (o WafLoggingArgsOutput) IncludeAllowed() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v WafLoggingArgs) *bool { return v.IncludeAllowed }).(pulumi.BoolPtrOutput)
+}
+
+// How long logs are kept, in days (a CloudWatch Logs retention value). Default: 30.
+func (o WafLoggingArgsOutput) RetentionDays() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v WafLoggingArgs) *int { return v.RetentionDays }).(pulumi.IntPtrOutput)
+}
+
+type WafLoggingArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (WafLoggingArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**WafLoggingArgs)(nil)).Elem()
+}
+
+func (o WafLoggingArgsPtrOutput) ToWafLoggingArgsPtrOutput() WafLoggingArgsPtrOutput {
+	return o
+}
+
+func (o WafLoggingArgsPtrOutput) ToWafLoggingArgsPtrOutputWithContext(ctx context.Context) WafLoggingArgsPtrOutput {
+	return o
+}
+
+func (o WafLoggingArgsPtrOutput) Elem() WafLoggingArgsOutput {
+	return o.ApplyT(func(v *WafLoggingArgs) WafLoggingArgs {
+		if v != nil {
+			return *v
+		}
+		var ret WafLoggingArgs
+		return ret
+	}).(WafLoggingArgsOutput)
+}
+
+// Turns logging on or off. Default: true.
+func (o WafLoggingArgsPtrOutput) Enabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *WafLoggingArgs) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.Enabled
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Also log allowed requests. Default: false — only blocked and counted requests, which keeps cost low.
+func (o WafLoggingArgsPtrOutput) IncludeAllowed() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *WafLoggingArgs) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.IncludeAllowed
+	}).(pulumi.BoolPtrOutput)
+}
+
+// How long logs are kept, in days (a CloudWatch Logs retention value). Default: 30.
+func (o WafLoggingArgsPtrOutput) RetentionDays() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *WafLoggingArgs) *int {
+		if v == nil {
+			return nil
+		}
+		return v.RetentionDays
+	}).(pulumi.IntPtrOutput)
+}
+
+// AWS managed rule groups.
+type WafManagedRulesArgs struct {
+	// Admin protection (AWSManagedRulesAdminProtectionRuleSet): requests to admin-looking paths. Default: false.
+	AdminProtection *bool `pulumi:"adminProtection"`
+	// Anonymous IP list (AWSManagedRulesAnonymousIpList): VPNs, Tor, hosting providers. Suits B2B apps; too strict for most consumer apps. Default: false.
+	AnonymousIp *bool `pulumi:"anonymousIp"`
+	// Core Rule Set (AWSManagedRulesCommonRuleSet): OWASP Top 10 — XSS, path traversal, remote file inclusion, SSRF. Default: true.
+	Core *bool `pulumi:"core"`
+	// Amazon IP reputation list (AWSManagedRulesAmazonIpReputationList): IPs from Amazon threat intelligence. Default: true, or false when clientIpHeader is set.
+	IpReputation *bool `pulumi:"ipReputation"`
+	// Known bad inputs (AWSManagedRulesKnownBadInputsRuleSet): Log4Shell, Java deserialisation, React RCE and other known exploit patterns. Default: true.
+	KnownBadInputs *bool `pulumi:"knownBadInputs"`
+	// SQL injection (AWSManagedRulesSQLiRuleSet). Default: true.
+	Sqli *bool `pulumi:"sqli"`
+}
+
+// WafManagedRulesArgsInput is an input type that accepts WafManagedRulesArgsArgs and WafManagedRulesArgsOutput values.
+// You can construct a concrete instance of `WafManagedRulesArgsInput` via:
+//
+//	WafManagedRulesArgsArgs{...}
+type WafManagedRulesArgsInput interface {
+	pulumi.Input
+
+	ToWafManagedRulesArgsOutput() WafManagedRulesArgsOutput
+	ToWafManagedRulesArgsOutputWithContext(context.Context) WafManagedRulesArgsOutput
+}
+
+// AWS managed rule groups.
+type WafManagedRulesArgsArgs struct {
+	// Admin protection (AWSManagedRulesAdminProtectionRuleSet): requests to admin-looking paths. Default: false.
+	AdminProtection pulumi.BoolPtrInput `pulumi:"adminProtection"`
+	// Anonymous IP list (AWSManagedRulesAnonymousIpList): VPNs, Tor, hosting providers. Suits B2B apps; too strict for most consumer apps. Default: false.
+	AnonymousIp pulumi.BoolPtrInput `pulumi:"anonymousIp"`
+	// Core Rule Set (AWSManagedRulesCommonRuleSet): OWASP Top 10 — XSS, path traversal, remote file inclusion, SSRF. Default: true.
+	Core pulumi.BoolPtrInput `pulumi:"core"`
+	// Amazon IP reputation list (AWSManagedRulesAmazonIpReputationList): IPs from Amazon threat intelligence. Default: true, or false when clientIpHeader is set.
+	IpReputation pulumi.BoolPtrInput `pulumi:"ipReputation"`
+	// Known bad inputs (AWSManagedRulesKnownBadInputsRuleSet): Log4Shell, Java deserialisation, React RCE and other known exploit patterns. Default: true.
+	KnownBadInputs pulumi.BoolPtrInput `pulumi:"knownBadInputs"`
+	// SQL injection (AWSManagedRulesSQLiRuleSet). Default: true.
+	Sqli pulumi.BoolPtrInput `pulumi:"sqli"`
+}
+
+func (WafManagedRulesArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafManagedRulesArgs)(nil)).Elem()
+}
+
+func (i WafManagedRulesArgsArgs) ToWafManagedRulesArgsOutput() WafManagedRulesArgsOutput {
+	return i.ToWafManagedRulesArgsOutputWithContext(context.Background())
+}
+
+func (i WafManagedRulesArgsArgs) ToWafManagedRulesArgsOutputWithContext(ctx context.Context) WafManagedRulesArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafManagedRulesArgsOutput)
+}
+
+func (i WafManagedRulesArgsArgs) ToWafManagedRulesArgsPtrOutput() WafManagedRulesArgsPtrOutput {
+	return i.ToWafManagedRulesArgsPtrOutputWithContext(context.Background())
+}
+
+func (i WafManagedRulesArgsArgs) ToWafManagedRulesArgsPtrOutputWithContext(ctx context.Context) WafManagedRulesArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafManagedRulesArgsOutput).ToWafManagedRulesArgsPtrOutputWithContext(ctx)
+}
+
+// WafManagedRulesArgsPtrInput is an input type that accepts WafManagedRulesArgsArgs, WafManagedRulesArgsPtr and WafManagedRulesArgsPtrOutput values.
+// You can construct a concrete instance of `WafManagedRulesArgsPtrInput` via:
+//
+//	        WafManagedRulesArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type WafManagedRulesArgsPtrInput interface {
+	pulumi.Input
+
+	ToWafManagedRulesArgsPtrOutput() WafManagedRulesArgsPtrOutput
+	ToWafManagedRulesArgsPtrOutputWithContext(context.Context) WafManagedRulesArgsPtrOutput
+}
+
+type wafManagedRulesArgsPtrType WafManagedRulesArgsArgs
+
+func WafManagedRulesArgsPtr(v *WafManagedRulesArgsArgs) WafManagedRulesArgsPtrInput {
+	return (*wafManagedRulesArgsPtrType)(v)
+}
+
+func (*wafManagedRulesArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**WafManagedRulesArgs)(nil)).Elem()
+}
+
+func (i *wafManagedRulesArgsPtrType) ToWafManagedRulesArgsPtrOutput() WafManagedRulesArgsPtrOutput {
+	return i.ToWafManagedRulesArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *wafManagedRulesArgsPtrType) ToWafManagedRulesArgsPtrOutputWithContext(ctx context.Context) WafManagedRulesArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafManagedRulesArgsPtrOutput)
+}
+
+// AWS managed rule groups.
+type WafManagedRulesArgsOutput struct{ *pulumi.OutputState }
+
+func (WafManagedRulesArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafManagedRulesArgs)(nil)).Elem()
+}
+
+func (o WafManagedRulesArgsOutput) ToWafManagedRulesArgsOutput() WafManagedRulesArgsOutput {
+	return o
+}
+
+func (o WafManagedRulesArgsOutput) ToWafManagedRulesArgsOutputWithContext(ctx context.Context) WafManagedRulesArgsOutput {
+	return o
+}
+
+func (o WafManagedRulesArgsOutput) ToWafManagedRulesArgsPtrOutput() WafManagedRulesArgsPtrOutput {
+	return o.ToWafManagedRulesArgsPtrOutputWithContext(context.Background())
+}
+
+func (o WafManagedRulesArgsOutput) ToWafManagedRulesArgsPtrOutputWithContext(ctx context.Context) WafManagedRulesArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v WafManagedRulesArgs) *WafManagedRulesArgs {
+		return &v
+	}).(WafManagedRulesArgsPtrOutput)
+}
+
+// Admin protection (AWSManagedRulesAdminProtectionRuleSet): requests to admin-looking paths. Default: false.
+func (o WafManagedRulesArgsOutput) AdminProtection() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v WafManagedRulesArgs) *bool { return v.AdminProtection }).(pulumi.BoolPtrOutput)
+}
+
+// Anonymous IP list (AWSManagedRulesAnonymousIpList): VPNs, Tor, hosting providers. Suits B2B apps; too strict for most consumer apps. Default: false.
+func (o WafManagedRulesArgsOutput) AnonymousIp() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v WafManagedRulesArgs) *bool { return v.AnonymousIp }).(pulumi.BoolPtrOutput)
+}
+
+// Core Rule Set (AWSManagedRulesCommonRuleSet): OWASP Top 10 — XSS, path traversal, remote file inclusion, SSRF. Default: true.
+func (o WafManagedRulesArgsOutput) Core() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v WafManagedRulesArgs) *bool { return v.Core }).(pulumi.BoolPtrOutput)
+}
+
+// Amazon IP reputation list (AWSManagedRulesAmazonIpReputationList): IPs from Amazon threat intelligence. Default: true, or false when clientIpHeader is set.
+func (o WafManagedRulesArgsOutput) IpReputation() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v WafManagedRulesArgs) *bool { return v.IpReputation }).(pulumi.BoolPtrOutput)
+}
+
+// Known bad inputs (AWSManagedRulesKnownBadInputsRuleSet): Log4Shell, Java deserialisation, React RCE and other known exploit patterns. Default: true.
+func (o WafManagedRulesArgsOutput) KnownBadInputs() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v WafManagedRulesArgs) *bool { return v.KnownBadInputs }).(pulumi.BoolPtrOutput)
+}
+
+// SQL injection (AWSManagedRulesSQLiRuleSet). Default: true.
+func (o WafManagedRulesArgsOutput) Sqli() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v WafManagedRulesArgs) *bool { return v.Sqli }).(pulumi.BoolPtrOutput)
+}
+
+type WafManagedRulesArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (WafManagedRulesArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**WafManagedRulesArgs)(nil)).Elem()
+}
+
+func (o WafManagedRulesArgsPtrOutput) ToWafManagedRulesArgsPtrOutput() WafManagedRulesArgsPtrOutput {
+	return o
+}
+
+func (o WafManagedRulesArgsPtrOutput) ToWafManagedRulesArgsPtrOutputWithContext(ctx context.Context) WafManagedRulesArgsPtrOutput {
+	return o
+}
+
+func (o WafManagedRulesArgsPtrOutput) Elem() WafManagedRulesArgsOutput {
+	return o.ApplyT(func(v *WafManagedRulesArgs) WafManagedRulesArgs {
+		if v != nil {
+			return *v
+		}
+		var ret WafManagedRulesArgs
+		return ret
+	}).(WafManagedRulesArgsOutput)
+}
+
+// Admin protection (AWSManagedRulesAdminProtectionRuleSet): requests to admin-looking paths. Default: false.
+func (o WafManagedRulesArgsPtrOutput) AdminProtection() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *WafManagedRulesArgs) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.AdminProtection
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Anonymous IP list (AWSManagedRulesAnonymousIpList): VPNs, Tor, hosting providers. Suits B2B apps; too strict for most consumer apps. Default: false.
+func (o WafManagedRulesArgsPtrOutput) AnonymousIp() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *WafManagedRulesArgs) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.AnonymousIp
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Core Rule Set (AWSManagedRulesCommonRuleSet): OWASP Top 10 — XSS, path traversal, remote file inclusion, SSRF. Default: true.
+func (o WafManagedRulesArgsPtrOutput) Core() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *WafManagedRulesArgs) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.Core
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Amazon IP reputation list (AWSManagedRulesAmazonIpReputationList): IPs from Amazon threat intelligence. Default: true, or false when clientIpHeader is set.
+func (o WafManagedRulesArgsPtrOutput) IpReputation() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *WafManagedRulesArgs) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.IpReputation
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Known bad inputs (AWSManagedRulesKnownBadInputsRuleSet): Log4Shell, Java deserialisation, React RCE and other known exploit patterns. Default: true.
+func (o WafManagedRulesArgsPtrOutput) KnownBadInputs() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *WafManagedRulesArgs) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.KnownBadInputs
+	}).(pulumi.BoolPtrOutput)
+}
+
+// SQL injection (AWSManagedRulesSQLiRuleSet). Default: true.
+func (o WafManagedRulesArgsPtrOutput) Sqli() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *WafManagedRulesArgs) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.Sqli
+	}).(pulumi.BoolPtrOutput)
+}
+
+type WafOverrides struct {
+	// Specifies custom configurations for the associations between the web ACL and protected resources. See <span pulumi-lang-nodejs="`associationConfig`" pulumi-lang-dotnet="`AssociationConfig`" pulumi-lang-go="`associationConfig`" pulumi-lang-python="`association_config`" pulumi-lang-yaml="`associationConfig`" pulumi-lang-java="`associationConfig`">`association_config`</span> below for details.
+	AssociationConfig *wafv2.WebAclAssociationConfig `pulumi:"associationConfig"`
+	// Specifies how AWS WAF should handle CAPTCHA evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`captchaConfig`" pulumi-lang-dotnet="`CaptchaConfig`" pulumi-lang-go="`captchaConfig`" pulumi-lang-python="`captcha_config`" pulumi-lang-yaml="`captchaConfig`" pulumi-lang-java="`captchaConfig`">`captcha_config`</span> below for details.
+	CaptchaConfig *wafv2.WebAclCaptchaConfig `pulumi:"captchaConfig"`
+	// Specifies how AWS WAF should handle Challenge evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`challengeConfig`" pulumi-lang-dotnet="`ChallengeConfig`" pulumi-lang-go="`challengeConfig`" pulumi-lang-python="`challenge_config`" pulumi-lang-yaml="`challengeConfig`" pulumi-lang-java="`challengeConfig`">`challenge_config`</span> below for details.
+	ChallengeConfig *wafv2.WebAclChallengeConfig `pulumi:"challengeConfig"`
+	// Defines custom response bodies that can be referenced by <span pulumi-lang-nodejs="`customResponse`" pulumi-lang-dotnet="`CustomResponse`" pulumi-lang-go="`customResponse`" pulumi-lang-python="`custom_response`" pulumi-lang-yaml="`customResponse`" pulumi-lang-java="`customResponse`">`custom_response`</span> actions. See <span pulumi-lang-nodejs="`customResponseBody`" pulumi-lang-dotnet="`CustomResponseBody`" pulumi-lang-go="`customResponseBody`" pulumi-lang-python="`custom_response_body`" pulumi-lang-yaml="`customResponseBody`" pulumi-lang-java="`customResponseBody`">`custom_response_body`</span> below for details.
+	CustomResponseBodies []wafv2.WebAclCustomResponseBody `pulumi:"customResponseBodies"`
+	// Specifies data protection to apply to the web request data for the web ACL. This is a web ACL level data protection option. See <span pulumi-lang-nodejs="`dataProtectionConfig`" pulumi-lang-dotnet="`DataProtectionConfig`" pulumi-lang-go="`dataProtectionConfig`" pulumi-lang-python="`data_protection_config`" pulumi-lang-yaml="`dataProtectionConfig`" pulumi-lang-java="`dataProtectionConfig`">`data_protection_config`</span> below for details.
+	DataProtectionConfig *wafv2.WebAclDataProtectionConfig `pulumi:"dataProtectionConfig"`
+	// Action to perform if none of the <span pulumi-lang-nodejs="`rules`" pulumi-lang-dotnet="`Rules`" pulumi-lang-go="`rules`" pulumi-lang-python="`rules`" pulumi-lang-yaml="`rules`" pulumi-lang-java="`rules`">`rules`</span> contained in the WebACL match. See <span pulumi-lang-nodejs="`defaultAction`" pulumi-lang-dotnet="`DefaultAction`" pulumi-lang-go="`defaultAction`" pulumi-lang-python="`default_action`" pulumi-lang-yaml="`defaultAction`" pulumi-lang-java="`defaultAction`">`default_action`</span> below for details.
+	DefaultAction *wafv2.WebAclDefaultAction `pulumi:"defaultAction"`
+	// Friendly description of the WebACL.
+	Description *string `pulumi:"description"`
+	// Friendly name of the WebACL. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+	Name *string `pulumi:"name"`
+	// Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+	NamePrefix *string `pulumi:"namePrefix"`
+	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+	Region *string `pulumi:"region"`
+	// Raw JSON string to allow more than three nested statements. Conflicts with <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. This is for advanced use cases where more than 3 levels of nested statements are required. **There is no drift detection at this time**. If you use this attribute instead of <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span>, you will be foregoing drift detection. Additionally, importing an existing web ACL into a configuration with <span pulumi-lang-nodejs="`ruleJson`" pulumi-lang-dotnet="`RuleJson`" pulumi-lang-go="`ruleJson`" pulumi-lang-python="`rule_json`" pulumi-lang-yaml="`ruleJson`" pulumi-lang-java="`ruleJson`">`rule_json`</span> set will result in a one time in-place update as the remote rule configuration is initially written to the <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. See the AWS [documentation](https://docs.aws.amazon.com/waf/latest/APIReference/API_CreateWebACL.html) for the JSON structure.
+	RuleJson *string `pulumi:"ruleJson"`
+	// Rule blocks used to identify the web requests that you want to <span pulumi-lang-nodejs="`allow`" pulumi-lang-dotnet="`Allow`" pulumi-lang-go="`allow`" pulumi-lang-python="`allow`" pulumi-lang-yaml="`allow`" pulumi-lang-java="`allow`">`allow`</span>, <span pulumi-lang-nodejs="`block`" pulumi-lang-dotnet="`Block`" pulumi-lang-go="`block`" pulumi-lang-python="`block`" pulumi-lang-yaml="`block`" pulumi-lang-java="`block`">`block`</span>, or <span pulumi-lang-nodejs="`count`" pulumi-lang-dotnet="`Count`" pulumi-lang-go="`count`" pulumi-lang-python="`count`" pulumi-lang-yaml="`count`" pulumi-lang-java="`count`">`count`</span>. See <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> below for details.
+	Rules []wafv2.WebAclRule `pulumi:"rules"`
+	// Specifies whether this is for an AWS CloudFront distribution or for a regional application. Valid values are `CLOUDFRONT` or `REGIONAL`. To work with CloudFront, you must also specify the region `us-east-1` (N. Virginia) on the AWS provider.
+	Scope *string `pulumi:"scope"`
+	// Map of key-value pairs to associate with the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+	Tags map[string]string `pulumi:"tags"`
+	// Specifies the domains that AWS WAF should accept in a web request token. This enables the use of tokens across multiple protected websites. When AWS WAF provides a token, it uses the domain of the AWS resource that the web ACL is protecting. If you don't specify a list of token domains, AWS WAF accepts tokens only for the domain of the protected resource. With a token domain list, AWS WAF accepts the resource's host domain plus all domains in the token domain list, including their prefixed subdomains.
+	TokenDomains []string `pulumi:"tokenDomains"`
+	// Defines and enables Amazon CloudWatch metrics and web request sample collection. See <span pulumi-lang-nodejs="`visibilityConfig`" pulumi-lang-dotnet="`VisibilityConfig`" pulumi-lang-go="`visibilityConfig`" pulumi-lang-python="`visibility_config`" pulumi-lang-yaml="`visibilityConfig`" pulumi-lang-java="`visibilityConfig`">`visibility_config`</span> below for details.
+	VisibilityConfig *wafv2.WebAclVisibilityConfig `pulumi:"visibilityConfig"`
+}
+
+// WafOverridesInput is an input type that accepts WafOverridesArgs and WafOverridesOutput values.
+// You can construct a concrete instance of `WafOverridesInput` via:
+//
+//	WafOverridesArgs{...}
+type WafOverridesInput interface {
+	pulumi.Input
+
+	ToWafOverridesOutput() WafOverridesOutput
+	ToWafOverridesOutputWithContext(context.Context) WafOverridesOutput
+}
+
+type WafOverridesArgs struct {
+	// Specifies custom configurations for the associations between the web ACL and protected resources. See <span pulumi-lang-nodejs="`associationConfig`" pulumi-lang-dotnet="`AssociationConfig`" pulumi-lang-go="`associationConfig`" pulumi-lang-python="`association_config`" pulumi-lang-yaml="`associationConfig`" pulumi-lang-java="`associationConfig`">`association_config`</span> below for details.
+	AssociationConfig wafv2.WebAclAssociationConfigPtrInput `pulumi:"associationConfig"`
+	// Specifies how AWS WAF should handle CAPTCHA evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`captchaConfig`" pulumi-lang-dotnet="`CaptchaConfig`" pulumi-lang-go="`captchaConfig`" pulumi-lang-python="`captcha_config`" pulumi-lang-yaml="`captchaConfig`" pulumi-lang-java="`captchaConfig`">`captcha_config`</span> below for details.
+	CaptchaConfig wafv2.WebAclCaptchaConfigPtrInput `pulumi:"captchaConfig"`
+	// Specifies how AWS WAF should handle Challenge evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`challengeConfig`" pulumi-lang-dotnet="`ChallengeConfig`" pulumi-lang-go="`challengeConfig`" pulumi-lang-python="`challenge_config`" pulumi-lang-yaml="`challengeConfig`" pulumi-lang-java="`challengeConfig`">`challenge_config`</span> below for details.
+	ChallengeConfig wafv2.WebAclChallengeConfigPtrInput `pulumi:"challengeConfig"`
+	// Defines custom response bodies that can be referenced by <span pulumi-lang-nodejs="`customResponse`" pulumi-lang-dotnet="`CustomResponse`" pulumi-lang-go="`customResponse`" pulumi-lang-python="`custom_response`" pulumi-lang-yaml="`customResponse`" pulumi-lang-java="`customResponse`">`custom_response`</span> actions. See <span pulumi-lang-nodejs="`customResponseBody`" pulumi-lang-dotnet="`CustomResponseBody`" pulumi-lang-go="`customResponseBody`" pulumi-lang-python="`custom_response_body`" pulumi-lang-yaml="`customResponseBody`" pulumi-lang-java="`customResponseBody`">`custom_response_body`</span> below for details.
+	CustomResponseBodies wafv2.WebAclCustomResponseBodyArrayInput `pulumi:"customResponseBodies"`
+	// Specifies data protection to apply to the web request data for the web ACL. This is a web ACL level data protection option. See <span pulumi-lang-nodejs="`dataProtectionConfig`" pulumi-lang-dotnet="`DataProtectionConfig`" pulumi-lang-go="`dataProtectionConfig`" pulumi-lang-python="`data_protection_config`" pulumi-lang-yaml="`dataProtectionConfig`" pulumi-lang-java="`dataProtectionConfig`">`data_protection_config`</span> below for details.
+	DataProtectionConfig wafv2.WebAclDataProtectionConfigPtrInput `pulumi:"dataProtectionConfig"`
+	// Action to perform if none of the <span pulumi-lang-nodejs="`rules`" pulumi-lang-dotnet="`Rules`" pulumi-lang-go="`rules`" pulumi-lang-python="`rules`" pulumi-lang-yaml="`rules`" pulumi-lang-java="`rules`">`rules`</span> contained in the WebACL match. See <span pulumi-lang-nodejs="`defaultAction`" pulumi-lang-dotnet="`DefaultAction`" pulumi-lang-go="`defaultAction`" pulumi-lang-python="`default_action`" pulumi-lang-yaml="`defaultAction`" pulumi-lang-java="`defaultAction`">`default_action`</span> below for details.
+	DefaultAction wafv2.WebAclDefaultActionPtrInput `pulumi:"defaultAction"`
+	// Friendly description of the WebACL.
+	Description pulumi.StringPtrInput `pulumi:"description"`
+	// Friendly name of the WebACL. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+	Name pulumi.StringPtrInput `pulumi:"name"`
+	// Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+	NamePrefix pulumi.StringPtrInput `pulumi:"namePrefix"`
+	// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+	Region pulumi.StringPtrInput `pulumi:"region"`
+	// Raw JSON string to allow more than three nested statements. Conflicts with <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. This is for advanced use cases where more than 3 levels of nested statements are required. **There is no drift detection at this time**. If you use this attribute instead of <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span>, you will be foregoing drift detection. Additionally, importing an existing web ACL into a configuration with <span pulumi-lang-nodejs="`ruleJson`" pulumi-lang-dotnet="`RuleJson`" pulumi-lang-go="`ruleJson`" pulumi-lang-python="`rule_json`" pulumi-lang-yaml="`ruleJson`" pulumi-lang-java="`ruleJson`">`rule_json`</span> set will result in a one time in-place update as the remote rule configuration is initially written to the <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. See the AWS [documentation](https://docs.aws.amazon.com/waf/latest/APIReference/API_CreateWebACL.html) for the JSON structure.
+	RuleJson pulumi.StringPtrInput `pulumi:"ruleJson"`
+	// Rule blocks used to identify the web requests that you want to <span pulumi-lang-nodejs="`allow`" pulumi-lang-dotnet="`Allow`" pulumi-lang-go="`allow`" pulumi-lang-python="`allow`" pulumi-lang-yaml="`allow`" pulumi-lang-java="`allow`">`allow`</span>, <span pulumi-lang-nodejs="`block`" pulumi-lang-dotnet="`Block`" pulumi-lang-go="`block`" pulumi-lang-python="`block`" pulumi-lang-yaml="`block`" pulumi-lang-java="`block`">`block`</span>, or <span pulumi-lang-nodejs="`count`" pulumi-lang-dotnet="`Count`" pulumi-lang-go="`count`" pulumi-lang-python="`count`" pulumi-lang-yaml="`count`" pulumi-lang-java="`count`">`count`</span>. See <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> below for details.
+	Rules wafv2.WebAclRuleArrayInput `pulumi:"rules"`
+	// Specifies whether this is for an AWS CloudFront distribution or for a regional application. Valid values are `CLOUDFRONT` or `REGIONAL`. To work with CloudFront, you must also specify the region `us-east-1` (N. Virginia) on the AWS provider.
+	Scope pulumi.StringPtrInput `pulumi:"scope"`
+	// Map of key-value pairs to associate with the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+	Tags pulumi.StringMapInput `pulumi:"tags"`
+	// Specifies the domains that AWS WAF should accept in a web request token. This enables the use of tokens across multiple protected websites. When AWS WAF provides a token, it uses the domain of the AWS resource that the web ACL is protecting. If you don't specify a list of token domains, AWS WAF accepts tokens only for the domain of the protected resource. With a token domain list, AWS WAF accepts the resource's host domain plus all domains in the token domain list, including their prefixed subdomains.
+	TokenDomains pulumi.StringArrayInput `pulumi:"tokenDomains"`
+	// Defines and enables Amazon CloudWatch metrics and web request sample collection. See <span pulumi-lang-nodejs="`visibilityConfig`" pulumi-lang-dotnet="`VisibilityConfig`" pulumi-lang-go="`visibilityConfig`" pulumi-lang-python="`visibility_config`" pulumi-lang-yaml="`visibilityConfig`" pulumi-lang-java="`visibilityConfig`">`visibility_config`</span> below for details.
+	VisibilityConfig wafv2.WebAclVisibilityConfigPtrInput `pulumi:"visibilityConfig"`
+}
+
+func (WafOverridesArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafOverrides)(nil)).Elem()
+}
+
+func (i WafOverridesArgs) ToWafOverridesOutput() WafOverridesOutput {
+	return i.ToWafOverridesOutputWithContext(context.Background())
+}
+
+func (i WafOverridesArgs) ToWafOverridesOutputWithContext(ctx context.Context) WafOverridesOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafOverridesOutput)
+}
+
+func (i WafOverridesArgs) ToWafOverridesPtrOutput() WafOverridesPtrOutput {
+	return i.ToWafOverridesPtrOutputWithContext(context.Background())
+}
+
+func (i WafOverridesArgs) ToWafOverridesPtrOutputWithContext(ctx context.Context) WafOverridesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafOverridesOutput).ToWafOverridesPtrOutputWithContext(ctx)
+}
+
+// WafOverridesPtrInput is an input type that accepts WafOverridesArgs, WafOverridesPtr and WafOverridesPtrOutput values.
+// You can construct a concrete instance of `WafOverridesPtrInput` via:
+//
+//	        WafOverridesArgs{...}
+//
+//	or:
+//
+//	        nil
+type WafOverridesPtrInput interface {
+	pulumi.Input
+
+	ToWafOverridesPtrOutput() WafOverridesPtrOutput
+	ToWafOverridesPtrOutputWithContext(context.Context) WafOverridesPtrOutput
+}
+
+type wafOverridesPtrType WafOverridesArgs
+
+func WafOverridesPtr(v *WafOverridesArgs) WafOverridesPtrInput {
+	return (*wafOverridesPtrType)(v)
+}
+
+func (*wafOverridesPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**WafOverrides)(nil)).Elem()
+}
+
+func (i *wafOverridesPtrType) ToWafOverridesPtrOutput() WafOverridesPtrOutput {
+	return i.ToWafOverridesPtrOutputWithContext(context.Background())
+}
+
+func (i *wafOverridesPtrType) ToWafOverridesPtrOutputWithContext(ctx context.Context) WafOverridesPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafOverridesPtrOutput)
+}
+
+type WafOverridesOutput struct{ *pulumi.OutputState }
+
+func (WafOverridesOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafOverrides)(nil)).Elem()
+}
+
+func (o WafOverridesOutput) ToWafOverridesOutput() WafOverridesOutput {
+	return o
+}
+
+func (o WafOverridesOutput) ToWafOverridesOutputWithContext(ctx context.Context) WafOverridesOutput {
+	return o
+}
+
+func (o WafOverridesOutput) ToWafOverridesPtrOutput() WafOverridesPtrOutput {
+	return o.ToWafOverridesPtrOutputWithContext(context.Background())
+}
+
+func (o WafOverridesOutput) ToWafOverridesPtrOutputWithContext(ctx context.Context) WafOverridesPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v WafOverrides) *WafOverrides {
+		return &v
+	}).(WafOverridesPtrOutput)
+}
+
+// Specifies custom configurations for the associations between the web ACL and protected resources. See <span pulumi-lang-nodejs="`associationConfig`" pulumi-lang-dotnet="`AssociationConfig`" pulumi-lang-go="`associationConfig`" pulumi-lang-python="`association_config`" pulumi-lang-yaml="`associationConfig`" pulumi-lang-java="`associationConfig`">`association_config`</span> below for details.
+func (o WafOverridesOutput) AssociationConfig() wafv2.WebAclAssociationConfigPtrOutput {
+	return o.ApplyT(func(v WafOverrides) *wafv2.WebAclAssociationConfig { return v.AssociationConfig }).(wafv2.WebAclAssociationConfigPtrOutput)
+}
+
+// Specifies how AWS WAF should handle CAPTCHA evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`captchaConfig`" pulumi-lang-dotnet="`CaptchaConfig`" pulumi-lang-go="`captchaConfig`" pulumi-lang-python="`captcha_config`" pulumi-lang-yaml="`captchaConfig`" pulumi-lang-java="`captchaConfig`">`captcha_config`</span> below for details.
+func (o WafOverridesOutput) CaptchaConfig() wafv2.WebAclCaptchaConfigPtrOutput {
+	return o.ApplyT(func(v WafOverrides) *wafv2.WebAclCaptchaConfig { return v.CaptchaConfig }).(wafv2.WebAclCaptchaConfigPtrOutput)
+}
+
+// Specifies how AWS WAF should handle Challenge evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`challengeConfig`" pulumi-lang-dotnet="`ChallengeConfig`" pulumi-lang-go="`challengeConfig`" pulumi-lang-python="`challenge_config`" pulumi-lang-yaml="`challengeConfig`" pulumi-lang-java="`challengeConfig`">`challenge_config`</span> below for details.
+func (o WafOverridesOutput) ChallengeConfig() wafv2.WebAclChallengeConfigPtrOutput {
+	return o.ApplyT(func(v WafOverrides) *wafv2.WebAclChallengeConfig { return v.ChallengeConfig }).(wafv2.WebAclChallengeConfigPtrOutput)
+}
+
+// Defines custom response bodies that can be referenced by <span pulumi-lang-nodejs="`customResponse`" pulumi-lang-dotnet="`CustomResponse`" pulumi-lang-go="`customResponse`" pulumi-lang-python="`custom_response`" pulumi-lang-yaml="`customResponse`" pulumi-lang-java="`customResponse`">`custom_response`</span> actions. See <span pulumi-lang-nodejs="`customResponseBody`" pulumi-lang-dotnet="`CustomResponseBody`" pulumi-lang-go="`customResponseBody`" pulumi-lang-python="`custom_response_body`" pulumi-lang-yaml="`customResponseBody`" pulumi-lang-java="`customResponseBody`">`custom_response_body`</span> below for details.
+func (o WafOverridesOutput) CustomResponseBodies() wafv2.WebAclCustomResponseBodyArrayOutput {
+	return o.ApplyT(func(v WafOverrides) []wafv2.WebAclCustomResponseBody { return v.CustomResponseBodies }).(wafv2.WebAclCustomResponseBodyArrayOutput)
+}
+
+// Specifies data protection to apply to the web request data for the web ACL. This is a web ACL level data protection option. See <span pulumi-lang-nodejs="`dataProtectionConfig`" pulumi-lang-dotnet="`DataProtectionConfig`" pulumi-lang-go="`dataProtectionConfig`" pulumi-lang-python="`data_protection_config`" pulumi-lang-yaml="`dataProtectionConfig`" pulumi-lang-java="`dataProtectionConfig`">`data_protection_config`</span> below for details.
+func (o WafOverridesOutput) DataProtectionConfig() wafv2.WebAclDataProtectionConfigPtrOutput {
+	return o.ApplyT(func(v WafOverrides) *wafv2.WebAclDataProtectionConfig { return v.DataProtectionConfig }).(wafv2.WebAclDataProtectionConfigPtrOutput)
+}
+
+// Action to perform if none of the <span pulumi-lang-nodejs="`rules`" pulumi-lang-dotnet="`Rules`" pulumi-lang-go="`rules`" pulumi-lang-python="`rules`" pulumi-lang-yaml="`rules`" pulumi-lang-java="`rules`">`rules`</span> contained in the WebACL match. See <span pulumi-lang-nodejs="`defaultAction`" pulumi-lang-dotnet="`DefaultAction`" pulumi-lang-go="`defaultAction`" pulumi-lang-python="`default_action`" pulumi-lang-yaml="`defaultAction`" pulumi-lang-java="`defaultAction`">`default_action`</span> below for details.
+func (o WafOverridesOutput) DefaultAction() wafv2.WebAclDefaultActionPtrOutput {
+	return o.ApplyT(func(v WafOverrides) *wafv2.WebAclDefaultAction { return v.DefaultAction }).(wafv2.WebAclDefaultActionPtrOutput)
+}
+
+// Friendly description of the WebACL.
+func (o WafOverridesOutput) Description() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v WafOverrides) *string { return v.Description }).(pulumi.StringPtrOutput)
+}
+
+// Friendly name of the WebACL. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+func (o WafOverridesOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v WafOverrides) *string { return v.Name }).(pulumi.StringPtrOutput)
+}
+
+// Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+func (o WafOverridesOutput) NamePrefix() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v WafOverrides) *string { return v.NamePrefix }).(pulumi.StringPtrOutput)
+}
+
+// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+func (o WafOverridesOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v WafOverrides) *string { return v.Region }).(pulumi.StringPtrOutput)
+}
+
+// Raw JSON string to allow more than three nested statements. Conflicts with <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. This is for advanced use cases where more than 3 levels of nested statements are required. **There is no drift detection at this time**. If you use this attribute instead of <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span>, you will be foregoing drift detection. Additionally, importing an existing web ACL into a configuration with <span pulumi-lang-nodejs="`ruleJson`" pulumi-lang-dotnet="`RuleJson`" pulumi-lang-go="`ruleJson`" pulumi-lang-python="`rule_json`" pulumi-lang-yaml="`ruleJson`" pulumi-lang-java="`ruleJson`">`rule_json`</span> set will result in a one time in-place update as the remote rule configuration is initially written to the <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. See the AWS [documentation](https://docs.aws.amazon.com/waf/latest/APIReference/API_CreateWebACL.html) for the JSON structure.
+func (o WafOverridesOutput) RuleJson() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v WafOverrides) *string { return v.RuleJson }).(pulumi.StringPtrOutput)
+}
+
+// Rule blocks used to identify the web requests that you want to <span pulumi-lang-nodejs="`allow`" pulumi-lang-dotnet="`Allow`" pulumi-lang-go="`allow`" pulumi-lang-python="`allow`" pulumi-lang-yaml="`allow`" pulumi-lang-java="`allow`">`allow`</span>, <span pulumi-lang-nodejs="`block`" pulumi-lang-dotnet="`Block`" pulumi-lang-go="`block`" pulumi-lang-python="`block`" pulumi-lang-yaml="`block`" pulumi-lang-java="`block`">`block`</span>, or <span pulumi-lang-nodejs="`count`" pulumi-lang-dotnet="`Count`" pulumi-lang-go="`count`" pulumi-lang-python="`count`" pulumi-lang-yaml="`count`" pulumi-lang-java="`count`">`count`</span>. See <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> below for details.
+func (o WafOverridesOutput) Rules() wafv2.WebAclRuleArrayOutput {
+	return o.ApplyT(func(v WafOverrides) []wafv2.WebAclRule { return v.Rules }).(wafv2.WebAclRuleArrayOutput)
+}
+
+// Specifies whether this is for an AWS CloudFront distribution or for a regional application. Valid values are `CLOUDFRONT` or `REGIONAL`. To work with CloudFront, you must also specify the region `us-east-1` (N. Virginia) on the AWS provider.
+func (o WafOverridesOutput) Scope() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v WafOverrides) *string { return v.Scope }).(pulumi.StringPtrOutput)
+}
+
+// Map of key-value pairs to associate with the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+func (o WafOverridesOutput) Tags() pulumi.StringMapOutput {
+	return o.ApplyT(func(v WafOverrides) map[string]string { return v.Tags }).(pulumi.StringMapOutput)
+}
+
+// Specifies the domains that AWS WAF should accept in a web request token. This enables the use of tokens across multiple protected websites. When AWS WAF provides a token, it uses the domain of the AWS resource that the web ACL is protecting. If you don't specify a list of token domains, AWS WAF accepts tokens only for the domain of the protected resource. With a token domain list, AWS WAF accepts the resource's host domain plus all domains in the token domain list, including their prefixed subdomains.
+func (o WafOverridesOutput) TokenDomains() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v WafOverrides) []string { return v.TokenDomains }).(pulumi.StringArrayOutput)
+}
+
+// Defines and enables Amazon CloudWatch metrics and web request sample collection. See <span pulumi-lang-nodejs="`visibilityConfig`" pulumi-lang-dotnet="`VisibilityConfig`" pulumi-lang-go="`visibilityConfig`" pulumi-lang-python="`visibility_config`" pulumi-lang-yaml="`visibilityConfig`" pulumi-lang-java="`visibilityConfig`">`visibility_config`</span> below for details.
+func (o WafOverridesOutput) VisibilityConfig() wafv2.WebAclVisibilityConfigPtrOutput {
+	return o.ApplyT(func(v WafOverrides) *wafv2.WebAclVisibilityConfig { return v.VisibilityConfig }).(wafv2.WebAclVisibilityConfigPtrOutput)
+}
+
+type WafOverridesPtrOutput struct{ *pulumi.OutputState }
+
+func (WafOverridesPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**WafOverrides)(nil)).Elem()
+}
+
+func (o WafOverridesPtrOutput) ToWafOverridesPtrOutput() WafOverridesPtrOutput {
+	return o
+}
+
+func (o WafOverridesPtrOutput) ToWafOverridesPtrOutputWithContext(ctx context.Context) WafOverridesPtrOutput {
+	return o
+}
+
+func (o WafOverridesPtrOutput) Elem() WafOverridesOutput {
+	return o.ApplyT(func(v *WafOverrides) WafOverrides {
+		if v != nil {
+			return *v
+		}
+		var ret WafOverrides
+		return ret
+	}).(WafOverridesOutput)
+}
+
+// Specifies custom configurations for the associations between the web ACL and protected resources. See <span pulumi-lang-nodejs="`associationConfig`" pulumi-lang-dotnet="`AssociationConfig`" pulumi-lang-go="`associationConfig`" pulumi-lang-python="`association_config`" pulumi-lang-yaml="`associationConfig`" pulumi-lang-java="`associationConfig`">`association_config`</span> below for details.
+func (o WafOverridesPtrOutput) AssociationConfig() wafv2.WebAclAssociationConfigPtrOutput {
+	return o.ApplyT(func(v *WafOverrides) *wafv2.WebAclAssociationConfig {
+		if v == nil {
+			return nil
+		}
+		return v.AssociationConfig
+	}).(wafv2.WebAclAssociationConfigPtrOutput)
+}
+
+// Specifies how AWS WAF should handle CAPTCHA evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`captchaConfig`" pulumi-lang-dotnet="`CaptchaConfig`" pulumi-lang-go="`captchaConfig`" pulumi-lang-python="`captcha_config`" pulumi-lang-yaml="`captchaConfig`" pulumi-lang-java="`captchaConfig`">`captcha_config`</span> below for details.
+func (o WafOverridesPtrOutput) CaptchaConfig() wafv2.WebAclCaptchaConfigPtrOutput {
+	return o.ApplyT(func(v *WafOverrides) *wafv2.WebAclCaptchaConfig {
+		if v == nil {
+			return nil
+		}
+		return v.CaptchaConfig
+	}).(wafv2.WebAclCaptchaConfigPtrOutput)
+}
+
+// Specifies how AWS WAF should handle Challenge evaluations on the ACL level (used by [AWS Bot Control](https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html)). See <span pulumi-lang-nodejs="`challengeConfig`" pulumi-lang-dotnet="`ChallengeConfig`" pulumi-lang-go="`challengeConfig`" pulumi-lang-python="`challenge_config`" pulumi-lang-yaml="`challengeConfig`" pulumi-lang-java="`challengeConfig`">`challenge_config`</span> below for details.
+func (o WafOverridesPtrOutput) ChallengeConfig() wafv2.WebAclChallengeConfigPtrOutput {
+	return o.ApplyT(func(v *WafOverrides) *wafv2.WebAclChallengeConfig {
+		if v == nil {
+			return nil
+		}
+		return v.ChallengeConfig
+	}).(wafv2.WebAclChallengeConfigPtrOutput)
+}
+
+// Defines custom response bodies that can be referenced by <span pulumi-lang-nodejs="`customResponse`" pulumi-lang-dotnet="`CustomResponse`" pulumi-lang-go="`customResponse`" pulumi-lang-python="`custom_response`" pulumi-lang-yaml="`customResponse`" pulumi-lang-java="`customResponse`">`custom_response`</span> actions. See <span pulumi-lang-nodejs="`customResponseBody`" pulumi-lang-dotnet="`CustomResponseBody`" pulumi-lang-go="`customResponseBody`" pulumi-lang-python="`custom_response_body`" pulumi-lang-yaml="`customResponseBody`" pulumi-lang-java="`customResponseBody`">`custom_response_body`</span> below for details.
+func (o WafOverridesPtrOutput) CustomResponseBodies() wafv2.WebAclCustomResponseBodyArrayOutput {
+	return o.ApplyT(func(v *WafOverrides) []wafv2.WebAclCustomResponseBody {
+		if v == nil {
+			return nil
+		}
+		return v.CustomResponseBodies
+	}).(wafv2.WebAclCustomResponseBodyArrayOutput)
+}
+
+// Specifies data protection to apply to the web request data for the web ACL. This is a web ACL level data protection option. See <span pulumi-lang-nodejs="`dataProtectionConfig`" pulumi-lang-dotnet="`DataProtectionConfig`" pulumi-lang-go="`dataProtectionConfig`" pulumi-lang-python="`data_protection_config`" pulumi-lang-yaml="`dataProtectionConfig`" pulumi-lang-java="`dataProtectionConfig`">`data_protection_config`</span> below for details.
+func (o WafOverridesPtrOutput) DataProtectionConfig() wafv2.WebAclDataProtectionConfigPtrOutput {
+	return o.ApplyT(func(v *WafOverrides) *wafv2.WebAclDataProtectionConfig {
+		if v == nil {
+			return nil
+		}
+		return v.DataProtectionConfig
+	}).(wafv2.WebAclDataProtectionConfigPtrOutput)
+}
+
+// Action to perform if none of the <span pulumi-lang-nodejs="`rules`" pulumi-lang-dotnet="`Rules`" pulumi-lang-go="`rules`" pulumi-lang-python="`rules`" pulumi-lang-yaml="`rules`" pulumi-lang-java="`rules`">`rules`</span> contained in the WebACL match. See <span pulumi-lang-nodejs="`defaultAction`" pulumi-lang-dotnet="`DefaultAction`" pulumi-lang-go="`defaultAction`" pulumi-lang-python="`default_action`" pulumi-lang-yaml="`defaultAction`" pulumi-lang-java="`defaultAction`">`default_action`</span> below for details.
+func (o WafOverridesPtrOutput) DefaultAction() wafv2.WebAclDefaultActionPtrOutput {
+	return o.ApplyT(func(v *WafOverrides) *wafv2.WebAclDefaultAction {
+		if v == nil {
+			return nil
+		}
+		return v.DefaultAction
+	}).(wafv2.WebAclDefaultActionPtrOutput)
+}
+
+// Friendly description of the WebACL.
+func (o WafOverridesPtrOutput) Description() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *WafOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Description
+	}).(pulumi.StringPtrOutput)
+}
+
+// Friendly name of the WebACL. If omitted, the provider will assign a random, unique name. Conflicts with <span pulumi-lang-nodejs="`namePrefix`" pulumi-lang-dotnet="`NamePrefix`" pulumi-lang-go="`namePrefix`" pulumi-lang-python="`name_prefix`" pulumi-lang-yaml="`namePrefix`" pulumi-lang-java="`namePrefix`">`name_prefix`</span>.
+func (o WafOverridesPtrOutput) Name() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *WafOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Name
+	}).(pulumi.StringPtrOutput)
+}
+
+// Creates a unique name beginning with the specified prefix. Conflicts with <span pulumi-lang-nodejs="`name`" pulumi-lang-dotnet="`Name`" pulumi-lang-go="`name`" pulumi-lang-python="`name`" pulumi-lang-yaml="`name`" pulumi-lang-java="`name`">`name`</span>.
+func (o WafOverridesPtrOutput) NamePrefix() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *WafOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.NamePrefix
+	}).(pulumi.StringPtrOutput)
+}
+
+// Region where this resource will be [managed](https://docs.aws.amazon.com/general/latest/gr/rande.html#regional-endpoints). Defaults to the Region set in the provider configuration.
+func (o WafOverridesPtrOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *WafOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Region
+	}).(pulumi.StringPtrOutput)
+}
+
+// Raw JSON string to allow more than three nested statements. Conflicts with <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. This is for advanced use cases where more than 3 levels of nested statements are required. **There is no drift detection at this time**. If you use this attribute instead of <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span>, you will be foregoing drift detection. Additionally, importing an existing web ACL into a configuration with <span pulumi-lang-nodejs="`ruleJson`" pulumi-lang-dotnet="`RuleJson`" pulumi-lang-go="`ruleJson`" pulumi-lang-python="`rule_json`" pulumi-lang-yaml="`ruleJson`" pulumi-lang-java="`ruleJson`">`rule_json`</span> set will result in a one time in-place update as the remote rule configuration is initially written to the <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> attribute. See the AWS [documentation](https://docs.aws.amazon.com/waf/latest/APIReference/API_CreateWebACL.html) for the JSON structure.
+func (o WafOverridesPtrOutput) RuleJson() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *WafOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.RuleJson
+	}).(pulumi.StringPtrOutput)
+}
+
+// Rule blocks used to identify the web requests that you want to <span pulumi-lang-nodejs="`allow`" pulumi-lang-dotnet="`Allow`" pulumi-lang-go="`allow`" pulumi-lang-python="`allow`" pulumi-lang-yaml="`allow`" pulumi-lang-java="`allow`">`allow`</span>, <span pulumi-lang-nodejs="`block`" pulumi-lang-dotnet="`Block`" pulumi-lang-go="`block`" pulumi-lang-python="`block`" pulumi-lang-yaml="`block`" pulumi-lang-java="`block`">`block`</span>, or <span pulumi-lang-nodejs="`count`" pulumi-lang-dotnet="`Count`" pulumi-lang-go="`count`" pulumi-lang-python="`count`" pulumi-lang-yaml="`count`" pulumi-lang-java="`count`">`count`</span>. See <span pulumi-lang-nodejs="`rule`" pulumi-lang-dotnet="`Rule`" pulumi-lang-go="`rule`" pulumi-lang-python="`rule`" pulumi-lang-yaml="`rule`" pulumi-lang-java="`rule`">`rule`</span> below for details.
+func (o WafOverridesPtrOutput) Rules() wafv2.WebAclRuleArrayOutput {
+	return o.ApplyT(func(v *WafOverrides) []wafv2.WebAclRule {
+		if v == nil {
+			return nil
+		}
+		return v.Rules
+	}).(wafv2.WebAclRuleArrayOutput)
+}
+
+// Specifies whether this is for an AWS CloudFront distribution or for a regional application. Valid values are `CLOUDFRONT` or `REGIONAL`. To work with CloudFront, you must also specify the region `us-east-1` (N. Virginia) on the AWS provider.
+func (o WafOverridesPtrOutput) Scope() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *WafOverrides) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Scope
+	}).(pulumi.StringPtrOutput)
+}
+
+// Map of key-value pairs to associate with the resource. If configured with a provider <span pulumi-lang-nodejs="`defaultTags`" pulumi-lang-dotnet="`DefaultTags`" pulumi-lang-go="`defaultTags`" pulumi-lang-python="`default_tags`" pulumi-lang-yaml="`defaultTags`" pulumi-lang-java="`defaultTags`">`default_tags`</span> configuration block present, tags with matching keys will overwrite those defined at the provider-level.
+func (o WafOverridesPtrOutput) Tags() pulumi.StringMapOutput {
+	return o.ApplyT(func(v *WafOverrides) map[string]string {
+		if v == nil {
+			return nil
+		}
+		return v.Tags
+	}).(pulumi.StringMapOutput)
+}
+
+// Specifies the domains that AWS WAF should accept in a web request token. This enables the use of tokens across multiple protected websites. When AWS WAF provides a token, it uses the domain of the AWS resource that the web ACL is protecting. If you don't specify a list of token domains, AWS WAF accepts tokens only for the domain of the protected resource. With a token domain list, AWS WAF accepts the resource's host domain plus all domains in the token domain list, including their prefixed subdomains.
+func (o WafOverridesPtrOutput) TokenDomains() pulumi.StringArrayOutput {
+	return o.ApplyT(func(v *WafOverrides) []string {
+		if v == nil {
+			return nil
+		}
+		return v.TokenDomains
+	}).(pulumi.StringArrayOutput)
+}
+
+// Defines and enables Amazon CloudWatch metrics and web request sample collection. See <span pulumi-lang-nodejs="`visibilityConfig`" pulumi-lang-dotnet="`VisibilityConfig`" pulumi-lang-go="`visibilityConfig`" pulumi-lang-python="`visibility_config`" pulumi-lang-yaml="`visibilityConfig`" pulumi-lang-java="`visibilityConfig`">`visibility_config`</span> below for details.
+func (o WafOverridesPtrOutput) VisibilityConfig() wafv2.WebAclVisibilityConfigPtrOutput {
+	return o.ApplyT(func(v *WafOverrides) *wafv2.WebAclVisibilityConfig {
+		if v == nil {
+			return nil
+		}
+		return v.VisibilityConfig
+	}).(wafv2.WebAclVisibilityConfigPtrOutput)
+}
+
+// Per-client rate limit.
+type WafRateLimitArgs struct {
+	// Turns the rate limit on or off. Default: true.
+	Enabled *bool `pulumi:"enabled"`
+	// Maximum requests per client in each window (10 to 2,000,000,000). Default: 2000.
+	Limit *int `pulumi:"limit"`
+	// Evaluation window in seconds: 60, 120, 300 or 600. Default: 300.
+	WindowSeconds *int `pulumi:"windowSeconds"`
+}
+
+// WafRateLimitArgsInput is an input type that accepts WafRateLimitArgsArgs and WafRateLimitArgsOutput values.
+// You can construct a concrete instance of `WafRateLimitArgsInput` via:
+//
+//	WafRateLimitArgsArgs{...}
+type WafRateLimitArgsInput interface {
+	pulumi.Input
+
+	ToWafRateLimitArgsOutput() WafRateLimitArgsOutput
+	ToWafRateLimitArgsOutputWithContext(context.Context) WafRateLimitArgsOutput
+}
+
+// Per-client rate limit.
+type WafRateLimitArgsArgs struct {
+	// Turns the rate limit on or off. Default: true.
+	Enabled pulumi.BoolPtrInput `pulumi:"enabled"`
+	// Maximum requests per client in each window (10 to 2,000,000,000). Default: 2000.
+	Limit pulumi.IntPtrInput `pulumi:"limit"`
+	// Evaluation window in seconds: 60, 120, 300 or 600. Default: 300.
+	WindowSeconds pulumi.IntPtrInput `pulumi:"windowSeconds"`
+}
+
+func (WafRateLimitArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafRateLimitArgs)(nil)).Elem()
+}
+
+func (i WafRateLimitArgsArgs) ToWafRateLimitArgsOutput() WafRateLimitArgsOutput {
+	return i.ToWafRateLimitArgsOutputWithContext(context.Background())
+}
+
+func (i WafRateLimitArgsArgs) ToWafRateLimitArgsOutputWithContext(ctx context.Context) WafRateLimitArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafRateLimitArgsOutput)
+}
+
+func (i WafRateLimitArgsArgs) ToWafRateLimitArgsPtrOutput() WafRateLimitArgsPtrOutput {
+	return i.ToWafRateLimitArgsPtrOutputWithContext(context.Background())
+}
+
+func (i WafRateLimitArgsArgs) ToWafRateLimitArgsPtrOutputWithContext(ctx context.Context) WafRateLimitArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafRateLimitArgsOutput).ToWafRateLimitArgsPtrOutputWithContext(ctx)
+}
+
+// WafRateLimitArgsPtrInput is an input type that accepts WafRateLimitArgsArgs, WafRateLimitArgsPtr and WafRateLimitArgsPtrOutput values.
+// You can construct a concrete instance of `WafRateLimitArgsPtrInput` via:
+//
+//	        WafRateLimitArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type WafRateLimitArgsPtrInput interface {
+	pulumi.Input
+
+	ToWafRateLimitArgsPtrOutput() WafRateLimitArgsPtrOutput
+	ToWafRateLimitArgsPtrOutputWithContext(context.Context) WafRateLimitArgsPtrOutput
+}
+
+type wafRateLimitArgsPtrType WafRateLimitArgsArgs
+
+func WafRateLimitArgsPtr(v *WafRateLimitArgsArgs) WafRateLimitArgsPtrInput {
+	return (*wafRateLimitArgsPtrType)(v)
+}
+
+func (*wafRateLimitArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**WafRateLimitArgs)(nil)).Elem()
+}
+
+func (i *wafRateLimitArgsPtrType) ToWafRateLimitArgsPtrOutput() WafRateLimitArgsPtrOutput {
+	return i.ToWafRateLimitArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *wafRateLimitArgsPtrType) ToWafRateLimitArgsPtrOutputWithContext(ctx context.Context) WafRateLimitArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafRateLimitArgsPtrOutput)
+}
+
+// Per-client rate limit.
+type WafRateLimitArgsOutput struct{ *pulumi.OutputState }
+
+func (WafRateLimitArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafRateLimitArgs)(nil)).Elem()
+}
+
+func (o WafRateLimitArgsOutput) ToWafRateLimitArgsOutput() WafRateLimitArgsOutput {
+	return o
+}
+
+func (o WafRateLimitArgsOutput) ToWafRateLimitArgsOutputWithContext(ctx context.Context) WafRateLimitArgsOutput {
+	return o
+}
+
+func (o WafRateLimitArgsOutput) ToWafRateLimitArgsPtrOutput() WafRateLimitArgsPtrOutput {
+	return o.ToWafRateLimitArgsPtrOutputWithContext(context.Background())
+}
+
+func (o WafRateLimitArgsOutput) ToWafRateLimitArgsPtrOutputWithContext(ctx context.Context) WafRateLimitArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v WafRateLimitArgs) *WafRateLimitArgs {
+		return &v
+	}).(WafRateLimitArgsPtrOutput)
+}
+
+// Turns the rate limit on or off. Default: true.
+func (o WafRateLimitArgsOutput) Enabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v WafRateLimitArgs) *bool { return v.Enabled }).(pulumi.BoolPtrOutput)
+}
+
+// Maximum requests per client in each window (10 to 2,000,000,000). Default: 2000.
+func (o WafRateLimitArgsOutput) Limit() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v WafRateLimitArgs) *int { return v.Limit }).(pulumi.IntPtrOutput)
+}
+
+// Evaluation window in seconds: 60, 120, 300 or 600. Default: 300.
+func (o WafRateLimitArgsOutput) WindowSeconds() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v WafRateLimitArgs) *int { return v.WindowSeconds }).(pulumi.IntPtrOutput)
+}
+
+type WafRateLimitArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (WafRateLimitArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**WafRateLimitArgs)(nil)).Elem()
+}
+
+func (o WafRateLimitArgsPtrOutput) ToWafRateLimitArgsPtrOutput() WafRateLimitArgsPtrOutput {
+	return o
+}
+
+func (o WafRateLimitArgsPtrOutput) ToWafRateLimitArgsPtrOutputWithContext(ctx context.Context) WafRateLimitArgsPtrOutput {
+	return o
+}
+
+func (o WafRateLimitArgsPtrOutput) Elem() WafRateLimitArgsOutput {
+	return o.ApplyT(func(v *WafRateLimitArgs) WafRateLimitArgs {
+		if v != nil {
+			return *v
+		}
+		var ret WafRateLimitArgs
+		return ret
+	}).(WafRateLimitArgsOutput)
+}
+
+// Turns the rate limit on or off. Default: true.
+func (o WafRateLimitArgsPtrOutput) Enabled() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *WafRateLimitArgs) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.Enabled
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Maximum requests per client in each window (10 to 2,000,000,000). Default: 2000.
+func (o WafRateLimitArgsPtrOutput) Limit() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *WafRateLimitArgs) *int {
+		if v == nil {
+			return nil
+		}
+		return v.Limit
+	}).(pulumi.IntPtrOutput)
+}
+
+// Evaluation window in seconds: 60, 120, 300 or 600. Default: 300.
+func (o WafRateLimitArgsPtrOutput) WindowSeconds() pulumi.IntPtrOutput {
+	return o.ApplyT(func(v *WafRateLimitArgs) *int {
+		if v == nil {
+			return nil
+		}
+		return v.WindowSeconds
+	}).(pulumi.IntPtrOutput)
+}
+
+type WafTransformArgs struct {
+	Waf *WafOverrides `pulumi:"waf"`
+}
+
+// WafTransformArgsInput is an input type that accepts WafTransformArgsArgs and WafTransformArgsOutput values.
+// You can construct a concrete instance of `WafTransformArgsInput` via:
+//
+//	WafTransformArgsArgs{...}
+type WafTransformArgsInput interface {
+	pulumi.Input
+
+	ToWafTransformArgsOutput() WafTransformArgsOutput
+	ToWafTransformArgsOutputWithContext(context.Context) WafTransformArgsOutput
+}
+
+type WafTransformArgsArgs struct {
+	Waf WafOverridesPtrInput `pulumi:"waf"`
+}
+
+func (WafTransformArgsArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafTransformArgs)(nil)).Elem()
+}
+
+func (i WafTransformArgsArgs) ToWafTransformArgsOutput() WafTransformArgsOutput {
+	return i.ToWafTransformArgsOutputWithContext(context.Background())
+}
+
+func (i WafTransformArgsArgs) ToWafTransformArgsOutputWithContext(ctx context.Context) WafTransformArgsOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafTransformArgsOutput)
+}
+
+func (i WafTransformArgsArgs) ToWafTransformArgsPtrOutput() WafTransformArgsPtrOutput {
+	return i.ToWafTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (i WafTransformArgsArgs) ToWafTransformArgsPtrOutputWithContext(ctx context.Context) WafTransformArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafTransformArgsOutput).ToWafTransformArgsPtrOutputWithContext(ctx)
+}
+
+// WafTransformArgsPtrInput is an input type that accepts WafTransformArgsArgs, WafTransformArgsPtr and WafTransformArgsPtrOutput values.
+// You can construct a concrete instance of `WafTransformArgsPtrInput` via:
+//
+//	        WafTransformArgsArgs{...}
+//
+//	or:
+//
+//	        nil
+type WafTransformArgsPtrInput interface {
+	pulumi.Input
+
+	ToWafTransformArgsPtrOutput() WafTransformArgsPtrOutput
+	ToWafTransformArgsPtrOutputWithContext(context.Context) WafTransformArgsPtrOutput
+}
+
+type wafTransformArgsPtrType WafTransformArgsArgs
+
+func WafTransformArgsPtr(v *WafTransformArgsArgs) WafTransformArgsPtrInput {
+	return (*wafTransformArgsPtrType)(v)
+}
+
+func (*wafTransformArgsPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**WafTransformArgs)(nil)).Elem()
+}
+
+func (i *wafTransformArgsPtrType) ToWafTransformArgsPtrOutput() WafTransformArgsPtrOutput {
+	return i.ToWafTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (i *wafTransformArgsPtrType) ToWafTransformArgsPtrOutputWithContext(ctx context.Context) WafTransformArgsPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(WafTransformArgsPtrOutput)
+}
+
+type WafTransformArgsOutput struct{ *pulumi.OutputState }
+
+func (WafTransformArgsOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*WafTransformArgs)(nil)).Elem()
+}
+
+func (o WafTransformArgsOutput) ToWafTransformArgsOutput() WafTransformArgsOutput {
+	return o
+}
+
+func (o WafTransformArgsOutput) ToWafTransformArgsOutputWithContext(ctx context.Context) WafTransformArgsOutput {
+	return o
+}
+
+func (o WafTransformArgsOutput) ToWafTransformArgsPtrOutput() WafTransformArgsPtrOutput {
+	return o.ToWafTransformArgsPtrOutputWithContext(context.Background())
+}
+
+func (o WafTransformArgsOutput) ToWafTransformArgsPtrOutputWithContext(ctx context.Context) WafTransformArgsPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v WafTransformArgs) *WafTransformArgs {
+		return &v
+	}).(WafTransformArgsPtrOutput)
+}
+
+func (o WafTransformArgsOutput) Waf() WafOverridesPtrOutput {
+	return o.ApplyT(func(v WafTransformArgs) *WafOverrides { return v.Waf }).(WafOverridesPtrOutput)
+}
+
+type WafTransformArgsPtrOutput struct{ *pulumi.OutputState }
+
+func (WafTransformArgsPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**WafTransformArgs)(nil)).Elem()
+}
+
+func (o WafTransformArgsPtrOutput) ToWafTransformArgsPtrOutput() WafTransformArgsPtrOutput {
+	return o
+}
+
+func (o WafTransformArgsPtrOutput) ToWafTransformArgsPtrOutputWithContext(ctx context.Context) WafTransformArgsPtrOutput {
+	return o
+}
+
+func (o WafTransformArgsPtrOutput) Elem() WafTransformArgsOutput {
+	return o.ApplyT(func(v *WafTransformArgs) WafTransformArgs {
+		if v != nil {
+			return *v
+		}
+		var ret WafTransformArgs
+		return ret
+	}).(WafTransformArgsOutput)
+}
+
+func (o WafTransformArgsPtrOutput) Waf() WafOverridesPtrOutput {
+	return o.ApplyT(func(v *WafTransformArgs) *WafOverrides {
+		if v == nil {
+			return nil
+		}
+		return v.Waf
+	}).(WafOverridesPtrOutput)
+}
+
 func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketAccelerateConfigurationTransformInput)(nil)).Elem(), BucketAccelerateConfigurationTransformArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*BucketAccelerateConfigurationTransformPtrInput)(nil)).Elem(), BucketAccelerateConfigurationTransformArgs{})
@@ -15547,6 +17209,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTokenValidityPtrInput)(nil)).Elem(), CognitoUserPoolTokenValidityArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTransformArgsInput)(nil)).Elem(), CognitoUserPoolTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolTransformArgsPtrInput)(nil)).Elem(), CognitoUserPoolTransformArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolWafInput)(nil)).Elem(), CognitoUserPoolWafArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*CognitoUserPoolWafPtrInput)(nil)).Elem(), CognitoUserPoolWafArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLBackupArgsInput)(nil)).Elem(), DSQLBackupArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLBackupArgsPtrInput)(nil)).Elem(), DSQLBackupArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*DSQLColumnInput)(nil)).Elem(), DSQLColumnArgs{})
@@ -15636,6 +17300,10 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*QueueOverridesPtrInput)(nil)).Elem(), QueueOverridesArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*QueueTransformArgsInput)(nil)).Elem(), QueueTransformArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*QueueTransformArgsPtrInput)(nil)).Elem(), QueueTransformArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteHstsInput)(nil)).Elem(), SiteHstsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteHstsPtrInput)(nil)).Elem(), SiteHstsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteSecurityHeadersInput)(nil)).Elem(), SiteSecurityHeadersArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*SiteSecurityHeadersPtrInput)(nil)).Elem(), SiteSecurityHeadersArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*SiteWafInput)(nil)).Elem(), SiteWafArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*SiteWafPtrInput)(nil)).Elem(), SiteWafArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcBastionArgsInput)(nil)).Elem(), VpcBastionArgsArgs{})
@@ -15650,6 +17318,16 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcNatArgsPtrInput)(nil)).Elem(), VpcNatArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcS3FlowLogArgsInput)(nil)).Elem(), VpcS3FlowLogArgsArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*VpcS3FlowLogArgsPtrInput)(nil)).Elem(), VpcS3FlowLogArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WafLoggingArgsInput)(nil)).Elem(), WafLoggingArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WafLoggingArgsPtrInput)(nil)).Elem(), WafLoggingArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WafManagedRulesArgsInput)(nil)).Elem(), WafManagedRulesArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WafManagedRulesArgsPtrInput)(nil)).Elem(), WafManagedRulesArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WafOverridesInput)(nil)).Elem(), WafOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WafOverridesPtrInput)(nil)).Elem(), WafOverridesArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WafRateLimitArgsInput)(nil)).Elem(), WafRateLimitArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WafRateLimitArgsPtrInput)(nil)).Elem(), WafRateLimitArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WafTransformArgsInput)(nil)).Elem(), WafTransformArgsArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*WafTransformArgsPtrInput)(nil)).Elem(), WafTransformArgsArgs{})
 	pulumi.RegisterOutputType(BucketAccelerateConfigurationTransformOutput{})
 	pulumi.RegisterOutputType(BucketAccelerateConfigurationTransformPtrOutput{})
 	pulumi.RegisterOutputType(BucketAclTransformOutput{})
@@ -15700,6 +17378,8 @@ func init() {
 	pulumi.RegisterOutputType(CognitoUserPoolTokenValidityPtrOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolTransformArgsOutput{})
 	pulumi.RegisterOutputType(CognitoUserPoolTransformArgsPtrOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolWafOutput{})
+	pulumi.RegisterOutputType(CognitoUserPoolWafPtrOutput{})
 	pulumi.RegisterOutputType(DSQLBackupArgsOutput{})
 	pulumi.RegisterOutputType(DSQLBackupArgsPtrOutput{})
 	pulumi.RegisterOutputType(DSQLColumnOutput{})
@@ -15790,6 +17470,10 @@ func init() {
 	pulumi.RegisterOutputType(QueueOverridesPtrOutput{})
 	pulumi.RegisterOutputType(QueueTransformArgsOutput{})
 	pulumi.RegisterOutputType(QueueTransformArgsPtrOutput{})
+	pulumi.RegisterOutputType(SiteHstsOutput{})
+	pulumi.RegisterOutputType(SiteHstsPtrOutput{})
+	pulumi.RegisterOutputType(SiteSecurityHeadersOutput{})
+	pulumi.RegisterOutputType(SiteSecurityHeadersPtrOutput{})
 	pulumi.RegisterOutputType(SiteWafOutput{})
 	pulumi.RegisterOutputType(SiteWafPtrOutput{})
 	pulumi.RegisterOutputType(VpcBastionArgsOutput{})
@@ -15804,4 +17488,14 @@ func init() {
 	pulumi.RegisterOutputType(VpcNatArgsPtrOutput{})
 	pulumi.RegisterOutputType(VpcS3FlowLogArgsOutput{})
 	pulumi.RegisterOutputType(VpcS3FlowLogArgsPtrOutput{})
+	pulumi.RegisterOutputType(WafLoggingArgsOutput{})
+	pulumi.RegisterOutputType(WafLoggingArgsPtrOutput{})
+	pulumi.RegisterOutputType(WafManagedRulesArgsOutput{})
+	pulumi.RegisterOutputType(WafManagedRulesArgsPtrOutput{})
+	pulumi.RegisterOutputType(WafOverridesOutput{})
+	pulumi.RegisterOutputType(WafOverridesPtrOutput{})
+	pulumi.RegisterOutputType(WafRateLimitArgsOutput{})
+	pulumi.RegisterOutputType(WafRateLimitArgsPtrOutput{})
+	pulumi.RegisterOutputType(WafTransformArgsOutput{})
+	pulumi.RegisterOutputType(WafTransformArgsPtrOutput{})
 }
