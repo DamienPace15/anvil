@@ -33,6 +33,7 @@ _utilities.register(
    "anvil:aws:Bucket": "Bucket",
    "anvil:aws:CognitoAuth": "CognitoAuth",
    "anvil:aws:CognitoUserPool": "CognitoUserPool",
+   "anvil:aws:ComplianceScanner": "ComplianceScanner",
    "anvil:aws:DSQL": "DSQL",
    "anvil:aws:DSQLConnect": "DSQLConnect",
    "anvil:aws:DynamoDB": "DynamoDB",

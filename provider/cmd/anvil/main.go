@@ -10,6 +10,7 @@ import (
 	awsbucket "github.com/DamienPace15/anvil/provider/aws/bucket"
 	awscognitoAuth "github.com/DamienPace15/anvil/provider/aws/cognitoAuth"
 	awscognitoUserPool "github.com/DamienPace15/anvil/provider/aws/cognitoUserPool"
+	awscomplianceScanner "github.com/DamienPace15/anvil/provider/aws/complianceScanner"
 	awsdsql "github.com/DamienPace15/anvil/provider/aws/dsql"
 	awsdsqlgrant "github.com/DamienPace15/anvil/provider/aws/dsqlgrant"
 	awsdynamo "github.com/DamienPace15/anvil/provider/aws/dynamo"
@@ -32,6 +33,7 @@ func main() {
 			infer.ComponentF(awsbucket.NewBucket),
 			infer.ComponentF(awscognitoAuth.NewCognitoAuth),
 			infer.ComponentF(awscognitoUserPool.NewCognitoUserPool),
+			infer.ComponentF(awscomplianceScanner.NewComplianceScanner),
 			infer.ComponentF(awsdsql.NewDSQL),
 			infer.ComponentF(awsdsqlgrant.NewDSQLConnect),
 			infer.ComponentF(awsdynamo.NewDynamoDB),
@@ -52,5 +54,5 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	p.Run(context.Background(), "anvil", "0.1.8")
+	p.Run(context.Background(), "anvil", "0.1.10")
 }

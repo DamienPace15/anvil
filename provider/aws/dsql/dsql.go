@@ -1410,10 +1410,15 @@ type schemaManifestEntry struct {
 type schemaManifest struct {
 	Functions []json.RawMessage     `json:"functions,omitempty"`
 	Schemas   []schemaManifestEntry `json:"schemas,omitempty"`
+	// Compliance is preserved verbatim so a DSQL write doesn't drop it.
+	Compliance json.RawMessage `json:"compliance,omitempty"`
 }
 
 func appendSchemasToManifest(name string, schemas []DSQLSchemaArgs) error {
 	const manifestPath = ".anvil/build-manifest.json"
+
+	provider.ManifestMu.Lock()
+	defer provider.ManifestMu.Unlock()
 
 	if err := os.MkdirAll(".anvil", 0755); err != nil {
 		return err

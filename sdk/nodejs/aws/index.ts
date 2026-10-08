@@ -20,6 +20,11 @@ export type CognitoUserPool = import("./cognitoUserPool").CognitoUserPool;
 export const CognitoUserPool: typeof import("./cognitoUserPool").CognitoUserPool = null as any;
 utilities.lazyLoad(exports, ["CognitoUserPool"], () => require("./cognitoUserPool"));
 
+export { ComplianceScannerArgs } from "./complianceScanner";
+export type ComplianceScanner = import("./complianceScanner").ComplianceScanner;
+export const ComplianceScanner: typeof import("./complianceScanner").ComplianceScanner = null as any;
+utilities.lazyLoad(exports, ["ComplianceScanner"], () => require("./complianceScanner"));
+
 export { DSQLArgs } from "./dsql";
 export type DSQL = import("./dsql").DSQL;
 export const DSQL: typeof import("./dsql").DSQL = null as any;
@@ -94,6 +99,8 @@ const _module = {
                 return new CognitoAuth(name, <any>undefined, { urn })
             case "anvil:aws:CognitoUserPool":
                 return new CognitoUserPool(name, <any>undefined, { urn })
+            case "anvil:aws:ComplianceScanner":
+                return new ComplianceScanner(name, <any>undefined, { urn })
             case "anvil:aws:DSQL":
                 return new DSQL(name, <any>undefined, { urn })
             case "anvil:aws:DSQLConnect":

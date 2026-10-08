@@ -6,7 +6,6 @@ import (
 
 	provider "github.com/DamienPace15/anvil/provider/internal/shared"
 	"github.com/DamienPace15/anvil/provider/internal/transform"
-	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cloudwatch"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/wafv2"
 	p "github.com/pulumi/pulumi-go-provider"
@@ -168,15 +167,14 @@ func NewWaf(ctx *pulumi.Context, name string, args WafArgs, opts ...pulumi.Resou
 	}
 
 	// CloudFront-scoped WAF resources (and their log group) must live in us-east-1.
+	// The region is set per resource rather than through a separate provider, so
+	// they keep the app provider's default tags and credentials.
 	resOpts := []pulumi.ResourceOption{pulumi.Parent(w)}
-	if cfg.scope == ScopeCloudFront {
-		usEast1, err := aws.NewProvider(ctx, name+"-us-east-1", &aws.ProviderArgs{
-			Region: pulumi.String("us-east-1"),
-		}, pulumi.Parent(w))
-		if err != nil {
-			return nil, fmt.Errorf("waf %q: failed to create us-east-1 provider: %w", name, err)
+	inRegion := func(props pulumi.Map) pulumi.Map {
+		if cfg.scope == ScopeCloudFront {
+			props["region"] = pulumi.String("us-east-1")
 		}
-		resOpts = append(resOpts, pulumi.Provider(usEast1))
+		return props
 	}
 
 	tags := pulumi.StringMap{"ManagedBy": pulumi.String("anvil")}
@@ -187,13 +185,13 @@ func NewWaf(ctx *pulumi.Context, name string, args WafArgs, opts ...pulumi.Resou
 			return nil, nil
 		}
 		set := &wafv2.IpSet{}
-		err := ctx.RegisterResource("aws:wafv2/ipSet:IpSet", name+"-"+suffix, pulumi.Map{
+		err := ctx.RegisterResource("aws:wafv2/ipSet:IpSet", name+"-"+suffix, inRegion(pulumi.Map{
 			"name":             pulumi.String(physicalName + "-" + suffix),
 			"scope":            pulumi.String(wafScope),
 			"ipAddressVersion": pulumi.String(version),
 			"addresses":        pulumi.ToStringArray(addresses),
 			"tags":             tags,
-		}, set, resOpts...)
+		}), set, resOpts...)
 		if err != nil {
 			return nil, fmt.Errorf("waf %q: failed to create IP set %s: %w", name, suffix, err)
 		}
@@ -318,7 +316,7 @@ func NewWaf(ctx *pulumi.Context, name string, args WafArgs, opts ...pulumi.Resou
 	}
 
 	// ── WebACL ──
-	aclProps := transform.MergeTransform(args.Transform["waf"], pulumi.Map{
+	aclProps := transform.MergeTransform(args.Transform["waf"], inRegion(pulumi.Map{
 		"name":             pulumi.String(physicalName),
 		"scope":            pulumi.String(wafScope),
 		"description":      pulumi.String(description(fmt.Sprintf("Anvil WAF %s, stage %s", name, stage))),
@@ -326,7 +324,7 @@ func NewWaf(ctx *pulumi.Context, name string, args WafArgs, opts ...pulumi.Resou
 		"rules":            rules,
 		"visibilityConfig": visibility(physicalName),
 		"tags":             tags,
-	})
+	}))
 	acl := &wafv2.WebAcl{}
 	if err := ctx.RegisterResource("aws:wafv2/webAcl:WebAcl", name, aclProps, acl, resOpts...); err != nil {
 		return nil, fmt.Errorf("waf %q: failed to create WebACL: %w", name, err)
@@ -337,11 +335,11 @@ func NewWaf(ctx *pulumi.Context, name string, args WafArgs, opts ...pulumi.Resou
 	if cfg.logging {
 		logGroup := &cloudwatch.LogGroup{}
 		// WAF only delivers to log groups whose name starts with aws-waf-logs-.
-		err := ctx.RegisterResource("aws:cloudwatch/logGroup:LogGroup", name+"-logs", pulumi.Map{
+		err := ctx.RegisterResource("aws:cloudwatch/logGroup:LogGroup", name+"-logs", inRegion(pulumi.Map{
 			"name":            pulumi.String("aws-waf-logs-" + physicalName),
 			"retentionInDays": pulumi.Int(cfg.retentionDays),
 			"tags":            tags,
-		}, logGroup, resOpts...)
+		}), logGroup, resOpts...)
 		if err != nil {
 			return nil, fmt.Errorf("waf %q: failed to create log group: %w", name, err)
 		}
@@ -371,7 +369,7 @@ func NewWaf(ctx *pulumi.Context, name string, args WafArgs, opts ...pulumi.Resou
 			}
 		}
 		err = ctx.RegisterResource("aws:wafv2/webAclLoggingConfiguration:WebAclLoggingConfiguration", name+"-logging",
-			logProps, &wafv2.WebAclLoggingConfiguration{}, resOpts...)
+			inRegion(logProps), &wafv2.WebAclLoggingConfiguration{}, resOpts...)
 		if err != nil {
 			return nil, fmt.Errorf("waf %q: failed to configure logging: %w", name, err)
 		}

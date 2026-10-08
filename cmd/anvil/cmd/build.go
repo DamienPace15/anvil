@@ -34,9 +34,23 @@ type SchemaSpec struct {
 	Schemas   json.RawMessage `json:"schemas"`
 }
 
+// ComplianceSpec is the App's `compliance` config, written by the
+// ComplianceScanner component during discovery.
+type ComplianceSpec struct {
+	Frameworks         []string `json:"frameworks"` // Prowler IDs
+	Schedule           string   `json:"schedule"`
+	ScheduleExpression string   `json:"scheduleExpression"`
+	Timezone           string   `json:"timezone"`
+	Retention          string   `json:"retention"`
+	ScanOnDeploy       bool     `json:"scanOnDeploy"`
+	Regions            []string `json:"regions"`
+	Region             string   `json:"region"` // where the schedule and shared scanner live
+}
+
 type buildManifest struct {
-	Functions []FunctionSpec `json:"functions"`
-	Schemas   []SchemaSpec   `json:"schemas,omitempty"`
+	Functions  []FunctionSpec  `json:"functions"`
+	Schemas    []SchemaSpec    `json:"schemas,omitempty"`
+	Compliance *ComplianceSpec `json:"compliance,omitempty"`
 }
 
 // discoverFunctions runs the user's Pulumi program with ANVIL_BUILD_MODE=true,

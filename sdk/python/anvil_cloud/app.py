@@ -18,6 +18,8 @@ import pulumi
 from .types import (
     AppConfig,
     AwsProviderConfig,
+    ComplianceConfig,
+    ComplianceCron,
     DefaultsConfig,
     GcpProviderConfig,
 )
@@ -243,6 +245,32 @@ def _run_program(app_config: AppConfig) -> None:
     finally:
         set_active_stack(None)
 
+    # ── Compliance ─────────────────────────────────────
+    # Created outside the active stack so it isn't a ctx.ref target. The
+    # default-provider transformation gives it the app's AWS provider.
+    if app_config.compliance:
+        _create_compliance_scanner(app_config.compliance, aws_providers)
+
+
+def _create_compliance_scanner(
+    compliance: ComplianceConfig, aws_providers: Dict[str, AwsProviderConfig]
+) -> None:
+    from .aws.compliance_scanner import ComplianceScanner
+
+    schedule = compliance.schedule or "daily"
+    is_cron = isinstance(schedule, ComplianceCron)
+    regions = sorted({cfg.region for cfg in aws_providers.values() if cfg.region})
+    ComplianceScanner(
+        "anvil-compliance",
+        frameworks=compliance.frameworks,
+        schedule="cron" if is_cron else schedule,
+        cron=schedule.cron if is_cron else None,
+        timezone=schedule.timezone if is_cron else None,
+        retention=compliance.retention,
+        scan_on_deploy=compliance.scan_on_deploy,
+        regions=regions,
+    )
+
 
 #: Public entry point. Aliased so App can call it without the parameter shadow.
 run = _run_program
@@ -264,10 +292,12 @@ class App:
         before_deploy=None,
         after_deploy=None,
         on_error=None,
+        compliance: Optional[ComplianceConfig] = None,
     ) -> None:
         _run_program(
             AppConfig(
                 run=run,
+                compliance=compliance,
                 defaults=defaults,
                 aws_providers=aws_providers,
                 gcp_providers=gcp_providers,

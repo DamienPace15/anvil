@@ -608,10 +608,15 @@ type manifest struct {
 	// schema entries already in the manifest (both components write to the
 	// same file during a build-mode preview, in declaration order).
 	Schemas []json.RawMessage `json:"schemas,omitempty"`
+	// Compliance is preserved verbatim for the same reason (ComplianceScanner).
+	Compliance json.RawMessage `json:"compliance,omitempty"`
 }
 
 func appendToManifest(name string, args LambdaArgs) error {
 	const manifestPath = ".anvil/build-manifest.json"
+
+	provider.ManifestMu.Lock()
+	defer provider.ManifestMu.Unlock()
 
 	if err := os.MkdirAll(".anvil", 0755); err != nil {
 		return err

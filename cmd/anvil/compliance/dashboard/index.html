@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anvil Compliance</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20512%20512%22%20width%3D%22512%22%20height%3D%22512%22%3E%3Crect%20width%3D%22512%22%20height%3D%22512%22%20fill%3D%22%2317181A%22/%3E%3Cg%20transform%3D%22translate%28163.54%20414.72%29%20scale%280.19840%29%22%3E%3Cpath%20d%3D%22M23.618489583333336%200.0%20237.86458333333331%20-1600.0H698.0673828125L728.9658203125%20-1357.7109375H441.513671875L416.412109375%20-912.775390625L375.5751953125%20-595.9322916666666H503.13216145833337L438.9475911458333%20-353.6432291666667H358.8675130208333L305.64290364583337%200.0ZM626.4182942708333%200.0%20521.1321614583334%20-914.775390625%20507.1259765625%20-1263.5263671875H734.578125L908.4427083333333%200.0Z%22%20fill%3D%22%23E8E6E3%22/%3E%3C/g%3E%3C/svg%3E">
+<style>
+:root {
+  --charcoal: #17181A; --steel: #E8E6E3; --forge: #FF6A1A; --light: #ECEBE8;
+
+  --bg: #17181A; --panel: #1F2023; --panel-2: #26282B; --line: #2F3135;
+  --text: #E8E6E3; --muted: #9A9893; --faint: #6B6A66;
+  --accent: #FF6A1A; --accent-soft: rgba(255,106,26,.12);
+  --pass: #3DB37A; --fail: #E5484D; --manual: #8B8D98;
+  --sev-critical: #D6336C; --sev-high: #E5484D; --sev-medium: #E2A336; --sev-low: #7C8AA5; --sev-info: #6B6A66;
+  --shadow: 0 8px 30px rgba(0,0,0,.45);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #ECEBE8; --panel: #F6F5F3; --panel-2: #FFFFFF; --line: #D9D7D2;
+    --text: #17181A; --muted: #5E5D59; --faint: #8C8A85;
+    --accent: #E55A0E; --accent-soft: rgba(255,106,26,.12);
+    --pass: #23874F; --fail: #C9343A; --manual: #6E7079;
+    --sev-critical: #B4235A; --sev-high: #C9343A; --sev-medium: #A86F0A; --sev-low: #56627C; --sev-info: #8C8A85;
+    --shadow: 0 8px 30px rgba(23,24,26,.15);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #ECEBE8; --panel: #F6F5F3; --panel-2: #FFFFFF; --line: #D9D7D2;
+  --text: #17181A; --muted: #5E5D59; --faint: #8C8A85;
+  --accent: #E55A0E; --pass: #23874F; --fail: #C9343A; --manual: #6E7079;
+  --sev-critical: #B4235A; --sev-high: #C9343A; --sev-medium: #A86F0A; --sev-low: #56627C; --sev-info: #8C8A85;
+  --shadow: 0 8px 30px rgba(23,24,26,.15); color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* ── Shell ── */
+.app { display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 60px 1fr; height: 100vh; }
+header { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 0 20px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); min-width: 184px; }
+.brand svg.wordmark { height: 18px; width: auto; }
+.brand .product { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; padding-left: 10px; border-left: 1px solid var(--line); }
+.scope { display: flex; flex-direction: column; line-height: 1.2; }
+.scope strong { font-size: 14px; }
+.scope span { color: var(--muted); font-size: 12px; }
+.spacer { flex: 1; }
+.scan-picker { background: var(--panel); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 7px 10px; font: inherit; }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.badge.fresh { background: color-mix(in srgb, var(--pass) 14%, transparent); color: var(--pass); }
+.badge.stale { background: color-mix(in srgb, var(--sev-medium) 16%, transparent); color: var(--sev-medium); }
+.btn:disabled { opacity: .6; cursor: progress; }
+.notice { max-width: 560px; margin: 80px auto; text-align: center; color: var(--muted); }
+.notice h1 { color: var(--text); }
+.badge .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.btn { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+.btn:hover { border-color: var(--faint); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #17181A; font-weight: 700; }
+.btn.primary:hover { filter: brightness(1.08); }
+.icon-btn { background: none; border: 1px solid transparent; border-radius: 8px; padding: 6px 8px; cursor: pointer; color: var(--muted); }
+.icon-btn:hover { border-color: var(--line); color: var(--text); }
+
+nav { border-right: 1px solid var(--line); padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+nav a { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; color: var(--muted); font-weight: 500; }
+nav a:hover { background: var(--panel); color: var(--text); text-decoration: none; }
+nav a.active { background: var(--accent-soft); color: var(--text); box-shadow: inset 2px 0 0 var(--accent); }
+nav a .count { font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
+nav a.disabled { pointer-events: none; opacity: .45; }
+nav .soon { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+nav .foot { margin-top: auto; padding: 12px; font-size: 11.5px; color: var(--faint); line-height: 1.5; border-top: 1px solid var(--line); }
+nav .foot strong { color: var(--muted); font-weight: 600; }
+
+main { overflow-y: auto; padding: 24px 28px 48px; }
+main.with-drawer { padding-right: 448px; }
+h1 { font-size: 20px; margin: 0 0 4px; letter-spacing: -.01em; }
+.sub { color: var(--muted); margin: 0 0 20px; }
+h2 { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 28px 0 10px; font-weight: 700; }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.grid { display: grid; gap: 12px; }
+.cols-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.cols-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+/* ── Overview ── */
+.fw-card { padding: 16px 18px; cursor: pointer; text-align: left; width: 100%; }
+.fw-card:hover { border-color: var(--faint); }
+.fw-card .name { font-weight: 700; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; min-width: 0; }
+.fw-card .name > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fw-card .name .kind { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 45%; }
+.fw-card .pct { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; margin: 6px 0 2px; }
+.fw-card .meta { color: var(--muted); font-size: 12.5px; }
+.bar { height: 6px; background: var(--panel-2); border-radius: 99px; overflow: hidden; margin-top: 12px; display: flex; }
+.bar span { display: block; height: 100%; }
+.sev-strip { display: grid; grid-template-columns: repeat(4, 1fr); }
+.sev-strip button { background: none; border: 0; border-right: 1px solid var(--line); padding: 14px 18px; text-align: left; cursor: pointer; }
+.sev-strip button:last-child { border-right: 0; }
+.sev-strip button:hover { background: var(--panel-2); }
+.sev-strip .n { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; display: block; }
+.sev-strip .l { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.stat { padding: 16px 18px; }
+.stat .big { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.list-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-top: 1px solid var(--line); cursor: pointer; }
+.list-row:first-child { border-top: 0; }
+.list-row:hover { background: var(--panel-2); }
+
+/* ── Severity / status marks ── */
+.sev { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; text-transform: capitalize; white-space: nowrap; }
+.sev::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--c); }
+.sev.critical { --c: var(--sev-critical); } .sev.high { --c: var(--sev-high); } .sev.medium { --c: var(--sev-medium); } .sev.low { --c: var(--sev-low); } .sev.informational { --c: var(--sev-info); }
+.st { font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 2px 7px; border-radius: 5px; }
+.st.FAIL { color: var(--fail); background: color-mix(in srgb, var(--fail) 14%, transparent); }
+.st.PASS { color: var(--pass); background: color-mix(in srgb, var(--pass) 14%, transparent); }
+.st.MANUAL { color: var(--manual); background: color-mix(in srgb, var(--manual) 16%, transparent); }
+.chip { font-size: 11px; padding: 2px 7px; border-radius: 5px; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.kind { color: var(--faint); font-size: 12px; }
+
+/* ── Components ── */
+.split { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
+.tree { padding: 6px 0; }
+.tree .node { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 14px; cursor: pointer; border-left: 2px solid transparent; }
+.tree .node:hover { background: var(--panel-2); }
+.tree .node.selected { background: var(--accent-soft); border-left-color: var(--accent); }
+.tree .node.child { padding-left: 34px; font-size: 13px; }
+.tree .node .label { display: flex; flex-direction: column; min-width: 0; }
+.tree .node .label span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.failn { font-size: 12px; font-weight: 700; color: var(--fail); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.okn { font-size: 12px; color: var(--pass); font-weight: 700; }
+.nochecks { font-size: 11px; color: var(--faint); }
+.resource-block { padding: 14px 18px; border-top: 1px solid var(--line); }
+.resource-block:first-of-type { border-top: 0; }
+.resource-block h3 { margin: 0 0 8px; font-size: 14px; display: flex; gap: 8px; align-items: baseline; }
+
+/* ── Findings table ── */
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.toolbar select, .toolbar input[type=search] { background: var(--panel); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 7px 10px; font: inherit; }
+.toolbar input[type=search] { min-width: 240px; }
+.toolbar label.toggle { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; margin-left: auto; cursor: pointer; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--panel); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tbody tr { cursor: pointer; }
+tbody tr:hover td { background: var(--panel-2); }
+tbody tr.selected td { background: var(--accent-soft); }
+tr.group td { background: var(--bg); font-weight: 700; cursor: default; font-size: 13px; }
+tr.group:hover td { background: var(--bg); }
+td .title { font-weight: 600; }
+td .check { color: var(--faint); }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+main.with-drawer .hide-drawer { display: none; }
+.empty { padding: 40px; text-align: center; color: var(--muted); }
+
+/* ── Frameworks ── */
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid var(--line); }
+.tabs button { background: none; border: 0; padding: 10px 14px; cursor: pointer; color: var(--muted); font-weight: 600; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs button.active { color: var(--text); border-bottom-color: var(--accent); }
+.req { border-top: 1px solid var(--line); }
+.req:first-child { border-top: 0; }
+.req summary { display: flex; gap: 12px; align-items: center; padding: 12px 16px; cursor: pointer; list-style: none; }
+.req summary::-webkit-details-marker { display: none; }
+.req summary:hover { background: var(--panel-2); }
+.req summary .rid { font-weight: 700; min-width: 110px; }
+.req summary .n { margin-left: auto; color: var(--muted); font-size: 12px; }
+.req .body { padding: 0 16px 12px 138px; }
+.req .body .row { display: flex; gap: 10px; align-items: center; padding: 6px 0; cursor: pointer; font-size: 13px; }
+.req .body .row:hover .title { text-decoration: underline; }
+.note { padding: 12px 16px; color: var(--muted); font-size: 13px; border-left: 2px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; margin-bottom: 16px; }
+
+/* ── Drawer ── */
+.drawer { position: fixed; top: 60px; right: 0; bottom: 0; width: 420px; background: var(--panel); border-left: 1px solid var(--line); box-shadow: var(--shadow); overflow-y: auto; transform: translateX(100%); transition: transform .18s ease; z-index: 5; }
+.drawer.open { transform: none; }
+.drawer .head { position: sticky; top: 0; background: var(--panel); padding: 18px 20px 14px; border-bottom: 1px solid var(--line); }
+.drawer .head .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 8px; }
+.drawer h3 { margin: 0; font-size: 16px; line-height: 1.35; }
+.drawer section { padding: 14px 20px; border-bottom: 1px solid var(--line); }
+.drawer section h4 { margin: 0 0 6px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); }
+.drawer section p, .drawer section ul { margin: 0 0 6px; color: var(--text); }
+.drawer section ul { padding-left: 18px; }
+.drawer .kv { display: grid; grid-template-columns: 90px 1fr; gap: 6px 10px; font-size: 13px; }
+.drawer .kv dt { color: var(--faint); }
+.drawer .kv dd { margin: 0; word-break: break-all; }
+.copy { background: none; border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 11px; cursor: pointer; color: var(--muted); margin-left: 6px; }
+.fwmap { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.fwmap div { display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+.fwmap strong { min-width: 110px; }
+
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--panel-2); border: 1px solid var(--line); padding: 10px 16px; border-radius: 10px; box-shadow: var(--shadow); font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 10; }
+.toast.show { opacity: 1; }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
+  header { flex-wrap: wrap; padding: 10px 16px; gap: 10px; }
+  nav { flex-direction: row; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px 16px; overflow-x: auto; }
+  nav .foot { display: none; }
+  main { padding: 16px; }
+  main.with-drawer { padding-right: 16px; }
+  .split { grid-template-columns: 1fr; }
+  .sev-strip { grid-template-columns: repeat(2, 1fr); }
+  .drawer { width: 100%; top: 0; }
+  .req .body { padding-left: 16px; }
+  .hide-sm { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand" aria-label="Anvil Compliance">
+      <svg class="wordmark" role="img" aria-label="Anvil" xmlns="http://www.w3.org/2000/svg" viewBox="23.6 -1600.0 4407.8 1600.0"><title>ANVIL</title><path d="M23.618489583333336 0.0 237.86458333333331 -1600.0H698.0673828125L728.9658203125 -1357.7109375H441.513671875L416.412109375 -912.775390625L375.5751953125 -595.9322916666666H503.13216145833337L438.9475911458333 -353.6432291666667H358.8675130208333L305.64290364583337 0.0ZM626.4182942708333 0.0 521.1321614583334 -914.775390625 507.1259765625 -1263.5263671875H734.578125L908.4427083333333 0.0ZM1547.267578125 0.0 1432.6953125 -531.4954427083334 1345.267578125 -1359.4524739583333H1095.876953125V-1600.0H1500.9290364583333L1613.6920572916665 -1090.5169270833333L1727.8274739583333 -242.28906249999997H1971.9934895833333V0.0ZM1095.876953125 0.0V-1264.1048177083333H1270.24609375L1338.166015625 -526.85546875L1361.5813802083335 0.0ZM1799.107421875 -337.89518229166663 1718.9967447916665 -1085.6061197916667 1706.0305989583333 -1600.0H1971.9934895833333V-337.89518229166663ZM2160.65234375 -1600.0H2444.8059895833335L2557.8951822916665 -784.5598958333334L2583.513671875 -311.77213541666663H2343.224609375ZM2358.44921875 -242.28906249999997H2642.6705729166665L2665.83984375 -784.5598958333334L2778.6705729166665 -1600.0H3063.082682291667L2839.095052083333 0.0H2393.0891927083335ZM3250.876953125 0.0V-1600.0H3525.6767578125V0.0ZM3773.876953125 0.0V-1600.0H4048.6767578125V0.0ZM4146.73828125 0.0V-242.28906249999997H4431.43359375V0.0Z" fill="currentColor"/></svg>
+      <span class="product">Compliance</span>
+    </div>
+    <div class="scope">
+      <strong id="scope-name"></strong>
+      <span id="scope-account"></span>
+    </div>
+    <div class="spacer"></div>
+    <select class="scan-picker hide-sm" id="scan-picker" aria-label="Scan"></select>
+    <span class="badge" id="freshness" hidden></span>
+    <button class="btn primary" id="rescan">Rescan</button>
+    <button class="icon-btn" id="theme" aria-label="Toggle light/dark theme" title="Toggle theme">◐</button>
+  </header>
+
+  <nav id="nav" aria-label="Views">
+    <a href="#/overview" data-view="overview">Overview</a>
+    <a href="#/components" data-view="components">Components <span class="count" id="nav-comp"></span></a>
+    <a href="#/findings" data-view="findings">Findings <span class="count" id="nav-find"></span></a>
+    <a href="#/frameworks" data-view="frameworks">Frameworks <span class="count" id="nav-fw"></span></a>
+    <a class="disabled" aria-disabled="true">History <span class="soon">Soon</span></a>
+    <div class="foot">
+      Scans powered by <a href="https://github.com/prowler-cloud/prowler" target="_blank" rel="noopener"><strong>Prowler</strong></a> <span id="prowler-version"></span><br>
+      Open source · Apache-2.0<br>
+      <span title="Served by the Anvil CLI on 127.0.0.1. Nothing leaves your machine.">Local only · 127.0.0.1</span>
+    </div>
+  </nav>
+
+  <main id="main"></main>
+</div>
+
+<aside class="drawer" id="drawer" aria-label="Finding detail"></aside>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────
+// Served by `anvil compliance dashboard` on 127.0.0.1. Every API call carries
+// the per-run token from the URL the CLI opened; the token is then removed
+// from the address bar (and kept for this tab only, so a refresh still works).
+const TOKEN = (() => {
+  const fromUrl = new URLSearchParams(location.search).get('token');
+  try {
+    if (fromUrl) sessionStorage.setItem('anvil-token', fromUrl);
+    return fromUrl || sessionStorage.getItem('anvil-token');
+  } catch (_) { return fromUrl; }
+})();
+if (new URLSearchParams(location.search).has('token')) history.replaceState(null, '', '/' + location.hash);
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, { ...opts, headers: { 'X-Anvil-Token': TOKEN || '' } });
+  if (!res.ok) throw new Error((await res.text()) || res.statusText);
+  return res.json();
+}
+
+const SEV_ORDER = ['critical', 'high', 'medium', 'low', 'informational'];
+let DATA, SCANS = [], findings = [], fails = [], byId = {}, components = [], frameworks = [];
+
+function derive() {
+  findings = DATA.findings || [];
+  fails = findings.filter(f => f.status === 'FAIL');
+  byId = Object.fromEntries(findings.map(f => [f.id, f]));
+
+  const map = new Map();
+  for (const r of DATA.resources || []) {
+    if (!map.has(r.component)) map.set(r.component, { name: r.component, type: r.componentType, resources: [] });
+    map.get(r.component).resources.push({ ...r, findings: findings.filter(f => f.resource.uid === r.uid) });
+  }
+  components = [...map.values()];
+  for (const c of components) {
+    c.fails = c.resources.reduce((n, r) => n + fails_(r), 0);
+    c.resources.sort((a, b) => fails_(b) - fails_(a));
+  }
+  components.sort((a, b) => b.fails - a.fails);
+
+  // A requirement passes only when every check mapped to it passes for this app.
+  frameworks = (DATA.frameworks || []).map(fw => {
+    const reqs = new Map();
+    for (const f of findings) for (const id of (f.frameworks[fw.label] || [])) {
+      if (!reqs.has(id)) reqs.set(id, []);
+      reqs.get(id).push(f);
+    }
+    const requirements = [...reqs.entries()].map(([id, fs]) => ({
+      id, findings: fs, status: fs.some(f => f.status === 'FAIL') ? 'FAIL' : fs.some(f => f.status === 'MANUAL') ? 'MANUAL' : 'PASS',
+    })).sort((a, b) => (a.status === b.status ? a.id.localeCompare(b.id, undefined, { numeric: true }) : a.status === 'FAIL' ? -1 : b.status === 'FAIL' ? 1 : 0));
+    const passing = requirements.filter(r => r.status === 'PASS').length;
+    return { ...fw, requirements, passing, total: requirements.length };
+  });
+}
+function fails_(r) { return r.findings.filter(f => f.status === 'FAIL').length; }
+
+async function load(scanId) {
+  try {
+    if (!TOKEN) throw new Error('missing-token');
+    SCANS = await api('/api/scans');
+    DATA = await api('/api/scan' + (scanId ? '?id=' + encodeURIComponent(scanId) : ''));
+  } catch (e) {
+    $('#main').innerHTML = e.message === 'missing-token'
+      ? `<div class="notice"><h1>Open from the CLI</h1><p>Run <code>anvil compliance dashboard</code> in your project — it opens this page with an access token.</p></div>`
+      : `<div class="notice"><h1>Couldn't load results</h1><p>${esc(e.message)}</p><p>If you stopped <code>anvil compliance dashboard</code>, run it again.</p></div>`;
+    return;
+  }
+  derive();
+  renderHeader();
+  closeDrawer();
+  route();
+}
+
+// ── Helpers ───────────────────────────────────────────────
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function md(s) {
+  // Prowler's text uses a small markdown subset: **bold**, `code`, "- " lists.
+  const lines = esc(s).split('\n');
+  let html = '', inList = false;
+  for (const line of lines) {
+    const t = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`(.+?)`/g, '<code>$1</code>');
+    if (/^\s*-\s+/.test(line)) { if (!inList) { html += '<ul>'; inList = true; } html += '<li>' + t.replace(/^\s*-\s+/, '') + '</li>'; }
+    else { if (inList) { html += '</ul>'; inList = false; } if (t.trim()) html += '<p>' + t + '</p>'; }
+  }
+  return html + (inList ? '</ul>' : '');
+}
+const sev = s => `<span class="sev ${s}">${s === 'informational' ? 'info' : s}</span>`;
+const st = s => `<span class="st ${s}">${s}</span>`;
+const fmtDate = iso => new Date(iso).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2600); }
+// Rows show a few framework chips; the drawer lists them all.
+function frameworkChips(f, max = 3) {
+  const keys = Object.keys(f.frameworks);
+  const shown = keys.slice(0, max).map(k => `<span class="chip">${esc(k)}</span>`).join('');
+  const more = keys.length - max;
+  return shown + (more > 0 ? `<span class="chip" title="${esc(keys.slice(max).join(', '))}">+${more} more</span>` : '');
+}
+
+// ── Header ────────────────────────────────────────────────
+function renderHeader() {
+  $('#scope-name').textContent = `${DATA.project} / ${DATA.stage}`;
+  $('#scope-account').textContent = `${DATA.account} · ${DATA.region}`;
+  $('#prowler-version').textContent = DATA.scan.prowlerVersion || '';
+  $('#scan-picker').innerHTML = SCANS.map((s, i) =>
+    `<option value="${esc(s.id)}" ${s.id === DATA.scan.scanId ? 'selected' : ''}>${fmtDate(s.time)} · ${esc(s.trigger)}${i === 0 ? ' · latest' : ''}</option>`).join('');
+  $('#nav-comp').textContent = components.length;
+  $('#nav-find').textContent = fails.length;
+  $('#nav-fw').textContent = frameworks.length;
+
+  const badge = $('#freshness');
+  badge.hidden = !DATA.lastDeploy;
+  if (DATA.lastDeploy) {
+    const fresh = new Date(DATA.scan.finishedAt) >= new Date(DATA.lastDeploy);
+    badge.className = 'badge ' + (fresh ? 'fresh' : 'stale');
+    badge.innerHTML = `<span class="dot"></span>${fresh ? 'Up to date' : 'Deployed since this scan'}`;
+    badge.title = fresh ? 'This scan ran after the most recent deploy' : `Last deploy ${fmtDate(DATA.lastDeploy)} — results may be out of date`;
+  }
+}
+$('#scan-picker').onchange = e => load(e.target.value);
+$('#rescan').onclick = async () => {
+  const btn = $('#rescan');
+  btn.disabled = true;
+  try {
+    await api('/api/rescan', { method: 'POST' });
+    toast('Scan started. It takes a minute or two — it appears in the scan list when done.');
+    watchForNewScan();
+  } catch (e) {
+    toast('Could not start a scan: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+};
+function watchForNewScan() {
+  const known = SCANS[0]?.id;
+  let tries = 0;
+  const timer = setInterval(async () => {
+    if (++tries > 40) return clearInterval(timer);
+    try {
+      const scans = await api('/api/scans');
+      if (scans[0] && scans[0].id !== known) {
+        clearInterval(timer);
+        toast('New scan finished — loading it.');
+        load(scans[0].id);
+      }
+    } catch (_) { clearInterval(timer); }
+  }, 15000);
+}
+$('#theme').onclick = () => {
+  const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.dataset.theme = cur === 'light' ? 'dark' : 'light';
+};
+
+// ── Drawer ────────────────────────────────────────────────
+let openId = null;
+function openFinding(id) {
+  const f = byId[id]; if (!f) return;
+  openId = id;
+  const r = f.resource;
+  $('#drawer').innerHTML = `
+    <div class="head">
+      <div class="top"><div style="display:flex;gap:8px;align-items:center">${st(f.status)} ${sev(f.severity)}</div>
+        <button class="icon-btn" id="close" aria-label="Close">✕</button></div>
+      <h3>${esc(f.title)}</h3>
+      <div class="mono check" style="color:var(--faint);margin-top:4px">${esc(f.check)}</div>
+    </div>
+    <section><h4>Result</h4><p>${esc(f.detail)}</p></section>
+    <section><h4>Resource</h4>
+      <dl class="kv">
+        <dt>Component</dt><dd>${esc(f.component)} <span class="kind">${esc(f.componentType)}</span></dd>
+        <dt>Resource</dt><dd>${esc(r.name)} <span class="kind">${esc(r.kind)}</span></dd>
+        <dt>Region</dt><dd>${esc(r.region)}</dd>
+        <dt>ARN</dt><dd class="mono">${esc(r.uid)}<button class="copy" data-copy="${esc(r.uid)}">Copy</button></dd>
+      </dl></section>
+    ${f.risk ? `<section><h4>Why it matters</h4>${md(f.risk)}</section>` : ''}
+    ${f.remediation ? `<section><h4>How to fix</h4>${md(f.remediation)}</section>` : ''}
+    ${Object.keys(f.frameworks).length ? `<section><h4>Framework requirements</h4><div class="fwmap">${
+      Object.entries(f.frameworks).map(([k, ids]) => `<div><strong>${esc(k)}</strong>${ids.map(i => `<span class="chip">${esc(i)}</span>`).join('')}</div>`).join('')}</div></section>` : ''}
+    ${f.refs.length ? `<section><h4>References</h4><ul>${f.refs.slice(0, 5).map(u => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\//, '').slice(0, 60))}</a></li>`).join('')}</ul></section>` : ''}
+    <section><h4>History</h4><p style="color:var(--muted)">First and last seen appear here once scan history is available.</p></section>`;
+  $('#drawer').classList.add('open');
+  $('#drawer').scrollTop = 0;
+  $('#main').classList.add('with-drawer');
+  $('#close').onclick = closeDrawer;
+  $('#drawer').querySelectorAll('[data-copy]').forEach(b => b.onclick = () => { navigator.clipboard?.writeText(b.dataset.copy); toast('ARN copied'); });
+  document.querySelectorAll('tr[data-id]').forEach(tr => tr.classList.toggle('selected', tr.dataset.id === id));
+}
+function closeDrawer() {
+  openId = null;
+  $('#drawer').classList.remove('open');
+  $('#main').classList.remove('with-drawer');
+  document.querySelectorAll('tr.selected').forEach(tr => tr.classList.remove('selected'));
+}
+addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+function bindFindingClicks(root) {
+  root.querySelectorAll('[data-id]').forEach(el => el.addEventListener('click', () => openFinding(el.dataset.id)));
+}
+
+// ── Views ─────────────────────────────────────────────────
+function scanNotice() {
+  const m = DATA.scan;
+  if (m.status === 'empty') return `<div class="notice"><h1>No resources matched</h1><p>Scan ${esc(m.scanId)} found no resources tagged for ${esc(DATA.project)}/${esc(DATA.stage)}. Deploy the app, then rescan.</p></div>`;
+  if (m.status === 'failed') return `<div class="notice"><h1>This scan failed</h1><p>${esc(m.error || 'See the CodeBuild log for details.')}</p><p>Pick another scan above, or rescan.</p></div>`;
+  return '';
+}
+
+function changesPanel() {
+  const c = DATA.changes;
+  if (!c.compared) return `<div class="panel stat"><div class="big">First scan</div><p>New failures and fixes appear here from the next scan on.</p></div>`;
+  if (!c.new.length && !c.fixed.length) return `<div class="panel stat"><div class="big">No changes</div><p>Same results as the previous scan (${esc(c.previous)}).</p></div>`;
+  return `<div class="panel stat"><div class="big"><span style="color:var(--fail)">${c.new.length} new</span> · <span style="color:var(--pass)">${c.fixed.length} fixed</span></div>
+    <p>Since ${esc(c.previous)}.</p>
+    ${c.new.slice(0, 4).map(id => byId[id] ? `<div class="list-row" data-id="${esc(id)}" style="padding:6px 0;border-top:0">${sev(byId[id].severity)} <span style="flex:1;margin-left:8px">${esc(byId[id].title)}</span></div>` : '').join('')}
+    ${c.fixed.slice(0, 3).map(f => `<div style="padding:4px 0;color:var(--muted);font-size:13px">✓ Fixed: ${esc(f.title)} <span class="kind">${esc(f.resource.name)}</span></div>`).join('')}
+  </div>`;
+}
+
+function overview() {
+  const notice = scanNotice();
+  if (notice) return notice;
+  const sevCounts = Object.fromEntries(SEV_ORDER.map(s => [s, fails.filter(f => f.severity === s).length]));
+  const uncovered = (DATA.resources || []).filter(r => !findings.some(f => f.resource.uid === r.uid));
+  return `
+    <h1>Overview</h1>
+    <p class="sub">Scan ${esc(DATA.scan.scanId)} · ${DATA.resources.length} resources · ${Math.round(DATA.scan.durationSeconds)}s · regions ${DATA.scan.regions.join(', ')}</p>
+
+    <h2>Frameworks</h2>
+    <div class="grid cols-3">${frameworks.map(fw => {
+      if (!fw.supported) return `<div class="panel fw-card" style="cursor:default">
+        <div class="name"><span>${esc(fw.label)}</span><span class="kind mono">${esc(fw.id)}</span></div>
+        <div class="meta" style="margin-top:10px">Its checks ran, but Prowler doesn't attach this cross-cloud framework's requirements to findings, so the dashboard can't score it yet.</div></div>`;
+      const pct = fw.total ? Math.round(fw.passing / fw.total * 100) : 0;
+      const fail = fw.requirements.filter(r => r.status === 'FAIL').length;
+      return `<button class="panel fw-card" data-fw="${esc(fw.label)}">
+        <div class="name" title="${esc(fw.name)}"><span>${esc(fw.label)}</span><span class="kind mono">${esc(fw.id)}</span></div>
+        <div class="pct">${pct}%</div>
+        <div class="meta">${fw.passing} of ${fw.total} checked requirements passing</div>
+        <div class="bar"><span style="width:${pct}%;background:var(--pass)"></span><span style="width:${fw.total ? fail / fw.total * 100 : 0}%;background:var(--fail)"></span></div>
+      </button>`;
+    }).join('')}</div>
+
+    <h2>Failing checks by severity</h2>
+    <div class="panel sev-strip">${['critical', 'high', 'medium', 'low'].map(s => `
+      <button data-sev="${s}"><span class="n">${sevCounts[s]}</span><span class="l">${sev(s)}</span></button>`).join('')}</div>
+
+    <div class="grid cols-2" style="margin-top:12px">
+      ${changesPanel()}
+      <div class="panel stat"><div class="big">${DATA.resources.length} of ${DATA.resources.length} resources scanned</div>
+        <p>Every resource tagged for this app was scanned. ${uncovered.length} had no checks under these frameworks (${uncovered.map(r => esc(r.kind)).join(', ')}). ${DATA.dropped} account-level findings were left out.</p></div>
+    </div>
+
+    <h2>Components with the most failures</h2>
+    <div class="panel">${components.map(c => `
+      <div class="list-row" data-comp="${esc(c.name)}">
+        <div><strong>${esc(c.name)}</strong> <span class="kind">${esc(c.type)}</span></div>
+        ${c.fails ? `<span class="failn">${c.fails} failing</span>` : `<span class="okn">✓ passing</span>`}
+      </div>`).join('')}</div>`;
+}
+
+let selectedComp = null;
+function componentsView() {
+  if (scanNotice()) return scanNotice();
+  selectedComp ??= components[0]?.name;
+  const c = components.find(x => x.name === selectedComp) || components[0];
+  return `
+    <h1>Components</h1>
+    <p class="sub">Findings grouped by the Anvil component that created each resource.</p>
+    <div class="split">
+      <div class="panel tree">${components.map(comp => `
+        <div class="node ${comp.name === c.name ? 'selected' : ''}" data-comp="${esc(comp.name)}">
+          <div class="label"><span><strong>${esc(comp.name)}</strong></span><span class="kind">${esc(comp.type)}</span></div>
+          ${comp.fails ? `<span class="failn">✘ ${comp.fails}</span>` : `<span class="okn">✓</span>`}
+        </div>
+        ${comp.resources.map(r => `
+          <div class="node child" data-comp="${esc(comp.name)}" data-res="${esc(r.uid)}">
+            <div class="label"><span>${esc(r.kind)}</span><span class="kind mono" title="${esc(r.name)}">${esc(r.name)}</span></div>
+            ${!r.findings.length ? `<span class="nochecks">no checks</span>` : fails_(r) ? `<span class="failn">✘ ${fails_(r)}</span>` : `<span class="okn">✓</span>`}
+          </div>`).join('')}`).join('')}
+      </div>
+      <div class="panel">
+        <div style="padding:16px 18px;border-bottom:1px solid var(--line)">
+          <div style="font-size:16px;font-weight:700">${esc(c.name)} <span class="kind">${esc(c.type)}</span></div>
+          <div class="kind">${c.resources.length} resources · ${c.fails} failing checks</div>
+        </div>
+        ${c.resources.map(r => `
+          <div class="resource-block" id="res-${esc(r.uid)}">
+            <h3>${esc(r.kind)} <span class="kind mono">${esc(r.name)}</span></h3>
+            ${!r.findings.length ? `<div class="kind">Scanned — no checks under the selected frameworks apply to this resource.</div>` :
+              r.findings.filter(f => f.status === 'FAIL').map(f => `
+                <div class="list-row" data-id="${esc(f.id)}" style="padding:8px 0;border-top:0">
+                  <div style="display:flex;gap:10px;align-items:center">${sev(f.severity)} <span>${esc(f.title)}</span></div>
+                  <span class="chips">${frameworkChips(f)}</span>
+                </div>`).join('') || `<div class="okn">✓ All ${r.findings.length} checks passing</div>`}
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+const filters = { q: '', sev: '', status: 'FAIL', fw: '', group: 'none' };
+function findingsView() {
+  if (scanNotice()) return scanNotice();
+  return `
+    <h1>Findings</h1>
+    <p class="sub">${findings.length} checks across ${DATA.resources.length} resources.</p>
+    <div class="toolbar">
+      <input type="search" id="f-q" placeholder="Search checks, resources…" value="${esc(filters.q)}" aria-label="Search">
+      <select id="f-sev" aria-label="Severity"><option value="">All severities</option>${SEV_ORDER.map(s => `<option value="${s}" ${filters.sev === s ? 'selected' : ''}>${s}</option>`).join('')}</select>
+      <select id="f-fw" aria-label="Framework"><option value="">All frameworks</option>${frameworks.map(fw => `<option ${filters.fw === fw.label ? 'selected' : ''}>${esc(fw.label)}</option>`).join('')}</select>
+      <select id="f-group" aria-label="Group by">${[['none', 'No grouping'], ['check', 'Group by check'], ['component', 'Group by component'], ['resource', 'Group by resource']].map(([v, l]) => `<option value="${v}" ${filters.group === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+      <label class="toggle"><input type="checkbox" id="f-pass" ${filters.status ? '' : 'checked'}> Show passing</label>
+    </div>
+    <div class="panel" id="table-wrap"></div>`;
+}
+function renderTable() {
+  if (!$('#table-wrap')) return;
+  const q = filters.q.toLowerCase();
+  let rows = findings.filter(f =>
+    (!filters.status || f.status === filters.status) &&
+    (!filters.sev || f.severity === filters.sev) &&
+    (!filters.fw || f.frameworks[filters.fw]) &&
+    (!q || [f.title, f.check, f.resource.name, f.component, f.detail].join(' ').toLowerCase().includes(q)));
+  rows.sort((a, b) => (a.status === b.status ? 0 : a.status === 'FAIL' ? -1 : 1) || SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity) || a.title.localeCompare(b.title));
+  if (!rows.length) { $('#table-wrap').innerHTML = `<div class="empty">No findings match these filters.</div>`; return; }
+  const key = { check: f => f.title, component: f => `${f.component} (${f.componentType})`, resource: f => `${f.resource.kind} · ${f.resource.name}`, none: () => '' }[filters.group];
+  const groups = new Map();
+  for (const f of rows) { const k = key(f); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(f); }
+  $('#table-wrap').innerHTML = `<table>
+    <thead><tr><th>Severity</th><th>Status</th><th>Check</th><th class="hide-sm">Resource</th><th class="hide-sm hide-drawer">Frameworks</th></tr></thead>
+    <tbody>${[...groups.entries()].map(([g, fs]) => `
+      ${g ? `<tr class="group"><td colspan="5">${esc(g)} <span class="kind">· ${fs.length}</span></td></tr>` : ''}
+      ${fs.map(f => `<tr data-id="${esc(f.id)}" class="${f.id === openId ? 'selected' : ''}">
+        <td>${sev(f.severity)}</td><td>${st(f.status)}</td>
+        <td><div class="title">${esc(f.title)}</div><div class="check mono">${esc(f.check)}</div></td>
+        <td class="hide-sm">${esc(f.component)} › ${esc(f.resource.kind)}<div class="kind mono">${esc(f.resource.name)}</div></td>
+        <td class="hide-sm hide-drawer"><div class="chips">${frameworkChips(f)}</div></td>
+      </tr>`).join('')}`).join('')}</tbody></table>`;
+  bindFindingClicks($('#table-wrap'));
+}
+
+let selectedFw = null;
+function frameworksView() {
+  if (scanNotice()) return scanNotice();
+  const supported = frameworks.filter(f => f.supported);
+  if (!supported.length) return `<div class="notice"><h1>No scorable frameworks</h1><p>The frameworks in this scan don't attach requirements to findings. See Findings for every check.</p></div>`;
+  if (!supported.some(f => f.label === selectedFw)) selectedFw = supported[0].label;
+  const fw = supported.find(f => f.label === selectedFw);
+  return `
+    <h1>Frameworks</h1>
+    <p class="sub">Requirements checked for this app, and the findings behind each one.</p>
+    <div class="tabs">${supported.map(f => `<button class="${f.label === fw.label ? 'active' : ''}" data-tab="${esc(f.label)}">${esc(f.label)} <span class="kind">${f.passing}/${f.total}</span></button>`).join('')}</div>
+    <div class="note">Prowler automates the requirements it can check against your resources. Requirements it can't check need evidence from you and aren't counted here — a passing score is not certification.</div>
+    <div class="panel">${fw.requirements.map(r => `
+      <details class="req" ${r.status === 'FAIL' ? 'open' : ''}>
+        <summary>${st(r.status)} <span class="rid mono">${esc(r.id)}</span>
+          <span class="n">${r.findings.filter(f => f.status === 'FAIL').length} failing · ${r.findings.length} checks</span></summary>
+        <div class="body">${r.findings.sort((a, b) => (a.status === 'FAIL' ? -1 : 1) - (b.status === 'FAIL' ? -1 : 1)).map(f => `
+          <div class="row" data-id="${esc(f.id)}">${st(f.status)} <span class="title">${esc(f.title)}</span> <span class="kind">${esc(f.component)} › ${esc(f.resource.kind)}</span></div>`).join('')}
+        </div>
+      </details>`).join('')}</div>`;
+}
+
+// ── Router ────────────────────────────────────────────────
+// Navigation keeps its own state and mirrors it into the URL hash when the
+// page allows it (a file opened directly may not), so links work either way.
+let current = location.hash || '#/overview';
+function go(hash) {
+  current = hash;
+  try { history.pushState(null, '', hash); } catch (_) { /* not allowed here */ }
+  route();
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#/"]');
+  if (a) { e.preventDefault(); go(a.getAttribute('href')); }
+});
+function route() {
+  const [, view = 'overview', query = ''] = current.match(/^#\/([a-z]+)\??(.*)$/) || [];
+  const params = new URLSearchParams(query);
+  document.querySelectorAll('#nav a[data-view]').forEach(a => a.classList.toggle('active', a.dataset.view === view));
+  const main = $('#main');
+
+  if (view === 'components') {
+    if (params.get('c')) selectedComp = params.get('c');
+    if (!components.some(c => c.name === selectedComp)) selectedComp = null;
+    main.innerHTML = componentsView();
+    main.querySelectorAll('.node').forEach(n => n.onclick = () => {
+      selectedComp = n.dataset.comp; route();
+      if (n.dataset.res) document.getElementById('res-' + n.dataset.res)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    bindFindingClicks(main);
+  } else if (view === 'findings') {
+    if (params.has('sev')) { filters.sev = params.get('sev'); filters.status = 'FAIL'; }
+    main.innerHTML = findingsView();
+    const on = (id, ev, fn) => $(id).addEventListener(ev, fn);
+    if (!$('#f-q')) return;
+    on('#f-q', 'input', e => { filters.q = e.target.value; renderTable(); });
+    on('#f-sev', 'change', e => { filters.sev = e.target.value; renderTable(); });
+    on('#f-fw', 'change', e => { filters.fw = e.target.value; renderTable(); });
+    on('#f-group', 'change', e => { filters.group = e.target.value; renderTable(); });
+    on('#f-pass', 'change', e => { filters.status = e.target.checked ? '' : 'FAIL'; renderTable(); });
+    renderTable();
+  } else if (view === 'frameworks') {
+    if (params.get('f')) selectedFw = params.get('f');
+    main.innerHTML = frameworksView();
+    main.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { selectedFw = b.dataset.tab; route(); });
+    bindFindingClicks(main);
+  } else {
+    main.innerHTML = overview();
+    bindFindingClicks(main);
+    main.querySelectorAll('[data-fw]').forEach(b => b.onclick = () => go('#/frameworks?f=' + encodeURIComponent(b.dataset.fw)));
+    main.querySelectorAll('[data-sev]').forEach(b => b.onclick = () => go('#/findings?sev=' + b.dataset.sev));
+    main.querySelectorAll('[data-comp]').forEach(b => b.onclick = () => go('#/components?c=' + encodeURIComponent(b.dataset.comp)));
+  }
+  main.scrollTop = 0;
+}
+addEventListener('popstate', () => { current = location.hash || '#/overview'; route(); });
+load();
+</script>
+</body>
+</html>
