@@ -74,7 +74,7 @@ export default new App({
   defaults: {
     tags: {
       project: 'my-app',
-      costCenter: 'platform-eng',2
+      costCenter: 'platform-eng',
     },
   },
   run(ctx) {
@@ -97,6 +97,52 @@ anvil destroy --stage <stage>
 
 See the [Quickstart](https://anvilcloud.dev/docs/quickstart) for Python and Go.
 
+## Permissions without writing IAM
+
+Resources grant each other access. Anvil writes the least-privilege IAM policy, scoped to exactly the actions and paths you ask for:
+
+```ts
+run(ctx) {
+  const uploads = new anvil.aws.Bucket('uploads');
+
+  const resize = new anvil.aws.Lambda('resize', {
+    runtime: 'nodejs22.x',
+    entry: 'functions/resize/index.ts',
+    handler: 'handler',
+  });
+
+  // Read-only, and only under incoming/
+  uploads.grantRead(resize, ['incoming/*']);
+},
+```
+
+No ARNs to wire, no `s3:*` policies left over from debugging.
+
+## Compliance scanning built in
+
+Add one block to your app and Anvil scans what you deployed against the frameworks you're working toward, using [Prowler](https://github.com/prowler-cloud/prowler):
+
+```ts
+export default new App({
+  compliance: {
+    frameworks: ['soc2', 'iso27001', 'cis'],
+    schedule: 'daily',
+    scanOnDeploy: true,
+  },
+  run(ctx) {
+    // ...
+  },
+});
+```
+
+```sh
+anvil compliance scan        # scan this app's resources now
+anvil compliance status      # latest results
+anvil compliance dashboard   # open a local dashboard of findings
+```
+
+Supported frameworks include SOC 2, ISO 27001, CIS, NIST 800-53, PCI DSS, HIPAA, GDPR, NIS2, DORA, FedRAMP, and the ASD Essential Eight. Results stay in your own AWS account.
+
 ## Three SDKs, one engine
 
 Every component behaves identically across all three SDKs.
@@ -104,8 +150,8 @@ Every component behaves identically across all three SDKs.
 | Language   | Package                                             | Requirement |
 | ---------- | --------------------------------------------------- | ----------- |
 | TypeScript | `npm install @anvil-cloud/sdk`                      | Node.js 18+ |
-| Python     | `pip install anvil-cloud`                           | Python 3.8+ |
-| Go         | `go get github.com/DamienPace15/anvil/sdk/go/anvil` | Go 1.22+    |
+| Python     | `pip install anvil-cloud`                           | Python 3.9+ |
+| Go         | `go get github.com/DamienPace15/anvil/sdk/go/anvil` | Go 1.25+    |
 
 ## Comparing Anvil
 
@@ -121,6 +167,8 @@ The same image upload stack built five ways.
 
 ## Components
 
+**AWS**
+
 | Category   | Components                                             |
 | ---------- | ------------------------------------------------------ |
 | Compute    | Lambda                                                 |
@@ -130,12 +178,15 @@ The same image upload stack built five ways.
 | Messaging  | Queue, EventBus                                        |
 | API & Auth | HttpApi, CognitoUserPool, CognitoAuth, OAuthAuthorizer |
 | Hosting    | SvelteKitSite                                          |
+| Security   | Waf, ComplianceScanner                                 |
+
+**GCP** (early): StorageBucket, Function
 
 Full arguments, outputs, and examples for each are in the [component docs](https://anvilcloud.dev/docs/components/aws/storage/bucket).
 
 ## Local development
 
-**Prerequisites:** Go 1.22+, Node.js 18+, Pulumi CLI
+**Prerequisites:** Go 1.25+, Node.js 18+, Python 3.9+, Pulumi CLI
 
 ```sh
 git clone https://github.com/DamienPace15/anvil.git
@@ -163,8 +214,14 @@ export PATH="$PATH:$(pwd)/bin"
 
 ## Contributing
 
-PRs welcome. Open an issue first for larger changes.
+Contributions are welcome, from typo fixes to new components.
+
+- Start with a [good first issue](https://github.com/DamienPace15/anvil/labels/good%20first%20issue)
+- Ask questions or share ideas in [Discussions](https://github.com/DamienPace15/anvil/discussions)
+- Read [CONTRIBUTING.md](CONTRIBUTING.md) for setup and how a component is put together
+
+If Anvil saves you time, a ⭐ helps other people find it.
 
 ## License
 
-Apache-2.0
+[Apache-2.0](LICENSE)

@@ -1,0 +1,22 @@
+name: Feature or component request
+description: Suggest a new component, option or CLI feature
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The problem or use case, rather than the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like Anvil to do?
+      description: An example of the API you'd want is very helpful.
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd be interested in opening a PR for this
