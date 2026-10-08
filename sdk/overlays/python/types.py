@@ -13,7 +13,7 @@ Example::
     value: anvil.Output[str] = anvil.Output.from_input("hello")
 """
 
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional, Union
 
 # ── Resource base classes ──────────────────────────────────
 # Note: Python Pulumi has no ``ComponentResourceOptions`` (that is a TypeScript
@@ -110,6 +110,58 @@ class GcpProviderConfig:
         self.credentials = credentials
 
 
+class ComplianceCron:
+    """A custom compliance scan schedule.
+
+    ``cron`` is six AWS cron fields, e.g. ``"0 3 * * ? *"`` (at most once an
+    hour). ``timezone`` is an IANA name, e.g. ``"Australia/Sydney"`` (default UTC).
+    """
+
+    def __init__(self, cron: str, timezone: Optional[str] = None):
+        self.cron = cron
+        self.timezone = timezone
+
+
+class ComplianceConfig:
+    """Scheduled compliance scans (Prowler) of this app's deployed resources.
+
+    The first deploy with this set creates a scanner shared by every Anvil app
+    in the account and region (you'll be asked to confirm).
+
+    Example::
+
+        compliance=anvil.ComplianceConfig(
+            frameworks=["soc2", "iso27001", "cis"],
+            schedule="daily",
+        )
+
+    Args:
+        frameworks: Required. Friendly names (always the newest version Anvil
+            pins): soc2, iso27001, cis, nist-800-53, nist-800-171, nist-csf,
+            pci, hipaa, fsbp, gdpr, nis2, dora, fedramp-low,
+            fedramp-moderate, cmmc, essential-eight, well-architected, c5,
+            csa-ccm. Or any raw Prowler AWS compliance ID, which stays fixed
+            (e.g. "cis_6.0_aws").
+        schedule: "daily" (default), "weekly", "none", or a ComplianceCron.
+            Presets run at a fixed time derived from the project and stage.
+        retention: How long results are kept: 30d, 90d, 180d, 1y (default),
+            2y, 7y.
+        scan_on_deploy: Start a scan after each successful deploy.
+    """
+
+    def __init__(
+        self,
+        frameworks: List[str],
+        schedule: Union[str, ComplianceCron] = "daily",
+        retention: Optional[str] = None,
+        scan_on_deploy: bool = False,
+    ):
+        self.frameworks = frameworks
+        self.schedule = schedule
+        self.retention = retention
+        self.scan_on_deploy = scan_on_deploy
+
+
 class AppConfig:
     """
     Typed configuration for anvil.run().
@@ -136,8 +188,10 @@ class AppConfig:
         before_deploy: Optional[Callable[["Context"], None]] = None,
         after_deploy: Optional[Callable[["Context"], None]] = None,
         on_error: Optional[Callable[["Context", Exception], None]] = None,
+        compliance: Optional[ComplianceConfig] = None,
     ):
         self.run = run
+        self.compliance = compliance
         self.defaults = defaults
         self.aws_providers = aws_providers
         self.gcp_providers = gcp_providers

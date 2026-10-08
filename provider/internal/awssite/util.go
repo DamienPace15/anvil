@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -72,10 +71,8 @@ func CoerceToStringOutput(v interface{}) pulumi.Input {
 	}
 }
 
-// CreateUSEast1Provider returns an AWS provider pinned to us-east-1,
-// required for ACM certificates used with CloudFront.
-func CreateUSEast1Provider(ctx *pulumi.Context, name string, parent pulumi.Resource) (*aws.Provider, error) {
-	return aws.NewProvider(ctx, name+"-us-east-1", &aws.ProviderArgs{
-		Region: pulumi.String("us-east-1"),
-	}, pulumi.Parent(parent))
-}
+// usEast1 is the region CloudFront requires for ACM certificates and
+// Lambda@Edge. Resources set it per resource (pulumi-aws v7 "region") rather
+// than through a separate provider, so they keep the app provider's default
+// tags and credentials.
+const usEast1 = "us-east-1"

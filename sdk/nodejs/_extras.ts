@@ -14,6 +14,10 @@ export {
   AwsProviderConfig,
   GcpProviderConfig,
   DefaultsConfig,
+  ComplianceConfig,
+  ComplianceFramework,
+  ComplianceSchedule,
+  ComplianceRetention,
 } from "./app";
 
 // Hand-written Block class

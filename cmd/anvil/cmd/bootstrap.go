@@ -4,8 +4,10 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -15,6 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	s3types "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
+	"github.com/aws/smithy-go"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
@@ -148,7 +151,7 @@ func runBootstrap(cmd *cobra.Command, args []string) error {
 	// ── Check if this stage is already bootstrapped ──
 	if sc, ok := config.Stages[bootstrapStage]; ok && sc.ID != "" {
 		bucketName := resolveBucketName(bootstrapStage, config.Project, sc.ID)
-		return verifyExistingBootstrap(ctx, cfg, accountId, region, bootstrapEnvironment, bucketName)
+		return verifyExistingBootstrap(ctx, cfg, accountId, region, bootstrapEnvironment, bucketName, config.Project)
 	}
 
 	// ── Generate state bucket name ──
@@ -258,6 +261,12 @@ func runBootstrap(cmd *cobra.Command, args []string) error {
 	}
 	printCheck("TLS policy applied")
 
+	// ── Tags ──
+	if _, err := ensureBucketTags(ctx, s3Client, bucketName, stateBucketTags(projectName, bootstrapStage)); err != nil {
+		return fmt.Errorf("failed to tag state bucket: %w", err)
+	}
+	printCheck("Tags applied")
+
 	// ── Logging bucket + CloudTrail ──
 	loggingBucket, trailArn, err := setupLoggingInfrastructure(ctx, cfg, accountId, region, bootstrapEnvironment)
 	if err != nil {
@@ -297,7 +306,7 @@ func runBootstrap(cmd *cobra.Command, args []string) error {
 
 // verifyExistingBootstrap checks that an already-bootstrapped bucket is correctly configured,
 // and ensures logging infrastructure exists, creating it if missing.
-func verifyExistingBootstrap(ctx context.Context, cfg aws.Config, accountId, region, environment, bucketName string) error {
+func verifyExistingBootstrap(ctx context.Context, cfg aws.Config, accountId, region, environment, bucketName, projectName string) error {
 	s3Client := s3.NewFromConfig(cfg)
 
 	_, err := s3Client.HeadBucket(ctx, &s3.HeadBucketInput{
@@ -331,6 +340,15 @@ func verifyExistingBootstrap(ctx context.Context, cfg aws.Config, accountId, reg
 		printCheck("Verified: public access blocked")
 	} else {
 		printWarn("Public access block is not fully configured")
+	}
+
+	// Stages bootstrapped before tagging was added get their tags backfilled.
+	if added, err := ensureBucketTags(ctx, s3Client, bucketName, stateBucketTags(projectName, bootstrapStage)); err != nil {
+		printWarn(fmt.Sprintf("Could not tag state bucket: %v", err))
+	} else if added {
+		printCheck("Tags added to state bucket")
+	} else {
+		printCheck("Verified: tags")
 	}
 
 	// ── Ensure logging infrastructure exists ──
@@ -534,6 +552,11 @@ func setupLoggingInfrastructure(ctx context.Context, cfg aws.Config, accountId, 
 		printCheck("Logging bucket exists")
 	}
 
+	// Shared by every stage in the account and region, so no project/stage tags.
+	if _, err := ensureBucketTags(ctx, s3Client, loggingBucket, loggingBucketTags); err != nil {
+		printWarn(fmt.Sprintf("Could not tag logging bucket: %v", err))
+	}
+
 	// ── CloudTrail ──
 
 	s3DataEvents := bootstrapS3DataEvents
@@ -568,6 +591,9 @@ func setupLoggingInfrastructure(ctx context.Context, cfg aws.Config, accountId, 
 				if err := reconcileS3DataEvents(ctx, ctClient, trailArn, s3DataEvents); err != nil {
 					printWarn(fmt.Sprintf("Could not update CloudTrail S3 data events: %v", err))
 				}
+				if err := tagTrail(ctx, ctClient, trailArn); err != nil {
+					printWarn(fmt.Sprintf("Could not tag CloudTrail trail: %v", err))
+				}
 			}
 			return loggingBucket, trailArn, nil
 		}
@@ -588,12 +614,9 @@ func setupLoggingInfrastructure(ctx context.Context, cfg aws.Config, accountId, 
 	trailArn = aws.ToString(createTrailOut.TrailARN)
 
 	// Tag the trail separately
-	ctClient.AddTags(ctx, &cloudtrail.AddTagsInput{
-		ResourceId: aws.String(trailArn),
-		TagsList: []cloudtrailtypes.Tag{
-			{Key: aws.String("ManagedBy"), Value: aws.String("anvil")},
-		},
-	})
+	if err := tagTrail(ctx, ctClient, trailArn); err != nil {
+		printWarn(fmt.Sprintf("Could not tag CloudTrail trail: %v", err))
+	}
 
 	// Management events, plus S3 data events only when opted in.
 	if _, err = ctClient.PutEventSelectors(ctx, &cloudtrail.PutEventSelectorsInput{
@@ -612,6 +635,97 @@ func setupLoggingInfrastructure(ctx context.Context, cfg aws.Config, accountId, 
 
 	printCheck("CloudTrail trail created")
 	return loggingBucket, trailArn, nil
+}
+
+// ── Tags ──
+
+// stateBucketTags match the default tags App puts on a stage's resources, so
+// the state bucket is in scope for that app's compliance scans.
+func stateBucketTags(project, stage string) map[string]string {
+	return map[string]string{
+		"ManagedBy": "anvil",
+		"project":   project,
+		"stage":     stage,
+		"Component": "StateBucket",
+	}
+}
+
+// The logging bucket and trail are shared across the account and region, so
+// they carry no project/stage and stay out of app-scoped scans.
+var (
+	loggingBucketTags = map[string]string{"ManagedBy": "anvil", "Component": "LoggingBucket"}
+	trailTags         = map[string]string{"ManagedBy": "anvil", "Component": "CloudTrail"}
+)
+
+// ensureBucketTags adds want to the bucket's tags and reports whether anything
+// changed. PutBucketTagging replaces the whole set, so existing tags (including
+// any the user added) are read first and kept.
+func ensureBucketTags(ctx context.Context, s3Client *s3.Client, bucket string, want map[string]string) (bool, error) {
+	var existing []s3types.Tag
+	out, err := s3Client.GetBucketTagging(ctx, &s3.GetBucketTaggingInput{Bucket: aws.String(bucket)})
+	if err == nil {
+		existing = out.TagSet
+	} else {
+		var apiErr smithy.APIError
+		if !errors.As(err, &apiErr) || apiErr.ErrorCode() != "NoSuchTagSet" {
+			return false, err
+		}
+	}
+
+	merged, changed := mergeTags(existing, want)
+	if !changed {
+		return false, nil
+	}
+	_, err = s3Client.PutBucketTagging(ctx, &s3.PutBucketTaggingInput{
+		Bucket:  aws.String(bucket),
+		Tagging: &s3types.Tagging{TagSet: merged},
+	})
+	return err == nil, err
+}
+
+// mergeTags overlays want onto existing, sorted by key for a stable order.
+func mergeTags(existing []s3types.Tag, want map[string]string) ([]s3types.Tag, bool) {
+	tags := make(map[string]string, len(existing)+len(want))
+	for _, t := range existing {
+		tags[aws.ToString(t.Key)] = aws.ToString(t.Value)
+	}
+	changed := false
+	for k, v := range want {
+		if cur, ok := tags[k]; !ok || cur != v {
+			tags[k] = v
+			changed = true
+		}
+	}
+
+	keys := make([]string, 0, len(tags))
+	for k := range tags {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	merged := make([]s3types.Tag, 0, len(keys))
+	for _, k := range keys {
+		merged = append(merged, s3types.Tag{Key: aws.String(k), Value: aws.String(tags[k])})
+	}
+	return merged, changed
+}
+
+// tagTrail adds Anvil's tags to a trail. AddTags only sets the given keys, so
+// other tags on the trail are untouched.
+func tagTrail(ctx context.Context, ctClient *cloudtrail.Client, trailArn string) error {
+	keys := make([]string, 0, len(trailTags))
+	for k := range trailTags {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	tagsList := make([]cloudtrailtypes.Tag, 0, len(keys))
+	for _, k := range keys {
+		tagsList = append(tagsList, cloudtrailtypes.Tag{Key: aws.String(k), Value: aws.String(trailTags[k])})
+	}
+	_, err := ctClient.AddTags(ctx, &cloudtrail.AddTagsInput{
+		ResourceId: aws.String(trailArn),
+		TagsList:   tagsList,
+	})
+	return err
 }
 
 // ── Helpers ──

@@ -2,6 +2,7 @@ import * as pulumi from '@pulumi/pulumi';
 import * as aws from '@pulumi/aws';
 import * as gcp from '@pulumi/gcp';
 import { Stack, setActiveStack, RefHandle } from './stack';
+import { ComplianceScanner } from './aws/complianceScanner';
 
 // ── Types ──────────────────────────────────────────────────
 
@@ -74,6 +75,64 @@ export interface DefaultsConfig {
 }
 
 /**
+ * A compliance framework. Either a friendly name, which always points at the
+ * newest version Anvil pins (e.g. 'cis' → CIS 7.0), or a raw Prowler AWS
+ * compliance ID, which stays fixed (e.g. 'cis_6.0_aws', 'ens_rd2022_aws').
+ * Unknown values fail at deploy with a "did you mean" suggestion.
+ */
+export type ComplianceFramework =
+  | 'soc2'
+  | 'iso27001'
+  | 'cis'
+  | 'nist-800-53'
+  | 'nist-800-171'
+  | 'nist-csf'
+  | 'pci'
+  | 'hipaa'
+  | 'fsbp'
+  | 'gdpr'
+  | 'nis2'
+  | 'dora'
+  | 'fedramp-low'
+  | 'fedramp-moderate'
+  | 'cmmc'
+  | 'essential-eight'
+  | 'well-architected'
+  | 'c5'
+  | 'csa-ccm'
+  | (string & {});
+
+/**
+ * When to scan. Presets run at a fixed time derived from the project and
+ * stage, so apps in one account don't all scan at once.
+ */
+export type ComplianceSchedule =
+  | 'daily'
+  | 'weekly'
+  | 'none'
+  | {
+      /** Six AWS cron fields, e.g. "0 3 * * ? *". At most once an hour. */
+      cron: string;
+      /** IANA time zone, e.g. "Australia/Sydney". Default: UTC. */
+      timezone?: string;
+    };
+
+/** How long scan results are kept. */
+export type ComplianceRetention = '30d' | '90d' | '180d' | '1y' | '2y' | '7y';
+
+/** Compliance scanning with Prowler. See `anvil compliance --help`. */
+export interface ComplianceConfig {
+  /** Frameworks to scan against. Required — there is no default. */
+  frameworks: ComplianceFramework[];
+  /** Default: "daily". */
+  schedule?: ComplianceSchedule;
+  /** Default: "1y". */
+  retention?: ComplianceRetention;
+  /** Start a scan after each successful deploy. Default: false. */
+  scanOnDeploy?: boolean;
+}
+
+/**
  * Configuration for the App class.
  */
 export interface AppConfig {
@@ -92,6 +151,16 @@ export interface AppConfig {
    *   "gcp.eu" → named GCP provider for EU
    */
   providers?: Record<string, AwsProviderConfig | GcpProviderConfig>;
+
+  /**
+   * Scheduled compliance scans of this app's deployed resources. The first
+   * deploy with this set creates a scanner shared by every Anvil app in the
+   * account and region (you'll be asked to confirm).
+   *
+   * @example
+   * compliance: { frameworks: ['soc2', 'iso27001', 'cis'], schedule: 'daily' }
+   */
+  compliance?: ComplianceConfig;
 
   /**
    * Called before the infrastructure program runs.
@@ -315,5 +384,40 @@ export class App {
     } finally {
       setActiveStack(undefined);
     }
+
+    // ── Compliance ─────────────────────────────────────
+    // Created outside the active stack so it isn't a ctx.ref target. The
+    // default-provider transformation gives it the app's AWS provider.
+    if (config.compliance) {
+      createComplianceScanner(config.compliance, config.providers);
+    }
   }
+}
+
+/** Every region the app's AWS providers deploy to. */
+function awsRegions(
+  providers: Record<string, AwsProviderConfig | GcpProviderConfig> | undefined
+): string[] {
+  const regions = new Set<string>();
+  for (const [key, cfg] of Object.entries(providers ?? {})) {
+    const region = (cfg as AwsProviderConfig).region;
+    if (getCloud(key) === 'aws' && region) regions.add(region);
+  }
+  return [...regions];
+}
+
+function createComplianceScanner(
+  compliance: ComplianceConfig,
+  providers: Record<string, AwsProviderConfig | GcpProviderConfig> | undefined
+): void {
+  const schedule = compliance.schedule ?? 'daily';
+  new ComplianceScanner('anvil-compliance', {
+    frameworks: compliance.frameworks,
+    schedule: typeof schedule === 'string' ? schedule : 'cron',
+    cron: typeof schedule === 'string' ? undefined : schedule.cron,
+    timezone: typeof schedule === 'string' ? undefined : schedule.timezone,
+    retention: compliance.retention,
+    scanOnDeploy: compliance.scanOnDeploy,
+    regions: awsRegions(providers),
+  });
 }

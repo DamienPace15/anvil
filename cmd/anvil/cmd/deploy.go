@@ -16,6 +16,7 @@ var (
 	deployPartial    bool
 	deployForceCache bool
 	deployRefresh    bool
+	deployYes        bool
 )
 
 var deployCmd = &cobra.Command{
@@ -31,6 +32,7 @@ func init() {
 	deployCmd.Flags().BoolVar(&deployPartial, "partial", false, "Deploy successfully built functions even if some builds fail")
 	deployCmd.Flags().BoolVar(&deployForceCache, "force-cache", false, "Skip rebuild and use last cached build artifacts")
 	deployCmd.Flags().BoolVar(&deployRefresh, "refresh", false, "Refresh state from cloud before deploying")
+	deployCmd.Flags().BoolVar(&deployYes, "yes", false, "Create shared account resources (e.g. the compliance scanner) without prompting")
 	rootCmd.AddCommand(deployCmd)
 }
 
@@ -83,6 +85,22 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// ── Step 4b: Shared compliance scanner ─────────────
+	// The app's schedule targets the shared scanner, so it must exist first.
+	// Only prompts when it would be created for the first time.
+	compliance := discoveredCompliance()
+	if compliance != nil {
+		complianceYes = deployYes
+		shared, err := loadSharedIn(ctx, compliance.Region)
+		if err != nil {
+			return err
+		}
+		if err := ensureComplianceShared(ctx, shared); err != nil {
+			return err
+		}
+		fmt.Println()
+	}
+
 	// ── Step 5: Real deploy ────────────────────────────
 	handler := NewEventHandler(deployVerbose, "deploy")
 	eventCh := make(chan events.EngineEvent)
@@ -118,6 +136,12 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 		} else {
 			return fmt.Errorf("deploy failed: %w", upErr)
 		}
+	}
+
+	// ── Step 5b: Scan on deploy ────────────────────────
+	// Fire and forget: a scan failure never fails a completed deploy.
+	if compliance != nil && compliance.ScanOnDeploy {
+		startDeployScan(ctx, stage, compliance)
 	}
 
 	// ── Step 6: Refresh generated types ───────────────

@@ -26,13 +26,8 @@ const edgeAssumeRolePolicy = `{"Version":"2012-10-17","Statement":[{"Action":"st
 // Lambda@Edge is replicated to every edge location, so deleting it takes a few
 // minutes after the distribution stops using it.
 func SetupEdgeSigner(ctx *pulumi.Context, parent pulumi.Resource, name string) (pulumi.StringOutput, error) {
-	usEast1, err := CreateUSEast1Provider(ctx, name+"-edge", parent)
-	if err != nil {
-		return pulumi.StringOutput{}, fmt.Errorf("failed to create us-east-1 provider for edge signer: %w", err)
-	}
-
 	role := &iam.Role{}
-	err = ctx.RegisterResource("aws:iam/role:Role", name+"-edge-signer-role", pulumi.Map{
+	err := ctx.RegisterResource("aws:iam/role:Role", name+"-edge-signer-role", pulumi.Map{
 		"assumeRolePolicy": pulumi.String(edgeAssumeRolePolicy),
 		"managedPolicyArns": pulumi.StringArray{
 			pulumi.String("arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"),
@@ -58,8 +53,9 @@ func SetupEdgeSigner(ctx *pulumi.Context, parent pulumi.Resource, name string) (
 		"architectures": pulumi.StringArray{pulumi.String("x86_64")},
 		"memorySize":    pulumi.Int(128),
 		"timeout":       pulumi.Int(5),
+		"region":        pulumi.String(usEast1),
 		"tags":          pulumi.StringMap{"ManagedBy": pulumi.String("anvil")},
-	}, fn, pulumi.Parent(parent), pulumi.Provider(usEast1))
+	}, fn, pulumi.Parent(parent))
 	if err != nil {
 		return pulumi.StringOutput{}, fmt.Errorf("failed to create edge signer: %w", err)
 	}

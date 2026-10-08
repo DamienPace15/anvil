@@ -17,6 +17,7 @@
         "aws/bucket.ts",
         "aws/cognitoAuth.ts",
         "aws/cognitoUserPool.ts",
+        "aws/complianceScanner.ts",
         "aws/dsql.ts",
         "aws/dsqlconnect.ts",
         "aws/dynamoDB.ts",

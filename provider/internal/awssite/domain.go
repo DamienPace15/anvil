@@ -27,17 +27,13 @@ type DomainResult struct {
 // SetupCustomDomain creates an ACM certificate in us-east-1 and waits for DNS validation.
 // Returns a DomainResult the caller uses to wire up CloudFront and Route53.
 func SetupCustomDomain(ctx *pulumi.Context, parent pulumi.Resource, name string, domain string) (*DomainResult, error) {
-	usEast1, err := CreateUSEast1Provider(ctx, name, parent)
-	if err != nil {
-		return nil, err
-	}
-
 	cert := &acm.Certificate{}
-	err = ctx.RegisterResource("aws:acm/certificate:Certificate", name+"-cert", pulumi.Map{
+	err := ctx.RegisterResource("aws:acm/certificate:Certificate", name+"-cert", pulumi.Map{
 		"domainName":       pulumi.String(domain),
 		"validationMethod": pulumi.String("DNS"),
+		"region":           pulumi.String(usEast1),
 		"tags":             pulumi.StringMap{"ManagedBy": pulumi.String("anvil")},
-	}, cert, pulumi.Parent(parent), pulumi.Provider(usEast1))
+	}, cert, pulumi.Parent(parent))
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +50,7 @@ func SetupCustomDomain(ctx *pulumi.Context, parent pulumi.Resource, name string,
 		// cert.Status comes from state and is only recorded at creation time
 		// (always PENDING_VALIDATION), so it goes stale once the cert is issued.
 		// Confirm against ACM directly before nagging the user.
-		if status != "ISSUED" && certIssued(ctx, usEast1, domain, arn) {
+		if status != "ISSUED" && certIssued(ctx, domain, arn) {
 			status = "ISSUED"
 		}
 
@@ -85,7 +81,8 @@ func SetupCustomDomain(ctx *pulumi.Context, parent pulumi.Resource, name string,
 	certValidation := &acm.CertificateValidation{}
 	err = ctx.RegisterResource("aws:acm/certificateValidation:CertificateValidation", name+"-cert-validation", pulumi.Map{
 		"certificateArn": cert.Arn,
-	}, certValidation, pulumi.Parent(parent), pulumi.Provider(usEast1))
+		"region":         pulumi.String(usEast1),
+	}, certValidation, pulumi.Parent(parent))
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +96,7 @@ func SetupCustomDomain(ctx *pulumi.Context, parent pulumi.Resource, name string,
 
 // certIssued reports whether ACM currently has the certificate with the given
 // ARN in the ISSUED state. Any lookup failure is treated as not issued.
-func certIssued(ctx *pulumi.Context, provider pulumi.ProviderResource, domain, arn string) bool {
+func certIssued(ctx *pulumi.Context, domain, arn string) bool {
 	if arn == "" {
 		return false
 	}
@@ -107,7 +104,8 @@ func certIssued(ctx *pulumi.Context, provider pulumi.ProviderResource, domain, a
 		Domain:     pulumi.StringRef(domain),
 		Statuses:   []string{"ISSUED"},
 		MostRecent: pulumi.BoolRef(true),
-	}, pulumi.Provider(provider))
+		Region:     pulumi.StringRef(usEast1),
+	})
 	return err == nil && found != nil && found.Arn == arn
 }
 

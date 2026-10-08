@@ -12,6 +12,8 @@ from .types import (
     AwsProviderConfig,
     GcpProviderConfig,
     AssumeRoleConfig,
+    ComplianceConfig,
+    ComplianceCron,
 )
 from .grants import GrantTarget, GrantOptions, create_grant, build_resource_arns
 
@@ -28,6 +30,8 @@ __all__ = [
     "AwsProviderConfig",
     "GcpProviderConfig",
     "AssumeRoleConfig",
+    "ComplianceConfig",
+    "ComplianceCron",
     "GrantTarget",
     "GrantOptions",
     "create_grant",
