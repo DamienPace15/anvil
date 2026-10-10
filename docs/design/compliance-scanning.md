@@ -571,6 +571,14 @@ The page is a single self-contained HTML file embedded in the CLI
 (`cmd/anvil/compliance/dashboard/index.html`), with styles, script and logo
 inline. It loads nothing from the internet and works offline.
 
+**Docs demo.** If the page finds a `window.ANVIL_DEMO(path)` function, it
+answers API calls from that instead of the local server and Rescan only shows a
+message. The docs site (anvil-fe) uses this to embed the real page with sample
+data: `frontend/scripts/compliance-demo/build.mjs` combines this file with
+`data.json` (mock results for a sample app, using real Prowler check metadata) into
+`frontend/static/compliance-demo/index.html`. Re-run it after changing the
+dashboard.
+
 ### Local API
 
 Every call needs the token in an `X-Anvil-Token` header. The CLI makes every AWS

@@ -1,6 +1,8 @@
 package awssite
 
 import (
+	"os"
+	"regexp"
 	"strings"
 
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cloudfront"
@@ -186,4 +188,64 @@ func LambdaOriginDomainFromURL(fnURL pulumi.StringOutput) pulumi.StringOutput {
 	return fnURL.ApplyT(func(url string) string {
 		return strings.TrimSuffix(strings.TrimPrefix(url, "https://"), "/")
 	}).(pulumi.StringOutput)
+}
+
+// maxStaticRootBehaviors keeps the distribution well under CloudFront's default
+// quota of 25 cache behaviors, leaving room for framework and hosting behaviors.
+const maxStaticRootBehaviors = 20
+
+// cloudFrontPathChars are the characters CloudFront accepts in a path pattern.
+var cloudFrontPathChars = regexp.MustCompile(`^[A-Za-z0-9_.\-~$@:+&'"]+$`)
+
+// StaticRootBehaviors routes each top-level entry of a framework's static output
+// (e.g. SvelteKit's static/ folder: robots.txt, favicon.png, .well-known/) to S3.
+// Without these, only the framework's own asset prefixes reach S3 and every
+// other uploaded file falls through to the server, which returns 404.
+//
+// skip lists top-level names already covered by framework behaviors (e.g.
+// "_app"). Precompressed .br/.gz copies are skipped when their source file
+// exists. Entries beyond the cap, or with names CloudFront can't match, are
+// returned in skipped and stay on the server.
+func StaticRootBehaviors(staticDir string, skip []string, s3OriginID string) (behaviors pulumi.Array, skipped []string, err error) {
+	entries, err := os.ReadDir(staticDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil, nil
+		}
+		return nil, nil, err
+	}
+
+	skipSet := map[string]bool{}
+	for _, s := range skip {
+		skipSet[s] = true
+	}
+	names := map[string]bool{}
+	for _, e := range entries {
+		names[e.Name()] = true
+	}
+
+	for _, e := range entries {
+		name := e.Name()
+		if skipSet[name] {
+			continue
+		}
+		if !e.IsDir() {
+			if base, ok := strings.CutSuffix(name, ".br"); ok && names[base] {
+				continue
+			}
+			if base, ok := strings.CutSuffix(name, ".gz"); ok && names[base] {
+				continue
+			}
+		}
+		if !cloudFrontPathChars.MatchString(name) || len(behaviors) >= maxStaticRootBehaviors {
+			skipped = append(skipped, name)
+			continue
+		}
+		pattern := "/" + name
+		if e.IsDir() {
+			pattern += "/*"
+		}
+		behaviors = append(behaviors, S3CacheBehavior(pattern, s3OriginID))
+	}
+	return behaviors, skipped, nil
 }
