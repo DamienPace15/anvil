@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/DamienPace15/anvil/provider/internal/awssite"
 	"github.com/DamienPace15/anvil/provider/internal/transform"
@@ -233,6 +234,19 @@ func NewSvelteKitSite(ctx *pulumi.Context, name string, args SvelteKitSiteArgs, 
 	sveltekitCacheBehaviors := pulumi.Array{
 		awssite.S3CacheBehavior("/_app/immutable/*", s3OriginID),
 		awssite.S3CacheBehavior("/_app/*", s3OriginID),
+	}
+
+	// Files from the app's static/ folder (robots.txt, favicon.png, ...) are
+	// uploaded alongside _app/, so route them to S3 too.
+	staticBehaviors, skippedStatic, err := awssite.StaticRootBehaviors(buildResult.StaticDir, []string{"_app"}, s3OriginID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read static assets: %w", err)
+	}
+	sveltekitCacheBehaviors = append(sveltekitCacheBehaviors, staticBehaviors...)
+	if len(skippedStatic) > 0 {
+		ctx.Log.Warn(fmt.Sprintf("SvelteKitSite %q: these static/ entries are served by the server instead of S3 "+
+			"(too many top-level entries, or names CloudFront can't match): %s. Move them into a folder under static/.",
+			name, strings.Join(skippedStatic, ", ")), &pulumi.LogArgs{Resource: site})
 	}
 
 	cfOpts := []pulumi.ResourceOption{pulumi.Parent(site)}

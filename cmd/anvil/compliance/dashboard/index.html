@@ -263,7 +263,12 @@ const TOKEN = (() => {
 })();
 if (new URLSearchParams(location.search).has('token')) history.replaceState(null, '', '/' + location.hash);
 
+// The docs site embeds this page as an interactive demo: it sets
+// window.ANVIL_DEMO to answer API calls from sample data instead.
+const DEMO = typeof window.ANVIL_DEMO === 'function' ? window.ANVIL_DEMO : null;
+
 async function api(path, opts = {}) {
+  if (DEMO) return DEMO(path, opts);
   const res = await fetch(path, { ...opts, headers: { 'X-Anvil-Token': TOKEN || '' } });
   if (!res.ok) throw new Error((await res.text()) || res.statusText);
   return res.json();
@@ -307,7 +312,7 @@ function fails_(r) { return r.findings.filter(f => f.status === 'FAIL').length; 
 
 async function load(scanId) {
   try {
-    if (!TOKEN) throw new Error('missing-token');
+    if (!TOKEN && !DEMO) throw new Error('missing-token');
     SCANS = await api('/api/scans');
     DATA = await api('/api/scan' + (scanId ? '?id=' + encodeURIComponent(scanId) : ''));
   } catch (e) {
@@ -370,6 +375,7 @@ function renderHeader() {
 }
 $('#scan-picker').onchange = e => load(e.target.value);
 $('#rescan').onclick = async () => {
+  if (DEMO) return toast('Demo: in your project, Rescan starts a new scan in CodeBuild.');
   const btn = $('#rescan');
   btn.disabled = true;
   try {
