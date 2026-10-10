@@ -1,0 +1,42 @@
+name: Bug report
+description: Something isn't working as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you ran, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: The smallest app config that shows the problem, and the command you ran.
+      render: ts
+  - type: textarea
+    id: output
+    attributes:
+      label: CLI output
+      description: Paste the error output from `anvil`.
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: Anvil version
+      description: Output of `anvil version`
+    validations:
+      required: true
+  - type: dropdown
+    id: sdk
+    attributes:
+      label: SDK
+      options: [TypeScript, Python, Go]
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: macOS 15 (Apple Silicon)
